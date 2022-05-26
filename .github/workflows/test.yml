@@ -21,8 +21,12 @@ jobs:
       run: |
         bash cwl-validation.sh
 
-    - name: Unit tests for the tool
+    - name: Unit tests for the tools
       working-directory: tests
       run: |
         bash tools.sh
 
+    - name: Unit tests for the workflows
+      working-directory: tests
+      run: |
+        bash workflows.sh

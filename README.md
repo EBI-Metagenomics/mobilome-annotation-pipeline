@@ -1,4 +1,4 @@
-[![Testing](https://github.com/EBI-Metagenomics/mobilify/actions/workflows/test.yml/badge.svg)](https://github.com/EBI-Metagenomics/mobilify/actions/workflows/test.yml)
+[![Testing](https://github.com/EBI-Metagenomics/mobilomify/actions/workflows/test.yml/badge.svg)](https://github.com/EBI-Metagenomics/mobilomify/actions/workflows/test.yml)
 
 # Mobilomify
 
