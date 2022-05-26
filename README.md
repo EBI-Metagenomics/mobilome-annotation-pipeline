@@ -24,6 +24,8 @@ CWL tests are executed with [cwltest](https://github.com/common-workflow-languag
 
 Run:
 ```bash
-cd tests
-./run-tests.sh
+$ cd tests
+$ bash cwl-validation.sh
+$ bash tools.sh
+$ bash workflows.sh
 ```
