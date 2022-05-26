@@ -1,0 +1,13 @@
+# example unit test
+- job: example/example_input.yml
+  tool: ../../src/tools/example/example.cwl
+  short_name: example.cwl
+  doc: "Example tool"
+  output:
+    example_out:
+      basename: output.txt
+      checksum: sha1$24707722c90264b77e40df9fa3d6b1ad80efba91
+      class: File
+      location: Any
+      path: Any
+      size: 5

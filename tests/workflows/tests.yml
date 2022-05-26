@@ -1,0 +1,13 @@
+# example unit test for the workflow
+- job: workflow_input.yml
+  tool: ../../src/pipeline.cwl
+  short_name: pipeline.cwl
+  doc: "Example workflow"
+  output:
+    example_output:
+      basename: output.txt
+      checksum: sha1$4b1c81fe80a593d81783398e96986eab8590328e
+      class: File
+      location: Any
+      path: Any
+      size: 14
