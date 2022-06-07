@@ -1,6 +1,6 @@
 [![Testing](https://github.com/EBI-Metagenomics/mobilomify/actions/workflows/test.yml/badge.svg)](https://github.com/EBI-Metagenomics/mobilomify/actions/workflows/test.yml)
 
-# Mobilomify
+# Mobilome Module for MGnify (MoMofy)
 
 Pipeline abstract.
 
