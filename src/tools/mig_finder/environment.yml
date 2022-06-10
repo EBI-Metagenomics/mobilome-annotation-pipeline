@@ -1,0 +1,38 @@
+name: migfinder
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - r
+  - etetoolkit
+  - au-eoed
+dependencies:
+  - _libgcc_mutex=0.1
+  - _openmp_mutex=4.5
+  - biopython=1.76
+  - ca-certificates=2020.6.20
+  - certifi=2019.11.28
+  - infernal=1.1.2
+  - ld_impl_linux-64=2.34
+  - libblas=3.8.0
+  - libcblas=3.8.0
+  - libffi=3.2.1
+  - libgcc-ng=9.3.0
+  - libgfortran-ng=7.5.0
+  - libgomp=9.3.0
+  - liblapack=3.8.0
+  - libopenblas=0.3.10
+  - libstdcxx-ng=9.3.0
+  - ncurses=6.2
+  - numpy=1.16.5
+  - openssl=1.1.1g
+  - pip=20.1.1
+  - prodigal=2.6.3
+  - python=2.7.15
+  - python_abi=2.7
+  - readline=8.0
+  - setuptools=44.0.0
+  - sqlite=3.33.0
+  - tk=8.6.10
+  - wheel=0.35.1
+  - zlib=1.2.11
