@@ -25,21 +25,21 @@ RUN apt update && \
 RUN mkdir /app /install /input /output
 
 WORKDIR /install
-RUN wget https://github.com/maribuon/HattCI/archive/refs/heads/master.zip
-RUN unzip master.zip && rm master.zip
+RUN wget https://github.com/maribuon/HattCI/archive/653f63278eed65bca15d3c6646d1e76ea93b2f6b.zip
+RUN unzip 653f63278eed65bca15d3c6646d1e76ea93b2f6b.zip \ 
+    && rm 653f63278eed65bca15d3c6646d1e76ea93b2f6b.zip \
+    && mv HattCI-653f63278eed65bca15d3c6646d1e76ea93b2f6b HattCI-master
 WORKDIR /install/HattCI-master/
 RUN make
 
 # Install MIGfinder
 WORKDIR /install
-RUN wget https://github.com/maribuon/migfinder/archive/refs/heads/master.zip
-RUN unzip master.zip && rm master.zip
-
+RUN wget https://github.com/maribuon/migfinder/archive/b37a35dafc92254bb8eef8659efe3d95e3d86c36.zip
+RUN unzip b37a35dafc92254bb8eef8659efe3d95e3d86c36.zip \
+    && rm b37a35dafc92254bb8eef8659efe3d95e3d86c36.zip \
+    && mv migfinder-b37a35dafc92254bb8eef8659efe3d95e3d86c36 migfinder-master
 WORKDIR /install/migfinder-master
 RUN pip install -e migfinder
-
-WORKDIR /install/migfinder-master/exampleData
-RUN unzip mgm4570162.3.050.1.fasta.zip && rm mgm4570162.3.050.1.fasta.zip
 
 COPY ./run_mig.py /output
 
