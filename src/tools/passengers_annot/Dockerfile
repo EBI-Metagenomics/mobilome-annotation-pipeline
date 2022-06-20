@@ -33,29 +33,5 @@ RUN mamba install -c bioconda -y \
     blast=2.12.0 \
     && conda clean -afy
 
-RUN mkdir /databases /input /output /work
-
-# Import and format blast databases
-WORKDIR /databases
-RUN git clone https://git@bitbucket.org/genomicepidemiology/resfinder_db.git
-WORKDIR /databases/resfinder_db
-RUN mkdir blast_db \
-    && cat /databases/resfinder_db/*.fsa > /databases/resfinder_db/blast_db/concat_resfinder.fsa
-WORKDIR /databases/resfinder_db/blast_db/
-RUN makeblastdb -in concat_resfinder.fsa -dbtype nucl
-ENV RESFINDER_DB="/databases/resfinder_db/blast_db/concat_resfinder.fsa"
-
-WORKDIR /databases
-RUN mkdir bacmet2_db \
-    && cd bacmet2_db \
-    && wget http://bacmet.biomedicine.gu.se/download/BacMet2_EXP_database.fasta \
-    && dos2unix BacMet2_EXP_database.fasta \
-    && sed -i '/^$/d' BacMet2_EXP_database.fasta
-WORKDIR /databases/bacmet2_db
-RUN makeblastdb -in BacMet2_EXP_database.fasta -dbtype prot
-ENV BACMET2_DB="/databases/bacmet2_db/BacMet2_EXP_database.fasta"
-
-WORKDIR /work
-
 # for singularity compatibility
 ENV LC_ALL=C
