@@ -5,10 +5,7 @@ label: "MIG_finder runner"
 
 requirements:
   - class: DockerRequirement
-    dockerImageId: my_migfinder
-    dockerFile: 
-      $include: ./Dockerfile
-
+    dockerPull: "quay.io/microbiome-informatics/migfinder"
 
 baseCommand: ["run_migfinder.py"]
 
