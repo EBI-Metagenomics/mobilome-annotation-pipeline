@@ -90,6 +90,8 @@ RUN source /app/migfinder_env/bin/activate && \
 
 COPY run_migfinder.py /app/run_migfinder.py
 
+RUN chmod a+x /app/run_migfinder.py
+
 ENV PATH /dependencies/hatt-ci/:/app/:/app/migfinder_env/bin:$PATH
 ENV PYTHONPATH /app/migfinder:/app/migfinder_env:$PYTHONPATH
 
