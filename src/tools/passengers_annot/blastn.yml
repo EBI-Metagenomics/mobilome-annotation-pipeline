@@ -1,0 +1,10 @@
+query_seq:
+  class: File
+  location: inputs/genes.fnn
+  format: edam:format_1929 # FASTA
+
+database:
+  class: File
+  location: databases/resfinder_blastDB/concat_resfinder.fsa
+  format: http://edamontology.org/operation_2421 # blast database
+
