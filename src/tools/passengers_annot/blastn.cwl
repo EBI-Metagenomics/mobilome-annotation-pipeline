@@ -3,18 +3,25 @@ class: CommandLineTool
 
 label: "blastn vs resfinder"
 
-
 requirements:
   - class: DockerRequirement
     dockerPull: "quay.io/microbiome-informatics/blast_simple:latest"
 
-
 baseCommand: ["blastn"]
 
-arguments: [-outfmt, '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore nident positive qcovs',
-          -num_threads, '4',
-          -max_target_seqs, '1', 
-          -evalue, '0.01']
+arguments:
+  - prefix: -outfmt
+    valueFrom: '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore nident positive qcovs'
+    position: 1
+  - prefix: -num_threads
+    valueFrom: '4'
+    position: 2
+  - prefix: -max_target_seqs
+    valueFrom: '1'
+    position: 3
+  - prefix: -evalue
+    valueFrom: '0.01'
+    position: 4
 
 inputs:
   query_seq:
