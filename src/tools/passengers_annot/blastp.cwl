@@ -5,7 +5,7 @@ label: "blastp vs bacmet2"
 
 requirements:
   - class: DockerRequirement
-    dockerPull: "quay.io/microbiome-informatics/blast_simple"
+    dockerPull: "quay.io/microbiome-informatics/blast_simple:latest"
 
 
 baseCommand: ["blastp"]
