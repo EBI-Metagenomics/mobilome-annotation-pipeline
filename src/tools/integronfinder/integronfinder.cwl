@@ -6,7 +6,7 @@ label: "IntegronFinder runner"
 
 requirements:
   - class: DockerRequirement
-    dockerPull: "quay.io/microbiome-informatics/integronfinder"
+    dockerPull: "quay.io/microbiome-informatics/integronfinder:latest"
 
 baseCommand: ["integron_finder"]
 
