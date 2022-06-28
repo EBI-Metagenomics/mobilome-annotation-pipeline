@@ -6,7 +6,7 @@ label: "blastn vs resfinder"
 
 requirements:
   - class: DockerRequirement
-    dockerPull: "quay.io/microbiome-informatics/blast_simple"
+    dockerPull: "quay.io/microbiome-informatics/blast_simple:latest"
 
 
 baseCommand: ["blastn"]
