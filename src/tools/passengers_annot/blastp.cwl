@@ -21,7 +21,7 @@ arguments:
     valueFrom: '1'
     position: 3
   - prefix: -evalue
-    valueFrom: '0.01'
+    valueFrom: '1E-5'
     position: 4
 
 inputs:
