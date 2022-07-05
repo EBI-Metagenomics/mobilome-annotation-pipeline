@@ -20,8 +20,11 @@ arguments:
     valueFrom: '1'
     position: 3
   - prefix: -evalue
-    valueFrom: '0.01'
+    valueFrom: '1E-5'
     position: 4
+  - prefix: -dust
+    valueFrom: 'no'
+    position: 5
 
 inputs:
   query_seq:
