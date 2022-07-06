@@ -1,0 +1,10 @@
+query_seq:
+  class: File
+  location: inputs/proteins.faa
+  format: edam:format_1929 # FASTA
+
+database:
+  class: File
+  location: databases/mgecds_blastDB/mge_cds.faa
+  format: http://edamontology.org/operation_2421 # blast database
+

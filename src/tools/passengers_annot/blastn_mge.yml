@@ -1,0 +1,10 @@
+query_seq:
+  class: File
+  location: inputs/assembly.fasta
+  format: edam:format_1929 # FASTA
+
+database:
+  class: File
+  location: databases/mgerecords_blastDB/mge_records.fna
+  format: http://edamontology.org/operation_2421 # blast database
+
