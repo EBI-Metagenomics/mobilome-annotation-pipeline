@@ -1,7 +1,0 @@
-message: Hey!
-
-# EXAMPLE input fasta file
-# input_fastas:
-#   - class: File
-#     path: dummy.faa
-#     format: http://edamontology.org/format_1929
