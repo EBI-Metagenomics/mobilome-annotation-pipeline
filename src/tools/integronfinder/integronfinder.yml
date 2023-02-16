@@ -1,4 +1,0 @@
-replicon:
-  class: File
-  location: inputs/assembly.fasta
-  format: edam:format_1929 # FASTA

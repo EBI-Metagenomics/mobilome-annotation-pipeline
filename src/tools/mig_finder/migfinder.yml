@@ -1,4 +1,0 @@
-query_fasta:
-  class: File
-  location: data/assembly.fasta
-  format: edam:format_1929 # FASTA
