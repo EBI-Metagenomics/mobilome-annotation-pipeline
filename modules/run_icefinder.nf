@@ -8,8 +8,6 @@ process ice_finder {
     memory "16 G"
     cpus 1
 
-    container "/hps/nobackup/rdf/metagenomics/singularity_cache/microbiomeinformatics_icefinder-v1.0-local:latest.sif"
-
     containerOptions="--bind $PWD/icefinder_results/input.list:/install/ICEfinder_linux/input.list --bind $PWD/icefinder_results/gbk/:/install/ICEfinder_linux/gbk/ --bind $PWD/icefinder_results/tmp/:/install/ICEfinder_linux/tmp/ --bind $PWD/icefinder_results/result/:/install/ICEfinder_linux/result/ --pwd /install/ICEfinder_linux/"
 
     input:
