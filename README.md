@@ -29,7 +29,7 @@ In the case of ICEfinder, the user will need to contact the author to get their 
 
 ## Workflow
 
-<img src="media/momofy_workflow.png" width="400"/>
+<img src="media/momofy_workflow.png" width="1600"/>
 
 
 # Tests
