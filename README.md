@@ -40,6 +40,8 @@ To instal MoMofy, clone this repo by:
 
 ```bash
 $ git clone https://github.com/EBI-Metagenomics/momofy.git
+$ cd momofy
+$ bash setup.sh
 ```
 
 Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
