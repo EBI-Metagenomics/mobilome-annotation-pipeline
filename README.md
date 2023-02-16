@@ -41,7 +41,7 @@ To instal MoMofy, clone this repo by:
 ```bash
 $ git clone https://github.com/EBI-Metagenomics/momofy.git
 $ cd momofy
-$ bash setup.sh
+$ bash setup.sh.   # A script to set env vars and to download the palidis scripts
 ```
 
 Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
