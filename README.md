@@ -1,4 +1,4 @@
-[![Testing](https://github.com/EBI-Metagenomics/mobilomify/actions/workflows/test.yml/badge.svg)](https://github.com/EBI-Metagenomics/mobilomify/actions/workflows/test.yml)
+
 
 # MoMofy
 Mobilome Module for MGnify
@@ -18,21 +18,18 @@ This workflow is implemented to be run through [Nextflow](https://doi.org/10.103
 To instal MoMofy, clone this repo by:
 
 ```bash
-$ git clone 
+$ git clone https://github.com/EBI-Metagenomics/momofy.git
 $ cd momofy
 ```
 
-
-Most of the tools are available on quay.io and no install is needed. 
+Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
 
 In the case of ICEfinder, the user will need to contact the author to get their own copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html). Once this is done, use the Dockerfile template provided in this repo (templates/icefinder/Dockerfile) to built your own container and set up the corresponding parameter on the nextflow.config file (line XX).
 
 
-
-
 ## Workflow
 
-|workflow|\
+<img src="media/momofy_workflow.png" width="400"/>
 
 
 # Tests
@@ -44,9 +41,6 @@ Run:
 $ cd test
 $ nf-test test *.nf.test
 ```
-
-
-.. |workflow| image:: media/momofy_workflow.png
 
 
 ## Citation
