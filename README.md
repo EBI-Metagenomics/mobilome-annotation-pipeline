@@ -8,16 +8,32 @@ Introductory sentence...
 MoMofy is a wraper that integrates the ouptput of differeten tools designed for the prediction of integrative mobile genetic elements in prokaryotic genomes and metagenomes. 
 
 
+## Contents
+- [ Workflow ](#wf)
+- [ Setup ](#sp)
+- [ MoMofy install and dependencies ](#install)
+- [ Inputs ](#in)
+- [ Outputs ](#out)
+- [ Tests ](#test)
+- [ Citation ](#cite)
+
+
+<a name="wf"></a>
 ## Workflow
 
 <img src="media/momofy_workflow.png" width="1600"/>
 
 
+<a name="sp"></a>
 ## Setup
 
-This workflow is implemented to be run through [Nextflow](https://doi.org/10.1038/nbt.3820). It require to install Nextflow v>=21.10 according with the package [documentation](https://www.nextflow.io/docs/latest/getstarted.html#installation) and Docker
+This workflow is implemented to be run through [Nextflow](https://www.nextflow.io/) and use [Docker](https://www.docker.com/) to build the image of ICEfinder. 
+
+- Install [Nextflow version >=21.10](https://www.nextflow.io/docs/latest/getstarted.html#installation)
+- Install [Docker](https://docs.docker.com/get-docker/)
 
 
+<a name="install"></a>
 ## MoMofy install and dependencies
 
 To instal MoMofy, clone this repo by:
@@ -36,7 +52,7 @@ $ cd /PATH/momofy/templates/icefinder/
 $ docker build -t my_icefinder .
 ```
 
-
+<a name="in"></a>
 ## Inputs
 
 To run MoMofy create a directory per sample and launch the tool from the sample directory. If you have many samples, you can use a list of sample IDs and iterate on it to create multiple directories and subdirectories, prepare your data inputs and then run MoMofy. Here an example on how to create softlinks to the assembly files:
@@ -78,6 +94,7 @@ $ cd /PATH/momofy
 $ nextflow run momofy.nf --assembly raw_data/contigs.fasta --cds_annot raw_data/proteins.faa --palidis true --read_1 raw_data/file_1.fastq.gz --read_2 raw_data/file_2.fastq.gz -with-docker my_icefinder
 ```
 
+<a name="out"></a>
 ## Outputs
 
 The main output directory of MoMofy is MoMofy_results and contain four files:
@@ -125,7 +142,7 @@ $ tree ./
 
 ```
 
-
+<a name="test"></a>
 ## Tests
 
 Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test).
@@ -136,7 +153,7 @@ $ cd test
 $ nf-test test *.nf.test
 ```
 
-
+<a name="cite"></a>
 ## Citation
 
 If you use MoMofy on your data analysis, please cite:
