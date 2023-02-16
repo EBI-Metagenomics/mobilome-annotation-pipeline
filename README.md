@@ -61,15 +61,15 @@ To run MoMofy create a directory per sample and launch the tool from the sample 
 $ for sample in $(cat samples.list); do (mkdir -p $sample/$raw_data && cd $sample/$raw_data && ln -s /path/to/assemblies/$sample.fasta $sample/$raw_data/contigs.fasta . ); done
 ```
 
-Two input files are mandatory in a folder called raw_data:
+Two input files are mandatory in a folder called `raw_data`:
 - (meta)genomic assembly file in fasta format (uncompress)
 - proteins predicted in fasta format (uncompress)
 
-Optional input files to run PaliDIS on metagenomic assemblies (also in raw_data folder):
+Optional input files to run PaliDIS on metagenomic assemblies (also in `raw_data` folder):
 - read 1 fastq file (gzip compress)
 - read 2 fastq file (gzip compress)
 
-The inputs can be symbolic links and your raw_data folder should look like this:
+The inputs can be symbolic links and your `raw_data` folder should look like this:
 
 ```bash
 $ tree raw_data
@@ -97,7 +97,7 @@ $ nextflow run momofy.nf --assembly raw_data/contigs.fasta --cds_annot raw_data/
 <a name="out"></a>
 ## Outputs
 
-The main output directory of MoMofy is MoMofy_results and contain four files:
+The main output directory of MoMofy is `MoMofy_results` and contain four files:
 
 ```bash
 $ tree MoMofy_results
