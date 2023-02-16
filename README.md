@@ -58,7 +58,7 @@ $ docker build -t my_icefinder .
 To run MoMofy create a directory per sample and launch the tool from the sample directory. If you have many samples, you can use a list of sample IDs and iterate on it to create multiple directories and subdirectories, prepare your data inputs and then run MoMofy. Here an example on how to create softlinks to the assembly files:
 
 ```bash
-$ for sample in $(cat samples.list); do (mkdir -p $sample/$raw_data && ln -s /path/to/assemblies/$sample.fasta $sample/$raw_data/contigs.fasta ); done
+$ for sample in $(cat samples.list); do (mkdir -p $sample/$raw_data && cd $sample/$raw_data && ln -s /path/to/assemblies/$sample.fasta $sample/$raw_data/contigs.fasta . ); done
 ```
 
 Two input files are mandatory in a folder called raw_data:
