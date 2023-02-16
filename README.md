@@ -69,7 +69,7 @@ Optional input files to run PaliDIS on metagenomic assemblies (also in raw_data 
 - read 1 fastq file (gzip compress)
 - read 2 fastq file (gzip compress)
 
-The inputs can be symbolic links and your raw_data folder file should look like this:
+The inputs can be symbolic links and your raw_data folder should look like this:
 
 ```bash
 $ tree raw_data
