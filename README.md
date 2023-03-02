@@ -1,12 +1,11 @@
 
 
 # MoMofy
-Mobilome Module for MGnify
+Module for integrative Mobilome prediction
 
 Introductory sentence...
 
-MoMofy is a wraper that integrates the ouptput of differeten tools designed for the prediction of integrative mobile genetic elements in prokaryotic genomes and metagenomes. 
-
+MoMofy is a wraper that integrates the ouptput of differeten tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. 
 
 ## Contents
 - [ Workflow ](#wf)
@@ -27,11 +26,11 @@ MoMofy is a wraper that integrates the ouptput of differeten tools designed for 
 <a name="sp"></a>
 ## Setup
 
-This workflow is implemented to be run through [Nextflow](https://www.nextflow.io/) and use [Docker](https://www.docker.com/) to build the image of ICEfinder. 
+This workflow was implemented to be run through [Nextflow](https://www.nextflow.io/) and use [Docker](https://www.docker.com/) to build the image of ICEfinder. 
 
 - Install [Nextflow version >=21.10](https://www.nextflow.io/docs/latest/getstarted.html#installation)
 - Install [Docker](https://docs.docker.com/get-docker/)
-
+- Install [Singularity](https://github.com/apptainer/singularity/blob/master/INSTALL.md)
 
 <a name="install"></a>
 ## MoMofy install and dependencies
@@ -46,7 +45,7 @@ $ bash setup.sh.   # A script to set env vars and to download the palidis script
 
 Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
 
-In the case of ICEfinder, the user will need to contact the author to get their own copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html). Once you have the ICEfinder_linux.tar.gz tarball, move it to momofy/templates/icefinder/ and build the docker image:
+In the case of ICEfinder, the user will need to contact the author to get their own copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the ICEfinder_linux.tar.gz tarball, move it to momofy/templates/icefinder/ and build the docker image:
 
 ```bash
 $ mv ICEfinder_linux.tar.gz /PATH/momofy/templates/icefinder/
@@ -54,52 +53,62 @@ $ cd /PATH/momofy/templates/icefinder/
 $ docker build -t my_icefinder .
 ```
 
+PaliDIS is an optional step on the workflow and the install is optional as well. Please visit the original repo to [install PaliDIS](https://github.com/blue-moon22/PaliDIS)
+
+
 <a name="in"></a>
 ## Inputs
 
-To run MoMofy create a directory per sample and launch the tool from the sample directory. If you have many samples, you can use a list of sample IDs and iterate on it to create multiple directories and subdirectories, prepare your data inputs and then run MoMofy. Here an example on how to create softlinks to the assembly files:
+To run MoMofy create a directory per sample and launch the tool from the sample directory. If you have many samples, you can use a list of sample IDs to iterate on it and create all directories and subdirectories in a one-line command. Here is an example on how to create softlinks to the assembly files in case you have all of them together on the same directory:
 
 ```bash
-$ for sample in $(cat samples.list); do (mkdir -p $sample/$raw_data && cd $sample/$raw_data && ln -s /path/to/assemblies/$sample.fasta $sample/$raw_data/contigs.fasta . ); done
+$ for sample in $(cat samples.list); do (mkdir -p $sample/raw_data && cd $sample/raw_data && ln -s /path/to/assemblies/$sample.fasta contigs.fasta ); done
 ```
 
-Two input files are mandatory in a folder called `raw_data`:
+One input file is mandatory in a folder called `raw_data`:
 - (meta)genomic assembly file in fasta format (uncompress)
-- proteins predicted in fasta format (uncompress)
 
-Optional input files to run PaliDIS on metagenomic assemblies (also in `raw_data` folder):
-- read 1 fastq file (gzip compress)
-- read 2 fastq file (gzip compress)
-
-The inputs can be symbolic links and your `raw_data` folder should look like this:
+Your `raw_data` folder should look like this:
 
 ```bash
-$ tree raw_data
-raw_data/
-├── contigs.fasta
-├── file_1.fastq.gz
-├── file_2.fastq.gz
-└── proteins.faa
+$ tree 
+.
+└── raw_data/
+    └── contigs.fasta
 ```
 
 Basic usage:
 
 ```bash
 $ cd 
-$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta --cds_annot raw_data/proteins.faa -with-docker my_icefinder
+$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta --lite -with-docker my_icefinder 
 ```
 
-Running PaliDIS requires as input the Illumina paired-end reads used to generate the metagenomic assembly. By default, this option is turned off. To run PaliDIS add the following parameters to the command:
+Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output).
+
+If you want to incorporate PaliDIS predictions to the final output, you will need to put the two outputs of PaliDIS (FASTA file of insertion sequences and the information for each insertions sequence file) in a folder called `palidis_results` inside your sample directory. Your directories structure should looks like:
+
+```bash
+$ tree
+.
+├── raw_data/
+|   └── contigs.fasta
+└── palidis_results/
+    ├── sample_insertion_sequences.fasta
+    └── sample_insertion_sequences_info.txt
+```
+
+Then, you can run MoMofy using the following command:
 
 ```bash
 $ cd /PATH/momofy
-$ nextflow run momofy.nf --assembly raw_data/contigs.fasta --cds_annot raw_data/proteins.faa --palidis true --read_1 raw_data/file_1.fastq.gz --read_2 raw_data/file_2.fastq.gz -with-docker my_icefinder
+$ nextflow run momofy.nf --assembly raw_data/contigs.fasta --palidis true -with-docker my_icefinder
 ```
 
 <a name="out"></a>
 ## Outputs
 
-The main output directory of MoMofy is `MoMofy_results` and contain four files:
+The main output directory of MoMofy is `MoMofy_results`, there you will find the following outputs:
 
 ```bash
 $ tree MoMofy_results
@@ -107,13 +116,15 @@ MoMofy_results/
 ├── discarded_iss.txt
 ├── momofy_predictions.fna
 ├── momofy_predictions.gff
+├── validated_momofy_predictions.gff
 └── nested_integrons.txt
 ```
 
-Additionally, you will see the directories containing the main outputs of each tool. This is a minimal example omiting the input directory:
+Additionally, you will see the directories containing the main outputs of each tool. This is a minimal example omiting the raw_data directory:
 
 ```bash
-$ tree ./
+$ tree
+.
 ├── icefinder_results
 │   ├── gbk
 │   │   └── contig.prokka_1.gbk
@@ -136,12 +147,8 @@ $ tree ./
     ├── 1kb_contigs.fasta
     ├── 5kb_contigs.fasta
     ├── contigID.map
-    ├── prokka_out
-    │   └── contigs.gbk
-    └── subreads
-        ├── sub_1.fq.gz
-        └── sub_2.fq.gz
-
+    └── prokka_out
+        └── contigs.gbk
 ```
 
 <a name="test"></a>
@@ -166,9 +173,9 @@ XXXXX
 MoMofy is a wrapper that integrates the output of the following tools and DBs:
 
 1) ISEScan v1.7.2.3 [Xie et al., Bioinformatics, 2017](https://doi.org/10.1093/bioinformatics/btx433)
-2) PaliDIS v3.1.2 [Carr et al., biorxiv, 2022](https://doi.org/10.1101/2022.06.27.497710)
-3) IntegronFinder2 v2.0.2 [Néron et al., Microorganisms, 2022](https://doi.org/10.3390/microorganisms10040700)
-4) ICEfinder v1.0 [Liu et al., Nucleic Acids Research, 2019](https://doi.org/10.1093/nar/gky1123)
+2) IntegronFinder2 v2.0.2 [Néron et al., Microorganisms, 2022](https://doi.org/10.3390/microorganisms10040700)
+3) ICEfinder v1.0 [Liu et al., Nucleic Acids Research, 2019](https://doi.org/10.1093/nar/gky1123)
+4) PaliDIS [Carr et al., biorxiv, 2022](https://doi.org/10.1101/2022.06.27.497710)
 
 Databases:
 - MobileOG-DB Beatrix 1.6 v1 [Brown et al., Appl Environ Microbiol, 2022](https://doi.org/10.1128/aem.00991-22)
