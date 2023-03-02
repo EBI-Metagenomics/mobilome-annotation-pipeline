@@ -66,9 +66,10 @@ $ for sample in $(cat samples.list); do (mkdir -p $sample/raw_data && cd $sample
 One input file is mandatory in a folder called `raw_data`:
 - (meta)genomic assembly file in fasta format (uncompress)
 
-Your `raw_data` folder should look like this:
+Your sample directory should look like this:
 
 ```bash
+$ cd sample_dir
 $ tree 
 .
 └── raw_data/
@@ -78,7 +79,6 @@ $ tree
 Basic usage:
 
 ```bash
-$ cd 
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta --lite -with-docker my_icefinder 
 ```
 
@@ -99,14 +99,13 @@ $ tree
 Then, you can run MoMofy using the following command:
 
 ```bash
-$ cd /PATH/momofy
-$ nextflow run momofy.nf --assembly raw_data/contigs.fasta --palidis true -with-docker my_icefinder
+$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta --palidis true -with-docker my_icefinder
 ```
 
 <a name="out"></a>
 ## Outputs
 
-The main output directory of MoMofy is `MoMofy_results`, there you will find the following outputs:
+The main output directory of MoMofy is `MoMofy_results`, there you will find the following result files:
 
 ```bash
 $ tree MoMofy_results
