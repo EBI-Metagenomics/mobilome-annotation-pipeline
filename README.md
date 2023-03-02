@@ -98,7 +98,7 @@ Then, run momofy with the following parametra:
 
 ```bash
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
-    --prot_tool prodigal
+    --prot_tool prodigal \
     --prot_fasta raw_data/proteins.faa \
     --prot_gff raw_data/proteins.gff \
     -with-docker my_icefinder 
