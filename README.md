@@ -82,7 +82,26 @@ Basic usage:
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta -with-docker my_icefinder 
 ```
 
-Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output).
+Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output). if you have predicted proteins, provide the gff file of the prediction and the fasta file of aminoacids sequences. This files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. With this option, both files are mandatory. Put the relevant files on your raw_data directory:
+
+```bash
+$ cd sample_dir
+$ tree 
+.
+└── raw_data/
+    ├── contigs.fasta
+    ├── proteins.faa
+    └── proteins.gff
+``` 
+
+Then, run momofy with the following parametra:
+
+```bash
+$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+    --prot_fasta raw_data/proteins.faa \
+    --prot_gff raw_data/proteins.gff \
+    -with-docker my_icefinder 
+```
 
 If you want to incorporate PaliDIS predictions to the final output, you will need to put the two outputs of PaliDIS (FASTA file of insertion sequences and the information for each insertions sequence file) in a folder called `palidis_results` inside your sample directory. Your directories structure should looks like:
 
@@ -99,7 +118,21 @@ $ tree
 Then, you can run MoMofy using the following command:
 
 ```bash
-$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta --palidis true -with-docker my_icefinder
+$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+    --palidis_fasta palidis_results/sample_insertion_sequences.fasta \
+    --palidis_info palidis_results/sample_insertion_sequences_info.txt \
+    -with-docker my_icefinder
+```
+
+Finally, if you have protein files and PaliDIS outputs, you can run:
+
+```bash
+$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+    --prot_fasta raw_data/proteins.faa \
+    --prot_gff raw_data/proteins.gff \
+    --palidis_fasta palidis_results/sample_insertion_sequences.fasta \
+    --palidis_info palidis_results/sample_insertion_sequences_info.txt \
+    -with-docker my_icefinder 
 ```
 
 <a name="out"></a>
@@ -110,7 +143,7 @@ The main output directory of MoMofy is `MoMofy_results`, there you will find the
 ```bash
 $ tree MoMofy_results
 MoMofy_results/
-├── discarded_iss.txt
+├── discarded_mge.txt
 ├── momofy_predictions.fna
 ├── momofy_predictions.gff
 ├── validated_momofy_predictions.gff
@@ -130,7 +163,7 @@ The labels used in the Type column of the gff file corresponds to the following 
 Note that CDS are reported only when a match versus the mobileOG-DB has been found. 
 
 
-Additionally, you will see the directories containing the main outputs of each tool. This is a minimal example omiting the raw_data directory:
+Additionally, you will see directories containing the main outputs of each tool. This is a minimal example omiting the raw_data directory:
 
 ```bash
 $ tree
