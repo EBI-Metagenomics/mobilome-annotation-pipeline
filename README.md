@@ -79,7 +79,7 @@ $ tree
 Basic usage:
 
 ```bash
-$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta --lite -with-docker my_icefinder 
+$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta -with-docker my_icefinder 
 ```
 
 Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output).
