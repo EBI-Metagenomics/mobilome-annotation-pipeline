@@ -3,6 +3,9 @@
 # MoMofy
 Module for integrative Mobilome prediction
 
+<img src="media/momofy_schema.png" width="600"/>
+
+
 Introductory sentence...
 
 MoMofy is a wraper that integrates the ouptput of differeten tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. 
