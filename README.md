@@ -3,7 +3,7 @@
 # MoMofy
 Module for integrative Mobilome prediction
 
-<img src="media/momofy_schema.png" width="350"/>
+<img src="media/momofy_schema.png" width="500"/>
 
 
 Introductory sentence...
