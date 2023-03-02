@@ -39,13 +39,11 @@ To instal MoMofy, clone this repo by:
 
 ```bash
 $ git clone https://github.com/EBI-Metagenomics/momofy.git
-$ cd momofy
-$ bash setup.sh.   # A script to set env vars and to download the palidis scripts
 ```
 
 Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
 
-In the case of ICEfinder, the user will need to contact the author to get their own copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the ICEfinder_linux.tar.gz tarball, move it to momofy/templates/icefinder/ and build the docker image:
+In the case of ICEfinder, the you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the ICEfinder_linux.tar.gz tarball, move it to momofy/templates/icefinder/ and build the docker image:
 
 ```bash
 $ mv ICEfinder_linux.tar.gz /PATH/momofy/templates/icefinder/
@@ -53,7 +51,7 @@ $ cd /PATH/momofy/templates/icefinder/
 $ docker build -t my_icefinder .
 ```
 
-PaliDIS is an optional step on the workflow and the install is optional as well. Please visit the original repo to [install PaliDIS](https://github.com/blue-moon22/PaliDIS)
+PaliDIS is an optional step on the workflow and the install is optional as well. Please visit the [PaliDIS repo](https://github.com/blue-moon22/PaliDIS) for instrucction to install.
 
 
 <a name="in"></a>
