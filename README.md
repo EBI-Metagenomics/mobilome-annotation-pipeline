@@ -82,7 +82,7 @@ Basic usage:
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta -with-docker my_icefinder 
 ```
 
-Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output). if you have predicted proteins, provide the gff file of the prediction and the fasta file of aminoacids sequences. This files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. With this option, both files are mandatory. Put the relevant files on your raw_data directory:
+Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output). if you have predicted proteins, provide the name of the tool used for CDS calling, the gff file of the prediction and the fasta file of aminoacids sequences. This files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. With this option, both files are mandatory. Put the relevant files on your raw_data directory:
 
 ```bash
 $ cd sample_dir
@@ -98,6 +98,7 @@ Then, run momofy with the following parametra:
 
 ```bash
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+    --prot_tool prodigal
     --prot_fasta raw_data/proteins.faa \
     --prot_gff raw_data/proteins.gff \
     -with-docker my_icefinder 
