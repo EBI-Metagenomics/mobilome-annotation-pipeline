@@ -90,7 +90,7 @@ If you want to incorporate PaliDIS predictions to the final output, you will nee
 $ tree
 .
 ├── raw_data/
-|   └── contigs.fasta
+│   └── contigs.fasta
 └── palidis_results/
     ├── sample_insertion_sequences.fasta
     └── sample_insertion_sequences_info.txt
