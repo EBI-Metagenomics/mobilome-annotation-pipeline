@@ -20,7 +20,7 @@ MoMofy is a wraper that integrates the ouptput of differeten tools designed for 
 <a name="wf"></a>
 ## Workflow
 
-<img src="media/momofy_workflow.pdf" width="1400"/>
+<img src="media/momofy_workflow.png" width="1400"/>
 
 
 <a name="sp"></a>
