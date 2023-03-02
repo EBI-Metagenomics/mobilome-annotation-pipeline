@@ -120,6 +120,19 @@ MoMofy_results/
 └── nested_integrons.txt
 ```
 
+The labels used in the Type column of the gff file corresponds to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001):
+
+| Type in gff file  | Sequence ontology ID | Element description | Reporting tool |
+| ------------- | ------------- |
+| insertion_sequence | [SO:0000973](http://www.sequenceontology.org/browser/current_svn/term/SO:0000973) | Insertion sequence | ISEScan, PaliDIS |
+| integron  | [SO:0000365](http://www.sequenceontology.org/browser/current_svn/term/SO:0000365) | Integrative mobilizable element | IntegronFinder, ICEfinder |
+| conjugative_transposon  | [SO:0000371](http://www.sequenceontology.org/browser/current_svn/term/SO:0000371) | Integrative Conjugative Element | ICEfinder |
+| gene_group  | [SO:0005855](http://www.sequenceontology.org/browser/current_svn/term/SO:0005855) | Conjugative region | ICEfinder |
+| CDS | [SO:0000316](http://www.sequenceontology.org/browser/current_svn/term/SO:0000316) | Coding sequence | Prodigal |
+
+Note that CDS are reported only when a match versus the mobileOG-DB has been found. 
+
+
 Additionally, you will see the directories containing the main outputs of each tool. This is a minimal example omiting the raw_data directory:
 
 ```bash
