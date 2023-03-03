@@ -38,7 +38,7 @@ This workflow was implemented to be run through [Nextflow](https://www.nextflow.
 <a name="install"></a>
 ## MoMofy install and dependencies
 
-To instal MoMofy, clone this repo by:
+To install MoMofy, clone this repo by:
 
 ```bash
 $ git clone https://github.com/EBI-Metagenomics/momofy.git
@@ -46,7 +46,7 @@ $ git clone https://github.com/EBI-Metagenomics/momofy.git
 
 Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
 
-In the case of ICEfinder, you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the ICEfinder_linux.tar.gz tarball, move it to momofy/templates/icefinder/ and build the docker image:
+In the case of ICEfinder, you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the `ICEfinder_linux.tar.gz` tarball, move it to `momofy/templates/icefinder/` and build the docker image:
 
 ```bash
 $ mv ICEfinder_linux.tar.gz /PATH/momofy/templates/icefinder/
@@ -60,7 +60,7 @@ PaliDIS is an optional step on the workflow and the install is optional as well.
 <a name="in"></a>
 ## Inputs
 
-To run MoMofy create a directory per sample and launch the tool from the sample directory. If you have many samples, you can use a list of sample IDs to iterate on it and create all directories and subdirectories in a one-line command. Here is an example on how to create softlinks to the assembly files in case you have all of them together on the same directory:
+To run MoMofy create a directory per sample and launch the tool from the sample directory. If you have many samples, you can use a list of sample IDs to iterate on and to create all directories and subdirectories in a one-line command. Here is an example on how to create softlinks to the assembly files in case you have all of them together on the same directory:
 
 ```bash
 $ for sample in $(cat samples.list); do (mkdir -p $sample/raw_data && cd $sample/raw_data && ln -s /path/to/assemblies/$sample.fasta contigs.fasta ); done
@@ -85,7 +85,7 @@ Basic usage:
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta -with-docker my_icefinder 
 ```
 
-Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output). If you have prediction protein files, provide the gff file of the prediction and the fasta file of aminoacids sequences. This files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. With this option, both files are mandatory. Put the relevant files on your raw_data directory:
+Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output). If you have protein prediction files, provide the gff and the fasta file of aminoacid sequences (both files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. Put the relevant files on your `raw_data` directory:
 
 ```bash
 $ cd sample_dir
@@ -106,7 +106,7 @@ $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
     -with-docker my_icefinder 
 ```
 
-If you want to incorporate PaliDIS predictions to the final output, you will need to put the two outputs of PaliDIS (FASTA file of insertion sequences and the information for each insertions sequence file) in a folder called `palidis_results` inside your sample directory. Your directories structure should looks like:
+If you want to incorporate PaliDIS predictions to the final output, you will need to put the two outputs of PaliDIS (FASTA file of insertion sequences and the information for each insertion sequence file) in a folder called `palidis_results` inside your sample directory. Your directories structure should looks like:
 
 ```bash
 $ tree
@@ -166,7 +166,7 @@ The labels used in the Type column of the gff file corresponds to the following 
 Note that CDS are reported only when a match versus the mobileOG-DB has been found. 
 
 
-Additionally, you will see directories containing the main outputs of each tool. This is a minimal example omiting the raw_data directory:
+Additionally, you will see directories containing the main outputs of each tool. This is a minimal example omiting the `raw_data` directory:
 
 ```bash
 $ tree
