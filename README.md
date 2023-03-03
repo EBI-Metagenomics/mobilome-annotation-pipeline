@@ -46,7 +46,7 @@ $ git clone https://github.com/EBI-Metagenomics/momofy.git
 
 Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
 
-In the case of ICEfinder, the you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the ICEfinder_linux.tar.gz tarball, move it to momofy/templates/icefinder/ and build the docker image:
+In the case of ICEfinder, you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the ICEfinder_linux.tar.gz tarball, move it to momofy/templates/icefinder/ and build the docker image:
 
 ```bash
 $ mv ICEfinder_linux.tar.gz /PATH/momofy/templates/icefinder/
