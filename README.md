@@ -54,7 +54,7 @@ $ cd /PATH/momofy/templates/icefinder/
 $ docker build -t my_icefinder .
 ```
 
-PaliDIS is an optional step on the workflow and the install is optional as well. Please visit the [PaliDIS repo](https://github.com/blue-moon22/PaliDIS) for instrucction to install.
+PaliDIS is an optional step on the workflow and the install is optional as well. Please visit the [PaliDIS repo](https://github.com/blue-moon22/PaliDIS) for installing instructions.
 
 
 <a name="in"></a>
