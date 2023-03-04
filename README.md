@@ -85,7 +85,7 @@ Basic usage:
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta -with-docker my_icefinder 
 ```
 
-Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output). If you have protein prediction files, provide the gff and the fasta file of aminoacid sequences (both files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. Put the relevant files on your `raw_data` directory:
+Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output). If you have your own protein prediction files, provide the gff and the fasta file of amino acid sequences (both files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. Put the relevant files on your `raw_data` directory:
 
 ```bash
 $ cd sample_dir
@@ -141,7 +141,7 @@ $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
 <a name="out"></a>
 ## Outputs
 
-The main output directory of MoMofy is `MoMofy_results`, there you will find the following result files:
+The main outputs of MoMofy are in the `MoMofy_results`. There you will find the following files:
 
 ```bash
 $ tree MoMofy_results
@@ -166,7 +166,7 @@ The labels used in the Type column of the gff file corresponds to the following 
 Note that CDS are reported only when a match versus the mobileOG-DB has been found. 
 
 
-Additionally, you will see directories containing the main outputs of each tool. This is a minimal example omiting the `raw_data` directory:
+Additionally, you will see the following directories containing the main outputs of each tool. This is a minimal example omiting the `raw_data` directory:
 
 ```bash
 $ tree
