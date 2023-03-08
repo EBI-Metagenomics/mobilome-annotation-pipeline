@@ -129,20 +129,22 @@ if os.stat(iss_results).st_size > 0:
             mge_counter+=1
             mge_id='iss_'+str(mge_counter)
             contig,family,cluster,isBegin,isEnd,isLen,ncopy4is,start1,end1,start2,end2,score,irId,irLen,nGaps,orfBegin,orfEnd,strand,orfLen,E_value,E_value4copy,iss_type,ov,tir=line.rstrip().split('\t')
-            if tir == '-:-':
-                description='without_TIR_'+iss_type
-            else:
-                description='with_TIR_'+iss_type
-            description=family+'_'+description
-            coord=(int(isBegin),int(isEnd))
-            value=(contig,description,coord)
-            mge_data[mge_id]=value
-            fasta_id=contig+'_'+isBegin+'_'+isEnd+'_'+strand
-            if fasta_id in raw_iss.keys():
-                new_fasta_id='>'+mge_id+'|'+contig+'|'+isBegin+':'+isEnd+'|'+description
-                mge_nuc[new_fasta_id]=raw_iss[fasta_id]
-            else:
-                print('No fasta sequence for: '+fasta_id)
+
+            if iss_type == 'c':
+                if tir == '-:-':
+                    description='without_TIR'
+                else:
+                    description='with_TIR'
+                description=family+'_'+description
+                coord=(int(isBegin),int(isEnd))
+                value=(contig,description,coord)
+                mge_data[mge_id]=value
+                fasta_id=contig+'_'+isBegin+'_'+isEnd+'_'+strand
+                if fasta_id in raw_iss.keys():
+                    new_fasta_id='>'+mge_id+'|'+contig+'|'+isBegin+':'+isEnd+'|'+description
+                    mge_nuc[new_fasta_id]=raw_iss[fasta_id]
+                else:
+                    print('No fasta sequence for: '+fasta_id)
 
 
 ### Parsing Palidis output
@@ -219,7 +221,7 @@ for contig in contig_ismge.keys():
 to_remove=list(set(to_remove))
 
 # Printing discarded redundant predictions to file
-output_discard='discarded_iss.txt'
+output_discard='discarded_mge.txt'
 with open(output_discard, 'w') as to_discard:
     to_discard.write('#element_id\tdescription\tcause\n')
     for element in to_remove:
@@ -364,14 +366,15 @@ for element in mge_data.keys():
 # Removing predictions of len<500 and with no CDS
 with open(output_discard, 'a') as to_discard:
     for element in no_cds:
-        to_discard.write(element+'\t'+mge_data[element][1]+'\tno cds on mge\n')
+        to_discard.write(element+'\t'+mge_data[element][1]+'\tno_cds\n')
         del mge_data[element]
 
     for element in len_500:
-        to_discard.write(element+'\t'+mge_data[element][1]+'\tmge len < 500\n')
+        to_discard.write(element+'\t'+mge_data[element][1]+'\tmge<500bp\n')
         del mge_data[element]
 
 
+used_proteins=[]
 output_fna='momofy_predictions.fna'
 output_tsv='momofy_predictions.gff'
 with open(output_fna, 'w') as to_fasta, open(output_tsv, 'w') as to_tsv:
@@ -383,7 +386,20 @@ with open(output_fna, 'w') as to_fasta, open(output_tsv, 'w') as to_tsv:
     for element in mge_data.keys():
         seqid=gff_simplecontig_realcontig[names_equiv[mge_data[element][0]].replace('.','_')]
         source=prefixes[element.split('_')[0]]
-        seq_type='mobile_genetic_element'
+
+        if any( [ 'iss' in element , 'pal' in element ] ): 
+            seq_type='insertion_sequence'
+        elif 'inf' in element:
+            seq_type='integron'
+        else:
+            if 'IME' in mge_data[element][1]:
+                seq_type='integron'       
+
+            elif 'ICE' in mge_data[element][1]:
+                seq_type='conjugative_transposon'
+            else:
+                seq_type='gene_group'
+
         start=str(mge_data[element][2][0])
         end=str(mge_data[element][2][1])
         score='.'
@@ -405,25 +421,24 @@ with open(output_fna, 'w') as to_fasta, open(output_tsv, 'w') as to_tsv:
 
         for protein in mge_proteins[element]:
             if protein in mog_annot.keys():
-                function=mog_annot[protein]
-            else:
-                function='hypothetical_protein'
+                function=mog_annot[protein].replace(' ','_')
+                if protein not in used_proteins:
+                    used_proteins.append(protein)
+                    if ' ' in protein:
+                        ID=protein.split(' ')[0]
+                    else:
+                        ID=protein
+                    source='CGC_V5'
+                    seq_type='CDS'
+                    start=str(prots_coord[protein][0])
+                    end=str(prots_coord[protein][1])
+                    score='.'
+                    strand=prots_coord[protein][2]
+                    phase='0'
+                    attributes='ID='+ID+';gbkey=CDS;product='+function
 
-            if ' ' in protein:
-                ID=protein.split(' ')[0]
-            else:
-                ID=protein
-            source='CGC_V5'
-            seq_type='CDS'
-            start=str(prots_coord[protein][0])
-            end=str(prots_coord[protein][1])
-            score='.'
-            strand=prots_coord[protein][2]
-            phase='0'
-            attributes='ID='+ID+';Parent='+element+';gbkey=CDS;product='+function
-
-            tsv_line=[seqid,source,seq_type,start,end,score,strand,phase,attributes]
-            tsv_line='\t'.join(tsv_line)
-            to_tsv.write(tsv_line+'\n')
+                    tsv_line=[seqid,source,seq_type,start,end,score,strand,phase,attributes]
+                    tsv_line='\t'.join(tsv_line)
+                    to_tsv.write(tsv_line+'\n')
 
 

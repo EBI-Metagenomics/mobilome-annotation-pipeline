@@ -4,7 +4,8 @@ nextflow.enable.dsl=2
 process integra {
     publishDir "$launchDir/MoMofy_results/", mode: 'copy'
 
-    container "quay.io/biocontainers/biopython:1.75"
+    #container "quay.io/biocontainers/biopython:1.75"
+    container "quay.io/biocontainers/genometools-genometools:1.6.2--py310he7ef181_3"
 
     memory "4 GB"
     cpus 1
@@ -28,7 +29,7 @@ process integra {
 	path 'momofy_predictions.gff'
 	path 'nested_integrons.txt'
 	path 'discarded_iss.txt'
-
+	path 'validated_momofy_predictions.gff'
 
     """    
     mge_integrator.py --cgc_fa ${cgc_fasta} \
@@ -42,6 +43,13 @@ process integra {
     --icf_tsv ${icf_table} \
     --icf_fa ${icf_fasta} \
     --mog_tsv ${mog_table}
+
+    // GFF validation
+    gt gff3 \
+    -retainids yes \
+    -checkids yes \
+    -o validated_momofy_predictions.gff \
+    momofy_predictions.gff
     """
 }
 
