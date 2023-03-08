@@ -6,10 +6,6 @@
 # vscode
 .vscode/
 
-# CWL
-cwl/databases
-cwl/tests/local-testing
-
 # python
 __pycache__/
 *.py[cod]
