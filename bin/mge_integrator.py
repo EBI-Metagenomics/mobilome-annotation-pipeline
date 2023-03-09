@@ -16,6 +16,7 @@ import glob
 
 parser = argparse.ArgumentParser(
         description='This script integrates and parse the output of ICEfinder, IntegronFinder, ISEScan, and PaliDIS for MoMofy. Please provide the relevant input files')
+parser.add_argument('--assem', type=str, help='Original input assembly')
 parser.add_argument('--cds_gff', type=str, help='GFF prediction fasta file')
 parser.add_argument('--map', type=str, help='Rename contigs file: contigID.map')
 parser.add_argument('--iss_fa', type=str, help='ISEScan fasta file')
@@ -30,10 +31,10 @@ parser.add_argument('--mog_tsv', type=str, help='Diamond output versus MobileOG-
 args = parser.parse_args()
 
 ### For debugging
-#to_test=open('test.out','w')
+to_test=open('test.out','w')
 
 ### Setting up variables
-#cgc_seqs=args.cgc_fa
+ori_contigs=args.assem
 cds_loc=args.cds_gff
 map_file=args.map
 iss_seqs=args.iss_fa
@@ -60,6 +61,13 @@ if os.stat(map_file).st_size > 0:
             names_equiv[new_name.replace('>','')]=old_name
     inv_names_equiv = {v: k for k, v in names_equiv.items()}
 
+### Saving contigs len
+assembly_len={}
+if os.stat(ori_contigs).st_size > 0:
+    for record in SeqIO.parse(ori_contigs, "fasta"):
+        chain_len=len(str(record.seq))
+        seq_id=str(record.id)
+        assembly_len[seq_id]=str(chain_len)
 
 ### Saving the ICEfinder sequences
 icf_nuc={}
@@ -163,6 +171,7 @@ if os.path.isfile(pal_seqs):
                 IS_name,sample_id,contig,itr1_start_position,itr1_end_position,itr2_start_position,itr2_end_position,description=line.rstrip().split('\t')
                 description='IS_with_TIR'
                 coord=(int(itr1_start_position),int(itr2_end_position))
+                contig=inv_names_equiv[contig]
                 value=(contig,description,coord)
                 mge_data[mge_id]=value
     
@@ -273,13 +282,14 @@ if os.stat(cds_loc).st_size > 0:
             if len(l_line)==9:
                 if l_line[2]=='CDS':
                     contig=l_line[0]
+                    prot_source=l_line[1]
                     start=int(l_line[3])
                     end=int(l_line[4])
                     strand=l_line[6]
                     attrib=l_line[8]
                     prot_id=attrib.split(';')[0]
                     if prot_id.startswith('ID='):
-                        prot_id.replace('ID=','')
+                        prot_id=prot_id.replace('ID=','')
                         value=(start,end,strand)
                         prots_coord[prot_id]=value
                         if contig not in contig_prots.keys():
@@ -294,7 +304,7 @@ if os.stat(cds_loc).st_size > 0:
 mge_proteins={}
 for element in mge_data.keys():
     mge_proteins[element]=[]
-    contig=names_equiv[mge_data[element][0]].replace('.','_')
+    contig=names_equiv[mge_data[element][0]]
     mge_start=mge_data[element][2][0]
     mge_end=mge_data[element][2][1]
     mge_range=range(mge_start,mge_end+1)
@@ -314,6 +324,9 @@ for element in mge_data.keys():
                 if any([ mge_cov>0.75 , prot_cov>0.75 ]):
                     #if all(item in mge_range for item in prot_range):
                     mge_proteins[element].append(protein)
+
+    else:
+        print('No proteins in contig: '+contig)
 
 ### Parsing the mobileOG annotation file
 mog_annot={}
@@ -350,10 +363,8 @@ for element in mge_data.keys():
         no_cds.append(element)
     else:
         contig=names_equiv[mge_data[element][0]]
-        contig_key=contig.replace('.','_')
-        contig_cds=gff_simplecontig_realcontig[contig_key]
-        if contig_cds not in mgecontigs:
-            mgecontigs.append(contig_cds)
+        if contig not in mgecontigs:
+            mgecontigs.append(contig)
 
 # Removing predictions of len<500 and with no CDS
 with open(output_discard, 'a') as to_discard:
@@ -372,11 +383,11 @@ output_tsv='momofy_predictions.gff'
 with open(output_fna, 'w') as to_fasta, open(output_tsv, 'w') as to_tsv:
     to_tsv.write('##gff-version 3\n')
     for contig in mgecontigs: 
-        contig_len=contig.split('-')[4]
+        contig_len=assembly_len[contig]
         to_tsv.write('##sequence-region '+contig+' 1 '+contig_len+'\n')
 
     for element in mge_data.keys():
-        seqid=gff_simplecontig_realcontig[names_equiv[mge_data[element][0]].replace('.','_')]
+        seqid=names_equiv[mge_data[element][0]]
         source=prefixes[element.split('_')[0]]
 
         if any( [ 'iss' in element , 'pal' in element ] ): 
@@ -412,15 +423,13 @@ with open(output_fna, 'w') as to_fasta, open(output_tsv, 'w') as to_tsv:
         to_fasta.write(my_sequence+'\n')
 
         for protein in mge_proteins[element]:
+            to_test.write(seqid+'\t'+protein+'\n')
             if protein in mog_annot.keys():
                 function=mog_annot[protein].replace(' ','_')
                 if protein not in used_proteins:
                     used_proteins.append(protein)
-                    if ' ' in protein:
-                        ID=protein.split(' ')[0]
-                    else:
-                        ID=protein
-                    source='CGC_V5'
+                    ID=protein
+                    source=prot_source
                     seq_type='CDS'
                     start=str(prots_coord[protein][0])
                     end=str(prots_coord[protein][1])

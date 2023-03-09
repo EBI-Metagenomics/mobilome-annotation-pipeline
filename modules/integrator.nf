@@ -4,14 +4,14 @@ nextflow.enable.dsl=2
 process integra {
     publishDir "$launchDir/MoMofy_results/", mode: 'copy'
 
-    #container "quay.io/biocontainers/biopython:1.75"
-    container "quay.io/biocontainers/genometools-genometools:1.6.2--py310he7ef181_3"
+    container "quay.io/microbiome-informatics/virify-python3:1.2"
 
     memory "4 GB"
     cpus 1
 
     input:
-	path cgc_fasta
+	path assembly
+	path cds_gff
 	path mapping_file
 	path iss_fasta
 	path iss_table
@@ -24,15 +24,16 @@ process integra {
 	path mog_table
 
     output:
-	//path 'test.out'
+	path 'test.out'
 	path 'momofy_predictions.fna'
 	path 'momofy_predictions.gff'
 	path 'nested_integrons.txt'
-	path 'discarded_iss.txt'
+	path 'discarded_mge.txt'
 	path 'validated_momofy_predictions.gff'
 
     """    
-    mge_integrator.py --cgc_fa ${cgc_fasta} \
+    mge_integrator.py --assem ${assembly} \
+    --cds_gff ${cds_gff} \
     --map ${mapping_file} \
     --iss_fa ${iss_fasta} \
     --iss_tsv ${iss_table} \
@@ -44,7 +45,6 @@ process integra {
     --icf_fa ${icf_fasta} \
     --mog_tsv ${mog_table}
 
-    // GFF validation
     gt gff3 \
     -retainids yes \
     -checkids yes \
@@ -52,8 +52,4 @@ process integra {
     momofy_predictions.gff
     """
 }
-
-//workflow {
-//    integra(CGC_COOR, MAP_FILE, ISS_SEQS, ISS_PRED, PAL_SEQS, PAL_PRED, INF_PRED, INF_GBK, ICF_PRED, ICF_SEQS, MOG_ALN)
-//}
 
