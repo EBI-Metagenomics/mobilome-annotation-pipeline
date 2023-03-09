@@ -12,3 +12,6 @@ __pycache__/
 
 # singularity images
 *.simg
+
+# nextflow
+.nextflow/
