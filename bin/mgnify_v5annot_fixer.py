@@ -54,6 +54,9 @@ with open('corr_'+tail,'w') as to_gff:
                     contig,seq_source,seq_type,start,end,score,strand,phase,attr=line.rstrip().split('\t')
                     comp_key=(contig,start,end,strand)
                     if comp_key in protein_coord.keys():
+                        contig=contig.split('-')
+                        contig.pop(0)
+                        contig='_'.join(contig)
                         new_id=protein_coord[comp_key]
                         attr=attr.split(';')
                         attr.pop(0)

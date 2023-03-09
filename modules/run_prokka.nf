@@ -15,6 +15,8 @@ process prokka_annot {
 
     output:
         path 'prokka_out/contigs.gbk', emit: prokka_gbk
+	path 'prokka_out/contigs.gff', emit: prokka_gff
+	path 'prokka_out/contigs.faa', emit: prokka_faa
 
     script:
     if(assembly_file.size() > 0)

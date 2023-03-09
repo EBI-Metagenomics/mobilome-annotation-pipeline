@@ -5,10 +5,9 @@ Module for integrative Mobilome prediction
 
 <img src="media/momofy_schema.png" width="500"/>
 
+Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrons. Autonomous elements are those capable of excising themselves from the chromosome, reintegrating elsewhere, and potentially modifying the host's physiology. Small integrative elements like insertion sequences usually contain one or two genes and are frequently present in multiple copies in the genome, whereas large elements like integrative conjugative elements, often carry multiple cargo genes. The acquisition of large mobile genetic elements may provide genes for defence against other mobile genetic elements or impart new metabolic capabilities to the host.
 
-Introductory sentence...
-
-MoMofy is a wraper that integrates the ouptput of differeten tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. 
+MoMofy is a wraper that integrates the ouptput of different tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. 
 
 ## Contents
 - [ Workflow ](#wf)
@@ -101,6 +100,7 @@ Then, run momofy with the following parametra:
 
 ```bash
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+    --user_genes true \
     --prot_fasta raw_data/proteins.faa \
     --prot_gff raw_data/proteins.gff \
     -with-docker my_icefinder 
@@ -122,6 +122,7 @@ Then, you can run MoMofy using the following command:
 
 ```bash
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+    --palidis true \
     --palidis_fasta palidis_results/sample_insertion_sequences.fasta \
     --palidis_info palidis_results/sample_insertion_sequences_info.txt \
     -with-docker my_icefinder
@@ -131,8 +132,10 @@ Finally, if you have protein files and PaliDIS outputs, you can run:
 
 ```bash
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+    --user_genes true \
     --prot_fasta raw_data/proteins.faa \
     --prot_gff raw_data/proteins.gff \
+    --palidis true \
     --palidis_fasta palidis_results/sample_insertion_sequences.fasta \
     --palidis_info palidis_results/sample_insertion_sequences_info.txt \
     -with-docker my_icefinder 

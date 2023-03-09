@@ -16,7 +16,7 @@ import glob
 
 parser = argparse.ArgumentParser(
         description='This script integrates and parse the output of ICEfinder, IntegronFinder, ISEScan, and PaliDIS for MoMofy. Please provide the relevant input files')
-parser.add_argument('--cgc_fa', type=str, help='CDS prediction fasta file')
+parser.add_argument('--cds_gff', type=str, help='GFF prediction fasta file')
 parser.add_argument('--map', type=str, help='Rename contigs file: contigID.map')
 parser.add_argument('--iss_fa', type=str, help='ISEScan fasta file')
 parser.add_argument('--iss_tsv', type=str, help='ISEScan predictions table')
@@ -33,7 +33,8 @@ args = parser.parse_args()
 #to_test=open('test.out','w')
 
 ### Setting up variables
-cgc_seqs=args.cgc_fa
+#cgc_seqs=args.cgc_fa
+cds_loc=args.cds_gff
 map_file=args.map
 iss_seqs=args.iss_fa
 iss_results=args.iss_tsv
@@ -68,7 +69,6 @@ if os.stat(icf_seqs).st_size > 0:
         my_desc=str(record.description)
         my_id=my_desc.split(' ')[0]+'|'+my_desc.split(' ')[5]
         icf_nuc[my_id]=my_chain
-
 
     ### Parsing ICEfinder summaries
     with open(icf_results,'r') as input_table:
@@ -266,36 +266,28 @@ with open(output_nested, 'w') as to_nested:
 ### Saving the CDS' coordinates and contigs location
 contig_prots={}
 prots_coord={}
-gff_simplecontig_realcontig={}
-if os.stat(cgc_seqs).st_size > 0:
-    for record in SeqIO.parse(cgc_seqs, "fasta"):
-        seq_id=str(record.id).split('-')
-        seq_id.pop(0)
-        seq_id='-'.join(seq_id)
-        contig=seq_id.split('_')[0].replace('-','_').replace('.','_')
-        contigtogff=str(record.id).split('_')[0]
-        gff_simplecontig_realcontig[contig]=contigtogff
-
-        protein_id=str(record.description)
-        if ' ' in protein_id:
-            start=int(protein_id.split(' ')[2])
-            end=int(protein_id.split(' ')[4])
-            strand=int(protein_id.split(' ')[6])
-            if strand=='-1':
-                strand='-'
-            else:
-                strand='+'
-        else:
-            start=int(protein_id.split('_')[1])
-            end=int(protein_id.split('_')[2])
-            strand=protein_id.split('_')[3]
-    
-        if contig not in contig_prots.keys():
-            contig_prots[contig]=[protein_id]
-        else:
-            contig_prots[contig].append(protein_id)
-
-        prots_coord[protein_id]=(start,end,strand)
+if os.stat(cds_loc).st_size > 0:
+    with open(cds_loc,'r') as input_table:
+        for line in input_table:
+            l_line=line.rstrip().split('\t')
+            if len(l_line)==9:
+                if l_line[2]=='CDS':
+                    contig=l_line[0]
+                    start=int(l_line[3])
+                    end=int(l_line[4])
+                    strand=l_line[6]
+                    attrib=l_line[8]
+                    prot_id=attrib.split(';')[0]
+                    if prot_id.startswith('ID='):
+                        prot_id.replace('ID=','')
+                        value=(start,end,strand)
+                        prots_coord[prot_id]=value
+                        if contig not in contig_prots.keys():
+                            contig_prots[contig]=[prot_id]
+                        else:
+                            contig_prots[contig].append(prot_id)
+                    else:
+                        'Protein ID is expected as the first token in the attributes field with the key "ID" in line:\n'+line
 
 
 ### Finding the CDS encoded in the mobilome
