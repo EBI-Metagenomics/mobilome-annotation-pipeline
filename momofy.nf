@@ -45,7 +45,7 @@ workflow {
 	integronfinder(rename.out.contigs_5kb)
 	isescan(rename.out.contigs_1kb)
 
-	integra(assembly, cds_gff, rename.out.map_file, isescan.out.iss_fasta, isescan.out.iss_tsv, pal_seq, pal_info, integronfinder.out.inf_summ, integronfinder.out.inf_gbk.collect(), ice_finder.out.icf_summ_files, ice_finder.out.icf_fasta_files, diamond_mob.out.blast_out)	
+	integra(assembly, cds_gff, rename.out.map_file, isescan.out.iss_fasta, isescan.out.iss_tsv, pal_seq, pal_info, integronfinder.out.inf_summ, integronfinder.out.inf_gbk.collect(), ice_finder.out.icf_summ_files, ice_finder.out.icf_fasta_files, ice_finder.out.icf_dr, diamond_mob.out.blast_out)	
 
 
 }

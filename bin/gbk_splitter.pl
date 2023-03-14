@@ -12,11 +12,9 @@ scalar @ARGV == 1 || die "usage: $0 <file.gbk>
 my$file=$ARGV[0];
 
 my$name_pref=$file;
-$name_pref=~s/.gbk//;
 
 my$count=0;
 my$flag=0;
-my$contig_len=0;
 
 ## Reading the input file
 open OUT_LIST, '>input.list' or die $!;
@@ -25,13 +23,13 @@ while (<GBK>) {
 	chomp;
 	if($_ =~ /^LOCUS/){
 		$flag=0;
-		$contig_len=(split(/ {1,}/, $_))[2];
+		my$contig_len=(split(/ {1,}/, $_))[2];
+		my$contig_name=(split(/ {1,}/, $_))[1];
 		if (int($contig_len) >= 5000){
 			$flag=1;
-			$count++;
-			open OUT, ">contig.$name_pref\_$count.gbk" or die $!;
+			open OUT, ">$contig_name.gbk" or die $!;
 			print OUT "$_\n";
-			print OUT_LIST "contig.$name_pref\_$count.gbk\n";
+			print OUT_LIST "$contig_name.gbk\n";
 		}
 	}elsif($_ =~ /^\/\//){
 		if ($flag==1){

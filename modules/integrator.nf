@@ -21,6 +21,7 @@ process integra {
 	path inf_list
 	path icf_table
 	path icf_fasta
+	path icf_dr
 	path mog_table
 
     output:
@@ -43,6 +44,7 @@ process integra {
     --inf_gbks ${inf_list.join(' ')} \
     --icf_tsv ${icf_table} \
     --icf_fa ${icf_fasta} \
+    --icf_lim ${icf_dr} \
     --mog_tsv ${mog_table}
 
     gt gff3 \

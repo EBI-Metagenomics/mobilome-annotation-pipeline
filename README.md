@@ -84,7 +84,7 @@ Basic usage:
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta -with-docker my_icefinder 
 ```
 
-Note that Diamond annotation versus MobileOG-DB run on the proteins predicted by Prodigal (PROKKA output). If you have your own protein prediction files, provide the gff and the fasta file of amino acid sequences (both files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. Put the relevant files on your `raw_data` directory:
+Note that the final output in gff format is created adding information to PROKKA output. If you have your own protein prediction files, provide the gff and the fasta file of amino acid sequences (both files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. Put the relevant files on your `raw_data` directory:
 
 ```bash
 $ cd sample_dir
@@ -161,12 +161,12 @@ The labels used in the Type column of the gff file corresponds to the following 
 | Type in gff file  | Sequence ontology ID | Element description | Reporting tool |
 | ------------- | ------------- | ------------- | ------------- |
 | insertion_sequence | [SO:0000973](http://www.sequenceontology.org/browser/current_svn/term/SO:0000973) | Insertion sequence | ISEScan, PaliDIS |
+| terminal_inverted_repeat_element | [SO:0000481](http://www.sequenceontology.org/browser/current_svn/term/SO:0000481) | Terminal Inverted Repeat (TIR) flanking insertion sequences | ISEScan, PaliDIS |
 | integron  | [SO:0000365](http://www.sequenceontology.org/browser/current_svn/term/SO:0000365) | Integrative mobilizable element | IntegronFinder, ICEfinder |
+| attC_site | [SO:0000950](http://www.sequenceontology.org/browser/current_svn/term/SO:0000950) | Integration site of DNA integron | IntegronFinder |
 | conjugative_transposon  | [SO:0000371](http://www.sequenceontology.org/browser/current_svn/term/SO:0000371) | Integrative Conjugative Element | ICEfinder |
-| gene_group  | [SO:0005855](http://www.sequenceontology.org/browser/current_svn/term/SO:0005855) | Conjugative region | ICEfinder |
+| direct_repeat | [SO:0000314](http://www.sequenceontology.org/browser/current_svn/term/SO:0000371) | Flanking regions on mobilizable elements | ICEfinder |
 | CDS | [SO:0000316](http://www.sequenceontology.org/browser/current_svn/term/SO:0000316) | Coding sequence | Prodigal |
-
-Note that CDS are reported only when a match versus the mobileOG-DB has been found. 
 
 
 Additionally, you will see the following directories containing the main outputs of each tool. This is a minimal example omiting the `raw_data` directory:
