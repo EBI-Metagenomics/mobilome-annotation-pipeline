@@ -10,11 +10,13 @@ include { integronfinder } from './modules/run_integronfinder'
 include { isescan } from './modules/run_isescan'
 include { ice_finder } from './modules/run_icefinder'
 include { integra } from './modules/integrator'
+include { momo_validator } from './modules/validator'
 
 // INPUTS
 assembly = Channel.fromPath( params.assembly, checkIfExists: true )
 params.user_genes=false
 params.palidis=false
+params.validator=true
 
 workflow {
 	rename(assembly)
@@ -43,10 +45,14 @@ workflow {
         ice_finder(gbk_split.out.gbks, file( "icefinder_results/gbk"), file( "icefinder_results/tmp"), file( "icefinder_results/result"))
 
 	integronfinder(rename.out.contigs_5kb)
+
 	isescan(rename.out.contigs_1kb)
 
-	integra(assembly, cds_gff, rename.out.map_file, isescan.out.iss_fasta, isescan.out.iss_tsv, pal_seq, pal_info, integronfinder.out.inf_summ, integronfinder.out.inf_gbk.collect(), ice_finder.out.icf_summ_files, ice_finder.out.icf_fasta_files, ice_finder.out.icf_dr, diamond_mob.out.blast_out)	
+	integra(cds_gff, rename.out.map_file, isescan.out.iss_fasta, isescan.out.iss_tsv, pal_seq, pal_info, integronfinder.out.inf_summ, integronfinder.out.inf_gbk.collect(), ice_finder.out.icf_summ_files, ice_finder.out.icf_fasta_files, ice_finder.out.icf_dr, diamond_mob.out.blast_out)	
 
+	if (params.validator) {
+		momo_validator(integra.out.momo_gff)		
+	}
 
 }
 

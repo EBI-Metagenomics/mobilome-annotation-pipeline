@@ -16,7 +16,7 @@ import glob
 
 parser = argparse.ArgumentParser(
         description='This script integrates and parse the output of ICEfinder, IntegronFinder, ISEScan, and PaliDIS for MoMofy. Please provide the relevant input files')
-parser.add_argument('--assem', type=str, help='Original input assembly')
+parser.add_argument('--user', type=str, help='Flag indicating if gff files is provided by the user')
 parser.add_argument('--cds_gff', type=str, help='GFF prediction fasta file')
 parser.add_argument('--map', type=str, help='Rename contigs file: contigID.map')
 parser.add_argument('--iss_fa', type=str, help='ISEScan fasta file')
@@ -35,7 +35,7 @@ args = parser.parse_args()
 to_test=open('test.out','w')
 
 ### Setting up variables
-ori_contigs=args.assem
+user_gff=args.user
 cds_loc=args.cds_gff
 map_file=args.map
 iss_seqs=args.iss_fa
@@ -63,14 +63,6 @@ if os.stat(map_file).st_size > 0:
             names_equiv[new_name.replace('>','')]=old_name
     inv_names_equiv = {v: k for k, v in names_equiv.items()}
 
-
-### Saving contigs len
-assembly_len={}
-if os.stat(ori_contigs).st_size > 0:
-    for record in SeqIO.parse(ori_contigs, "fasta"):
-        chain_len=len(str(record.seq))
-        seq_id=str(record.id)
-        assembly_len[seq_id]=str(chain_len)
 
 ### Saving the ICEfinder sequences
 icf_nuc={}
@@ -300,7 +292,6 @@ with open(output_nested, 'w') as to_nested:
             if len(tools_list)>1:
                 inf_list=[x for x in contig_inmge[contig] if 'inf' in x]
                 icf_list=[x for x in contig_inmge[contig] if 'icf' in x]
-                #print(contig)
                 for inf_element in inf_list:
                     inf_coord=mge_data[inf_element][2]
                     inf_len=inf_coord[1]-inf_coord[0]
@@ -348,15 +339,19 @@ mge_proteins={}
 mob_proteome=[]
 for element in mge_data.keys():
     mge_proteins[element]=[]
-    contig=names_equiv[mge_data[element][0]]
     mge_start=mge_data[element][2][0]
     mge_end=mge_data[element][2][1]
     mge_range=range(mge_start,mge_end+1)
     mge_len=mge_end-mge_start
 
-    flag=0
+    if user_gff=='T':
+        # We are using user contig ID. It is the same as original assembly. We need to transform to find MGE
+        contig=names_equiv[mge_data[element][0]]
+    else:
+        # We are using prokka contig ID. It is the same as MGEs
+        contig=mge_data[element][0]
+
     if contig in contig_prots.keys():
-        flag=1
         for protein in contig_prots[contig]:
             prot_start=prots_coord[protein][0]
             prot_end=prots_coord[protein][1]
@@ -370,23 +365,6 @@ for element in mge_data.keys():
                     #if all(item in mge_range for item in prot_range):
                     mge_proteins[element].append(protein)
                     mob_proteome.append(protein)
-
-    if flag==0:
-        contig=mge_data[element][0]
-        if contig in contig_prots.keys():
-            for protein in contig_prots[contig]:
-                prot_start=prots_coord[protein][0]
-                prot_end=prots_coord[protein][1]
-                prot_range=range(prot_start,prot_end+1)
-                prot_len=prot_end-prot_start
-                intersection=len(list(set(mge_range) & set(prot_range)))
-                if intersection>0:
-                    mge_cov=float(intersection)/float(mge_len)
-                    prot_cov=float(intersection)/float(prot_len)
-                    if any([ mge_cov>0.75 , prot_cov>0.75 ]):
-                        #if all(item in mge_range for item in prot_range):
-                        mge_proteins[element].append(protein)
-                        mob_proteome.append(protein)
 
 ### Parsing the mobileOG annotation file
 mog_annot={}
@@ -457,14 +435,14 @@ with open(cds_loc,'r') as input_table, open(output_fna, 'w') as to_fasta, open(o
         l_line=line.rstrip().split('\t')
         if len(l_line)==9:
             seqid=l_line[0]
-            # If prokka genes are used, then contig name won't require transformation to find MGEs
-            if seqid in names_equiv.keys():
-                contig=seqid
-                ID_to_print=names_equiv[contig]
-            # If contig ID not in names_equiv dir, means that we have user contig IDs and require contig name transformation to find MGEs
-            else:
+            if user_gff=='T':
+                # We are using user contig ID. It is the same as original assembly. We need to transform to find MGE
                 contig=inv_names_equiv[seqid]
                 ID_to_print=seqid
+            else:
+                # We are using prokka contig ID. It is the same as MGEs, but we need to transform to print gff
+                contig=seqid
+                ID_to_print=names_equiv[contig]
 
             if not seqid in used_contigs:
                 used_contigs.append(seqid)
@@ -522,7 +500,7 @@ with open(cds_loc,'r') as input_table, open(output_fna, 'w') as to_fasta, open(o
                         seqid_saved=['>'+element,mge_data[element][0],str(mge_data[element][2][0])+':'+str(mge_data[element][2][1]),mge_data[element][1]]
                         seqid_saved='|'.join(seqid_saved)
                         my_sequence=mge_nuc[seqid_saved]
-                        nuc_id=['>'+element,seqid,str(mge_data[element][2][0])+'..'+str(mge_data[element][2][1]),mge_data[element][1]]
+                        nuc_id=['>'+element,ID_to_print,str(mge_data[element][2][0])+'..'+str(mge_data[element][2][1]),mge_data[element][1]]
                         nuc_id='|'.join(nuc_id)
                         to_fasta.write(nuc_id+'\n')
                         to_fasta.write(my_sequence+'\n')
@@ -545,24 +523,24 @@ with open(cds_loc,'r') as input_table, open(output_fna, 'w') as to_fasta, open(o
 
         elif line.startswith('##sequence-region'):
             tag,seqid,start,end=line.rstrip().split()
-            # If prokka genes are used, then contig name require transformation to be printed on gff
-            if seqid in names_equiv.keys():
-                ID_to_print=names_equiv[seqid]
-            # If contig ID not in names_equiv dir, means that we have user contig IDs and contig can be printed directly on gff
-            else:
+            if user_gff=='T':
+                # We are using user contig ID. It is the same as original assembly
                 ID_to_print=seqid
+            else:
+                # We are using prokka contig ID. We need to transform to print gff
+                ID_to_print=names_equiv[seqid]
             gff_line=[tag,ID_to_print,start,end]
             gff_line=' '.join(gff_line)
             to_gff.write(gff_line+'\n')
 
         elif line.startswith('>'):
             seqid=line.rstrip().replace('>','')
-            # If prokka genes are used, then contig name require transformation to be printed on gff
-            if seqid in names_equiv.keys():
-                ID_to_print=names_equiv[seqid]
-            # If contig ID not in names_equiv dir, means that we have user contig IDs and contig can be printed directly on gff
-            else:
+            if user_gff=='T':
+                # We are using user contig ID. It is the same as original assembly
                 ID_to_print=seqid
+            else:
+                # We are using prokka contig ID. We need to transform to print gff
+                ID_to_print=names_equiv[seqid]
             gff_line='>'+ID_to_print
             to_gff.write(gff_line+'\n')
 
@@ -573,37 +551,3 @@ with open(cds_loc,'r') as input_table, open(output_fna, 'w') as to_fasta, open(o
             to_gff.write(line)
 
 
-'''
-    to_tsv.write('##gff-version 3\n')
-        contig_len=assembly_len[contig]
-        to_tsv.write('##sequence-region '+contig+' 1 '+contig_len+'\n')
-
-            attrib=l_line[8]
-            prot_id=attrib.split(';')[0].replace('ID=','')
-
-            if prot_id in mog_annot.keys():
-                function=mog_annot[protein].replace(' ','_')
-                attrib=attrib+';'+function
-            if protein not in used_proteins:
-                used_proteins.append(protein)
-
-        for protein in mge_proteins[element]:
-            if protein in mog_annot.keys():
-                function=mog_annot[protein].replace(' ','_')
-                if protein not in used_proteins:
-                    used_proteins.append(protein)
-                    ID=protein
-                    source=prot_source
-                    seq_type='CDS'
-                    start=str(prots_coord[protein][0])
-                    end=str(prots_coord[protein][1])
-                    score='.'
-                    strand=prots_coord[protein][2]
-                    phase='0'
-                    attributes='ID='+ID+';gbkey=CDS;product='+function
-
-                    tsv_line=[seqid,source,seq_type,start,end,score,strand,phase,attributes]
-                    tsv_line='\t'.join(tsv_line)
-                    to_tsv.write(tsv_line+'\n')
-
-'''

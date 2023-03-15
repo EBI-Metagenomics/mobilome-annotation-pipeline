@@ -10,7 +10,6 @@ process integra {
     cpus 1
 
     input:
-	path assembly
 	path cds_gff
 	path mapping_file
 	path iss_fasta
@@ -27,31 +26,42 @@ process integra {
     output:
 	path 'test.out'
 	path 'momofy_predictions.fna'
-	path 'momofy_predictions.gff'
+	path 'momofy_predictions.gff', emit:momo_gff
 	path 'nested_integrons.txt'
 	path 'discarded_mge.txt'
-	path 'validated_momofy_predictions.gff'
 
-    """    
-    mge_integrator.py --assem ${assembly} \
-    --cds_gff ${cds_gff} \
-    --map ${mapping_file} \
-    --iss_fa ${iss_fasta} \
-    --iss_tsv ${iss_table} \
-    --pal_fa ${pal_fasta} \
-    --pal_tsv ${pal_table} \
-    --inf_tsv ${inf_table} \
-    --inf_gbks ${inf_list.join(' ')} \
-    --icf_tsv ${icf_table} \
-    --icf_fa ${icf_fasta} \
-    --icf_lim ${icf_dr} \
-    --mog_tsv ${mog_table}
-
-    gt gff3 \
-    -retainids yes \
-    -checkids yes \
-    -o validated_momofy_predictions.gff \
-    momofy_predictions.gff
-    """
+    script:
+    if (params.user_genes)
+    	"""    
+    	mge_integrator.py --user 'T' \
+    	--cds_gff ${cds_gff} \
+    	--map ${mapping_file} \
+    	--iss_fa ${iss_fasta} \
+    	--iss_tsv ${iss_table} \
+    	--pal_fa ${pal_fasta} \
+    	--pal_tsv ${pal_table} \
+    	--inf_tsv ${inf_table} \
+    	--inf_gbks ${inf_list.join(' ')} \
+    	--icf_tsv ${icf_table} \
+    	--icf_fa ${icf_fasta} \
+    	--icf_lim ${icf_dr} \
+    	--mog_tsv ${mog_table}
+	"""
+    else
+	"""
+	mge_integrator.py --user 'F' \
+        --cds_gff ${cds_gff} \
+        --map ${mapping_file} \
+        --iss_fa ${iss_fasta} \
+        --iss_tsv ${iss_table} \
+        --pal_fa ${pal_fasta} \
+        --pal_tsv ${pal_table} \
+        --inf_tsv ${inf_table} \
+        --inf_gbks ${inf_list.join(' ')} \
+        --icf_tsv ${icf_table} \
+        --icf_fa ${icf_fasta} \
+        --icf_lim ${icf_dr} \
+        --mog_tsv ${mog_table}
+	"""
 }
 
