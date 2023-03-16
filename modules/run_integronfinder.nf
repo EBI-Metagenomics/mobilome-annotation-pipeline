@@ -5,8 +5,10 @@ process integronfinder{
     publishDir "$launchDir/integron_results", mode: 'copy'
     stageInMode = 'copy'
 
-    memory "8 GB"
     cpus 8
+    memory { 8.GB * task.attempt }
+    errorStrategy 'retry' 
+    maxRetries 4
 
     container "quay.io/microbiome-informatics/integronfinder:latest"
 
