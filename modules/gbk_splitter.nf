@@ -9,7 +9,7 @@ process gbk_split {
     cpus 1
 
     input:
-      path gbk_file, name: 'prokka.gbk'
+      path gbk_file, name: 'contigs.gbk'
       
     output:
       path "*.gbk"
@@ -24,7 +24,7 @@ process gbk_split {
     script:
     if (gbk_file.size() > 0)
         """    
-        gbk_splitter.pl prokka.gbk
+        gbk_splitter.pl contigs.gbk
         """
     else
         """

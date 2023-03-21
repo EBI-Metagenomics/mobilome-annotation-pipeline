@@ -43,6 +43,15 @@ To install MoMofy, clone this repo by:
 $ git clone https://github.com/EBI-Metagenomics/momofy.git
 ```
 
+The mobileOG-database is required to run an extra step of annotation on the mobilome coding sequences. The first time you run MoMofy, you will need to download the [Beatrix 1.6 v1](https://mobileogdb.flsi.cloud.vt.edu/entries/database_download) database, move the tarball to `/PATH/momofy/databases`, decompress it, and run the script to format the db for diamond:
+
+```bash
+$ mv beatrix-1-6_v1_all.zip /PATH/momofy/databases
+$ cd /PATH/momofy/databases
+$ unzip beatrix-1-6_v1_all.zip
+$ nextflow run format_mobileOG.nf
+```
+
 Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
 
 In the case of ICEfinder, you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the `ICEfinder_linux.tar.gz` tarball, move it to `momofy/templates/icefinder/` and build the docker image:
@@ -93,7 +102,7 @@ $ tree
 └── raw_data/
     ├── contigs.fasta
     ├── proteins.faa
-    └── proteins.gff
+    └── annotation.gff
 ``` 
 
 Then, run momofy with the following parametra:
@@ -102,7 +111,7 @@ Then, run momofy with the following parametra:
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
     --user_genes true \
     --prot_fasta raw_data/proteins.faa \
-    --prot_gff raw_data/proteins.gff \
+    --prot_gff raw_data/annotation.gff \
     -with-docker my_icefinder 
 ```
 
@@ -134,7 +143,7 @@ Finally, if you have protein files and PaliDIS outputs, you can run:
 $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
     --user_genes true \
     --prot_fasta raw_data/proteins.faa \
-    --prot_gff raw_data/proteins.gff \
+    --prot_gff raw_data/annotation.gff \
     --palidis true \
     --palidis_fasta palidis_results/sample_insertion_sequences.fasta \
     --palidis_info palidis_results/sample_insertion_sequences_info.txt \
@@ -155,7 +164,6 @@ MoMofy_results/
 ├── discarded_mge.txt
 ├── momofy_predictions.fna
 ├── momofy_predictions.gff
-├── validated_momofy_predictions.gff
 └── nested_integrons.txt
 ```
 
@@ -185,7 +193,7 @@ $ tree
 │   │   ├── icf_concat.fasta
 │   │   └── icf_concat.summary
 │   └── tmp
-│       ├── contig.prokka_1
+│       └── contig.prokka_1
 ├── integron_results
 │   └── Results_Integron_Finder_contigs
 │       ├── contig_1.gbk

@@ -1,0 +1,3 @@
+IS_name	sample_id	contig	itr1_start_position	itr1_end_position	itr2_start_position	itr2_end_position	description
+IS_length_2798-IPR012337_1520_1982-IPR017895_1106_1343-IPR036397_1472_2048-PTHR35004_1142_2429	sample_1	NODE_2372_length_35974_cov_120.939531	1459	1487	4217	4256	IPR012337:Ribonuclease H-like superfamily;IPR017895:Helix-turn-helix, IS408/IS1162 transposase-type;IPR036397:Ribonuclease H superfamily;PTHR35004:TRANSPOSASE RV3428C-RELATED
+IS_length_1339-IPR013762_650_1238	sample_1	NODE_2372_length_35974_cov_120.939531	31980	32006	33292	33318	IPR013762:Integrase-like, catalytic domain superfamily

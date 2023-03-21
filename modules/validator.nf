@@ -13,17 +13,10 @@ process momo_validator {
     input:
         path momo_gff, name: 'momofy_predictions.gff'
 
-    output:
-        path 'validated_momofy_predictions.gff'
-
     script:
     if(momo_gff.size() > 0)
         """
-	gt gff3 \
-        -retainids yes \
-        -checkids yes \
-        -o validated_momofy_predictions.gff \
-        momofy_predictions.gff
+	gt gff3validator momofy_predictions.gff
         """
 }
 
