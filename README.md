@@ -91,7 +91,7 @@ $ tree
 Basic usage:
 
 ```bash
-$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta -with-docker my_icefinder 
+$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta my_icefinder 
 ```
 
 Note that the final output in gff format is created adding information to PROKKA output. If you have your own protein prediction files, provide the gff and the fasta file of amino acid sequences (both files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. Put the relevant files on your `raw_data` directory:
