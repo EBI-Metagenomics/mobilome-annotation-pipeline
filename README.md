@@ -151,7 +151,7 @@ $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
     -with-docker my_icefinder 
 ```
 
-A GFF validation process is used to detect formatting errors in the final GFF3 output. This process can be skipped adding `--validator false`.
+A GFF validation process is used to detect formatting errors in the final GFF3 output. This process can be skipped adding `--gff-validation false`.
 
 
 <a name="out"></a>
