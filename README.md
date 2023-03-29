@@ -28,7 +28,8 @@ MoMofy is a wraper that integrates the ouptput of different tools designed for t
 <a name="sp"></a>
 ## Setup
 
-This workflow was implemented to be run through [Nextflow](https://www.nextflow.io/) and use [Docker](https://www.docker.com/) to build the image of ICEfinder. 
+This workflow is built using [Nextflow](https://www.nextflow.io/).  It uses Docker/Singularity containers making installation trivial and results highly reproducible.
+There is one manual step required to build the Docker image for [ICEfinder](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/index.php), we can't distribute that software due to license issues. 
 
 - Install [Nextflow version >=21.10](https://www.nextflow.io/docs/latest/getstarted.html#installation)
 - Install [Docker](https://docs.docker.com/get-docker/)
