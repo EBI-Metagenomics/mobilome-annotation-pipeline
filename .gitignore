@@ -11,7 +11,11 @@ __pycache__/
 *.py[cod]
 
 # singularity images
-*.simg
+./singularity/*.simg
+
 
 # nextflow
 .nextflow/
+
+# local database
+databases/mobileOG_beatrix1.6.dmnd
