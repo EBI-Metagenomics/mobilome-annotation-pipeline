@@ -5,7 +5,7 @@ process isescan {
     publishDir "$launchDir/", mode: 'copy'
     stageInMode = 'copy'
 
-    cpus 4
+    cpus 8
     memory { 8.GB * task.attempt }
     errorStrategy 'retry' 
     maxRetries 4

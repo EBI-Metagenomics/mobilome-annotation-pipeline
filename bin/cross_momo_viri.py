@@ -45,22 +45,28 @@ if os.stat(ren_fasta).st_size > 0:
 
 contig_names=dict(zip(renamed, originals))
 
-
 ### Saving ppr-meta predictions
 plasmids={}
-if os.stat(pprm).st_size > 0:
-    with open(pprm,'r') as input_csv:
-        next(input_csv)
-        for line in input_csv:
-            Header,Length,phage_score,chromosome_score,plasmid_score,Possible_source=line.rstrip().split(',')
-            if Possible_source=='plasmid':
-                contig=contig_names[Header]
-                plasmids[contig]=Length
+pl_counter=0
+if os.path.exists(pprm):
+    if os.stat(pprm).st_size > 0:
+        with open(pprm,'r') as input_csv:
+            next(input_csv)
+            for line in input_csv:
+                Header,Length,phage_score,chromosome_score,plasmid_score,Possible_source=line.rstrip().split(',')
+                if Possible_source=='plasmid':
+                    pl_counter+=1
+                    plas_name='plasmid_'+str(pl_counter)
+                    contig=contig_names[Header]
+                    plasmids[contig]=(Length,plas_name)
 
 ### Saving checkV metadata
 checkv_pass=[]
+viriqual={}
 for summ_file in checkv:
     if os.path.exists(summ_file):
+        head, tail = os.path.split(summ_file)
+        current_qual=tail.split('_')[0]
         with open(summ_file,'r') as input_table:
             next(input_table)
             for line in input_table:
@@ -69,25 +75,33 @@ for summ_file in checkv:
                 viral_genes=int(l_line[5])
                 checkv_quality=l_line[7]
                 kmer_freq=float(l_line[12])
-                if all([ viral_genes>0 , checkv_quality != 'Not-determined' ]):
-                    if any([ checkv_quality=='Low-quality' , checkv_quality=='Medium' ]):
-                        if kmer_freq <= 1.0:
+                viriqual[phage_id]=current_qual
+                if current_qual=='high':
+                    checkv_pass.append(phage_id)
+                else:
+                    if all([ viral_genes>0 , checkv_quality != 'Not-determined' ]):
+                        if any([ checkv_quality=='Low-quality' , checkv_quality=='Medium' ]):
+                            if kmer_freq <= 1.0:
+                                checkv_pass.append(phage_id)
+                        else:
                             checkv_pass.append(phage_id)
-                    else:
-                        checkv_pass.append(phage_id)
 
 
 ### Saving virify predictions
 phages_metadata={}
 contig_phages={}
 protcoord_protid={}
+prot_phage={}
 viralprot_annot={}
+viralname_coord={}
 if os.path.exists(viri):
     with open(viri,'r') as input_gff:
         for line in input_gff:
             if not line.startswith('#'):
                 contig,source,seq_type,start,end,score,strand,phase,attributes=line.rstrip().split('\t')
                 if seq_type == 'prophage':
+                    current_phage=attributes.split(';')[0].replace('ID=','')
+                    viralname_coord[(contig,start,end)]=current_phage
                     seq_id=contig+'|'+seq_type+'-'+start+':'+end
                     if seq_id in checkv_pass:
                         phages_metadata[seq_id]=(contig,source,seq_type,start,end,score,strand,phase,attributes)
@@ -97,92 +111,41 @@ if os.path.exists(viri):
                             contig_phages[contig].append(seq_id)
                 elif seq_type == 'viral_sequence':
                     seq_id=contig
+                    current_phage=attributes.split(';')[0].replace('ID=','')
+                    viralname_coord[(contig,start,end)]=current_phage
                     if seq_id in checkv_pass:
+                        new_attr='virify_quality='+viriqual[seq_id]+'-quality'
+                        attributes=attributes+';'+new_attr
                         phages_metadata[seq_id]=(contig,source,seq_type,start,end,score,strand,phase,attributes)
                         contig_phages[contig]=[seq_id]
+
                 elif seq_type=='CDS':
                     protein_id=attributes.split(';')[0].replace('ID=','')
                     seq_belong=protein_id.split('_')
                     seq_belong.pop(-1)
                     seq_belong='_'.join(seq_belong)
                     if seq_belong in phages_metadata.keys():
+                        prot_phage[protein_id]=current_phage
                         viralprot_annot[protein_id]=(contig,source,seq_type,start,end,score,strand,phase,attributes)
-                        protcoord_protid[(contig,start,end)]=protein_id                        
+                        protcoord_protid[(contig,start,end)]=protein_id                       
 
 
-### Parsing momofy output and adding virify and ppr-meta predictions
-## Restoring protein ID on virify proteins
-output_gff='mobilome_predictions.gff'
-used_contigs=[]
+### Saving momofy predictions to find obvious misannotations
 momo_pred={}
-momo_labels=[
-    'integron',
-    'conjugative_transposon'
-]
-pl_counter=0
-with open(momo,'r') as input_table, open(output_gff, 'w') as to_gff:
+with open(momo,'r') as input_table:
     for line in input_table:
         l_line=line.rstrip().split('\t')
         if len(l_line)==9:
-            seqid=l_line[0]
-
-            # Printing plasmids and viral predictions
-            if not seqid in used_contigs:
-                used_contigs.append(seqid)
-                if seqid in plasmids.keys():
-                    pl_counter+=1
-                    plas_id='plasmid_'+str(pl_counter)
-                    source='PPR-meta'
-                    seq_type='plasmid'
-                    start='1'
-                    end=plasmids[seqid]
-                    score='.'
-                    strand='.'
-                    phase='.'
-                    attributes='ID='+plas_id+';gbkey=mobile_element;mobile_element_type=plasmid'
-                    gff_line=[seqid,source,seq_type,start,end,score,strand,phase,attributes]
-                    gff_line='\t'.join(gff_line)
-                    to_gff.write(gff_line+'\n')
-
-                if seqid in contig_phages.keys():
-                    for phage in contig_phages[seqid]:
-                        gff_line='\t'.join(phages_metadata[phage])
-                        to_gff.write(gff_line+'\n')
-
-            # Printing the rest of the annotations
-            source=l_line[1]
-            seq_type=l_line[2]
-            start=l_line[3]
-            end=l_line[4]
-            score=l_line[5]
-            strand=l_line[6]
-            phase=l_line[7]
-            attrib=l_line[8]
-            prot_id=attrib.split(';')[0].replace('ID=','')
-            composite_key=(seqid,start,end)
-            if composite_key in protcoord_protid.keys():
-                viphog_annot=viralprot_annot[protcoord_protid[composite_key]][8].split(';')[2]
-                viphog_taxonomy=viralprot_annot[protcoord_protid[composite_key]][8].split(';')[3]
-                new_attrib=attrib+';'+viphog_annot+';'+viphog_taxonomy
-                gff_line=[seqid,source,seq_type,start,end,score,strand,phase,new_attrib]
-                gff_line='\t'.join(gff_line)
-                to_gff.write(gff_line+'\n')
-            else:
-                to_gff.write(line)
-
-            # Catching momofy predictions
-            if seq_type in momo_labels:
-                metadata=(seqid,source,seq_type,start,end,score,strand,phase,attrib)
-                mge_id=attrib.split(';')[0].replace('ID=','')
-                momo_pred[mge_id]=metadata
-
-        else:
-            to_gff.write(line)
+            contig,seq_source,seq_type,start,end,score,strand,phase,attr=line.rstrip().split('\t')
+            if any([ seq_type== 'integron' , seq_type== 'conjugative_transposon' ]):
+                    mge_id=attr.split(';')[0].replace('ID=','')
+                    momo_pred[mge_id]=[contig,seq_source,seq_type,start,end,score,strand,phase,attr]
 
 
-## Finding overlapping predictions
+## Finding overlapping predictions and printing a list of candidates to remove
+bad_annot=[]
 with open('integron_phage_overlapps.txt', 'w') as to_over:
-    to_over.write('#contig\tintegron_ID\tphage_ID\tintegron_cov\tphage_cov\tintegron_len\tphage_len\n')
+    to_over.write('#contig\tintegron_ID\tphage_ID\tintegron_cov\tphage_cov\tintegron_len\tphage_len\tto_discard\n')
     for integron in momo_pred.keys():
         m_contig=momo_pred[integron][0]
         m_seqtype=momo_pred[integron][2]
@@ -200,6 +163,7 @@ with open('integron_phage_overlapps.txt', 'w') as to_over:
             p_atrib=phages_metadata[phage][8]
             p_range=range(p_start,p_end+1)
             p_len=p_end-p_start
+            phage_name=viralname_coord[(p_contig,str(p_start),str(p_end))]
 
             if m_contig==p_contig:
                 intersection=len(list(set(m_range) & set(p_range)))
@@ -207,5 +171,150 @@ with open('integron_phage_overlapps.txt', 'w') as to_over:
                     m_cov=float(intersection)/float(m_len)
                     p_cov=float(intersection)/float(p_len)
                     if any([ m_cov>0.9 , p_cov>0.9 ]):
-                        to_over.write(m_contig+'\t'+integron+'\t'+phage+'\t'+str(m_cov)+'\t'+str(p_cov)+'\t'+str(m_len)+'\t'+str(p_len)+'\n')
+                        to_discard='none'
+                        if all([ m_cov > p_cov, 'without_identified_DR' in m_atrib ]):
+                            to_discard=integron
+                        elif all([ p_cov > m_cov , 'checkv_quality=Low-quality' in p_atrib ]):
+                            to_discard=phage_name
+                        to_over.write(m_contig+'\t'+integron+'\t'+phage_name+'\t'+str(m_cov)+'\t'+str(p_cov)+'\t'+str(m_len)+'\t'+str(p_len)+'\t'+to_discard+'\n')
+                        bad_annot.append(to_discard)
+
+### Parsing momofy output and adding virify and ppr-meta predictions
+## Restoring protein ID on virify proteins
+output_gff='mobilome_predictions.gff'
+pl_counter=0
+used_contigs=[]
+momo_labels=[
+    'insertion_sequence',
+    'terminal_inverted_repeat_element',
+    'integron',
+    'attC_site',
+    'conjugative_transposon',
+    'direct_repeat'
+]
+
+def write_line(field_list):
+    gff_line='\t'.join(field_list)
+    to_gff.write(gff_line+'\n')
+
+with open(momo,'r') as input_table, open(output_gff, 'w') as to_gff:
+    for line in input_table:
+        l_line=line.rstrip().split('\t')
+        if len(l_line)==9:
+            other=0
+            seqid=l_line[0]
+            source=l_line[1]
+            seq_type=l_line[2]
+            start=l_line[3]
+            end=l_line[4]
+            score=l_line[5]
+            strand=l_line[6]
+            phase=l_line[7]
+            attrib=l_line[8]
+
+            # Printing mobilome predictions
+            if seq_type in momo_labels:
+                other=1
+                mge_id=attrib.split(';')[0].replace('ID=','')
+                if ':' in mge_id:
+                    mge_id=mge_id.split(':')[1]
+                if not mge_id in bad_annot:
+                    write_line(l_line)
+
+            if all([ seqid in contig_phages.keys(), not seqid in used_contigs ]):
+                other=1
+                used_contigs.append(seqid)
+                for phage in contig_phages[seqid]:
+                    if not phage in bad_annot:
+                        write_line(phages_metadata[phage])
+
+            if all([ seqid in plasmids.keys() , not seqid in used_contigs ]):
+                other=1
+                used_contigs.append(seqid)
+                plas_id=plasmids[seqid][1]
+                plas_attrib='ID='+plas_id+';gbkey=mobile_element;mobile_element_type=plasmid'
+                write_line([seqid,'PPR-meta','plasmid','1',plasmids[seqid][0],'.','.','.',plas_attrib])  
+
+            # Printing the CDS
+            if seq_type=='CDS':
+                other=1
+                new_atrr=attrib
+                attr_l=attrib.split(';')
+                prot_id=attr_l[0].replace('ID=','')
+
+                if 'from_mge' in new_atrr:
+                    attr_l=[]
+                    for element in new_atrr.split(';'):
+                        attr_id,attr_val=element.split('=')
+                        if attr_val not in bad_annot:
+                            attr_l.append(element)
+                    new_atrr=';'.join(attr_l)
+
+                if seqid in contig_phages.keys():
+                    flag=0
+                    gene_start=int(start)
+                    gene_end=int(end)
+                    gene_len=gene_end-gene_start
+                    gene_range=range(gene_start,gene_end+1)
+                    for phage in contig_phages[seqid]:
+                        phage_start=int(phages_metadata[phage][3])
+                        phage_end=int(phages_metadata[phage][4])
+                        composite_key=(seqid,str(phage_start),str(phage_end))
+                        virus_name=viralname_coord[composite_key]
+                        if not virus_name in bad_annot:
+                            phage_range=range(phage_start,phage_end+1)
+                            intersection=len(list(set(phage_range) & set(gene_range)))
+                            if intersection>0:
+                                gene_cov=float(intersection)/float(gene_len)
+                                if gene_cov>=0.75:
+                                    flag=1
+                                    phag_atrr=[]
+                                    for element in attr_l:
+                                        if element.split('=')[0]=='from_mge':
+                                            if seqid in plasmids.keys():
+                                                added_phag=element+','+plasmids[seqid][1]+','+virus_name
+                                            else:
+                                                added_phag=element+','+virus_name
+                                            phag_atrr.append(added_phag)
+                                        else:
+                                            phag_atrr.append(element)
+                                    new_atrr=';'.join(phag_atrr)
+                                    if not 'from_mge' in new_atrr:
+                                        new_atrr=new_atrr+';from_mge='+virus_name
+
+                                    # Checking if exact protein is in virify annotation list
+                                    match_coord=(seqid,str(gene_start),str(gene_end))
+                                    extra_att=[]
+                                    if match_coord in protcoord_protid.keys():
+                                        for element in viralprot_annot[protcoord_protid[match_coord]][8].split(';'):
+                                            if 'viphog' in element:
+                                                extra_att.append(element)
+                                    if len(extra_att)> 0:
+                                        extra_att=';'.join(extra_att)
+                                        new_atrr=new_atrr+';'+extra_att
+                    if flag==0:
+                        if seqid in plasmids.keys():
+                            extra_att=';from_mge='+plasmids[seqid][1]
+                            new_atrr=attrib+extra_att
+                        else:
+                            new_atrr=attrib
+                if seqid in plasmids.keys():
+                    plas_atrr=[]
+                    for element in attr_l:
+                        if element.split('=')[0]=='from_mge':
+                            added_plas=element+','+plasmids[seqid][1]
+                            plas_atrr.append(added_plas)
+                        else:
+                            plas_atrr.append(element)
+                    new_atrr=';'.join(plas_atrr)
+                    if not 'from_mge' in new_atrr:
+                        new_atrr=new_atrr+';from_mge='+plasmids[seqid][1]
+                write_line([seqid,source,seq_type,start,end,score,strand,phase,new_atrr])
+
+            # Printing anything with other label: ncRNA, rRNA, tRNA, CRISPR, etc...
+            if other==0:
+                to_gff.write(line)
+        else:
+            to_gff.write(line)
+
 

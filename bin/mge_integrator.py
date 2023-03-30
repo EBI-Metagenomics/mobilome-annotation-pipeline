@@ -437,8 +437,11 @@ with open(cds_loc,'r') as input_table, open(output_fna, 'w') as to_fasta, open(o
             seqid=l_line[0]
             if user_gff=='T':
                 # We are using user contig ID. It is the same as original assembly. We need to transform to find MGE
-                contig=inv_names_equiv[seqid]
-                ID_to_print=seqid
+                if seqid in inv_names_equiv.keys():
+                    contig=inv_names_equiv[seqid]
+                    ID_to_print=seqid
+                else:
+                    next(input_table)
             else:
                 # We are using prokka contig ID. It is the same as MGEs, but we need to transform to print gff
                 contig=seqid

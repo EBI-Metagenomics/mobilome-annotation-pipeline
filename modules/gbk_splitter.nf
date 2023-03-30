@@ -25,6 +25,14 @@ process gbk_split {
     if (gbk_file.size() > 0)
         """    
         gbk_splitter.pl contigs.gbk
+
+	if -s input.list
+	then
+	    echo 'The file is not empty'
+	else
+            echo 'No contigs of size > 5kb ... generating dummy files'
+            touch dummy.gbk
+        fi
         """
     else
         """
