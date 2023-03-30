@@ -28,7 +28,8 @@ MoMofy is a wraper that integrates the ouptput of different tools designed for t
 <a name="sp"></a>
 ## Setup
 
-This workflow was implemented to be run through [Nextflow](https://www.nextflow.io/) and use [Docker](https://www.docker.com/) to build the image of ICEfinder. 
+This workflow is built using [Nextflow](https://www.nextflow.io/).  It uses Docker/Singularity containers making installation trivial and results highly reproducible.
+There is one manual step required to build the Docker image for [ICEfinder](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/index.php), we can't distribute that software due to license issues. 
 
 - Install [Nextflow version >=21.10](https://www.nextflow.io/docs/latest/getstarted.html#installation)
 - Install [Docker](https://docs.docker.com/get-docker/)
@@ -90,7 +91,7 @@ $ tree
 Basic usage:
 
 ```bash
-$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta -with-docker my_icefinder 
+$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta my_icefinder 
 ```
 
 Note that the final output in gff format is created adding information to PROKKA output. If you have your own protein prediction files, provide the gff and the fasta file of amino acid sequences (both files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. Put the relevant files on your `raw_data` directory:
@@ -150,7 +151,7 @@ $ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
     -with-docker my_icefinder 
 ```
 
-A GFF validation process is used to detect formatting errors in the final GFF3 output. This process can be skipped adding `--validator false`.
+A GFF validation process is used to detect formatting errors in the final GFF3 output. This process can be skipped adding `--gff-validation false`.
 
 
 <a name="out"></a>
