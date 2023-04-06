@@ -8,7 +8,7 @@
 
 Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrons. Autonomous elements are those capable of excising themselves from the chromosome, reintegrating elsewhere, and potentially modifying the host's physiology. Small integrative elements like insertion sequences usually contain one or two genes and are frequently present in multiple copies in the genome, whereas large elements like integrative conjugative elements, often carry multiple cargo genes. The acquisition of large mobile genetic elements may provide genes for defence against other mobile genetic elements or impart new metabolic capabilities to the host.
 
-MoMofy is a wrapper that integrates the ouptput of different tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. Note that prophages detection is out of scope of MoMofy.
+MoMofy is a wrapper that integrates the ouptput of different tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. Note that prophages detection is out of scope of MoMofy. For viral genomes and prophages, you can use [VIRIfy](https://github.com/EBI-Metagenomics/emg-viral-pipeline) on your (meta)genomic assemblies and then use the script `cross_momo_viri.py` to generate a single gff file. Note that this script will also extract the plasmids prediction from VIRIfy intermediate files.
 
 ## Contents
 - [ Workflow ](#wf)
@@ -235,7 +235,7 @@ Run:
 
 ```bash
 $ cd /PATH/momofy
-$ nf-test test *.nf.test
+$ nf-test test
 ```
 
 <a name="profile"></a>
