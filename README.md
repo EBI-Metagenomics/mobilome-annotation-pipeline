@@ -1,13 +1,14 @@
 
 
-# MoMofy
-Module for integrative Mobilome prediction
+# MoMofy: Module for integrative Mobilome prediction
 
-<img src="media/MoMofy_logo.png" width="500"/>
+<p align="center" width="100%">
+   <img src="media/mge_class.png" width="90%"/>
+</p>
 
 Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrons. Autonomous elements are those capable of excising themselves from the chromosome, reintegrating elsewhere, and potentially modifying the host's physiology. Small integrative elements like insertion sequences usually contain one or two genes and are frequently present in multiple copies in the genome, whereas large elements like integrative conjugative elements, often carry multiple cargo genes. The acquisition of large mobile genetic elements may provide genes for defence against other mobile genetic elements or impart new metabolic capabilities to the host.
 
-MoMofy is a wraper that integrates the ouptput of different tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. 
+MoMofy is a wrapper that integrates the ouptput of different tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. Prophages detection is out of scope of MoMofy. We recommend for viral genomes and prophages prediction to use [VIRIfy](https://github.com/EBI-Metagenomics/emg-viral-pipeline) on your (meta)genomic assemblies and then use the script `cross_momo_viri.py` to generate a single gff file. Note that this script will also extract the plasmids prediction from VIRIfy intermediate files.
 
 ## Contents
 - [ Workflow ](#wf)
@@ -168,7 +169,41 @@ MoMofy_results/
 └── nested_integrons.txt
 ```
 
-The main MoMofy output files are `momofy_predictions.fna` containing the nucleotide sequences of every prediction, and `momofy_predictions.gff` containing the mobilome annotation plus any other feature annotated by PROKKA or in the gff file provided by the user with the option `--user_genes`.  The labels used in the Type column of the gff file correspond to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001):
+The main MoMofy output files are `momofy_predictions.fna` containing the nucleotide sequences of every prediction, and `momofy_predictions.gff` containing the mobilome annotation plus any other feature annotated by PROKKA or in the gff file provided by the user with the option `--user_genes`. 
+
+A unique MGE ID is generated per MGE in the following format separated by underscore:
+1. Three letters code denoting the tool used for prediction: iss (ISEScan), pal (PaliDIS), icf (ICEfinder), inf (IntegronFinder)
+2. An integer number
+
+Headers in the fasta file have additional information separated by the pipe character:
+1. MGE ID
+2. Contig ID
+3. Start and end coordinates separated by '..'
+4. MGE description
+
+Example:
+```bash
+> iss_1|contig_1|1..1000|IS630_with_TIR
+```
+
+The MGE ID is used in the first field of the attributes column of the GFF3 file with the key 'ID'. A short MGE description is included in the attributes field with the key 'mobile_element_type'.
+
+Any CDS with a coverage >= 0.75 in the boundaries of a predicted MGE is linked to the corresponding element by appending the key 'from_mge' followed by the MGE ID in the attributes field. In addition, when a match versus the mobileOG-DB has been found, the annotation is append to the corresponding gene in the attributes field with the key 'mobileOG'.
+
+When insertion sites are detected, a composite ID is generated to denote the type of insertion site, the number 1 or 2 depending the flanking side, and the MGE to which it belongs separated by ':'. The type of insertion site could be:
+
+1. DR -> Direct repeats
+2. TIR -> terminal inverted repeat
+3. attC -> attC site
+
+An example of direct repeats flanking an insertion sequence:
+
+```bash
+TIR_1:iss_1
+TIR_2:iss_1
+```
+
+The labels used in the Type column of the gff file corresponds to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001):
 
 | Type in gff file  | Sequence ontology ID | Element description | Reporting tool |
 | ------------- | ------------- | ------------- | ------------- |
@@ -200,7 +235,7 @@ Run:
 
 ```bash
 $ cd /PATH/momofy
-$ nf-test test *.nf.test
+$ nf-test test
 ```
 
 <a name="profile"></a>
