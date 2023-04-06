@@ -188,7 +188,20 @@ Example:
 
 The MGE ID is used in the first field of the attributes column of the GFF3 file with the key 'ID'. A short MGE description is included in the attributes field with the key 'mobile_element_type'.
 
-Any CDS with a coverage >= 0.75 in the boundaries of a predicted MGE in link to the corresponding element by appending the key 'from_mge' followd by the MGE ID in the attributes field. In addition, when a match versus the mobileOG-DB has been found, the annotation is append to the corresponding gene in the attributes field with the key 'mobileOG'.
+Any CDS with a coverage >= 0.75 in the boundaries of a predicted MGE is linked to the corresponding element by appending the key 'from_mge' followed by the MGE ID in the attributes field. In addition, when a match versus the mobileOG-DB has been found, the annotation is append to the corresponding gene in the attributes field with the key 'mobileOG'.
+
+When insertion sites are detected, a composite ID is generated to denote the type of insertion site, the number 1 or 2 depending the flanking side, and the MGE to which it belongs separated by ':'. The type of insertion site could be:
+
+1. DR -> Direct repeats
+2. TIR -> terminal inverted repeat
+3. attC -> attC site
+
+An example of direct repeats flanking an insertion sequence:
+
+```bash
+TIR_1:iss_1
+TIR_2:iss_1
+```
 
 The labels used in the Type column of the gff file corresponds to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001):
 
