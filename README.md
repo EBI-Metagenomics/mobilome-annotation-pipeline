@@ -1,9 +1,10 @@
 
 
-# MoMofy
-Module for integrative Mobilome prediction
+# MoMofy: Module for integrative Mobilome prediction
 
-<img src="media/MoMofy_logo.png" width="500"/>
+<p align="center" width="100%">
+   <img src="media/mge_class.png" width="90%"/>
+</p>
 
 Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrons. Autonomous elements are those capable of excising themselves from the chromosome, reintegrating elsewhere, and potentially modifying the host's physiology. Small integrative elements like insertion sequences usually contain one or two genes and are frequently present in multiple copies in the genome, whereas large elements like integrative conjugative elements, often carry multiple cargo genes. The acquisition of large mobile genetic elements may provide genes for defence against other mobile genetic elements or impart new metabolic capabilities to the host.
 
