@@ -1,21 +1,11 @@
-*.log
-
-# python venv
-.venv/
-
-# vscode
-.vscode/
-
-# python
-__pycache__/
-*.py[cod]
-
 # singularity images
-./singularity
-
+singularity/
 
 # nextflow
 .nextflow/
+
+# nf-test
+.nf-test/*
 
 # local database
 databases/mobileOG_beatrix1.6.dmnd

@@ -2,25 +2,59 @@
 nextflow.enable.dsl=2
 
 // MODULES
-include { diamond_mob } from './modules/run_diamond'
+include { diamond_mob } from './modules/diamond'
 include { rename } from './modules/rename_contigs'
-include { prokka_annot } from './modules/run_prokka'
+include { prokka_annot } from './modules/prokka'
 include { gbk_split } from './modules/gbk_splitter'
-include { integronfinder } from './modules/run_integronfinder'
-include { isescan } from './modules/run_isescan'
-include { ice_finder } from './modules/run_icefinder'
+include { integronfinder } from './modules/integronfinder'
+include { isescan } from './modules/isescan'
+include { ice_finder } from './modules/icefinder'
 include { integra } from './modules/integrator'
-include { momo_validator } from './modules/validator'
+include { gff_validator } from './modules/validator'
 
-// INPUTS
-assembly = Channel.fromPath( params.assembly, checkIfExists: true )
-params.user_genes=false
-params.palidis=false
-params.validator=true
+
+def helpMessage() {
+  log.info """
+	MoMofy is a wraper that integrates the ouptput of different tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes.
+
+        Usage:
+         The basic command for running the pipeline is as follows:
+
+         nextflow run momofy.nf --assembly contigs.fasta
+
+         Mandatory arguments:
+          --assembly                     (Meta)genomic assembly in fasta format (uncompress)
+
+         Optional arguments:
+          --user_genes                    User annotation files. See --prot_fasta and --prot_gff [false]
+          --prot_gff                      Annotation file in GFF3 format. Mandatory with --user_genes true
+          --prot_fasta                    Fasta file of aminoacids. Mandatory with --user_genes true
+          --palidis                       Incorporate PaliDIS predictions to final output [false]
+          --palidis_fasta                 Fasta file of PaliDIS insertion sequences. Mandatory with --palidis true
+          --palidis_info                  Information file of PaliDIS insertion sequences. Mandatory with --palidis true
+          --gff_validation                Run a step of format validation on the GFF3 file output [true]
+          --outdir                        Output directory to place final MoMofy results [MoMofy_results]
+          --help                          This usage statement [false]
+        """
+}
+
+if (params.help) {
+    helpMessage()
+    exit 0
+}
+
+// Default options
+params.user_genes = false
+params.palidis = false
+params.gff_validation = true
+params.outdir = 'MoMofy_results'
 
 workflow {
-	rename(assembly)
-	prokka_annot(rename.out.contigs_1kb)
+
+	assembly = Channel.fromPath( params.assembly, checkIfExists: true )
+	rename( assembly )
+
+	prokka_annot( rename.out.contigs_1kb )
 
 	if (params.user_genes) {
 		cds_gff = Channel.fromPath( params.prot_gff, checkIfExists: true )
@@ -50,8 +84,8 @@ workflow {
 
 	integra(cds_gff, rename.out.map_file, isescan.out.iss_fasta, isescan.out.iss_tsv, pal_seq, pal_info, integronfinder.out.inf_summ, integronfinder.out.inf_gbk.collect(), ice_finder.out.icf_summ_files, ice_finder.out.icf_fasta_files, ice_finder.out.icf_dr, diamond_mob.out.blast_out)	
 
-	if (params.validator) {
-		momo_validator(integra.out.momo_gff)		
+	if (params.gff_validation) {
+		gff_validator(integra.out.momo_gff)		
 	}
 
 }

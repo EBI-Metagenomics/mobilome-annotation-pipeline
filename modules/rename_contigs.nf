@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process rename {
-    publishDir "$launchDir/preprocessing", mode: 'copy'
+    publishDir "$launchDir/preprocessing"
 
     container "quay.io/biocontainers/biopython:1.75"
 
@@ -18,7 +18,7 @@ process rename {
       path 'contigID.map', emit: map_file
     
     """    
-    assembly_filter_rename.py contigs.fasta
+    assembly_filter_rename.py --assembly contigs.fasta
     """
 }
 

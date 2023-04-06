@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process integra {
-    publishDir "$launchDir/MoMofy_results/", mode: 'copy'
+    publishDir "$launchDir/${params.outdir}/", mode: 'copy'
 
     container "quay.io/microbiome-informatics/virify-python3:1.2"
 
@@ -24,7 +24,6 @@ process integra {
 	path mog_table
 
     output:
-	path 'test.out'
 	path 'momofy_predictions.fna'
 	path 'momofy_predictions.gff', emit:momo_gff
 	path 'nested_integrons.txt'

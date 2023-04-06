@@ -40,6 +40,5 @@ process gbk_split {
         touch input.list
         touch dummy.gbk
         """
-
 }
 

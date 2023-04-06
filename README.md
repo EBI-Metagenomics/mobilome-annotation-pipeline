@@ -13,9 +13,11 @@ MoMofy is a wraper that integrates the ouptput of different tools designed for t
 - [ Workflow ](#wf)
 - [ Setup ](#sp)
 - [ MoMofy install and dependencies ](#install)
+- [ Usage ](#usage)
 - [ Inputs ](#in)
 - [ Outputs ](#out)
 - [ Tests ](#test)
+- [ Performance ](#profile)
 - [ Citation ](#cite)
 
 
@@ -28,11 +30,10 @@ MoMofy is a wraper that integrates the ouptput of different tools designed for t
 <a name="sp"></a>
 ## Setup
 
-This workflow is built using [Nextflow](https://www.nextflow.io/).  It uses Docker/Singularity containers making installation trivial and results highly reproducible.
-There is one manual step required to build the Docker image for [ICEfinder](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/index.php), we can't distribute that software due to license issues. 
+This workflow is built using [Nextflow](https://www.nextflow.io/). It uses Singularity containers making installation trivial and results highly reproducible.
+Explained in this section section, there is one manual step required to build the singularity image for [ICEfinder](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/index.php), as we can't distribute that software due to license issues.
 
 - Install [Nextflow version >=21.10](https://www.nextflow.io/docs/latest/getstarted.html#installation)
-- Install [Docker](https://docs.docker.com/get-docker/)
 - Install [Singularity](https://github.com/apptainer/singularity/blob/master/INSTALL.md)
 
 <a name="install"></a>
@@ -50,114 +51,114 @@ The mobileOG-database is required to run an extra step of annotation on the mobi
 $ mv beatrix-1-6_v1_all.zip /PATH/momofy/databases
 $ cd /PATH/momofy/databases
 $ unzip beatrix-1-6_v1_all.zip
-$ nextflow run format_mobileOG.nf
+$ nextflow run /PATH/momofy/format_mobileOG.nf
 ```
 
 Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
 
-In the case of ICEfinder, you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the `ICEfinder_linux.tar.gz` tarball, move it to `momofy/templates/icefinder/` and build the docker image:
+In the case of ICEfinder, you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the `ICEfinder_linux.tar.gz` tarball, move it to `momofy/templates` and build the singularity image using the following command:
 
 ```bash
-$ mv ICEfinder_linux.tar.gz /PATH/momofy/templates/icefinder/
-$ cd /PATH/momofy/templates/icefinder/
-$ docker build -t my_icefinder .
+$ mv ICEfinder_linux.tar.gz /PATH/momofy/templates/
+$ cd /PATH/momofy/templates/
+$ sudo singularity build ../../singularity/icefinder-v1.0-local.sif icefinder-v1.0-local.def
 ```
 
-PaliDIS is an optional step on the workflow and the install is optional as well. Please visit the [PaliDIS repo](https://github.com/blue-moon22/PaliDIS) for installing instructions.
+PaliDIS is an optional step on the workflow and the install is optional as well. Visit [PaliDIS repo](https://github.com/blue-moon22/PaliDIS) for installing instructions.
 
+If you are aim to run the pipeline in a system with jobs scheduler as LSF or SGE, set up a config file and provide it as part of the arguments as follows:
+
+```bash
+$ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta -c /PATH/configs/some_cluster.config
+```
+
+You can find an example in the `configs` directory of this repo.
+
+
+<a name="usage"></a>
+## Usage
+
+Running the tool with `--help` option will display the following message:
+
+```bash
+$ nextflow run /PATH/momofy/momofy.nf --help
+N E X T F L O W  ~  version 21.10.0
+Launching `momofy.nf` [gigantic_pare] - revision: XXXXX
+
+	MoMofy is a wraper that integrates the ouptput of different tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes.
+
+        Usage:
+         The basic command for running the pipeline is as follows:
+
+         nextflow run momofy.nf --assembly contigs.fasta
+
+         Mandatory arguments:
+          --assembly                     (Meta)genomic assembly in fasta format (uncompress)
+
+         Optional arguments:
+          --user_genes                    User annotation files. See --prot_fasta and --prot_gff [false]
+          --prot_gff                      Annotation file in GFF3 format. Mandatory with --user_genes true
+          --prot_fasta                    Fasta file of aminoacids. Mandatory with --user_genes true
+          --palidis                       Incorporate PaliDIS predictions to final output [false]
+          --palidis_fasta                 Fasta file of PaliDIS insertion sequences. Mandatory with --palidis true
+          --palidis_info                  Information file of PaliDIS insertion sequences. Mandatory with --palidis true
+          --gff_validation                Run a step of format validation on the GFF3 file output [true]
+          --outdir                        Output directory to place final MoMofy results [MoMofy_results]
+          --help                          This usage statement [false]
+```
 
 <a name="in"></a>
 ## Inputs
 
-To run MoMofy create a directory per sample and launch the tool from the sample directory. If you have many samples, you can use a list of sample IDs to iterate on and to create all directories and subdirectories in a one-line command. Here is an example on how to create softlinks to the assembly files in case you have all of them together on the same directory:
+To run MoMofy in multiple samples, create a directory per sample and launch the tool from the sample directory. The only mandatory input if the (meta)genomic assembly file in fasta format (uncompress).
+
+Basic run:
 
 ```bash
-$ for sample in $(cat samples.list); do (mkdir -p $sample/raw_data && cd $sample/raw_data && ln -s /path/to/assemblies/$sample.fasta contigs.fasta ); done
+$ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta
 ```
 
-One input file is mandatory in a folder called `raw_data`:
-- (meta)genomic assembly file in fasta format (uncompress)
+Note that the final output in gff format is created by adding information to PROKKA output. If you have your own protein prediction files, provide the gff and the fasta file of amino acid sequences (both uncompressed files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. If any original annotation is present in the gff file, it will remained untouched.
 
-Your sample directory should look like this:
-
-```bash
-$ cd sample_dir
-$ tree 
-.
-└── raw_data/
-    └── contigs.fasta
-```
-
-Basic usage:
+Runnig MoMofy with user's genes prediction:
 
 ```bash
-$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta my_icefinder 
-```
-
-Note that the final output in gff format is created adding information to PROKKA output. If you have your own protein prediction files, provide the gff and the fasta file of amino acid sequences (both files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. Put the relevant files on your `raw_data` directory:
-
-```bash
-$ cd sample_dir
-$ tree 
-.
-└── raw_data/
-    ├── contigs.fasta
-    ├── proteins.faa
-    └── annotation.gff
-``` 
-
-Then, run momofy with the following parametra:
-
-```bash
-$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+$ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta \
     --user_genes true \
-    --prot_fasta raw_data/proteins.faa \
-    --prot_gff raw_data/annotation.gff \
-    -with-docker my_icefinder 
+    --prot_fasta proteins.faa \
+    --prot_gff annotation.gff \
 ```
 
-If you want to incorporate PaliDIS predictions to the final output, you will need to put the two outputs of PaliDIS (FASTA file of insertion sequences and the information for each insertion sequence file) in a folder called `palidis_results` inside your sample directory. Your directories structure should looks like:
+If you want to incorporate PaliDIS predictions to the final output, you will need to provide the path of the two outputs of PaliDIS (FASTA file of insertion sequences and the information for each insertion sequence file).
+
+To run MoMofy incorporating PaliDIS results:
 
 ```bash
-$ tree
-.
-├── raw_data/
-│   └── contigs.fasta
-└── palidis_results/
-    ├── sample_insertion_sequences.fasta
-    └── sample_insertion_sequences_info.txt
-```
-
-Then, you can run MoMofy using the following command:
-
-```bash
-$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+$ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta \
     --palidis true \
-    --palidis_fasta palidis_results/sample_insertion_sequences.fasta \
-    --palidis_info palidis_results/sample_insertion_sequences_info.txt \
-    -with-docker my_icefinder
+    --palidis_fasta insertion_sequences.fasta \
+    --palidis_info insertion_sequences_info.txt \
 ```
 
 Finally, if you have protein files and PaliDIS outputs, you can run:
 
 ```bash
-$ nextflow run /PATH/momofy/momofy.nf --assembly raw_data/contigs.fasta \
+$ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta \
     --user_genes true \
-    --prot_fasta raw_data/proteins.faa \
-    --prot_gff raw_data/annotation.gff \
+    --prot_fasta proteins.faa \
+    --prot_gff annotation.gff \
     --palidis true \
-    --palidis_fasta palidis_results/sample_insertion_sequences.fasta \
-    --palidis_info palidis_results/sample_insertion_sequences_info.txt \
-    -with-docker my_icefinder 
+    --palidis_fasta insertion_sequences.fasta \
+    --palidis_info insertion_sequences_info.txt \
 ```
 
-A GFF validation process is used to detect formatting errors in the final GFF3 output. This process can be skipped adding `--gff-validation false`.
+A GFF validation process is used to detect formatting errors in the final GFF3 output. This process can be skipped adding `--gff_validation false` to the command.
 
 
 <a name="out"></a>
 ## Outputs
 
-The main outputs of MoMofy are in the `MoMofy_results`. There you will find the following files:
+Results will be written by default in the `MoMofy_results` directory inside the sample dir unless the user define `--outdir` option. There you will find the following output files:
 
 ```bash
 $ tree MoMofy_results
@@ -168,7 +169,7 @@ MoMofy_results/
 └── nested_integrons.txt
 ```
 
-The labels used in the Type column of the gff file corresponds to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001):
+The main MoMofy output files are the `momofy_predictions.fna` containing the nucleotide sequences of every prediction, and the `momofy_predictions.gff` containing the mobilome annotation plus any other feature annotated by PROKKA or in the gff file provided by the user with the option `--user_genes`. The labels used in the Type column of the gff file corresponds to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001):
 
 | Type in gff file  | Sequence ontology ID | Element description | Reporting tool |
 | ------------- | ------------- | ------------- | ------------- |
@@ -180,48 +181,40 @@ The labels used in the Type column of the gff file corresponds to the following 
 | direct_repeat | [SO:0000314](http://www.sequenceontology.org/browser/current_svn/term/SO:0000371) | Flanking regions on mobilizable elements | ICEfinder |
 | CDS | [SO:0000316](http://www.sequenceontology.org/browser/current_svn/term/SO:0000316) | Coding sequence | Prodigal |
 
+The file `discarded_mge.txt` contains a list of predictions discarded and the reason why which could be:
+1. overlapping	For insertion sequences only, ISEScan prediction is discarded if an overlap with PaliDIS is found. 
+2. mge<500bp	Discarded by length
+3. no_cds	If there are no genes encoded in the prediction
 
-Additionally, you will see the following directories containing the main outputs of each tool. This is a minimal example omiting the `raw_data` directory:
+The file `nested_integrons.txt` is a report of overlapping predictions reported by IntegronFinder nad ICEfinder. No predictions are discarded in this case.
 
-```bash
-$ tree
-.
-├── icefinder_results
-│   ├── gbk
-│   │   └── contig.prokka_1.gbk
-│   ├── input.list
-│   ├── result
-│   │   ├── icf_concat.fasta
-│   │   └── icf_concat.summary
-│   └── tmp
-│       └── contig.prokka_1
-├── integron_results
-│   └── Results_Integron_Finder_contigs
-│       ├── contig_1.gbk
-│       └── contigs.summary
-├── isescan_results
-│   ├── contigs.fasta.is.fna
-│   └── contigs.fasta.tsv
-├── mobileog_results
-│   └── blastp_out.tsv
-└── preprocessing
-    ├── 1kb_contigs.fasta
-    ├── 5kb_contigs.fasta
-    ├── contigID.map
-    └── prokka_out
-        └── contigs.gbk
-```
+Additionally, you will see the directories containing the main outputs of each tool.
 
 <a name="test"></a>
 ## Tests
 
-Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test).
+Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test). It takes around 3 min in executing.
 
 Run:
 ```bash
-$ cd test
+$ cd /PATH/momofy
 $ nf-test test *.nf.test
 ```
+
+<a name="profile"></a>
+## Performance
+
+MoMofy performance has been profiled using 460 public metagenomic assemblies and co-assemblies of chicken gut (ERP122587, ERP125074, and ERP131894) ranging in size from ~62 K to ~893 M assembled bases. We used as input files the metagenomic assemblies, CDS prediction and annotation with MGnify v5 pipeline, and palidis outputs generated after subsetting the number of reads to 10 M. To generate this report, MoMofy was run adding the following tags to the command: `-with-report -with-trace -with-timeline timeline.out`.
+
+<p align="center" width="100%">
+   <img src="media/run_time.png" width="40%"/>
+</p>
+
+<p align="center" width="100%">
+   <img src="media/peak_rss.png" width="40%"/>
+   <img src="media/peak_vmem.png" width="40%"/>
+</p>
+
 
 <a name="cite"></a>
 ## Citation

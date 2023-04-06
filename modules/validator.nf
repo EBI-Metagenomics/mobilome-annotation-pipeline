@@ -1,12 +1,9 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process momo_validator {
-    publishDir "$launchDir/MoMofy_results", mode: 'copy'
-    stageInMode = 'copy'
-
+process gff_validator {
     memory "4 GB"
-    cpus 4
+    cpus 1
 
     container "quay.io/microbiome-informatics/virify-python3:1.2"
 
