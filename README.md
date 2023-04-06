@@ -96,15 +96,15 @@ Launching `momofy.nf` [gigantic_pare] - revision: XXXXX
           --assembly                     (Meta)genomic assembly in fasta format (uncompress)
 
          Optional arguments:
-          --user_genes                    User annotation files. See --prot_fasta and --prot_gff [false]
+          --user_genes                    User annotation files. See --prot_fasta and --prot_gff [default=false]
           --prot_gff                      Annotation file in GFF3 format. Mandatory with --user_genes true
           --prot_fasta                    Fasta file of aminoacids. Mandatory with --user_genes true
-          --palidis                       Incorporate PaliDIS predictions to final output [false]
+          --palidis                       Incorporate PaliDIS predictions to final output [default=false]
           --palidis_fasta                 Fasta file of PaliDIS insertion sequences. Mandatory with --palidis true
           --palidis_info                  Information file of PaliDIS insertion sequences. Mandatory with --palidis true
-          --gff_validation                Run a step of format validation on the GFF3 file output [true]
-          --outdir                        Output directory to place final MoMofy results [MoMofy_results]
-          --help                          This usage statement [false]
+          --gff_validation                Run a step of format validation on the GFF3 file output [default=true]
+          --outdir                        Output directory to place final MoMofy results [default=MoMofy_results]
+          --help                          This usage statement [default=false]
 ```
 
 <a name="in"></a>
