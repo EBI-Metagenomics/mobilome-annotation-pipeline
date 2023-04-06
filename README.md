@@ -96,21 +96,21 @@ Launching `momofy.nf` [gigantic_pare] - revision: XXXXX
           --assembly                     (Meta)genomic assembly in fasta format (uncompress)
 
          Optional arguments:
-          --user_genes                    User annotation files. See --prot_fasta and --prot_gff [default=false]
+          --user_genes                    User annotation files. See --prot_fasta and --prot_gff [ default = false ]
           --prot_gff                      Annotation file in GFF3 format. Mandatory with --user_genes true
           --prot_fasta                    Fasta file of aminoacids. Mandatory with --user_genes true
-          --palidis                       Incorporate PaliDIS predictions to final output [default=false]
+          --palidis                       Incorporate PaliDIS predictions to final output [ default = false ]
           --palidis_fasta                 Fasta file of PaliDIS insertion sequences. Mandatory with --palidis true
           --palidis_info                  Information file of PaliDIS insertion sequences. Mandatory with --palidis true
-          --gff_validation                Run a step of format validation on the GFF3 file output [default=true]
-          --outdir                        Output directory to place final MoMofy results [default=MoMofy_results]
-          --help                          This usage statement [default=false]
+          --gff_validation                Run a step of format validation on the GFF3 file output [ default = true ]
+          --outdir                        Output directory to place final MoMofy results [ default = MoMofy_results ]
+          --help                          This usage statement [ default = false ]
 ```
 
 <a name="in"></a>
 ## Inputs
 
-To run MoMofy in multiple samples, create a directory per sample and launch the tool from the sample directory. The only mandatory input if the (meta)genomic assembly file in fasta format (uncompress).
+To run MoMofy in multiple samples, create a directory per sample and launch the tool from the sample directory. The only mandatory input is the (meta)genomic assembly file in fasta format (uncompress).
 
 Basic run:
 
@@ -120,7 +120,7 @@ $ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta
 
 Note that the final output in gff format is created by adding information to PROKKA output. If you have your own protein prediction files, provide the gff and the fasta file of amino acid sequences (both uncompressed files are mandatory with this option). These files will be used for Diamond annotation and CDS coordinates mapping to the MGEs boundaries. If any original annotation is present in the gff file, it will remained untouched.
 
-Runnig MoMofy with user's genes prediction:
+Running MoMofy with user's genes prediction:
 
 ```bash
 $ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta \
@@ -129,7 +129,7 @@ $ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta \
     --prot_gff annotation.gff \
 ```
 
-If you want to incorporate PaliDIS predictions to the final output, you will need to provide the path of the two outputs of PaliDIS (FASTA file of insertion sequences and the information for each insertion sequence file).
+If you want to incorporate PaliDIS predictions to the final output, provide the path of the two outputs of PaliDIS (fasta file of insertion sequences and the information for each insertion sequence file).
 
 To run MoMofy incorporating PaliDIS results:
 
@@ -140,7 +140,7 @@ $ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta \
     --palidis_info insertion_sequences_info.txt \
 ```
 
-Finally, if you have protein files and PaliDIS outputs, you can run:
+Then, if you have protein files and PaliDIS outputs, you can run:
 
 ```bash
 $ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta \
@@ -161,7 +161,6 @@ A GFF validation process is used to detect formatting errors in the final GFF3 o
 Results will be written by default in the `MoMofy_results` directory inside the sample dir unless the user define `--outdir` option. There you will find the following output files:
 
 ```bash
-$ tree MoMofy_results
 MoMofy_results/
 ├── discarded_mge.txt
 ├── momofy_predictions.fna
@@ -181,12 +180,14 @@ The main MoMofy output files are the `momofy_predictions.fna` containing the nuc
 | direct_repeat | [SO:0000314](http://www.sequenceontology.org/browser/current_svn/term/SO:0000371) | Flanking regions on mobilizable elements | ICEfinder |
 | CDS | [SO:0000316](http://www.sequenceontology.org/browser/current_svn/term/SO:0000316) | Coding sequence | Prodigal |
 
-The file `discarded_mge.txt` contains a list of predictions discarded and the reason why which could be:
-1. overlapping	For insertion sequences only, ISEScan prediction is discarded if an overlap with PaliDIS is found. 
-2. mge<500bp	Discarded by length
-3. no_cds	If there are no genes encoded in the prediction
 
-The file `nested_integrons.txt` is a report of overlapping predictions reported by IntegronFinder nad ICEfinder. No predictions are discarded in this case.
+The file `discarded_mge.txt` contains a list of predictions that were discarded, along with the reason for their exclusion. Possible reasons include:
+
+1. overlapping	For insertion sequences only, ISEScan prediction is discarded if an overlap with PaliDIS is found. 
+2. mge<500bp	Discarded by length.
+3. no_cds	If there are no genes encoded in the prediction.
+
+The file `nested_integrons.txt` is a report of overlapping predictions reported by IntegronFinder and ICEfinder. No predictions are discarded in this case.
 
 Additionally, you will see the directories containing the main outputs of each tool.
 
@@ -196,6 +197,7 @@ Additionally, you will see the directories containing the main outputs of each t
 Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test). It takes around 3 min in executing.
 
 Run:
+
 ```bash
 $ cd /PATH/momofy
 $ nf-test test *.nf.test
@@ -204,12 +206,12 @@ $ nf-test test *.nf.test
 <a name="profile"></a>
 ## Performance
 
-MoMofy performance has been profiled using 460 public metagenomic assemblies and co-assemblies of chicken gut (ERP122587, ERP125074, and ERP131894) ranging in size from ~62 K to ~893 M assembled bases. We used as input files the metagenomic assemblies, CDS prediction and annotation with MGnify v5 pipeline, and palidis outputs generated after subsetting the number of reads to 10 M. To generate this report, MoMofy was run adding the following tags to the command: `-with-report -with-trace -with-timeline timeline.out`.
+MoMofy performance was profiled using 460 public metagenomic assemblies and co-assemblies of chicken gut (ERP122587, ERP125074, and ERP131894) with sizes ranging from ~62 K to ~893 M assembled bases. We used the metagenomic assemblies, CDS prediction and annotation files generated by MGnify v5 pipeline, and PaliDIS outputs generated after downsampling the number of reads to 10 M. MoMofy was run adding the following options: `-with-report -with-trace -with-timeline timeline.out`.
+
 
 <p align="center" width="100%">
    <img src="media/run_time.png" width="40%"/>
 </p>
-
 <p align="center" width="100%">
    <img src="media/peak_rss.png" width="40%"/>
    <img src="media/peak_vmem.png" width="40%"/>
