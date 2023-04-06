@@ -1,13 +1,15 @@
 
 
-# MoMofy
-Module for integrative Mobilome prediction
+# MoMofy: Module for integrative Mobilome prediction
 
-<img src="media/MoMofy_logo.png" width="500"/>
+<p align="center" width="100%">
+   <img src="media/mge_class.png" width="90%"/>
+</p>
 
-Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrons. Autonomous elements are those capable of excising themselves from the chromosome, reintegrating elsewhere, and potentially modifying the host's physiology. Small integrative elements like insertion sequences usually contain one or two genes and are frequently present in multiple copies in the genome, whereas large elements like integrative conjugative elements, often carry multiple cargo genes. The acquisition of large mobile genetic elements may provide genes for defence against other mobile genetic elements or impart new metabolic capabilities to the host.
+Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrons. Plasmids and phages can be considered as extrachromosomal mobile elements, whereas integrons are inserted in the chromosome. Autonomous elements are those capable of excising themselves from the chromosome and reintegrate elsewhere. Some examples are insertion sequences and transposons. 
 
-MoMofy is a wraper that integrates the ouptput of different tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. 
+MoMofy is a wrapper that integrates the output of different tools designed for the prediction of autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. As prophages detection is out of scope of MoMofy, we recommend using [VIRIfy](https://github.com/EBI-Metagenomics/emg-viral-pipeline) on your (meta)genomic assemblies and then use the script `cross_momo_viri.py` to generate a single gff file with the whole annotation. This step will filter out clear mis-annotations commonly involving integrative conjugative elements and prophages and will also extract the plasmids prediction from VIRIfy intermediate files.
+
 
 ## Contents
 - [ Workflow ](#wf)
@@ -31,7 +33,7 @@ MoMofy is a wraper that integrates the ouptput of different tools designed for t
 ## Setup
 
 This workflow is built using [Nextflow](https://www.nextflow.io/). It uses Singularity containers making installation trivial and results highly reproducible.
-Explained in this section section, there is one manual step required to build the singularity image for [ICEfinder](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/index.php), as we can't distribute that software due to license issues.
+Explained in this section, there is one manual step required to build the singularity image for [ICEfinder](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/index.php), as we can't distribute that software due to license issues.
 
 - Install [Nextflow version >=21.10](https://www.nextflow.io/docs/latest/getstarted.html#installation)
 - Install [Singularity](https://github.com/apptainer/singularity/blob/master/INSTALL.md)
@@ -64,9 +66,9 @@ $ cd /PATH/momofy/templates/
 $ sudo singularity build ../../singularity/icefinder-v1.0-local.sif icefinder-v1.0-local.def
 ```
 
-PaliDIS is an optional step on the workflow and the install is optional as well. Visit [PaliDIS repo](https://github.com/blue-moon22/PaliDIS) for installing instructions.
+PaliDIS is an optional step on the workflow, therefore its installation is optional as well. Visit [PaliDIS repo](https://github.com/blue-moon22/PaliDIS) for installing instructions.
 
-If you are aim to run the pipeline in a system with jobs scheduler as LSF or SGE, set up a config file and provide it as part of the arguments as follows:
+If you aim to run the pipeline under job schedulers as LSF or SGE, set up a config file and provide it as part of the arguments as follows:
 
 ```bash
 $ nextflow run /PATH/momofy/momofy.nf --assembly contigs.fasta -c /PATH/configs/some_cluster.config
@@ -110,7 +112,7 @@ Launching `momofy.nf` [gigantic_pare] - revision: XXXXX
 <a name="in"></a>
 ## Inputs
 
-To run MoMofy in multiple samples, create a directory per sample and launch the tool from the sample directory. The only mandatory input is the (meta)genomic assembly file in fasta format (uncompress).
+To run MoMofy on multiple samples, create a directory per sample and launch the tool from the sample directory. The only mandatory input is the (meta)genomic assembly file in fasta format (uncompress).
 
 Basic run:
 
@@ -158,7 +160,7 @@ A GFF validation process is used to detect formatting errors in the final GFF3 o
 <a name="out"></a>
 ## Outputs
 
-Results will be written by default in the `MoMofy_results` directory inside the sample dir unless the user define `--outdir` option. There you will find the following output files:
+Results will be written by default in the `MoMofy_results` directory inside the sample directory, unless the `--outdir` option is used. There, you will find the following output files:
 
 ```bash
 MoMofy_results/
@@ -168,7 +170,41 @@ MoMofy_results/
 └── nested_integrons.txt
 ```
 
-The main MoMofy output files are the `momofy_predictions.fna` containing the nucleotide sequences of every prediction, and the `momofy_predictions.gff` containing the mobilome annotation plus any other feature annotated by PROKKA or in the gff file provided by the user with the option `--user_genes`. The labels used in the Type column of the gff file corresponds to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001):
+The main MoMofy output files are `momofy_predictions.fna` containing the nucleotide sequences of every prediction, and `momofy_predictions.gff` containing the mobilome annotation plus any other feature annotated by PROKKA or in the gff file provided by the user with the option `--user_genes`. 
+
+A unique MGE ID is generated per prediction in the following format separated by underscore:
+1. Three letters code denoting the tool used: iss (ISEScan), pal (PaliDIS), icf (ICEfinder), inf (IntegronFinder)
+2. An integer number
+
+Headers in the fasta file have additional information separated by the pipe character:
+1. MGE ID
+2. Contig ID
+3. Start and end coordinates separated by '..'
+4. MGE description
+
+Example:
+```bash
+> iss_1|contig_1|1..1000|IS630_with_TIR
+```
+
+The MGE ID is used in the first field of the attributes column of the GFF3 file with the key 'ID'. A short MGE description is included in the attributes field with the key 'mobile_element_type'.
+
+Any CDS with a coverage >= 0.75 in the boundaries of a predicted MGE is linked to the corresponding element in the attributes field by appending the key 'from_mge' followed by the MGE ID. In addition, when a match versus the mobileOG-DB has been found, the annotation is append to the corresponding gene in the attributes field with the key 'mobileOG'.
+
+When insertion sites are detected, a composite ID is generated to denote the type of insertion site, the number 1 or 2 depending the flanking side, and the MGE to which it belongs separated by ':'. The type of insertion site could be:
+
+1. DR -> Direct repeats
+2. TIR -> terminal inverted repeat
+3. attC -> attC site
+
+An example of direct repeats flanking an insertion sequence:
+
+```bash
+TIR_1:iss_1
+TIR_2:iss_1
+```
+
+The labels used in the Type column of the gff file corresponds to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001):
 
 | Type in gff file  | Sequence ontology ID | Element description | Reporting tool |
 | ------------- | ------------- | ------------- | ------------- |
@@ -177,7 +213,7 @@ The main MoMofy output files are the `momofy_predictions.fna` containing the nuc
 | integron  | [SO:0000365](http://www.sequenceontology.org/browser/current_svn/term/SO:0000365) | Integrative mobilizable element | IntegronFinder, ICEfinder |
 | attC_site | [SO:0000950](http://www.sequenceontology.org/browser/current_svn/term/SO:0000950) | Integration site of DNA integron | IntegronFinder |
 | conjugative_transposon  | [SO:0000371](http://www.sequenceontology.org/browser/current_svn/term/SO:0000371) | Integrative Conjugative Element | ICEfinder |
-| direct_repeat | [SO:0000314](http://www.sequenceontology.org/browser/current_svn/term/SO:0000371) | Flanking regions on mobilizable elements | ICEfinder |
+| direct_repeat | [SO:0000314](http://www.sequenceontology.org/browser/current_svn/term/SO:0000314) | Flanking regions on mobilizable elements | ICEfinder |
 | CDS | [SO:0000316](http://www.sequenceontology.org/browser/current_svn/term/SO:0000316) | Coding sequence | Prodigal |
 
 
@@ -200,13 +236,13 @@ Run:
 
 ```bash
 $ cd /PATH/momofy
-$ nf-test test *.nf.test
+$ nf-test test
 ```
 
 <a name="profile"></a>
 ## Performance
 
-MoMofy performance was profiled using 460 public metagenomic assemblies and co-assemblies of chicken gut (ERP122587, ERP125074, and ERP131894) with sizes ranging from ~62 K to ~893 M assembled bases. We used the metagenomic assemblies, CDS prediction and annotation files generated by MGnify v5 pipeline, and PaliDIS outputs generated after downsampling the number of reads to 10 M. MoMofy was run adding the following options: `-with-report -with-trace -with-timeline timeline.out`.
+MoMofy performance was profiled using 460 public metagenomic assemblies and co-assemblies of chicken gut (ERP122587, ERP125074, and ERP131894) with sizes ranging from ~62 K to ~893 M assembled bases. We used the metagenomic assemblies, CDS prediction and annotation files generated by [MGnify v5 pipeline](https://github.com/EBI-Metagenomics/pipeline-v5), and PaliDIS outputs generated after downsampling the number of reads to 10 M. MoMofy was run adding the following options: `-with-report -with-trace -with-timeline timeline.out`.
 
 
 <p align="center" width="100%">
