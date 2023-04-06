@@ -172,8 +172,8 @@ MoMofy_results/
 
 The main MoMofy output files are `momofy_predictions.fna` containing the nucleotide sequences of every prediction, and `momofy_predictions.gff` containing the mobilome annotation plus any other feature annotated by PROKKA or in the gff file provided by the user with the option `--user_genes`. 
 
-A unique MGE ID is generated per MGE in the following format separated by underscore:
-1. Three letters code denoting the tool used for prediction: iss (ISEScan), pal (PaliDIS), icf (ICEfinder), inf (IntegronFinder)
+A unique MGE ID is generated per prediction in the following format separated by underscore:
+1. Three letters code denoting the tool used: iss (ISEScan), pal (PaliDIS), icf (ICEfinder), inf (IntegronFinder)
 2. An integer number
 
 Headers in the fasta file have additional information separated by the pipe character:
@@ -189,7 +189,7 @@ Example:
 
 The MGE ID is used in the first field of the attributes column of the GFF3 file with the key 'ID'. A short MGE description is included in the attributes field with the key 'mobile_element_type'.
 
-Any CDS with a coverage >= 0.75 in the boundaries of a predicted MGE is linked to the corresponding element by appending the key 'from_mge' followed by the MGE ID in the attributes field. In addition, when a match versus the mobileOG-DB has been found, the annotation is append to the corresponding gene in the attributes field with the key 'mobileOG'.
+Any CDS with a coverage >= 0.75 in the boundaries of a predicted MGE is linked to the corresponding element in the attributes field by appending the key 'from_mge' followed by the MGE ID. In addition, when a match versus the mobileOG-DB has been found, the annotation is append to the corresponding gene in the attributes field with the key 'mobileOG'.
 
 When insertion sites are detected, a composite ID is generated to denote the type of insertion site, the number 1 or 2 depending the flanking side, and the MGE to which it belongs separated by ':'. The type of insertion site could be:
 
