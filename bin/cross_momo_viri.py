@@ -80,6 +80,9 @@ def checkv_parser(checkv):
                                     checkv_pass.append(phage_id)
                             else:
                                 checkv_pass.append(phage_id)
+        else:
+            print('No checkV files found\n')
+
     return(checkv_pass, viriqual)
 
 
@@ -165,6 +168,8 @@ def virify_parser(viri, checkv_pass, viriqual):
                                 attributes,
                             )
                             protcoord_protid[(contig, start, end)] = protein_id
+    else:
+        print('No VIRIfy files found\n')
     return(
         phages_metadata,
         contig_phages,
