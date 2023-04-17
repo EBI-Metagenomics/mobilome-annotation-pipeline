@@ -539,7 +539,7 @@ def mobileog_parser(mog_results, mob_proteome):
     return(mog_annot)
 
 
-def quality_filter(mge_data, mge_proteins):
+def quality_filter(mge_data, mge_proteins, contigs_elements):
     # Removing predictions of len<500 and with no CDS
     no_cds = []
     len_500 = []
@@ -554,11 +554,19 @@ def quality_filter(mge_data, mge_proteins):
         for element in no_cds:
             to_discard.write(element + "\t" + mge_data[element][1] + "\tno_cds\n")
             del mge_data[element]
+            for contig in contigs_elements:
+                if element in contigs_elements[contig]:
+                    contigs_elements[contig].remove(element)
+
         for element in len_500:
             to_discard.write(element + "\t" + mge_data[element][1] + "\tmge<500bp\n")
             del mge_data[element]
+            for contig in contigs_elements:
+                if element in contigs_elements[contig]:
+                    contigs_elements[contig].remove(element)
 
-    return(mge_data)
+
+    return(mge_data, contigs_elements)
 
 
 def flanking_data(id_to_print, source, seq_type, start, end, flank_id):
@@ -1015,7 +1023,7 @@ def main():
     mog_annot = mobileog_parser(mog_results, mob_proteome)
 
     # Filtering out low-quality results
-    mge_data = quality_filter(mge_data, mge_proteins)
+    (mge_data , contigs_elements ) = quality_filter(mge_data, mge_proteins, contigs_elements)
 
     # Generating the final output
     writing_gff(
