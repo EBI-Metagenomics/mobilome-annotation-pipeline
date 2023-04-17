@@ -385,7 +385,7 @@ def is_overlap(contig_ismge, mge_data, mge_nuc):
     return(mge_data, mge_nuc)
 
 
-def int_overlap(contig_inmge):
+def int_overlap(contig_inmge, mge_data):
     # Parsing integron overlapps. Reporting only, not to be removed
     output_nested = "nested_integrons.txt"
     with open(output_nested, "w") as to_nested:
@@ -1000,7 +1000,7 @@ def main():
     )
 
     # Reporting overlapping integrons
-    int_overlap(contig_inmge)
+    int_overlap(contig_inmge, mge_data)
 
     # Saving protein coordinates
     (contig_prots, prots_coord) = location_parser(cds_loc)
