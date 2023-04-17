@@ -28,12 +28,11 @@ def minimal(annot):
     flank = ["terminal_inverted_repeat_element", "attC_site", "direct_repeat"]
     valid_attr = ["viphog", "viphog_taxonomy", "mobileOG"]
     if os.path.isfile(annot):
-        with (
-            open(annot, "r") as input_file,
-            open("mobilome_clean.gff", "w") as to_clean_gff,
-            open("mobilome_extra.gff", "w") as to_extra_gff,
-            open("mobilome_nogenes.gff", "w") as to_nogenes_gff
-        ):
+        with open(annot, "r") as input_file, \
+            open("mobilome_clean.gff", "w") as to_clean_gff, \
+            open("mobilome_extra.gff", "w") as to_extra_gff, \
+            open("mobilome_nogenes.gff", "w") as to_nogenes_gff:
+
             for line in input_file:
                 l_line = line.rstrip().split("\t")
                 # Annotation lines have exactly 9 columns

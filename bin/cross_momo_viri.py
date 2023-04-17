@@ -292,10 +292,7 @@ def integra(
         "direct_repeat",
     ]
 
-    with (
-        open(momo, "r") as input_table,
-        open(output_gff, "w") as to_gff
-    ):
+    with open(momo, "r") as input_table, open(output_gff, "w") as to_gff:
         for line in input_table:
             l_line = line.rstrip().split("\t")
             ## Annotation lines have exactly 9 columns
