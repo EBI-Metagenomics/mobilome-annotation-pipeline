@@ -315,7 +315,6 @@ def integra(
                         to_gff.write(line)
 
                 if all([seqid in contig_phages, not seqid in used_contigs]):
-                    other = 1
                     used_contigs.append(seqid)
                     for phage in contig_phages[seqid]:
                         if not phage in bad_annot:
