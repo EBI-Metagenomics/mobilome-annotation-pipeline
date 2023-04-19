@@ -327,7 +327,6 @@ def integra(
                             )
 
                 if all([seqid in plasmids, not seqid in used_contigs]):
-                    other = 1
                     used_contigs.append(seqid)
                     plas_id = plasmids[seqid][1]
                     plas_attrib = (
