@@ -61,7 +61,7 @@ def checkv_parser(checkv):
                 next(input_table)
                 for line in input_table:
                     l_line = line.rstrip().split("\t")
-                    phage_id = l_line[0]
+                    phage_id = l_line[0].replace('prophage-0:','prophage-1:')
                     viral_genes = int(l_line[5])
                     checkv_quality = l_line[7]
                     kmer_freq = float(l_line[12])
@@ -82,9 +82,21 @@ def checkv_parser(checkv):
                                 checkv_pass.append(phage_id)
         else:
             print('No checkV files found\n')
-
     return(checkv_pass, viriqual)
 
+def virify_writer(viri_fa, checkv_pass):
+    with open('virify_HQ.fasta','w') as to_fasta:
+        for fasta_file in viri_fa:
+            if os.path.exists(fasta_file):
+                for record in SeqIO.parse(fasta_file, "fasta"):
+                    phage_ID = str(record.description).replace(' ','|').replace('prophage-0:','prophage-1:')
+                    if phage_ID in checkv_pass:
+                        if 'prophage' in phage_ID:
+                            to_fasta.write('>'+phage_ID+'\n')
+                            to_fasta.write(str(record.seq)+'\n')
+                        else:
+                            to_fasta.write('>'+phage_ID+'|viral_sequence\n')
+                            to_fasta.write(str(record.seq)+'\n')
 
 def virify_parser(viri, checkv_pass, viriqual):
     ### Saving virify predictions
@@ -170,6 +182,7 @@ def virify_parser(viri, checkv_pass, viriqual):
                             protcoord_protid[(contig, start, end)] = protein_id
     else:
         print('No VIRIfy files found\n')
+
     return(
         phages_metadata,
         contig_phages,
@@ -268,7 +281,6 @@ def overlaps(momo_pred, phages_metadata, viralname_coord):
                                 + "\n"
                             )
                             bad_annot.append(to_discard)
-
     return(bad_annot)
 
 
@@ -472,6 +484,11 @@ def main():
         help="Virify output in gff format"
     )
     parser.add_argument(
+        "--virify_fasta",
+        nargs="*",
+        help="Virify outputs in fasta format"
+    )
+    parser.add_argument(
         "--checkv_summ", 
         nargs="*", 
         help="checkv original summary files"
@@ -501,6 +518,7 @@ def main():
 
     ### Setting up variables
     viri = args.virify_gff
+    viri_fa = args.virify_fasta
     checkv = args.checkv_summ
     momo = args.momofy_gff
     pprm = args.pprmeta
@@ -514,6 +532,8 @@ def main():
     plasmids = pprmeta_parser(pprm, contig_names)
 
     (checkv_pass, viriqual) = checkv_parser(checkv)
+
+    virify_writer(viri_fa, checkv_pass)
 
     (
         phages_metadata,
