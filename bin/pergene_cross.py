@@ -168,7 +168,7 @@ def integrator(genes_dict, genes_coord, momofy_dict, promge_dict, alien_dict, mo
         to_pergene.write(
             "\t".join(
                 [
-                    'contig',
+                    '#contig',
                     'gene_id',
                     'start',
                     'end',
