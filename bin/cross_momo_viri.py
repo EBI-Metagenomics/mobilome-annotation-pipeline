@@ -140,7 +140,7 @@ def virify_parser(viri, checkv_pass, viriqual, phage_seqs):
 
                             if seq_id in phage_seqs:
                                 to_fasta.write('>'+seq_id+'\n')
-                                to_fasta.write(str(record.seq)+'\n')
+                                to_fasta.write(phage_seqs[seq_id]+'\n')
 
                     elif seq_type == "viral_sequence":
                         seq_id = contig
@@ -164,7 +164,7 @@ def virify_parser(viri, checkv_pass, viriqual, phage_seqs):
 
                             if seq_id in phage_seqs:
                                 to_fasta.write('>'+seq_id+'|viral_sequence\n')
-                                to_fasta.write(str(record.seq)+'\n')
+                                to_fasta.write(phage_seqs[seq_id]+'\n')
 
                     elif seq_type == "CDS":
                         protein_id = attributes.split(";")[0].replace("ID=", "")
