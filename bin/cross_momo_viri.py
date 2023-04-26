@@ -84,21 +84,17 @@ def checkv_parser(checkv):
             print('No checkV files found\n')
     return(checkv_pass, viriqual)
 
-def virify_writer(viri_fa, checkv_pass):
-    with open('virify_HQ.fasta','w') as to_fasta:
-        for fasta_file in viri_fa:
-            if os.path.exists(fasta_file):
-                for record in SeqIO.parse(fasta_file, "fasta"):
-                    phage_ID = str(record.description).replace(' ','|').replace('prophage-0:','prophage-1:')
-                    if phage_ID in checkv_pass:
-                        if 'prophage' in phage_ID:
-                            to_fasta.write('>'+phage_ID+'\n')
-                            to_fasta.write(str(record.seq)+'\n')
-                        else:
-                            to_fasta.write('>'+phage_ID+'|viral_sequence\n')
-                            to_fasta.write(str(record.seq)+'\n')
+def phage_seq_save(viri_fa):
+    phage_seqs = {}
+    for fasta_file in viri_fa:
+        if os.path.exists(fasta_file):
+            for record in SeqIO.parse(fasta_file, "fasta"):
+                phage_ID = str(record.description).replace(' ','|').replace('prophage-0:','prophage-1:')
+                phage_seqs[phage_ID] = str(record.seq)
+    return(phage_seqs)
 
-def virify_parser(viri, checkv_pass, viriqual):
+
+def virify_parser(viri, checkv_pass, viriqual, phage_seqs):
     ### Saving virify predictions
     phages_metadata = {}
     contig_phages = {}
@@ -107,7 +103,7 @@ def virify_parser(viri, checkv_pass, viriqual):
     viralprot_annot = {}
     viralname_coord = {}
     if os.path.exists(viri):
-        with open(viri, "r") as input_gff:
+        with open(viri, "r") as input_gff, open('virify_HQ.fasta','w') as to_fasta:
             for line in input_gff:
                 if not line.startswith("#"):
                     (
@@ -140,7 +136,12 @@ def virify_parser(viri, checkv_pass, viriqual):
                             if contig in contig_phages:
                                 contig_phages[contig].append(seq_id)
                             else:
-                                contig_phages[contig] = [seq_id]        
+                                contig_phages[contig] = [seq_id]  
+
+                            if seq_id in phage_seqs:
+                                to_fasta.write('>'+seq_id+'\n')
+                                to_fasta.write(str(record.seq)+'\n')
+
                     elif seq_type == "viral_sequence":
                         seq_id = contig
                         current_phage = attributes.split(";")[0].replace("ID=", "")
@@ -160,6 +161,10 @@ def virify_parser(viri, checkv_pass, viriqual):
                                 attributes,
                             )
                             contig_phages[contig] = [seq_id]
+
+                            if seq_id in phage_seqs:
+                                to_fasta.write('>'+seq_id+'|viral_sequence\n')
+                                to_fasta.write(str(record.seq)+'\n')
 
                     elif seq_type == "CDS":
                         protein_id = attributes.split(";")[0].replace("ID=", "")
@@ -533,7 +538,7 @@ def main():
 
     (checkv_pass, viriqual) = checkv_parser(checkv)
 
-    virify_writer(viri_fa, checkv_pass)
+    phage_seqs = phage_seq_save(viri_fa)
 
     (
         phages_metadata,
@@ -546,6 +551,7 @@ def main():
         viri, 
         checkv_pass, 
         viriqual,
+        phage_seqs,
         )
 
     momo_pred = momo_parser(momo)
