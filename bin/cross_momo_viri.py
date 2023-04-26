@@ -89,7 +89,12 @@ def phage_seq_save(viri_fa):
     for fasta_file in viri_fa:
         if os.path.exists(fasta_file):
             for record in SeqIO.parse(fasta_file, "fasta"):
-                phage_ID = str(record.description).replace(' ','|').replace('prophage-0:','prophage-1:')
+                phage_ID = str(record.description)
+                if 'prophage' in phage_ID:
+                    phage_ID = phage_ID.replace(' ','|').replace('prophage-0:','prophage-1:')
+                # To avoid confusion when phage-circular in description
+                else:
+                    phage_ID = str(record.id)
                 phage_seqs[phage_ID] = str(record.seq)
     return(phage_seqs)
 
