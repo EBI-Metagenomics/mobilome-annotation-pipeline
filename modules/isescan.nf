@@ -1,15 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process isescan {
+process ISESCAN {
     publishDir "$launchDir/"
 
-    cpus 8
-    memory { 8.GB * task.attempt }
-    errorStrategy 'retry' 
-    maxRetries 4
-
-    container "quay.io/microbiome-informatics/isescan-v1.7.2.3"
+    container 'quay.io/microbiome-informatics/isescan-v1.7.2.3'
 
     input:
         path assembly_file, name: 'contigs.fasta'

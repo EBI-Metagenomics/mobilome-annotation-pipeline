@@ -1,11 +1,9 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process gff_validator {
-    memory "4 GB"
-    cpus 1
+process GFF_VALIDATOR {
 
-    container "quay.io/microbiome-informatics/virify-python3:1.2"
+    container 'quay.io/microbiome-informatics/virify-python3:1.2'
 
     input:
         path momo_gff, name: 'momofy_predictions.gff'

@@ -1,12 +1,9 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process gbk_split {
+process GBK_SPLITTER {
     publishDir "$launchDir/icefinder_results/gbk", pattern: '*.gbk', mode: 'copy'
     publishDir "$launchDir/icefinder_results/", pattern: 'input.list', mode: 'copy'
-
-    memory "4 GB"
-    cpus 1
 
     input:
       path gbk_file, name: 'contigs.gbk'

@@ -1,13 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process integra {
+process INTEGRATOR {
     publishDir "$launchDir/${params.outdir}/", mode: 'copy'
 
-    container "quay.io/microbiome-informatics/virify-python3:1.2"
-
-    memory "4 GB"
-    cpus 1
+    container 'quay.io/microbiome-informatics/virify-python3:1.2'
 
     input:
 	path cds_gff

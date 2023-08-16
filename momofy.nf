@@ -2,16 +2,17 @@
 nextflow.enable.dsl=2
 
 // MODULES
-include { diamond_mob } from './modules/diamond'
-include { rename } from './modules/rename_contigs'
-include { prokka_annot } from './modules/prokka'
-include { gbk_split } from './modules/gbk_splitter'
-include { integronfinder } from './modules/integronfinder'
-include { isescan } from './modules/isescan'
-include { ice_finder } from './modules/icefinder'
-include { integra } from './modules/integrator'
-include { gff_validator } from './modules/validator'
-
+include { AMRFINDER_PLUS } from './modules/amrfinder_plus'
+include { DIAMOND } from './modules/diamond'
+include { GBK_SPLITTER } from './modules/gbk_splitter'
+include { GFF_VALIDATOR } from './modules/validator'
+include { INTEGRONFINDER } from './modules/integronfinder'
+include { ISESCAN } from './modules/isescan'
+include { ICEFINDER } from './modules/icefinder'
+include { INTEGRATOR } from './modules/integrator'
+include { PROKKA } from './modules/prokka'
+include { RENAME } from './modules/rename_contigs'
+include { VIRI_PARSER } from './modules/virify_parser'
 
 def helpMessage() {
   log.info """
@@ -23,12 +24,14 @@ def helpMessage() {
          nextflow run momofy.nf --assembly contigs.fasta
 
          Mandatory arguments:
-          --assembly                     (Meta)genomic assembly in fasta format (uncompress)
+          --assembly                      (Meta)genomic assembly in fasta format (uncompress)
 
          Optional arguments:
-          --user_genes                    User annotation files. See --prot_fasta and --prot_gff [false]
+          --user_genes                    Use the user annotation files. See --prot_fasta and --prot_gff [false]
           --prot_gff                      Annotation file in GFF3 format. Mandatory with --user_genes true
           --prot_fasta                    Fasta file of aminoacids. Mandatory with --user_genes true
+          --virify                        Use VIRify results. See --vir_gff [false]
+          --vir_gff                       The full path of VIRify results on GFF format. Mandatory with --vir_gff true
           --palidis                       Incorporate PaliDIS predictions to final output [false]
           --palidis_fasta                 Fasta file of PaliDIS insertion sequences. Mandatory with --palidis true
           --palidis_info                  Information file of PaliDIS insertion sequences. Mandatory with --palidis true
@@ -45,6 +48,7 @@ if (params.help) {
 
 // Default options
 params.user_genes = false
+params.virify = false
 params.palidis = false
 params.gff_validation = true
 params.outdir = 'MoMofy_results'
@@ -52,19 +56,26 @@ params.outdir = 'MoMofy_results'
 workflow {
 
 	assembly = Channel.fromPath( params.assembly, checkIfExists: true )
-	rename( assembly )
 
-	prokka_annot( rename.out.contigs_1kb )
+	RENAME( assembly )
 
-	if (params.user_genes) {
+	if (params.virify){
+		VIRI_PARSER( params.assembly, params.vir_gff )
+	}
+
+	PROKKA( RENAME.out.contigs_1kb )
+
+	AMRFINDER_PLUS( PROKKA.out.prokka_fna, PROKKA.out.prokka_faa, PROKKA.out.prokka_gff )
+
+	if ( params.user_genes ) {
 		cds_gff = Channel.fromPath( params.prot_gff, checkIfExists: true )
 		cds_faa = Channel.fromPath( params.prot_fasta, checkIfExists: true )
 	}else{
-		cds_gff = prokka_annot.out.prokka_gff
-		cds_faa = prokka_annot.out.prokka_faa
+		cds_gff = PROKKA.out.prokka_gff
+		cds_faa = PROKKA.out.prokka_faa
 	}
 
-	if (params.palidis) {
+	if ( params.palidis ) {
 	        pal_seq = Channel.fromPath( params.palidis_fasta, checkIfExists: true )
         	pal_info = Channel.fromPath( params.palidis_info, checkIfExists: true )
 	}else{
@@ -72,20 +83,20 @@ workflow {
 		pal_info = file('no_info')
 	}
 
-	diamond_mob(cds_faa, params.mobileog_db)
+	DIAMOND( cds_faa, params.mobileog_db )
 
-	gbk_split(prokka_annot.out.prokka_gbk)
+	GBK_SPLITTER( PROKKA.out.prokka_gbk )
 
-        ice_finder(gbk_split.out.gbks, file( "icefinder_results/gbk"), file( "icefinder_results/tmp"), file( "icefinder_results/result"))
+        ICEFINDER( GBK_SPLITTER.out.gbks, file( "icefinder_results/gbk"), file( "icefinder_results/tmp"), file( "icefinder_results/result" ) )
 
-	integronfinder(rename.out.contigs_5kb)
+	INTEGRONFINDER( RENAME.out.contigs_5kb )
 
-	isescan(rename.out.contigs_1kb)
+	ISESCAN( RENAME.out.contigs_1kb )
 
-	integra(cds_gff, rename.out.map_file, isescan.out.iss_fasta, isescan.out.iss_tsv, pal_seq, pal_info, integronfinder.out.inf_summ, integronfinder.out.inf_gbk.collect(), ice_finder.out.icf_summ_files, ice_finder.out.icf_fasta_files, ice_finder.out.icf_dr, diamond_mob.out.blast_out)	
+	INTEGRATOR(cds_gff, RENAME.out.map_file, ISESCAN.out.iss_fasta, ISESCAN.out.iss_tsv, pal_seq, pal_info, INTEGRONFINDER.out.inf_summ, INTEGRONFINDER.out.inf_gbk.collect(), ICEFINDER.out.icf_summ_files, ICEFINDER.out.icf_fasta_files, ICEFINDER.out.icf_dr, DIAMOND.out.blast_out)	
 
 	if (params.gff_validation) {
-		gff_validator(integra.out.momo_gff)		
+		GFF_VALIDATOR(INTEGRATOR.out.momo_gff)		
 	}
 
 }

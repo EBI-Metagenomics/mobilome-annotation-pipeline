@@ -1,17 +1,11 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process ice_finder {
+process ICEFINDER {
     publishDir "$launchDir/icefinder_results", mode: 'copy'
     stageInMode = 'copy'
 
-    memory "16 G"
-    cpus 1
-
-    errorStrategy 'retry'
-    maxRetries 3
-
-    container "${projectDir}/singularity/icefinder-v1.0-local.sif"
+    container '${projectDir}/singularity/icefinder-v1.0-local.sif'
 
     containerOptions="--bind $PWD/icefinder_results/input.list:/install/ICEfinder_linux/input.list --bind $PWD/icefinder_results/gbk/:/install/ICEfinder_linux/gbk/ --bind $PWD/icefinder_results/tmp/:/install/ICEfinder_linux/tmp/ --bind $PWD/icefinder_results/result/:/install/ICEfinder_linux/result/ --pwd /install/ICEfinder_linux/"
 

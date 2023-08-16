@@ -1,13 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process rename {
+process RENAME {
     publishDir "$launchDir/preprocessing"
 
-    container "quay.io/biocontainers/biopython:1.75"
-
-    memory "1 GB"
-    cpus 1
+    container 'quay.io/biocontainers/biopython:1.75'
 
     input:
       path assembly_file, name: 'contigs.fasta'

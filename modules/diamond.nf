@@ -1,13 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process diamond_mob {
-    publishDir "$launchDir/mobileog_results"
+process DIAMOND {
+    publishDir "$launchDir/func_annot"
 
-    memory "8 GB"
-    cpus 4
-
-    container "quay.io/biocontainers/diamond:2.0.12--hdcc8f71_0"
+    container 'quay.io/biocontainers/diamond:2.0.12--hdcc8f71_0'
 
     input:
         path proteins_file, name: 'proteins.faa'

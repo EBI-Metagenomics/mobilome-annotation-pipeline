@@ -1,15 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process integronfinder{
+process INTEGRONFINDER {
     publishDir "$launchDir/integron_results"
 
-    cpus 8
-    memory { 8.GB * task.attempt }
-    errorStrategy 'retry' 
-    maxRetries 4
-
-    container "quay.io/microbiome-informatics/integronfinder:latest"
+    container 'quay.io/microbiome-informatics/integronfinder:latest'
 
     input:
         path assembly_file, name: 'contigs.fasta'
