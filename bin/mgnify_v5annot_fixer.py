@@ -11,6 +11,7 @@ import glob
 ##### Alejandra Escobar, EMBL-EBI
 ##### March 2, 2023
 
+
 def saving_coor(aa_seq):
     ### Saving the aminoacid coordinates
     protein_coord = {}
@@ -28,7 +29,8 @@ def saving_coor(aa_seq):
             contig = description.split("_")[0]
             prot_key = (contig, start, end, strand)
             protein_coord[prot_key] = str(record.id)
-    return(protein_coord)
+    return protein_coord
+
 
 def fixing(protein_coord, annot):
     ### correcting the gff file
@@ -58,20 +60,23 @@ def fixing(protein_coord, annot):
                             attr.pop(0)
                             attr = ";".join(attr)
                             new_attr = "ID=" + protein_coord[comp_key] + ";" + attr
-                            new_line = "\t".join([
-                                contig,
-                                seq_source,
-                                seq_type,
-                                start,
-                                end,
-                                score,
-                                strand,
-                                phase,
-                                new_attr,
-                            ])
+                            new_line = "\t".join(
+                                [
+                                    contig,
+                                    seq_source,
+                                    seq_type,
+                                    start,
+                                    end,
+                                    score,
+                                    strand,
+                                    phase,
+                                    new_attr,
+                                ]
+                            )
                             to_gff.write(new_line + "\n")
                         else:
                             print("No protein ID in faa file for " + line)
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -95,9 +100,9 @@ def main():
     annot = args.func_gff
     aa_seq = args.aa
 
-    protein_coord=saving_coor(aa_seq)
+    protein_coord = saving_coor(aa_seq)
     fixing(protein_coord, annot)
+
 
 if __name__ == "__main__":
     main()
-
