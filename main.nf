@@ -162,7 +162,8 @@ workflow {
 	FASTA_WRITER( assembly, GFF_REDUCE.out.mobilome_nogenes )
 
 	if ( params.user_genes ) {
-		GFF_MAPPING( INTEGRATOR.out.mobilome_extra, user_gff )
+		user_gff = Channel.fromPath( params.prot_gff, checkIfExists: true )
+		GFF_MAPPING( GFF_REDUCE.out.mobilome_extra, user_gff )
 	}
 
 	if ( params.gff_validation ) {

@@ -11,7 +11,7 @@ import glob
 ##### October 19, 2023
 
 
-def mobilome_parser():
+def mobilome_parser(mobilome_prokka_extra):
     # Parsing the mobilome prediction
     proteins_annot, mobilome_annot = {}, {}
 
@@ -31,15 +31,15 @@ def mobilome_parser():
         "mobileOG",
     ]
 
-    if os.stat(mobilome_prokka_gff).st_size > 0:
-        with open(mobilome_prokka_gff, "r") as input_table:
+    if os.stat(mobilome_prokka_extra).st_size > 0:
+        with open(mobilome_prokka_extra, "r") as input_table:
             for line in input_table:
                 l_line = line.rstrip().split("\t")
                 # Annotation lines have exactly 9 columns
                 if len(l_line) == 9:
                     contig = l_line[0]
                     annot_source = l_line[1]
-                    if tool_source in source_tools:
+                    if annot_source in source_tools:
                         if contig in mobilome_annot:
                             mobilome_annot[contig].append(line.rstrip())
                         else:
@@ -52,8 +52,8 @@ def mobilome_parser():
                         attrib = l_line[8]
                         extra_list = []
                         for attr in attrib.split(";"):
-                            att_key = attr.aplit("=")[0]
-                            att_val = attr.aplit("=")[1]
+                            att_key = attr.split("=")[0]
+                            att_val = attr.split("=")[1]
                             if att_key in extra_annot:
                                 extra_list.append(attr)
                         if len(extra_list) > 0:
@@ -113,7 +113,7 @@ def main():
 
     ## Calling functions
     # Storing the mobilome predictions
-    (proteins_annot, mobilome_annot) = mobilome_parser(args.mobilome_prokka_gff)
+    (proteins_annot, mobilome_annot) = mobilome_parser(args.mobilome_prokka_extra)
 
     # Adding the mobilome predictions to the user file
     gff_updater(args.user_gff, proteins_annot, mobilome_annot)
