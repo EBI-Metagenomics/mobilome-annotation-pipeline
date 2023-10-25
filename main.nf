@@ -172,7 +172,7 @@ workflow {
 
 	if ( !params.skip_amr ) {
 		AMRFINDER_PLUS( PROKKA.out.prokka_fna, PROKKA.out.prokka_faa, PROKKA.out.prokka_gff )
-		AMRFINDER_REPORT( AMRFINDER_PLUS.out.amrfinder_tsv, GFF_REDUCE.out.mobilome_clean )
+		AMRFINDER_REPORT( AMRFINDER_PLUS.out.amrfinder_tsv, INTEGRATOR.out.mobilome_prokka_gff )
 	}
 
 }

@@ -37,7 +37,7 @@ def arg_parser(amr_out):
 
 def mob_parser(mobilome):
     ### Saving the proteins in the mobilome
-    mob_prots = {}
+    mob_prots = []
     with open(mobilome, "r") as input_gff:
         for line in input_gff:
             l_line = line.rstrip().split("\t")
@@ -58,21 +58,9 @@ def mob_parser(mobilome):
                 if seq_type == "CDS":
                     att_fields = attr.split(";")
                     protein_id = att_fields[0].replace("ID=", "")
-                    mges_list = []
-                    for element in att_fields:
-                        key, value = element.split("=")
-                        if key == "from_mge":
-                            belongs = value.split(",")
-                            for each_mge in belongs:
-                                prefix = (
-                                    each_mge.split("_")[0]
-                                    .replace("icf", "integron")
-                                    .replace("inf", "integron")
-                                    .replace("iss", "is")
-                                    .replace("pal", "is")
-                                )
-                                mges_list.append(prefix)
-                    mob_prots[protein_id] = mges_list
+                    for attribute in att_fields:
+                        if attribute == "location=mobilome":
+                            mob_prots.append(protein_id)
 
     return mob_prots
 
@@ -86,11 +74,12 @@ def location_parser(amr_data, mob_prots):
             prediction_type = amr_data[gene][0]
             prediction_description = amr_data[gene][1]
             if gene in mob_prots:
-                for mge in mob_prots[gene]:
-                    to_output.write(
-                        "\t".join([gene, prediction_type, prediction_description, mge])
-                        + "\n"
+                to_output.write(
+                    "\t".join(
+                        [gene, prediction_type, prediction_description, "mobilome"]
                     )
+                    + "\n"
+                )
             else:
                 to_output.write(
                     "\t".join(
@@ -107,7 +96,7 @@ def main():
     parser.add_argument(
         "--mobilome",
         type=str,
-        help="Clean version of the output of the mobilome annotation pipeline in GFF format (mobilome_clean.gff)",
+        help="Clean version of the output of the mobilome annotation pipeline in GFF format (mobilome_prokka.gff)",
     )
     parser.add_argument(
         "--amr_out",
