@@ -3,6 +3,7 @@ nextflow.enable.dsl=2
 
 process FASTA_WRITER {
     publishDir "$launchDir/$params.outdir/"
+    stageOutMode = 'copy'
 
     container 'quay.io/biocontainers/bedtools:2.23.0--h5b5514e_6'
 
