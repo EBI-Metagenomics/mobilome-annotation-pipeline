@@ -69,7 +69,7 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot):
     if os.stat(user_gff).st_size > 0:
         with open(user_gff, "r") as input_table, open(
             "user_mobilome_extra.gff", "w"
-        ) as output_table:
+        ) as output_table, open("user_mobilome_full.gff", "w") as output_full:
             for line in input_table:
                 l_line = line.rstrip().split("\t")
                 # Annotation lines have exactly 9 columns
@@ -83,15 +83,19 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot):
                         if contig in mobilome_annot:
                             for mge in mobilome_annot[contig]:
                                 output_table.write(mge + "\n")
+                                output_full.write(mge + "\n")
 
                     composite_val = (contig, start, end, strand)
                     if composite_val in proteins_annot:
                         extra_annot = proteins_annot[composite_val]
                         output_table.write(line.rstrip() + ";" + extra_annot + "\n")
+                        output_full.write(line.rstrip() + ";" + extra_annot + "\n")
+                    else:
+                        output_full.write(line.rstrip() + "\n")
 
                 else:
                     output_table.write(line.rstrip() + "\n")
-
+                    output_full.write(line.rstrip() + "\n")
 
 def main():
     parser = argparse.ArgumentParser(
