@@ -3,7 +3,6 @@ nextflow.enable.dsl=2
 
 process ICEFINDER {
     publishDir "$launchDir/$params.outdir/prediction/icefinder_results", mode: 'copy'
-    stageInMode = 'copy'
 
     cpus 1
     memory { 16.GB * task.attempt }
