@@ -106,9 +106,9 @@ workflow {
 	GBK_SPLITTER( PROKKA.out.prokka_gbk )
 	ICEFINDER( 
 		GBK_SPLITTER.out.gbks,
-		file( "${params.outdir}/prediction/icefinder_results/gbk"),
-		file( "${params.outdir}/prediction/icefinder_results/tmp"),
-		file( "${params.outdir}/prediction/icefinder_results/result")
+		file( "${params.outdir}/prediction/icefinder_results/gbk", checkIfExists: true),
+		file( "${params.outdir}/prediction/icefinder_results/tmp", checkIfExists: true),
+		file( "${params.outdir}/prediction/icefinder_results/result", checkIfExists: true)
 	)
 	INTEGRONFINDER( RENAME.out.contigs_5kb )
 	ISESCAN( RENAME.out.contigs_1kb )
@@ -117,8 +117,8 @@ workflow {
 	// ANNOTATION
 	DIAMOND( PROKKA.out.prokka_faa, params.mobileog_db )
 	if (params.virify){
-		gff_input = Channel.fromPath( params.vir_gff )
-		checkv_input = file(params.vir_checkv)
+		gff_input = Channel.fromPath( params.vir_gff, checkIfExists: true )
+		checkv_input = file(params.vir_checkv, checkIfExists: true)
 		VIRIFY_QC( gff_input, checkv_input )
 		virify_results = VIRIFY_QC.out.virify_hq
 	}else{
