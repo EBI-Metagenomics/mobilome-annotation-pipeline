@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process GENOMAD {
-    publishDir "$launchDir/$params.outdir/prediction/genomad_out"
+    publishDir "$params.outdir/prediction/genomad_out"
 
     cpus 8
     memory { 32.GB * task.attempt }

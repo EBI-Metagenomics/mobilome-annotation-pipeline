@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process ISESCAN {
-    publishDir "$launchDir/$params.outdir/prediction"
+    publishDir "$params.outdir/prediction"
 
     cpus 8
     memory { 8.GB * task.attempt }

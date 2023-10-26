@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process GFF_MAPPING {
-    publishDir "$launchDir/$params.outdir/gff_output_files", mode: 'copy'
+    publishDir "$params.outdir/gff_output_files", mode: 'copy'
 
     container 'quay.io/microbiome-informatics/virify-python3:1.2'
 

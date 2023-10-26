@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process AMRFINDER_REPORT {
-    publishDir "$launchDir/$params.outdir/func_annot", mode: 'copy'
+    publishDir "$params.outdir/func_annot", mode: 'copy'
 
     container 'quay.io/microbiome-informatics/virify-python3:1.2'
 

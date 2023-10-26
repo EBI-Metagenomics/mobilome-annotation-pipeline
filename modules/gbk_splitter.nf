@@ -2,8 +2,8 @@
 nextflow.enable.dsl=2
 
 process GBK_SPLITTER {
-    publishDir "$launchDir/$params.outdir/prediction/icefinder_results/gbk", pattern: '*.gbk', mode: 'copy'
-    publishDir "$launchDir/$params.outdir/prediction/icefinder_results/", pattern: 'input.list', mode: 'copy'
+    publishDir "$params.outdir/prediction/icefinder_results/gbk", pattern: '*.gbk', mode: 'copy'
+    publishDir "$params.outdir/prediction/icefinder_results/", pattern: 'input.list', mode: 'copy'
 
     input:
       path gbk_file
@@ -12,10 +12,10 @@ process GBK_SPLITTER {
       path "*.gbk"
       path "input.list" , emit: gbks
 
-    tmpDir = file("$launchDir/$params.outdir/prediction/icefinder_results/tmp")
+    tmpDir = file("$params.outdir/prediction/icefinder_results/tmp")
     tmpDir.mkdirs()
 
-    resDir = file("$launchDir/$params.outdir/prediction/icefinder_results/result")
+    resDir = file("$params.outdir/prediction/icefinder_results/result")
     resDir.mkdirs()
 
     script:

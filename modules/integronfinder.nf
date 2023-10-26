@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process INTEGRONFINDER {
-    publishDir "$launchDir/$params.outdir/prediction/integron_results"
+    publishDir "$params.outdir/prediction/integron_results"
 
     cpus 8
     memory { 8.GB * task.attempt }

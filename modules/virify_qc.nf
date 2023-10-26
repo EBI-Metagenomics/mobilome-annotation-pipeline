@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process VIRIFY_QC {
-    publishDir "$launchDir/$params.outdir/prediction"
+    publishDir "$params.outdir/prediction"
 
     container 'quay.io/microbiome-informatics/virify-python3:1.2'
 

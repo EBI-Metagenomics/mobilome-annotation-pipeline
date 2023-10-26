@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process AMRFINDER_PLUS {
-    publishDir "$launchDir/$params.outdir/func_annot"
+    publishDir "$params.outdir/func_annot"
 
     cpus 4
     memory { 8.GB * task.attempt }

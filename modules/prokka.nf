@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process PROKKA {
-    publishDir "$launchDir/$params.outdir/preprocessing"
+    publishDir "$params.outdir/preprocessing"
 
     cpus 8
     memory { 8.GB * task.attempt }

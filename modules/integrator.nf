@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process INTEGRATOR {
-    publishDir "$launchDir/${params.outdir}/", mode: 'copy'
+    publishDir "${params.outdir}/", mode: 'copy'
 
     container 'quay.io/microbiome-informatics/virify-python3:1.2'
 

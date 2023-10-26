@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process RENAME {
-    publishDir "$launchDir/$params.outdir/preprocessing"
+    publishDir "$params.outdir/preprocessing"
 
     container 'quay.io/biocontainers/biopython:1.75'
 
