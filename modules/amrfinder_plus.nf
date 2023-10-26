@@ -19,22 +19,20 @@ process AMRFINDER_PLUS {
     output:
         path("amrfinderplus.tsv"), emit: amrfinder_tsv
 
+
+    when:
+        fna.size() > 0
+
     script:
-    if(fna.size() > 0)
-        """    
-        amrfinder --plus \
-        -n ${fna} \
-        -p ${faa} \
-        -g ${gff} \
-        -d ${params.amrfinder_plus_db} \
-        -a prokka \
-        --output amrfinderplus.tsv \
-        --threads ${task.cpus}
-        """
-    else
-        """
-        echo 'AMRFinderPlus output file empty due to empty input... generating dummy files'
-        touch amrfinderplus.tsv
-        """
+    """    
+    amrfinder --plus \
+    -n ${fna} \
+    -p ${faa} \
+    -g ${gff} \
+    -d ${params.amrfinder_plus_db} \
+    -a prokka \
+    --output amrfinderplus.tsv \
+    --threads ${task.cpus}
+    """
 }
 

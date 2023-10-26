@@ -8,10 +8,12 @@ process GFF_VALIDATOR {
     input:
         path momo_gff
 
+    when:
+        momo_gff.size() > 0
+
     script:
-    if(momo_gff.size() > 0)
-        """
-	gt gff3validator ${momo_gff}
-        """
+    """
+    gt gff3validator ${momo_gff}
+    """
 }
 

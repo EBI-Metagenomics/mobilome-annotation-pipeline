@@ -13,12 +13,14 @@ process AMRFINDER_REPORT {
     output:
 	path("amr_location.txt")
 
+    when:
+	amrfinder_tsv.fileExists()
+
     script:
-    if(amrfinder_tsv.size() > 0)
-        """    
-	amr_report.py \
-        --amr_out ${amrfinder_tsv} \
-        --mobilome ${mobilome_gff} \
-        """
+    """    
+    amr_report.py \
+    --amr_out ${amrfinder_tsv} \
+    --mobilome ${mobilome_gff} \
+    """
 }
 
