@@ -106,9 +106,9 @@ workflow {
 	GBK_SPLITTER( PROKKA.out.prokka_gbk )
 	ICEFINDER( 
 		GBK_SPLITTER.out.gbks,
-		file( "${params.outdir}/prediction/icefinder_results/gbk", checkIfExists: true),
-		file( "${params.outdir}/prediction/icefinder_results/tmp", checkIfExists: true),
-		file( "${params.outdir}/prediction/icefinder_results/result", checkIfExists: true)
+		file( "${params.outdir}/prediction/icefinder_results/gbk"),
+		file( "${params.outdir}/prediction/icefinder_results/tmp"),
+		file( "${params.outdir}/prediction/icefinder_results/result")
 	)
 	INTEGRONFINDER( RENAME.out.contigs_5kb )
 	ISESCAN( RENAME.out.contigs_1kb )

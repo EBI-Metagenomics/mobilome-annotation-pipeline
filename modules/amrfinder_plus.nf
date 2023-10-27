@@ -20,19 +20,17 @@ process AMRFINDER_PLUS {
         path("amrfinderplus.tsv"), emit: amrfinder_tsv
 
 
-    when:
-        fna.size() > 0
-
     script:
-    """    
-    amrfinder --plus \
-    -n ${fna} \
-    -p ${faa} \
-    -g ${gff} \
-    -d ${params.amrfinder_plus_db} \
-    -a prokka \
-    --output amrfinderplus.tsv \
-    --threads ${task.cpus}
-    """
+    if (fna.size() > 0)
+        """    
+        amrfinder --plus \
+        -n ${fna} \
+        -p ${faa} \
+        -g ${gff} \
+        -d ${params.amrfinder_plus_db} \
+        -a prokka \
+        --output amrfinderplus.tsv \
+        --threads ${task.cpus}
+        """
 }
 

@@ -13,9 +13,6 @@ process AMRFINDER_REPORT {
     output:
 	path("amr_location.txt")
 
-    when:
-	amrfinder_tsv.fileExists()
-
     script:
     """    
     amr_report.py \
