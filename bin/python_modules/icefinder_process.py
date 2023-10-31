@@ -7,14 +7,8 @@ import os.path
 ##### Alejandra Escobar, EMBL-EBI
 ##### October 4, 2023
 
-
-def icf_parser(icf_dr_file, icf_results):
-    ### Saving the ICEfinder sequences
-    mge_counter = 0
-    mge_data = {}
+def icf_dr_parser(icf_dr_file):
     icf_dr = {}
-
-    ### Saving ICEfinder direct repeat coordinates
     with open(icf_dr_file, "r") as input_table:
         for line in input_table:
             line_l = line.rstrip().split()
@@ -32,6 +26,39 @@ def icf_parser(icf_dr_file, icf_results):
                 dr_2_e = line_l[2].split("..")[1]
                 dr_2 = (dr_2_s, dr_2_e)
                 icf_dr[new_id] = (dr_1, dr_2)
+
+    return(icf_dr)
+
+
+def icf_dr_control(icf_dr, mge_data):
+    # Correcting incorrect coordinates
+    icf_dr_corr = {}
+    for mge in icf_dr:
+        start_1 = int(icf_dr[mge][0][0])
+        end_1 = int(icf_dr[mge][0][1])
+        len_1 = end_1-start_1
+
+        start_2 = int(icf_dr[mge][1][0])
+        end_2 = int(icf_dr[mge][1][1])
+        len_2 = end_2-start_2
+        if len_1!=len_2:
+            mge_start = mge_data[mge][2][0]
+            mge_end = mge_data[mge][2][1]
+            new_start_2 = mge_end-len_1
+            print('Corrected  coordinates:',start_2,'   ->   ',new_start_2 )
+            dr_1 = (start_1, end_1)
+            new_dr_2 = (new_start_2,mge_end)
+            icf_dr[mge] = (dr_1, new_dr_2)
+
+    return(icf_dr)
+
+
+def icf_parser(icf_dr_file, icf_results):
+    ### Saving the ICEfinder sequences
+    mge_counter = 0
+    mge_data = {}
+
+    icf_dr = icf_dr_parser(icf_dr_file)
 
     ### Parsing ICEfinder summaries
     with open(icf_results, "r") as input_table:
@@ -58,6 +85,7 @@ def icf_parser(icf_dr_file, icf_results):
                 .replace("_AICE", "AICE")
                 .replace(":", "")
             )
+
             description = "mobile_element_type=" + description
 
             if not "conjugative_region" in description:
@@ -75,4 +103,7 @@ def icf_parser(icf_dr_file, icf_results):
                 if composite_id in icf_dr:
                     icf_dr[mge_id] = icf_dr.pop(composite_id)
 
+    icf_dr = icf_dr_control(icf_dr, mge_data)
+    
     return (mge_data, icf_dr)
+
