@@ -17,7 +17,7 @@ def mge_data_parser(mge_data):
             if contig in iss_dir:
                 iss_dir[contig].append(coord)
             else:
-                iss_dir[contig] = coord
+                iss_dir[contig] = [coord]
 
     return iss_dir
 
