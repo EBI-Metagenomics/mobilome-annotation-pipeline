@@ -41,7 +41,7 @@ def icf_dr_control(icf_dr, mge_data):
         start_2 = int(icf_dr[mge][1][0])
         end_2 = int(icf_dr[mge][1][1])
         len_2 = end_2-start_2
-        if len_1!=len_2:
+        if start_2>end_2:
             mge_start = mge_data[mge][2][0]
             mge_end = mge_data[mge][2][1]
             new_start_2 = mge_end-len_1
