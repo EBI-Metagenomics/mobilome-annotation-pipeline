@@ -22,7 +22,7 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                     "\t"
                 )
                 if int(complete) > 0:
-                    description = "Complete_integron"
+                    description = "mobile_element_type=complete_integron"
                     gbk_file = id_replicon + ".gbk"
                     if gbk_file in inf_gbks:
                         flag = 0

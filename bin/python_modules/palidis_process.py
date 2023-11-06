@@ -41,7 +41,7 @@ def palids_parser(pal_tsv, inv_names_equiv, mge_data, itr_sites):
                 itr2_end_position,
                 pal_description,
             ) = line.rstrip().split("\t")
-            description = "IS_with_TIR"
+            description = "mobile_element_type=IS_with_TIR"
             coord = (int(itr1_start_position), int(itr2_end_position))
             contig = inv_names_equiv[contig]
             value = (contig, description, coord)
