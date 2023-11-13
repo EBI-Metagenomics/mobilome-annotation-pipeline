@@ -135,7 +135,7 @@ def main():
     mog_annot = mobileog_process.mobileog_parser(args.mog_tsv)
 
     # Parsing CRISPRCasFinder results
-    if os.stat(args.crispr_out).st_size > 0:
+    if os.path.exists(args.crispr_out):
         crispr_annot = crispr_process.crispr_parser(args.crispr_out, args.pkka_gff)
     else:
         crispr_annot = {}
