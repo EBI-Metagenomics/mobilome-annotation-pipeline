@@ -157,6 +157,8 @@ def main():
 
 
 if __name__ == "__main__":
+
+    # FIXME: this needs to be refactored to follow python best practices.
     import argparse
     import os.path
     import sys
