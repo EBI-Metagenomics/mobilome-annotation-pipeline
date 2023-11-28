@@ -71,29 +71,13 @@ if (params.help) {
 	exit 0
 }
 
-
-/*
-    ~~~~~~~~~~~~~~~~~~~~~~~
-        Default options
-    ~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-params.user_genes = false
-params.virify = false
-params.palidis = false
-params.gff_validation = true
-params.outdir = 'mobilome_results'
-params.skip_crispr = false
-params.skip_amr = false
-
-
 /*
     ~~~~~~~~~~~~~~~~~~~~
         Run workflow
     ~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow {
+workflow MAP {
 	assembly = Channel.fromPath( params.assembly, checkIfExists: true )
 	
 	//PREPROCESSING
@@ -176,4 +160,3 @@ workflow {
 	}
 
 }
-

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-from Bio import SeqIO
 import argparse
-import sys
 import os.path
-import glob
 
 
 ##### This script generates three versions of the prokka+mobilome gff file

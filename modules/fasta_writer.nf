@@ -2,17 +2,17 @@
 nextflow.enable.dsl=2
 
 process FASTA_WRITER {
+
     publishDir "$params.outdir/", mode: 'copy'
 
     container 'quay.io/biocontainers/bedtools:2.23.0--h5b5514e_6'
 
-
     input:
-      path assembly
-      path mobilome_nogenes
+    path assembly
+    path mobilome_nogenes
       
     output:
-      path 'mobilome.fasta'
+    path 'mobilome.fasta'
     
     script:
     """
@@ -21,8 +21,6 @@ process FASTA_WRITER {
     bedtools getfasta -fi ${assembly} -bed mobilome_nogenes.bed -name -fo mobilome.fasta
 
     sed -i 's/ID=//;s/::.*//' mobilome.fasta
-
     """
-
 }
 

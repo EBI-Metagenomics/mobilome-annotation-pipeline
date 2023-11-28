@@ -2,9 +2,10 @@
 nextflow.enable.dsl=2
 
 process INTEGRATOR {
+	
     publishDir "${params.outdir}/", mode: 'copy'
 
-    container 'quay.io/microbiome-informatics/virify-python3:1.2'
+    container 'quay.io/biocontainers/biopython:1.78'
 
     input:
 	path prokka_gff
@@ -27,20 +28,20 @@ process INTEGRATOR {
 	path 'discarded_mge.txt'
 
     script:
-    	"""    
-    	mge_integrator.py \
-    	--pkka_gff ${prokka_gff} \
-    	--map ${map_file} \
-    	--iss_tsv ${iss_tsv} \
-    	--pal_tsv ${pal_info} \
-    	--inf_tsv ${inf_summ} \
-    	--inf_gbks ${inf_gbk.join(' ')} \
-    	--icf_tsv ${icf_summ} \
-    	--icf_lim ${icf_dr} \
-    	--mog_tsv ${mog_out} \
+	"""    
+	mge_integrator.py \
+	--pkka_gff ${prokka_gff} \
+	--map ${map_file} \
+	--iss_tsv ${iss_tsv} \
+	--pal_tsv ${pal_info} \
+	--inf_tsv ${inf_summ} \
+	--inf_gbks ${inf_gbk.join(' ')} \
+	--icf_tsv ${icf_summ} \
+	--icf_lim ${icf_dr} \
+	--mog_tsv ${mog_out} \
 	--geno_out ${genomad_vir} \
 	--geno_plas ${genomad_plas} \
-        --virify_out ${vir_results} \
+	--virify_out ${vir_results} \
 	--crispr_out ${crispr_tsv}
 	"""
 }

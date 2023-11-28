@@ -2,15 +2,16 @@
 nextflow.enable.dsl=2
 
 process GFF_REDUCE {
+
     publishDir "$params.outdir/gff_output_files", mode: 'copy'
 
-    container 'quay.io/microbiome-informatics/virify-python3:1.2'
+    container 'quay.io/biocontainers/python:3.9--1'
 
     input:
-        path mobilome_prokka_gff
+    path mobilome_prokka_gff
 
     output:
-        path "mobilome_clean.gff", emit: mobilome_clean
+    path "mobilome_clean.gff", emit: mobilome_clean
 	path "mobilome_extra.gff", emit: mobilome_extra
 	path "mobilome_nogenes.gff", emit: mobilome_nogenes
 

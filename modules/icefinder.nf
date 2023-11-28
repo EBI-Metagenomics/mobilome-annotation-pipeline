@@ -14,13 +14,13 @@ process ICEFINDER {
     containerOptions="--bind $PWD/$params.outdir/prediction/icefinder_results/input.list:/install/ICEfinder_linux/input.list --bind $PWD/$params.outdir/prediction/icefinder_results/gbk/:/install/ICEfinder_linux/gbk/ --bind $PWD/$params.outdir/prediction/icefinder_results/tmp/:/install/ICEfinder_linux/tmp/ --bind $PWD/$params.outdir/prediction/icefinder_results/result/:/install/ICEfinder_linux/result/ --pwd /install/ICEfinder_linux/"
 
     input:
-        path input_list
+    path input_list
 	path gbk_folder, stageAs: "gbk"
-        path tmp_folder, stageAs: "tmp"
+    path tmp_folder, stageAs: "tmp"
 	path res_folder, stageAs: "result"
 
     output:
-        path "result/icf_concat.summary", emit: icf_summ_files
+    path "result/icf_concat.summary", emit: icf_summ_files
 	path "result/icf_dr.txt", emit: icf_dr
 
     script:
@@ -41,7 +41,7 @@ process ICEFINDER {
     else
         """
         echo 'No input files for ICEfinder... generating dummy files'
-	touch result/icf_concat.summary
+	    touch result/icf_concat.summary
         touch result/icf_dr.txt
         """
 }

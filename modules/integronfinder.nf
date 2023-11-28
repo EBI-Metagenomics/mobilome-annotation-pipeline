@@ -29,9 +29,9 @@ process INTEGRONFINDER {
         --gbk \
         ${assembly_file}
 
-	if ls -l Results_Integron_Finder_5kb_contigs/contig_*.gbk 2>/dev/null | grep -q .
+	    if ls -l Results_Integron_Finder_5kb_contigs/contig_*.gbk 2>/dev/null | grep -q .
         then
-	    echo 'IntegronFinder outputs complete'
+	        echo 'IntegronFinder outputs complete'
         else
             echo 'IntegronFinder found 0 integrons in assembly... generating dummy files'
             touch Results_Integron_Finder_5kb_contigs/contig_dummy.gbk

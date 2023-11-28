@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 from Bio import SeqIO
-import sys
 import argparse
-import os
 
 ##### This script filter by contig size a metagenomic assembly and generates two files to feed the MoMofy pipeline
 ##### Alejandra Escobar, EMBL-EBI

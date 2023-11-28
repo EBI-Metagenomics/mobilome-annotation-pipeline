@@ -4,10 +4,10 @@ nextflow.enable.dsl=2
 process AMRFINDER_REPORT {
     publishDir "$params.outdir/func_annot", mode: 'copy'
 
-    container 'quay.io/microbiome-informatics/virify-python3:1.2'
+    container 'quay.io/biocontainers/python:3.9--1'
 
     input:
-        path amrfinder_tsv
+    path amrfinder_tsv
 	path mobilome_gff
 
     output:

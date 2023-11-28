@@ -1,0 +1,27 @@
+{
+    "Should process the mobilome prokka gff file": {
+        "content": [
+            {
+                "0": [
+                    "mobilome_clean.gff:md5,13461a1201121f6204c68c3e03106a51"
+                ],
+                "1": [
+                    "mobilome_extra.gff:md5,c1f6a2cce79fadec007d5ca5e35b46f1"
+                ],
+                "2": [
+                    "mobilome_nogenes.gff:md5,79560ae290e525ea29b46cfad7897191"
+                ],
+                "mobilome_clean": [
+                    "mobilome_clean.gff:md5,13461a1201121f6204c68c3e03106a51"
+                ],
+                "mobilome_extra": [
+                    "mobilome_extra.gff:md5,c1f6a2cce79fadec007d5ca5e35b46f1"
+                ],
+                "mobilome_nogenes": [
+                    "mobilome_nogenes.gff:md5,79560ae290e525ea29b46cfad7897191"
+                ]
+            }
+        ],
+        "timestamp": "2023-11-28T16:54:08.35003"
+    }
+}
