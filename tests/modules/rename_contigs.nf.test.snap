@@ -1,0 +1,27 @@
+{
+    "Should rename the sequences in the assembly": {
+        "content": [
+            {
+                "0": [
+                    "1kb_contigs.fasta:md5,d2d02a537b150e7fa0fe6c7aaedbf8b0"
+                ],
+                "1": [
+                    "5kb_contigs.fasta:md5,70dd2c062dca462687219cf856bdd821"
+                ],
+                "2": [
+                    "contigID.map:md5,5a013666031d5215b864cf3e6ae5c224"
+                ],
+                "contigs_1kb": [
+                    "1kb_contigs.fasta:md5,d2d02a537b150e7fa0fe6c7aaedbf8b0"
+                ],
+                "contigs_5kb": [
+                    "5kb_contigs.fasta:md5,70dd2c062dca462687219cf856bdd821"
+                ],
+                "map_file": [
+                    "contigID.map:md5,5a013666031d5215b864cf3e6ae5c224"
+                ]
+            }
+        ],
+        "timestamp": "2023-11-28T21:41:12.632158"
+    }
+}

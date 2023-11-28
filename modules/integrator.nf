@@ -1,66 +1,48 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process integra {
-    publishDir "$launchDir/${params.outdir}/", mode: 'copy'
+process INTEGRATOR {
+	
+    publishDir "${params.outdir}/", mode: 'copy'
 
-    container "quay.io/microbiome-informatics/virify-python3:1.2"
-
-    memory "4 GB"
-    cpus 1
+    container 'quay.io/biocontainers/biopython:1.78'
 
     input:
-	path cds_gff
-	path mapping_file
-	path iss_fasta
-	path iss_table
-	path pal_fasta
-	path pal_table
-	path inf_table
-	path inf_list
-	path icf_table
-	path icf_fasta
+	path prokka_gff
+	path map_file
+	path iss_tsv
+	path pal_info
+	path inf_summ
+	path inf_gbk
+	path icf_summ
 	path icf_dr
-	path mog_table
+	path mog_out
+	path genomad_vir
+	path genomad_plas
+	path vir_results
+	path crispr_tsv
 
     output:
-	path 'momofy_predictions.fna'
-	path 'momofy_predictions.gff', emit:momo_gff
-	path 'nested_integrons.txt'
+	path 'mobilome_prokka.gff', emit: mobilome_prokka_gff
+	path 'overlapping_integrons.txt'
 	path 'discarded_mge.txt'
 
     script:
-    if (params.user_genes)
-    	"""    
-    	mge_integrator.py --user 'T' \
-    	--cds_gff ${cds_gff} \
-    	--map ${mapping_file} \
-    	--iss_fa ${iss_fasta} \
-    	--iss_tsv ${iss_table} \
-    	--pal_fa ${pal_fasta} \
-    	--pal_tsv ${pal_table} \
-    	--inf_tsv ${inf_table} \
-    	--inf_gbks ${inf_list.join(' ')} \
-    	--icf_tsv ${icf_table} \
-    	--icf_fa ${icf_fasta} \
-    	--icf_lim ${icf_dr} \
-    	--mog_tsv ${mog_table}
-	"""
-    else
-	"""
-	mge_integrator.py --user 'F' \
-        --cds_gff ${cds_gff} \
-        --map ${mapping_file} \
-        --iss_fa ${iss_fasta} \
-        --iss_tsv ${iss_table} \
-        --pal_fa ${pal_fasta} \
-        --pal_tsv ${pal_table} \
-        --inf_tsv ${inf_table} \
-        --inf_gbks ${inf_list.join(' ')} \
-        --icf_tsv ${icf_table} \
-        --icf_fa ${icf_fasta} \
-        --icf_lim ${icf_dr} \
-        --mog_tsv ${mog_table}
+	"""    
+	mge_integrator.py \
+	--pkka_gff ${prokka_gff} \
+	--map ${map_file} \
+	--iss_tsv ${iss_tsv} \
+	--pal_tsv ${pal_info} \
+	--inf_tsv ${inf_summ} \
+	--inf_gbks ${inf_gbk.join(' ')} \
+	--icf_tsv ${icf_summ} \
+	--icf_lim ${icf_dr} \
+	--mog_tsv ${mog_out} \
+	--geno_out ${genomad_vir} \
+	--geno_plas ${genomad_plas} \
+	--virify_out ${vir_results} \
+	--crispr_out ${crispr_tsv}
 	"""
 }
 

@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+# FIXME: port this to python or a third party tool in bioconda
+
 ######## THIS PROGRAM SPLITS A GBK FILE INTO INDEPENDENT FILES ONE PER CONTIG #######
 ######## Alejandra Escobar-Zepeda, EMBL-EBI/Sanger
 ######## May 1st, 2019

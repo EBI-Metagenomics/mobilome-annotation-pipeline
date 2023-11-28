@@ -1,0 +1,2 @@
+seq_name	length	topology	n_genes	genetic_code	plasmid_score	fdr	n_hallmarks	marker_enrichment	conjugation_genes	amr_genes
+contig_2	5005	No terminal repeats	6	11	0.9030	NA	0	1.3017	NA	NA

@@ -1,0 +1,21 @@
+{
+    "The intagrator moduel should run without failures": {
+        "content": [
+            {
+                "0": [
+                    "mobilome_prokka.gff:md5,9eed79e04fb0fbca9fb82b9b9093a03c"
+                ],
+                "1": [
+                    "overlapping_integrons.txt:md5,ec0cb32fbf0260ddf32be7074f5c71a2"
+                ],
+                "2": [
+                    "discarded_mge.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "mobilome_prokka_gff": [
+                    "mobilome_prokka.gff:md5,9eed79e04fb0fbca9fb82b9b9093a03c"
+                ]
+            }
+        ],
+        "timestamp": "2023-11-28T21:26:52.54156"
+    }
+}

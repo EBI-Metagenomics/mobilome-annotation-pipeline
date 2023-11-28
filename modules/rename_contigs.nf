@@ -1,24 +1,22 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process rename {
-    publishDir "$launchDir/preprocessing"
+process RENAME {
+    publishDir "$params.outdir/preprocessing"
 
-    container "quay.io/biocontainers/biopython:1.75"
-
-    memory "1 GB"
-    cpus 1
+    container 'quay.io/biocontainers/biopython:1.75'
 
     input:
-      path assembly_file, name: 'contigs.fasta'
+    path assembly_file
       
     output:
-      path '1kb_contigs.fasta', emit: contigs_1kb
-      path '5kb_contigs.fasta', emit: contigs_5kb
-      path 'contigID.map', emit: map_file
-    
+    path '1kb_contigs.fasta', emit: contigs_1kb
+    path '5kb_contigs.fasta', emit: contigs_5kb
+    path 'contigID.map', emit: map_file
+
+    script:
     """    
-    assembly_filter_rename.py --assembly contigs.fasta
+    assembly_filter_rename.py --assembly ${assembly_file}
     """
 }
 

@@ -4,8 +4,12 @@ singularity/
 # nextflow
 .nextflow/
 
+# python
+bin/python_modules/__pycache__
+
 # nf-test
 .nf-test/*
+.nf-test.log
 
 # local database
 databases/mobileOG_beatrix1.6.dmnd
