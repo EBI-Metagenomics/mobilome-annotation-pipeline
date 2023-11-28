@@ -1,12 +1,10 @@
-name: Run nf-tests for
+name: Run nf-tests for modules
 
-on: [push, pull_request]
-
-# on:
-#   push:
-#     branches: [master]
-#   pull_request:
-#     branches: [master]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [dev, main]
 
 jobs:
   nf-test:
