@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-from Bio import SeqIO
 import argparse
-import sys
 import os.path
-import glob
 
 ##### This script integrates the results of amrfinderplus with the mobilome
 ##### Alejandra Escobar, EMBL-EBI
@@ -24,19 +21,20 @@ def arg_parser(amr_out):
                     e_type = line_l[4]
                     e_stype = line_l[5]
                     if e_type != e_stype:
-                        e_type = e_type+'|'+e_stype
+                        e_type = e_type + "|" + e_stype
                     e_class = line_l[6]
                     e_sclass = line_l[7]
                     if e_class != e_sclass:
-                        e_class = e_class+'|'+e_sclass
+                        e_class = e_class + "|" + e_sclass
                     decriptors = (e_stype, e_class)
                     amr_data[protein_id] = decriptors
 
-    return(amr_data)
+    return amr_data
+
 
 def mob_parser(mobilome):
     ### Saving the proteins in the mobilome
-    mob_prots = {}
+    mob_prots = []
     with open(mobilome, "r") as input_gff:
         for line in input_gff:
             l_line = line.rstrip().split("\t")
@@ -54,55 +52,38 @@ def mob_parser(mobilome):
                     attr,
                 ) = line.rstrip().split("\t")
 
-                if seq_type == 'CDS':
-                    att_fields = attr.split(';')
-                    protein_id = att_fields[0].replace('ID=','')
-                    mges_list = []
-                    for element in att_fields:
-                        key,value = element.split('=')
-                        if key == 'from_mge':
-                            belongs = value.split(',')
-                            for each_mge in belongs:
-                                prefix = each_mge.split('_')[0].replace('icf','integron').replace('inf','integron').replace('iss','is').replace('pal','is')
-                                mges_list.append(prefix)
-                    mob_prots[protein_id]=mges_list
-                    
-    return(mob_prots)
+                if seq_type == "CDS":
+                    att_fields = attr.split(";")
+                    protein_id = att_fields[0].replace("ID=", "")
+                    for attribute in att_fields:
+                        if attribute == "location=mobilome":
+                            mob_prots.append(protein_id)
 
+    return mob_prots
 
 
 def location_parser(amr_data, mob_prots):
-    with open('amr_location.txt','w') as to_output:
-        to_output.write("\t".join(
-            [
-                'Gene_id',
-                'pred_type',
-                'pred_class',
-                'location'
-            ]
-        ) + "\n" )
+    with open("amr_location.txt", "w") as to_output:
+        to_output.write(
+            "\t".join(["Gene_id", "pred_type", "pred_class", "location"]) + "\n"
+        )
         for gene in amr_data:
             prediction_type = amr_data[gene][0]
             prediction_description = amr_data[gene][1]
             if gene in mob_prots:
-                for mge in mob_prots[gene]:
-                    to_output.write("\t".join(
-                        [
-                            gene,
-                            prediction_type,
-                            prediction_description,
-                            mge
-                        ]
-                    ) + "\n" )
+                to_output.write(
+                    "\t".join(
+                        [gene, prediction_type, prediction_description, "mobilome"]
+                    )
+                    + "\n"
+                )
             else:
-                to_output.write("\t".join(
-                    [
-                            gene,
-                            prediction_type,
-                            prediction_description,
-                            'chromosome'
-                        ]
-                    ) + "\n" )
+                to_output.write(
+                    "\t".join(
+                        [gene, prediction_type, prediction_description, "chromosome"]
+                    )
+                    + "\n"
+                )
 
 
 def main():
@@ -110,28 +91,23 @@ def main():
         description="This script integrates the results of amrfinderplus with the mobilome. Please provide the relevant input files"
     )
     parser.add_argument(
-        "--momo_viri", 
-        type=str, 
-        help="Integrated output of virify and momofy in gff format (mobilome_clean.gff)"
+        "--mobilome",
+        type=str,
+        help="Clean version of the output of the mobilome annotation pipeline in GFF format (mobilome_prokka.gff)",
     )
     parser.add_argument(
-        "--amr_out", 
-        type=str, 
-        help="ARG prediction output (amrfinderplus.tsv)", 
-        required=True
+        "--amr_out",
+        type=str,
+        help="ARG prediction output (amrfinderplus.tsv)",
+        required=True,
     )
     args = parser.parse_args()
 
-    ### Setting up variables
-    mobilome = args.momo_viri
-    amr_out = args.amr_out
-
     ### Calling functions
-    amr_data = arg_parser(amr_out)
-    mob_prots = mob_parser(mobilome)
+    amr_data = arg_parser(args.amr_out)
+    mob_prots = mob_parser(args.mobilome)
     location_parser(amr_data, mob_prots)
 
 
 if __name__ == "__main__":
     main()
-

@@ -1,0 +1,28 @@
+nextflow_process {
+
+    name "Test Process VIRIFY_QC"
+    script "modules/virify_qc.nf"
+    process "VIRIFY_QC"
+
+    test("Should process run virify_qc successfully") {
+
+        when {
+            params {
+                outdir = "tests/results"
+            }
+            process {
+                """
+                input[0] = file("${projectDir}/tests/test_data/virify_example/virify.gff")
+                input[1] = file("${projectDir}/tests/test_data/virify_example/prophages_quality_summary.tsv")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+
+    }
+
+}

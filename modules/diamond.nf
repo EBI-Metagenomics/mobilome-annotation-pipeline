@@ -1,29 +1,32 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process diamond_mob {
-    publishDir "$launchDir/mobileog_results"
+process DIAMOND {
+    publishDir "$params.outdir/func_annot"
 
-    memory "8 GB"
     cpus 4
+    memory { 8.GB * task.attempt }
+    errorStrategy 'retry' 
+    maxRetries 3
 
-    container "quay.io/biocontainers/diamond:2.0.12--hdcc8f71_0"
+    container 'quay.io/biocontainers/diamond:2.0.12--hdcc8f71_0'
 
     input:
-        path proteins_file, name: 'proteins.faa'
+        path proteins_file
 	path diamond_db 
 
     output:
-        path 'blastp_out.tsv', emit:blast_out
+        path 'mobileOG.tsv', emit:blast_out
 
     script:
     if(proteins_file.size() > 0)
         """
-        diamond blastp -q proteins.faa \
+        diamond blastp \
+        -q ${proteins_file} \
         --db ${diamond_db} \
         --outfmt 6 stitle qtitle pident bitscore slen evalue qlen sstart send qstart qend \
         -k 15 \
-        -o blastp_out.tsv \
+        -o mobileOG.tsv \
         -e 1e-20 \
         --query-cover 90 \
         --id 90 \
@@ -32,7 +35,7 @@ process diamond_mob {
     else
         """
 	echo 'No input files for diamond... generating dummy files'
-        touch blastp_out.tsv
+        touch mobileOG.tsv
         """
 }
 
