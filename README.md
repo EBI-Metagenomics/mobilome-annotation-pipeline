@@ -1,7 +1,6 @@
+[![Run nf-tests for modules](https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/actions/workflows/test_modules.yml/badge.svg?branch=main)](https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/actions/workflows/test_modules.yml)
 
-
-# Mobilome Annotation Pipeline
-## (former MoMofy)
+# Mobilome Annotation Pipeline (former MoMofy)
 
 <p align="center" width="100%">
    <img src="media/mge_pred.png" width="90%"/>
