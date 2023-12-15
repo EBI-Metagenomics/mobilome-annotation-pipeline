@@ -77,7 +77,7 @@ if (params.help) {
     ~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow MAP {
+workflow {
 	assembly = Channel.fromPath( params.assembly, checkIfExists: true )
 	
 	//PREPROCESSING
