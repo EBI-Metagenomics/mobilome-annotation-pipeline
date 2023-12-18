@@ -41,7 +41,7 @@ process INTEGRONFINDER {
         """
         echo 'IntegronFinder dir empty due to empty input... generating dummy files'
         mkdir Results_Integron_Finder_5kb_contigs
-        touch Results_Integron_Finder_5kb_contigs/contigs.summary
+        touch Results_Integron_Finder_5kb_contigs/5kb_contigs.summary
         touch Results_Integron_Finder_5kb_contigs/contig_dummy.gbk
         """
 }
