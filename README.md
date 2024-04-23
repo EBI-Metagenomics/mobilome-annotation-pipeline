@@ -53,7 +53,7 @@ Explained in this section, there is one manual step required to build the singul
 <a name="install"></a>
 ## Install and dependencies
 
-To install the Mobilome Annotation Pipeline, clone this repo by:
+To get a copy of the Mobilome Annotation Pipeline, clone this repo by:
 
 ```bash
 $ git clone https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline.git
@@ -68,9 +68,9 @@ $ unzip beatrix-1-6_v1_all.zip
 $ nextflow run /PATH/mobilome-annotation-pipeline/format_mobileOG.nf
 ```
 
-Most of the tools are available on [quay.io](https://quay.io) and no install is needed. 
+Two additional databases need to be manually downloaded and extracted: [AMRFinder plus db](https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest) and the [geNomad database](https://zenodo.org/records/8339387) databases. Then you can provide the paths to your databases using the `mobileog_db`, the `amrfinder_plus_db` and the `genomad_db` respectively when you run the pipeline.
 
-In the case of ICEfinder, you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the `ICEfinder_linux.tar.gz` tarball, move it to `mobilome-annotation-pipeline/templates` and build the singularity image using the following command:
+Most of the tools are available on [quay.io](https://quay.io) and no install is needed. However, in the case of ICEfinder, you will need to contact the author to get a copy of the software, visit the [ICEfinder website](https://bioinfo-mml.sjtu.edu.cn/ICEfinder/download.html) for more information. Once you have the `ICEfinder_linux.tar.gz` tarball, move it to `mobilome-annotation-pipeline/templates` and build the singularity image using the following command:
 
 ```bash
 $ mv ICEfinder_linux.tar.gz /PATH/mobilome-annotation-pipeline/templates/
