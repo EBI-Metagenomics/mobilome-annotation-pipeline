@@ -4,11 +4,6 @@ nextflow.enable.dsl=2
 process AMRFINDER_PLUS {
     publishDir "$params.outdir/func_annot"
 
-    cpus 4
-    memory { 8.GB * task.attempt }
-    errorStrategy 'retry' 
-    maxRetries 3
-
     container 'quay.io/biocontainers/ncbi_amrfinderplus:3.11.4'
 
     input:
