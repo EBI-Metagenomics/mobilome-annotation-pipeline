@@ -4,11 +4,6 @@ nextflow.enable.dsl=2
 process GENOMAD {
     publishDir "$params.outdir/prediction/genomad_out"
 
-    cpus 8
-    memory { 32.GB * task.attempt }
-    errorStrategy 'retry' 
-    maxRetries 3
-
     container 'quay.io/biocontainers/genomad:1.6.1--pyhdfd78af_0'
 
     input:

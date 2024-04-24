@@ -4,11 +4,6 @@ nextflow.enable.dsl=2
 process PROKKA {
     publishDir "$params.outdir/preprocessing"
 
-    cpus 8
-    memory { 8.GB * task.attempt }
-    errorStrategy 'retry' 
-    maxRetries 3
-
     container 'quay.io/biocontainers/prokka:1.14.6--pl526_0'
 
     input:

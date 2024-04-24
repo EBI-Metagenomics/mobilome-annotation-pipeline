@@ -5,11 +5,6 @@ process ISESCAN {
 
     publishDir "$params.outdir/prediction"
 
-    cpus 8
-    memory { 8.GB * task.attempt }
-    errorStrategy 'retry' 
-    maxRetries 3
-
     container 'quay.io/microbiome-informatics/isescan-v1.7.2.3'
 
     input:

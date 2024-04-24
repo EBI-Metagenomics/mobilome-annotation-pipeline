@@ -5,7 +5,7 @@ singularity/
 .nextflow/
 
 # python
-bin/python_modules/__pycache__
+bin/python_modules/__pycache__/
 
 # nf-test
 .nf-test/*

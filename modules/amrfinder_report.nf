@@ -8,10 +8,10 @@ process AMRFINDER_REPORT {
 
     input:
     path amrfinder_tsv
-	path mobilome_gff
+    path mobilome_gff
 
     output:
-	path("amr_location.txt")
+    path("amr_location.txt")
 
     script:
     """    
