@@ -36,6 +36,8 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                                         mge_counter += 1
                                         mge_id = "inf_" + str(mge_counter)
                                         start = int(feature.location.start)
+                                        if start == 0:
+                                            start = 1
                                         end = int(feature.location.end)
                                         coord = (start, end)
                                         value = (id_replicon, description, coord)
@@ -43,6 +45,8 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                                 if feature.type == "attC":
                                     if flag == 1:
                                         start = str(feature.location.start)
+                                        if start == 0:
+                                            start = 1
                                         end = str(feature.location.end)
                                         coord = (start, end)
                                         attC_site[mge_id] = coord
