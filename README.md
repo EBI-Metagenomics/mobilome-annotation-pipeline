@@ -59,7 +59,7 @@ To get a copy of the Mobilome Annotation Pipeline, clone this repo by:
 $ git clone https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline.git
 ```
 
-The mobileOG-database is required to run an extra step of annotation on the mobilome coding sequences. The first time you run MoMofy, you will need to download the [Beatrix 1.6 v1](https://mobileogdb.flsi.cloud.vt.edu/entries/database_download) database, move the tarball to `mobilome-annotation-pipeline/databases`, decompress it, and run the script to format the db for diamond:
+The mobileOG-database is required to run an extra step of annotation on the mobilome coding sequences. The first time you run the Mobilome Annotation Pipeline, you will need to download the [Beatrix 1.6 v1](https://mobileogdb.flsi.cloud.vt.edu/entries/database_download) database, move the tarball to `mobilome-annotation-pipeline/databases`, decompress it, and run the script to format the db for diamond:
 
 ```bash
 $ mv beatrix-1-6_v1_all.zip /PATH/mobilome-annotation-pipeline/databases
@@ -128,7 +128,7 @@ Launching `main.nf` [pensive_newton] DSL2 - revision: b36100bb05
 <a name="in"></a>
 ## Inputs
 
-To run MoMofy on multiple samples, create a directory per sample and launch the tool from the sample directory. The only mandatory input is the (meta)genomic assembly file in fasta format (uncompress).
+To run the Mobilome Annotation Pipeline on multiple samples, create a directory per sample and launch the tool from the sample directory. The only mandatory input is the (meta)genomic assembly file in fasta format (uncompress).
 
 Basic run:
 
