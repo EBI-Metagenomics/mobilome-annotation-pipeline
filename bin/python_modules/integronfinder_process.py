@@ -23,7 +23,6 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                     gbk_file = id_replicon + ".gbk"
                     gbk_files_list.append(gbk_file)
 
-
     mge_counter = 0
     attC_site = {}
     for gbk_file in gbk_files_list:
@@ -44,7 +43,7 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                     mge_counter += 1
                     mge_id = "inf_" + str(mge_counter)
                     mge_start = int(integron_feature.location.start)
-                    if mge_start == 0:
+                    if not mge_start:
                         mge_start = 1
                     mge_end = int(integron_feature.location.end)
                     mge_coord = (mge_start, mge_end)
@@ -53,20 +52,16 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                     value = (id_replicon, description, mge_coord)
                     mge_data[mge_id] = value
 
-                    print('process integron -> check attC')
-                    print(value)
                     # check attC
                     for index_attc in indexes_attc:
                         attc_feature = gb_record.features[index_attc]
                         attc_start = str(attc_feature.location.start)
-                        if attc_start == 0:
+                        if not attc_start:
                             attc_start = 1
                         attc_end = str(attc_feature.location.end)
                         attc_coord = (attc_start, attc_end)
 
-                        if mge_id in attC_site:
-                            attC_site[mge_id].append(attc_coord)
-                        else:
-                            attC_site[mge_id] = [attc_coord]
+                        attC_site.setdefault(mge_id, [])
+                        attC_site[mge_id].append(attc_coord)
 
     return (mge_data, attC_site)
