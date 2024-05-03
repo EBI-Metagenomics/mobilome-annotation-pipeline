@@ -126,21 +126,22 @@ def gff_writer(
                                 seq_type = "integron"
                                 if element in attC_site:
                                     f_seq_type = "attC_site"
-                                    f_start = attC_site[element][0]
-                                    f_end = attC_site[element][1]
-                                    feature_id = id_collector(
-                                        id_to_print, f_start, f_end, f_seq_type
-                                    )
-                                    gff_line = line_builder(
-                                        id_to_print,
-                                        source,
-                                        f_seq_type,
-                                        f_start,
-                                        f_end,
-                                        feature_id,
-                                        "recombination_site=attC",
-                                    )
-                                    to_gff.write(gff_line + "\n")
+                                    for attc_element in attC_site[element]:
+                                        f_start = attc_element[0]
+                                        f_end = attc_element[1]
+                                        feature_id = id_collector(
+                                            id_to_print, f_start, f_end, f_seq_type
+                                        )
+                                        gff_line = line_builder(
+                                            id_to_print,
+                                            source,
+                                            f_seq_type,
+                                            f_start,
+                                            f_end,
+                                            feature_id,
+                                            "recombination_site=attC",
+                                        )
+                                        to_gff.write(gff_line + "\n")
 
                             elif "icf" in element:
                                 if "IME" in mge_data[element][1]:
