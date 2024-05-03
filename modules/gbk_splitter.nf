@@ -3,23 +3,15 @@ nextflow.enable.dsl=2
 
 process GBK_SPLITTER {
 
-    publishDir "$params.outdir/prediction/icefinder_results/gbk", pattern: '*.gbk', mode: 'copy'
-    publishDir "$params.outdir/prediction/icefinder_results/", pattern: 'input.list', mode: 'copy'
+    // publishDir "$params.outdir/prediction/icefinder_results/gbk", pattern: '*.gbk', mode: 'copy'
+    // publishDir "$params.outdir/prediction/icefinder_results/", pattern: 'input.list', mode: 'copy'
 
     input:
     path gbk_file
       
     output:
-    path "*.gbk"
-    path "input.list" , emit: gbks
-
-    // FIXME: this is no very canonical (in terms of nextflow pipelines)
-    //        also, I don't think this is going to work in the cloud
-    tmpDir = file("$params.outdir/prediction/icefinder_results/tmp")
-    tmpDir.mkdirs()
-
-    resDir = file("$params.outdir/prediction/icefinder_results/result")
-    resDir.mkdirs()
+    path "input.list" , emit: input_list
+    path "*.gbk"      , emit: gbks
 
     script:
     if (gbk_file.size() > 0)

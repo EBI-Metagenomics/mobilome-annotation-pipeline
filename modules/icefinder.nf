@@ -1,7 +1,9 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
+
 process ICEFINDER {
+
     publishDir "$params.outdir/prediction/icefinder_results", mode: 'copy'
 
     cpus 1
@@ -11,21 +13,21 @@ process ICEFINDER {
 
     container "${projectDir}/singularity/icefinder-v1.0-local.sif"
 
-    containerOptions="--bind $params.outdir/prediction/icefinder_results/input.list:/install/ICEfinder_linux/input.list --bind $params.outdir/prediction/icefinder_results/gbk/:/install/ICEfinder_linux/gbk/ --bind $params.outdir/prediction/icefinder_results/tmp/:/install/ICEfinder_linux/tmp/ --bind $params.outdir/prediction/icefinder_results/result/:/install/ICEfinder_linux/result/ --pwd /install/ICEfinder_linux/"
+    containerOptions "--bind /install/ICEfinder_linux:/install/ICEfinder_linux"
 
     input:
-    path input_list
-	path gbk_folder, stageAs: "gbk"
-    path tmp_folder, stageAs: "tmp"
-	path res_folder, stageAs: "result"
+    path input_list, stageAs: "/install/ICEfinder_linux/input.list"
+    path gbks,       stageAs: "/install/ICEfinder_linux/gbk/*"
 
     output:
     path "result/icf_concat.summary", emit: icf_summ_files
-	path "result/icf_dr.txt", emit: icf_dr
+    path "result/icf_dr.txt", emit: icf_dr
 
     script:
     if(input_list.size() > 0)
         """
+        mkdir -p /install/ICEfinder_linux/tmp
+
         cd /install/ICEfinder_linux/ && perl ./ICEfinder_local.pl input.list
 
         if ls -ld result/contig* 2>/dev/null | grep -q .
@@ -45,4 +47,3 @@ process ICEFINDER {
         touch result/icf_dr.txt
         """
 }
-
