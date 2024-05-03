@@ -43,6 +43,8 @@ def helpMessage() {
           --assembly                      (Meta)genomic assembly in fasta format (uncompress)
 
          Optional arguments:
+    ** ICEfinder singularity container image
+          --icefinder_sif                 Path to the ICEFinder .sif image, otherwise the pipeline expects the image to be in the \$SINGULARITY_CACHEDIR
     ** Extra annotations provided by the user
         * Genes prediction  
           --user_genes                    Use the user annotation files. See --prot_gff [false]

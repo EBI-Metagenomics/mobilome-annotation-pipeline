@@ -3,6 +3,7 @@ nextflow.enable.dsl=2
 
 process GBK_SPLITTER {
 
+    // TODO: Ale, do we need this? Or with the icefinder publishDir bits is enough?
     // publishDir "$params.outdir/prediction/icefinder_results/gbk", pattern: '*.gbk', mode: 'copy'
     // publishDir "$params.outdir/prediction/icefinder_results/", pattern: 'input.list', mode: 'copy'
 

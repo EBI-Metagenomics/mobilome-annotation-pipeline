@@ -2,9 +2,10 @@
 nextflow.enable.dsl=2
 
 process AMRFINDER_PLUS {
+
     publishDir "$params.outdir/func_annot"
 
-    container 'quay.io/biocontainers/ncbi_amrfinderplus:3.11.4'
+    container 'quay.io/biocontainers/ncbi-amrfinderplus:3.11.4--h6e70893_0'
 
     input:
         path fna

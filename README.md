@@ -81,6 +81,8 @@ $ cd /PATH/mobilome-annotation-pipeline/templates/
 $ sudo singularity build ../../singularity/icefinder-v1.0-local.sif icefinder-v1.0-local.def
 ```
 
+The path to the ICEfinder image needs to be provided when running the pipeline, unless a custom config file is created.
+
 PaliDIS and VIRIfy are optional steps on the workflow, therefore its installation is optional as well. Visit the corresponding Github sites for installing instructions: [PaliDIS repo](https://github.com/blue-moon22/PaliDIS), [VIRify repo](https://github.com/EBI-Metagenomics/emg-viral-pipeline).
 
 <a name="usage"></a>
@@ -106,6 +108,8 @@ Launching `main.nf` [pensive_newton] DSL2 - revision: b36100bb05
 
          Optional arguments:
     ** Extra annotations provided by the user
+        ** ICEfinder singularity container image
+          --icefinder_sif                 Path to the ICEFinder .sif image, otherwise the pipeline expects the image to be in the \$SINGULARITY_CACHEDIR
         * Genes prediction
           --user_genes                    Use the user annotation files. See --prot_gff [false]
           --prot_gff                      Annotation file in GFF3 format. Mandatory with '--user_genes true'
@@ -125,7 +129,6 @@ Launching `main.nf` [pensive_newton] DSL2 - revision: b36100bb05
           --outdir                        Output directory to place results [mobilome_results]
     ** Show usage message and exit
           --help                          This usage statement [false]
-
 ```
 
 <a name="in"></a>
@@ -137,7 +140,7 @@ To run the Mobilome Annotation Pipeline on multiple samples, create a directory 
 Basic run:
 
 ```bash
-$ nextflow run /PATH/mobilome-annotation-pipeline/main.nf --assembly contigs.fasta
+$ nextflow run /PATH/mobilome-annotation-pipeline/main.nf --assembly contigs.fasta [--icefinder_sif icefinder-v1.0-local.sif]
 ```
 
 Note that the final output in gff format is created by adding information to PROKKA output. If you have your own protein prediction files, provide the gff file (uncompressed). This file will be used to generate a `user_mobilome_extra.gff` file containing the mobilome plus any extra annotation generated on the annotation subworkflow.
