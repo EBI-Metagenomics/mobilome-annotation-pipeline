@@ -81,10 +81,10 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                     # check attC
                     for index_attc in indexes_attc:
                         attc_feature = gb_record.features[index_attc]
-                        attc_start = str(attc_feature.location.start)
+                        attc_start = int(attc_feature.location.start)
                         if not attc_start:
                             attc_start = 1
-                        attc_end = str(attc_feature.location.end)
+                        attc_end = int(attc_feature.location.end)
                         attc_coord = (attc_start, attc_end)
 
                         attC_site.setdefault(mge_id, [])
