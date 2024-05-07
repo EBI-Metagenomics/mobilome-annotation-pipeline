@@ -9,7 +9,7 @@ process INTEGRONFINDER {
     errorStrategy 'retry' 
     maxRetries 3
 
-    container 'quay.io/microbiome-informatics/integronfinder:latest'
+    container 'quay.io/microbiome-informatics/integron_finder_v2.0.3'
 
     input:
         path assembly_file
@@ -22,10 +22,8 @@ process INTEGRONFINDER {
     if(assembly_file.size() > 0)
         """
         integron_finder --union-integrases \
-        --mute \
         --local-max \
         --cpu ${task.cpus} \
-        --func-annot \
         --gbk \
         ${assembly_file}
 
