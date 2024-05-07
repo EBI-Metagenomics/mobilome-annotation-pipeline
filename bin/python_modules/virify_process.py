@@ -87,7 +87,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
 
         # Finding and catching phage-plasmids
         if v_contig in plasmids_list:
-            to_discard.append(phage)
+            #to_discard.append(phage)
             phage_plasmids.append(v_contig)
 
         # Finding redundancy on viral genome fragments
