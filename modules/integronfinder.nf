@@ -9,7 +9,7 @@ process INTEGRONFINDER {
     errorStrategy 'retry' 
     maxRetries 3
 
-    container 'quay.io/microbiome-informatics/integron_finder_v2.0.3'
+    container 'quay.io/microbiome-informatics/integronfinder:71ee6e0'
 
     input:
         path assembly_file
