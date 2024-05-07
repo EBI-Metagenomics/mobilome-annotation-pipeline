@@ -120,8 +120,9 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
     to_discard = list(set(to_discard))
     print("Number of geNomad predictions discarded: " + str(len(to_discard)))
     for phage_id in to_discard:
-        print(phage_id, mge_data[phage_id])
-        del mge_data[phage_id]
+        if phage_id in mge_data:
+            print(phage_id, mge_data[phage_id])
+            del mge_data[phage_id]
 
     ## Adding missing viral predictions to mge_data
     print(
