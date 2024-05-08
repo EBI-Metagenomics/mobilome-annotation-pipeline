@@ -3,7 +3,7 @@ nextflow.enable.dsl=2
 
 process AMRFINDER_PLUS {
 
-    publishDir "$params.outdir/func_annot"
+    publishDir "$params.outdir/func_annot", mode: 'copy'
 
     container 'quay.io/biocontainers/ncbi-amrfinderplus:3.11.4--h6e70893_0'
 

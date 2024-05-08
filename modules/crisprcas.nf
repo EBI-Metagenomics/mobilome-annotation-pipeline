@@ -2,7 +2,8 @@
 nextflow.enable.dsl=2
 
 process CRISPR_FINDER {
-    publishDir "$params.outdir/func_annot"
+
+    publishDir "$params.outdir/func_annot", mode: 'copy'
 
     container 'quay.io/microbiome-informatics/genomes-pipeline.crisprcasfinder:4.3.2'
 
