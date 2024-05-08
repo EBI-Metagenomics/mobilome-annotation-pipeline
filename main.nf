@@ -89,15 +89,18 @@ workflow {
     // PREDICTION
     GENOMAD( RENAME.out.contigs_5kb )
     GBK_SPLITTER( PROKKA.out.prokka_gbk )
-    ICEFINDER( 
-        GBK_SPLITTER.out.input_list,
-        GBK_SPLITTER.out.gbks
-    )
+	ICEFINDER( 
+		GBK_SPLITTER.out.gbks,
+		file( "${params.outdir}/prediction/icefinder_results/gbk"),
+		file( "${params.outdir}/prediction/icefinder_results/tmp"),
+		file( "${params.outdir}/prediction/icefinder_results/result")
+	)
     INTEGRONFINDER( RENAME.out.contigs_5kb )
     ISESCAN( RENAME.out.contigs_1kb )
 
     // ANNOTATION
     DIAMOND( PROKKA.out.prokka_faa, params.mobileog_db )
+
     if (params.virify){
         gff_input = Channel.fromPath( params.vir_gff, checkIfExists: true )
         checkv_input = file(params.vir_checkv, checkIfExists: true)

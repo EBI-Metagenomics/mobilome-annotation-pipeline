@@ -1,9 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-
 process ICEFINDER {
-
     publishDir "$params.outdir/prediction/icefinder_results", mode: 'copy'
 
     cpus 1
@@ -11,31 +9,32 @@ process ICEFINDER {
     errorStrategy 'retry'
     maxRetries 3
 
-    // This is required as it's the directory mounted in the singularity container
-    beforeScript 'mkdir -p if_results'
+    container "${projectDir}/singularity/icefinder-v1.0-local.sif"
 
-    container {
-        if ( params.icefinder_sif ) {
-            return params.icefinder_sif
-        }
-        return "${params.singularity_cachedir}/icefinder-v1.0-local.sif"
+    containerOptions {
+        args = [
+            "--bind $PWD/$params.outdir/prediction/icefinder_results/input.list:/install/ICEfinder_linux/input.list",
+            "--bind $PWD/$params.outdir/prediction/icefinder_results/gbk/:/install/ICEfinder_linux/gbk/",
+            "--bind $PWD/$params.outdir/prediction/icefinder_results/tmp/:/install/ICEfinder_linux/tmp/",
+            "--bind $PWD/$params.outdir/prediction/icefinder_results/result/:/install/ICEfinder_linux/result/",
+            "--pwd /install/ICEfinder_linux/"
+        ]
+        args.join(" ")
     }
 
-    containerOptions "--bind if_results:/install/ICEfinder_linux/result/"
-
     input:
-    path input_list, stageAs: "/install/ICEfinder_linux/input.list"
-    path gbks,       stageAs: "/install/ICEfinder_linux/gbk/*"
+    path input_list
+	path gbk_folder, stageAs: "gbk"
+    path tmp_folder, stageAs: "tmp"
+	path res_folder, stageAs: "result"
 
     output:
-    path "if_results/icf_concat.summary", emit: icf_summ_files
-    path "if_results/icf_dr.txt",         emit: icf_dr
+    path "result/icf_concat.summary", emit: icf_summ_files
+	path "result/icf_dr.txt", emit: icf_dr
 
     script:
     if(input_list.size() > 0)
         """
-        mkdir -p /install/ICEfinder_linux/tmp
-
         cd /install/ICEfinder_linux/ && perl ./ICEfinder_local.pl input.list
 
         if ls -ld result/contig* 2>/dev/null | grep -q .
@@ -44,14 +43,14 @@ process ICEFINDER {
             grep 'DR:' result/*/ICE* > result/icf_dr.txt
         else
             echo 'ICEfinder found 0 ICE/IME in assembly... generating dummy files'
-            touch result/icf_concat.summary
+	    touch result/icf_concat.summary
             touch result/icf_dr.txt
         fi
         """
     else
         """
         echo 'No input files for ICEfinder... generating dummy files'
-        touch result/icf_concat.summary
+	    touch result/icf_concat.summary
         touch result/icf_dr.txt
         """
 }
