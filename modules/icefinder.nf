@@ -9,7 +9,12 @@ process ICEFINDER {
     errorStrategy 'retry'
     maxRetries 3
 
-    container "${projectDir}/singularity/icefinder-v1.0-local.sif"
+    container {
+        if ( params.icefinder_sif ) {
+            return params.icefinder_sif
+        }
+        return "${params.singularity_cachedir}/icefinder-v1.0-local.sif"
+    }
 
     containerOptions {
         args = [
