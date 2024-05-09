@@ -3,7 +3,7 @@ nextflow.enable.dsl=2
 
 process ISESCAN {
 
-    publishDir "$params.outdir/prediction"
+    publishDir "$params.outdir/prediction", mode: 'copy'
 
     container 'quay.io/microbiome-informatics/isescan-v1.7.2.3'
 

@@ -3,6 +3,7 @@ singularity/
 
 # nextflow
 .nextflow/
+.nextflow*
 
 # python
 bin/python_modules/__pycache__/

@@ -2,7 +2,8 @@
 nextflow.enable.dsl=2
 
 process DIAMOND {
-    publishDir "$params.outdir/func_annot"
+
+    publishDir "$params.outdir/func_annot", mode: 'copy'
 
     container 'quay.io/biocontainers/diamond:2.0.12--hdcc8f71_0'
 
