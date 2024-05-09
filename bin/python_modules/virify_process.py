@@ -87,7 +87,6 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
 
         # Finding and catching phage-plasmids
         if v_contig in plasmids_list:
-            to_discard.append(phage)
             phage_plasmids.append(v_contig)
 
         # Finding redundancy on viral genome fragments
@@ -120,8 +119,9 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
     to_discard = list(set(to_discard))
     print("Number of geNomad predictions discarded: " + str(len(to_discard)))
     for phage_id in to_discard:
-        print(phage_id, mge_data[phage_id])
-        del mge_data[phage_id]
+        if phage_id in mge_data:
+            print(phage_id, mge_data[phage_id])
+            del mge_data[phage_id]
 
     ## Adding missing viral predictions to mge_data
     print(
@@ -157,7 +157,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
         mge_counter += 1
         old_contig, old_description, old_coord = mge_data[pp]
         new_desc = "mobile_element_type=phage_plasmid"
-        new_val = (contig, new_desc, coord)
+        new_val = (contig, new_desc, old_coord)
         new_mge_id = "phpl_" + str(mge_counter)
         del mge_data[pp]
         mge_data[new_mge_id] = new_val

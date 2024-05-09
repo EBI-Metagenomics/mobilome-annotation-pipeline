@@ -2,6 +2,7 @@
 
 import os.path
 from Bio import SeqIO
+import re
 
 ##### This module parse the IntegronFinder outputs
 ##### Alejandra Escobar, EMBL-EBI
@@ -42,23 +43,25 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                 if integron_feature.qualifiers["integron_type"][0] == "complete":
                     mge_counter += 1
                     mge_id = "inf_" + str(mge_counter)
+                    if not integron_feature.location:
+                        continue
                     mge_start = int(integron_feature.location.start)
                     if not mge_start:
                         mge_start = 1
                     mge_end = int(integron_feature.location.end)
                     mge_coord = (mge_start, mge_end)
                     description = "mobile_element_type=complete_integron"
-                    id_replicon = gbk_file.replace('.gbk','')
+                    id_replicon = gbk_file.replace('.gbk', '')
                     value = (id_replicon, description, mge_coord)
                     mge_data[mge_id] = value
 
                     # check attC
                     for index_attc in indexes_attc:
                         attc_feature = gb_record.features[index_attc]
-                        attc_start = str(attc_feature.location.start)
+                        attc_start = int(attc_feature.location.start)
                         if not attc_start:
                             attc_start = 1
-                        attc_end = str(attc_feature.location.end)
+                        attc_end = int(attc_feature.location.end)
                         attc_coord = (attc_start, attc_end)
 
                         attC_site.setdefault(mge_id, [])
