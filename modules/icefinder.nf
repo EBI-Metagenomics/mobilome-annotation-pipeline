@@ -9,9 +9,23 @@ process ICEFINDER {
     errorStrategy 'retry'
     maxRetries 3
 
-    container "${projectDir}/singularity/icefinder-v1.0-local.sif"
+    container {
+        if ( params.icefinder_sif ) {
+            return params.icefinder_sif
+        }
+        return "${params.singularity_cachedir}/icefinder-v1.0-local.sif"
+    }
 
-    containerOptions="--bind $params.outdir/prediction/icefinder_results/input.list:/install/ICEfinder_linux/input.list --bind $params.outdir/prediction/icefinder_results/gbk/:/install/ICEfinder_linux/gbk/ --bind $params.outdir/prediction/icefinder_results/tmp/:/install/ICEfinder_linux/tmp/ --bind $params.outdir/prediction/icefinder_results/result/:/install/ICEfinder_linux/result/ --pwd /install/ICEfinder_linux/"
+    containerOptions {
+        args = [
+            "--bind $PWD/$params.outdir/prediction/icefinder_results/input.list:/install/ICEfinder_linux/input.list",
+            "--bind $PWD/$params.outdir/prediction/icefinder_results/gbk/:/install/ICEfinder_linux/gbk/",
+            "--bind $PWD/$params.outdir/prediction/icefinder_results/tmp/:/install/ICEfinder_linux/tmp/",
+            "--bind $PWD/$params.outdir/prediction/icefinder_results/result/:/install/ICEfinder_linux/result/",
+            "--pwd /install/ICEfinder_linux/"
+        ]
+        args.join(" ")
+    }
 
     input:
     path input_list
@@ -45,4 +59,3 @@ process ICEFINDER {
         touch result/icf_dr.txt
         """
 }
-

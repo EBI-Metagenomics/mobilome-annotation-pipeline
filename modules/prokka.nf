@@ -2,7 +2,8 @@
 nextflow.enable.dsl=2
 
 process PROKKA {
-    publishDir "$params.outdir/preprocessing"
+
+    publishDir "$params.outdir/preprocessing", mode: 'copy'
 
     container 'quay.io/biocontainers/prokka:1.14.6--pl526_0'
 
