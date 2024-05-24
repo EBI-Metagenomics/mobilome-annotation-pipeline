@@ -51,21 +51,10 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                 ) = line.rstrip().split("\t")
                 contig = inv_names_equiv[contig]
                 coord = (int(start), int(end))
-
+                
                 if seq_source == "VIRify":
                     mge_counter += 1
-                    mge_id = "vir2_" + str(mge_counter)
-
-                    (
-                        vir_mge_id,
-                        gbkey,
-                        mobile_element_type,
-                        checkv_provirus,
-                        checkv_quality,
-                        miuvig_quality,
-                        taxonomy,
-                    ) = attr.split(";")
-
+                    mge_id = "vir2_" + str(mge_counter)    
                     composite_val = (contig, attr, coord)
                     virify_predictions[mge_id] = composite_val
 
