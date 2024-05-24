@@ -182,15 +182,12 @@ def gff_writer(
                                     )
                                     to_gff.write(gff_line + "\n")
 
-                            elif "vir2" in element:
+                            elif "vir" in element:
                                 mobile_element_type = mge_data[element][1].split(';')[0].split('=')[1]
                                 if "prophage" in mobile_element_type:
                                     seq_type = "prophage"
                                 else:
                                     seq_type = "viral_sequence"
-
-                            elif "vir1" in element:
-                                
                             
                             elif "plas" in element:
                                 seq_type = "plasmid"
