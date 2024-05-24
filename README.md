@@ -265,6 +265,7 @@ The Mobilome Annotation Pipeline parses and integrates the output of the followi
 
 - AMRFinderPlus v3.11.4 with database v2023-02-23.1 [Feldgarden et al., Sci Rep, 2021](https://doi.org/10.1038/s41598-021-91456-0)
 - CRISPRCasFinder v4.3.2 [Couvin et al., Nucleic Acids Res, 2018](https://doi.org/10.1093/nar/gky425)
+- Diamond v2.0.12 [Buchfink et al., Nature Methods, 2021](https://doi.org/10.1038/s41592-021-01101-x)
 - geNomad v1.6.1 [Camargo et al., Nature Biotechnology, 2023](https://doi.org/10.1038/s41587-023-01953-y)
 - ICEfinder v1.0 [Liu et al., Nucleic Acids Res, 2019](https://doi.org/10.1093/nar/gky1123)
 - IntegronFinder2 v2.0.2 [Néron et al., Microorganisms, 2022](https://doi.org/10.3390/microorganisms10040700)
