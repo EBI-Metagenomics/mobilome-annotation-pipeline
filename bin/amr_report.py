@@ -134,7 +134,9 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types):
         to_output.write(
             "\t".join([
                 "gene_id",
-                "contig_id", 
+                "contig_id",
+                "gene_start",
+                "gene_end",
                 "ref_coverage",
                 "ref_identity",
                 "class_summary",
@@ -176,6 +178,8 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types):
                 to_output.write("\t".join([
                     protein_id, 
                     contig_id,
+                    str(amr_start),
+                    str(amr_end),
                     description,
                     location,
                 ])+ "\n")
@@ -194,6 +198,8 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types):
                     to_output.write("\t".join([
                         protein_id, 
                         contig_id,
+                        str(amr_start),
+                        str(amr_end),
                         description,
                         location,
                     ])+ "\n")
