@@ -107,6 +107,7 @@ def mob_parser(mobilome):
         prot_contig = prots_loc[protein_id][0]
         prot_start = prots_loc[protein_id][1]
         prot_end = prots_loc[protein_id][2]
+        print(prot_contig,prot_start,prot_end)
         prot_range = range(prot_start, prot_end + 1)
         prot_len = prot_end - prot_start
         if prot_contig in mob_coords:
