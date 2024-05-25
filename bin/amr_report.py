@@ -105,15 +105,14 @@ def mob_parser(mobilome):
     for protein_id in prots_loc:
         mges_loc = []
         prot_contig = prots_loc[protein_id][0]
-        prot_start = prots_loc[protein_id][1]
-        prot_end = prots_loc[protein_id][2]
-        print(prot_contig,prot_start,prot_end)
+        prot_start = int(prots_loc[protein_id][1])
+        prot_end = int(prots_loc[protein_id][2])
         prot_range = range(prot_start, prot_end + 1)
         prot_len = prot_end - prot_start
         if prot_contig in mob_coords:
             for mobile_element in mob_coords[prot_contig]:
-                mge_start = mobile_element[0]
-                mge_end = mobile_element[1]
+                mge_start = int(mobile_element[0])
+                mge_end = int(mobile_element[1])
                 mge_range = range(mge_start, mge_end + 1)
                 current_mge_type = mob_types[(prot_contig, mge_start, mge_end)]
                 intersection = len(list(set(mge_range) & set(prot_range)))
