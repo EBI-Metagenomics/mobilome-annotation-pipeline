@@ -105,7 +105,7 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types )
                                 mge_label = mob_types[( contig, mge_start, mge_end  )]
                                 intersection = len(list(set(mge_range) & set(u_prot_range)))
                                 if intersection > 0:
-                                    u_prot_cov = float(intersection) / float(prot_len)
+                                    u_prot_cov = float(intersection) / float(u_prot_len)
                                     if u_prot_cov > 0.75:
                                         passenger_flag = 1
                                         mge_loc.append(mge_label)
