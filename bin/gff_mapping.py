@@ -82,6 +82,7 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, extra_proteins):
                         used_contigs.append(contig)
                         if contig in mobilome_annot:
                             for mge in mobilome_annot[contig]:
+                                output_clean.write(mge + "\n")
                                 output_extra.write(mge + "\n")
                                 output_full.write(mge + "\n")
 
