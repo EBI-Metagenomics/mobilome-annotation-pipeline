@@ -12,8 +12,8 @@ process GFF_REDUCE {
 
     output:
     path "mobilome_clean.gff", emit: mobilome_clean
-	path "mobilome_extra.gff", emit: mobilome_extra
-	path "mobilome_nogenes.gff", emit: mobilome_nogenes
+    path "mobilome_extra.gff", emit: mobilome_extra
+    path "mobilome_nogenes.gff", emit: mobilome_nogenes
 
     script:
     """
