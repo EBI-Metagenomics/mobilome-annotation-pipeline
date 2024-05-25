@@ -86,7 +86,6 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, clean_proteins):
                                 output_extra.write(mge + "\n")
                                 output_full.write(mge + "\n")
 
-                    output_full.write(line.rstrip() + "\n")
                     composite_val = (contig, start, end, strand)                    
                     if composite_val in proteins_annot:
                         extra_annot = proteins_annot[composite_val]
@@ -96,7 +95,9 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, clean_proteins):
                             output_clean.write(line.rstrip() + ";" + extra_annot + "\n")                        
                     elif composite_val in clean_proteins:
                         output_clean.write(line.rstrip() + "\n")
-
+                    else:
+                        output_full.write(line.rstrip() + "\n")
+                
                 else:
                     output_clean.write(line.rstrip() + "\n")
                     output_extra.write(line.rstrip() + "\n")
