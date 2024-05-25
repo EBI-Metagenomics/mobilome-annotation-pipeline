@@ -14,7 +14,7 @@ import glob
 def mobilome_parser( mobilome_clean ):
     # Parsing the mobilome prediction
     proteins_annot, mobilome_annot = {}, {}
-    extra_proteins = []
+    clean_proteins = []
 
     source_tools = [
         "ICEfinder",
@@ -50,6 +50,7 @@ def mobilome_parser( mobilome_clean ):
                         end = l_line[4]
                         strand = l_line[6]
                         composite_key = (contig, start, end, strand)
+                        clean_proteins.append(composite_key)
                         attrib = l_line[8]
                         extra_list = []
                         for attr in attrib.split(";"):
@@ -58,15 +59,14 @@ def mobilome_parser( mobilome_clean ):
                             if att_key in extra_annot:
                                 extra_list.append(attr)
                         if len(extra_list) > 0:
-                            extra_proteins.append(composite_key)
                             extra_val = ";".join(extra_list)
                             proteins_annot[composite_key] = extra_val
 
-    return (proteins_annot, mobilome_annot, extra_proteins)
+    return (proteins_annot, mobilome_annot, clean_proteins)
 
 
 # Adding the mobilome predictions to the user file
-def gff_updater(user_gff, proteins_annot, mobilome_annot, extra_proteins):
+def gff_updater(user_gff, proteins_annot, mobilome_annot, clean_proteins):
     used_contigs = []
     if os.stat(user_gff).st_size > 0:
         with open(user_gff, "r") as input_table, open("user_mobilome_extra.gff", "w") as output_extra, open("user_mobilome_full.gff", "w") as output_full, open("user_mobilome_clean.gff", "w") as output_clean:
@@ -86,16 +86,16 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, extra_proteins):
                                 output_extra.write(mge + "\n")
                                 output_full.write(mge + "\n")
 
-                    composite_val = (contig, start, end, strand)
+                    output_full.write(line.rstrip() + "\n")
+                    composite_val = (contig, start, end, strand)                    
                     if composite_val in proteins_annot:
                         extra_annot = proteins_annot[composite_val]
-                        output_clean.write(line.rstrip() + ";" + extra_annot + "\n")
+                        output_extra.write(line.rstrip() + ";" + extra_annot + "\n")
                         output_full.write(line.rstrip() + ";" + extra_annot + "\n")
-                        if composite_val in extra_proteins:
-                            output_extra.write(line.rstrip() + ";" + extra_annot + "\n")
-
-                    else:
-                        output_full.write(line.rstrip() + "\n")
+                        if composite_val in clean_proteins:
+                            output_clean.write(line.rstrip() + ";" + extra_annot + "\n")                        
+                    elif composite_val in clean_proteins:
+                        output_clean.write(line.rstrip() + "\n")
 
                 else:
                     output_clean.write(line.rstrip() + "\n")
@@ -122,10 +122,10 @@ def main():
 
     ## Calling functions
     # Storing the mobilome predictions
-    ( proteins_annot, mobilome_annot, extra_proteins ) = mobilome_parser(args.mobilome_clean)
+    ( proteins_annot, mobilome_annot, clean_proteins ) = mobilome_parser(args.mobilome_clean)
 
     # Adding the mobilome predictions to the user file
-    gff_updater( args.user_gff, proteins_annot, mobilome_annot, extra_proteins )
+    gff_updater( args.user_gff, proteins_annot, mobilome_annot, clean_proteins )
 
 
 if __name__ == "__main__":
