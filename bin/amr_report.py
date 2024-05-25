@@ -102,7 +102,7 @@ def mob_parser(mobilome):
 
     # Adding the MGE type to each protein
     mob_prots = {}
-    for protein in prots_loc:
+    for protein_id in prots_loc:
         mges_loc = []
         prot_contig = prots_loc[protein_id][0]
         prot_start = prots_loc[protein_id][1]
@@ -122,9 +122,9 @@ def mob_parser(mobilome):
                         mges_loc.append(current_mge_type)
 
         if len(mges_loc)>0:
-            mob_prots[protein] = ';'.join(mges_loc)
+            mob_prots[protein_id] = ';'.join(mges_loc)
         else:
-            print("No MGE in the protein coordinates for protein "+protein+" in contig "+prot_contig)
+            print("No MGE in the protein coordinates for protein "+protein_id+" in contig "+prot_contig)
     
     return ( mob_prots, mob_coords, mob_types )
 
