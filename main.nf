@@ -147,7 +147,7 @@ workflow {
 
     if ( params.user_genes ) {
         user_gff = Channel.fromPath( params.prot_gff, checkIfExists: true )
-        GFF_MAPPING( GFF_REDUCE.out.mobilome_extra, user_gff )
+        GFF_MAPPING( GFF_REDUCE.out.mobilome_clean, user_gff )
     }
 
     if ( params.gff_validation ) {
