@@ -115,7 +115,7 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types )
                                     extra_annot = proteins_annot[composite_val]
                                     output_clean.write(line.rstrip() + ";" + extra_annot + ";" + mge_loc + "\n")
                                 else:
-                                    output_clean.write(line.rstrip() + ";" + mge_loc + "\n"
+                                    output_clean.write(line.rstrip() + ";" + mge_loc + "\n" )
                                         
                     if composite_val in proteins_annot:
                         extra_annot = proteins_annot[composite_val]
