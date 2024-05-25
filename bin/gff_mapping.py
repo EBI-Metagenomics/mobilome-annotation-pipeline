@@ -91,39 +91,40 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types )
                                 output_extra.write(mge + "\n")
                                 output_full.write(mge + "\n")
 
-                            # Finding mobilome proteins in the user file
-                            u_prot_start = int(start)
-                            u_prot_end = int(end)
-                            u_prot_range = range(u_prot_start, u_prot_end + 1)
-                            u_prot_len = u_prot_end - u_prot_start
-                            passenger_flag = 0
-                            mge_loc = []
-                            for coordinates in mges_dict[contig]:
-                                mge_start = coordinates[0]
-                                mge_end = coordinates[1]
-                                mge_range = range(mge_start, mge_end + 1)
-                                mge_label = mob_types[( contig, mge_start, mge_end  )]
-                                intersection = len(list(set(mge_range) & set(u_prot_range)))
-                                if intersection > 0:
-                                    u_prot_cov = float(intersection) / float(u_prot_len)
-                                    if u_prot_cov > 0.75:
-                                        passenger_flag = 1
-                                        mge_loc.append(mge_label)
-                            if passenger_flag == 1:
-                                mge_loc = 'mge_location=' + ','.join(mge_loc)
-                                if composite_val in proteins_annot:
-                                    extra_annot = proteins_annot[composite_val]
-                                    output_clean.write(line.rstrip() + ";" + extra_annot + ";" + mge_loc + "\n")
-                                else:
-                                    output_clean.write(line.rstrip() + ";" + mge_loc + "\n" )
-                                        
+                    # Writing to extra and full outputs
                     if composite_val in proteins_annot:
                         extra_annot = proteins_annot[composite_val]
                         output_extra.write(line.rstrip() + ";" + extra_annot + "\n")
                         output_full.write(line.rstrip() + ";" + extra_annot + "\n")
                     else:
                         output_full.write(line.rstrip() + "\n")
-                
+                    
+                    # Finding mobilome proteins in the user file and writing to clean output
+                    u_prot_start = int(start)
+                    u_prot_end = int(end)
+                    u_prot_range = range(u_prot_start, u_prot_end + 1)
+                    u_prot_len = u_prot_end - u_prot_start
+                    passenger_flag = 0
+                    mge_loc = []
+                    if contig in mobilome_annot:
+                        for coordinates in mges_dict[contig]:
+                            mge_start = coordinates[0]
+                            mge_end = coordinates[1]
+                            mge_range = range(mge_start, mge_end + 1)
+                            mge_label = mob_types[( contig, mge_start, mge_end  )]
+                            intersection = len(list(set(mge_range) & set(u_prot_range)))
+                            if intersection > 0:
+                                u_prot_cov = float(intersection) / float(u_prot_len)
+                                if u_prot_cov > 0.75:
+                                    passenger_flag = 1
+                                    mge_loc.append(mge_label)
+                        if passenger_flag == 1:
+                            mge_loc = 'mge_location=' + ','.join(mge_loc)
+                            if composite_val in proteins_annot:
+                                extra_annot = proteins_annot[composite_val]
+                                output_clean.write(line.rstrip() + ";" + extra_annot + ";" + mge_loc + "\n")
+                            else:
+                                output_clean.write(line.rstrip() + ";" + mge_loc + "\n" )
                 else:
                     output_clean.write(line.rstrip() + "\n")
                     output_extra.write(line.rstrip() + "\n")
