@@ -149,8 +149,6 @@ def mob_parser(mobilome):
 
 
 def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
-    for entry in user_genes:
-        print(entry, user_genes[entry])
     with open("amr_location.txt", "w") as to_output:
         if len(user_genes) > 0:
             to_output.write("\t".join([
@@ -188,8 +186,9 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
             strand = composite_key[4]
             description = amr_data[composite_key]
 
-            if composite_key in user_genes:
-                user_prot_id = user_genes[composite_key]
+            amr_location_key = (contig_id, str(amr_start), str(amr_end), strand )
+            if amr_location_key in user_genes:
+                user_prot_id = user_genes[amr_location_key]
             else:
                 user_prot_id = 'NA'
             
