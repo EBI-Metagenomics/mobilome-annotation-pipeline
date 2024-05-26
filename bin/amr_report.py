@@ -8,6 +8,24 @@ import os.path
 ##### May 31, 2023
 
 
+def user_gff_parser( user_gff ):
+    user_genes = {}
+    with open(user_gff, "r") as input_file:
+        for line in input_file:
+            l_line = line.rstrip().split("\t")
+            # Annotation lines have exactly 9 columns
+            if len(l_line) == 9:
+                contig = l_line[0]
+                start = l_line[3]
+                end = l_line[4]
+                strand = l_line[6]
+                attrib = l_line[8]
+                prot_id = attrib.split(";")[0].replace("ID=", "")
+                composite_key = (contig, start, end, strand)
+                user_genes[composite_key] = prot_id
+    return( user_genes )
+
+
 def names_parser( contigs_map ):
     contig_names = {}
     with open(contigs_map, "r") as input_file:
@@ -129,10 +147,24 @@ def mob_parser(mobilome):
     return ( mob_prots, mob_coords, mob_types )
 
 
-def location_parser(amr_data, mob_prots, mob_coords, mob_types):
+def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
     with open("amr_location.txt", "w") as to_output:
-        to_output.write(
-            "\t".join([
+        if len(user_genes) > 0:
+            to_output.write("\t".join([
+                "user_gene_id",
+                "prokka_gene_id",
+                "contig_id",
+                "gene_start",
+                "gene_end",
+                "ref_coverage",
+                "ref_identity",
+                "class_summary",
+                "ref_gene_name",
+                "ref_sequence_name",
+                "location"
+            ]) + "\n")
+        else:
+            to_output.write("\t".join([
                 "gene_id",
                 "contig_id",
                 "gene_start",
@@ -143,8 +175,7 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types):
                 "ref_gene_name",
                 "ref_sequence_name",
                 "location"
-            ]) + "\n"
-        )
+            ]) + "\n")
         
         for composite_key in amr_data:
             protein_id = composite_key[0]
@@ -154,6 +185,11 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types):
             strand = composite_key[4]
             description = amr_data[composite_key]
 
+            if composite_key in user_genes:
+                user_prot_id = user_genes[composite_key]
+            else:
+                user_prot_id = 'NA'
+            
             # When protein_id is NA, we need to check if the prediction coordinates are in the mobilome boundaries
             if protein_id == 'NA':
                 mges_loc = []
@@ -175,28 +211,18 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types):
                 else:
                     location = 'chromosome'
 
-                to_output.write("\t".join([
-                    protein_id, 
-                    contig_id,
-                    str(amr_start),
-                    str(amr_end),
-                    description,
-                    location,
-                ])+ "\n")
-            
-            else:
-                if protein_id in mob_prots:
-                    location = 'mobilome:'+mob_prots[protein_id]
+                # Writing output for proteins iD = NA in amrfinder output
+                if len(user_genes) > 0:
                     to_output.write("\t".join([
+                        user_prot_id,
                         protein_id, 
                         contig_id,
                         str(amr_start),
                         str(amr_end),
                         description,
                         location,
-                        ])+ "\n")
+                    ])+ "\n")
                 else:
-                    location = 'chromosome'
                     to_output.write("\t".join([
                         protein_id, 
                         contig_id,
@@ -205,7 +231,33 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types):
                         description,
                         location,
                     ])+ "\n")
-            
+
+            # Writing output for proteins with prokka id in amrfinder output
+            else:
+                if protein_id in mob_prots:
+                    location = 'mobilome:'+mob_prots[protein_id]
+                else:
+                    location = 'chromosome'
+                if len(user_genes) > 0:
+                    to_output.write("\t".join([
+                        user_prot_id,
+                        protein_id, 
+                        contig_id,
+                        str(amr_start),
+                        str(amr_end),
+                        description,
+                        location,
+                    ])+ "\n")
+                else:
+                    to_output.write("\t".join([
+                        protein_id, 
+                        contig_id,
+                        str(amr_start),
+                        str(amr_end),
+                        description,
+                        location,
+                    ])+ "\n")
+                                
 
 def main():
     parser = argparse.ArgumentParser(
@@ -228,13 +280,24 @@ def main():
         help="Mapping file with contig names (contigID.map)",
         required=True,
     )
+    parser.add_argument(
+        "--user_gff",
+        type=str,
+        help="User gff file",
+        required=False,
+    )
     args = parser.parse_args()
 
     ### Calling functions
+
+    user_genes = {}
+    if args.user_gff:
+        user_genes = user_gff_parser( args.user_gff )
+
     contig_names = names_parser( args.contigs_map )
     amr_data = arg_parser( args.amr_out, contig_names )
     ( mob_prots, mob_coords, mob_types ) = mob_parser( args.mobilome )
-    location_parser( amr_data, mob_prots, mob_coords, mob_types )
+    location_parser( amr_data, mob_prots, mob_coords, mob_types, user_genes )
 
 
 if __name__ == "__main__":
