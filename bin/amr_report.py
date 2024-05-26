@@ -149,7 +149,8 @@ def mob_parser(mobilome):
 
 
 def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
-    print(user_genes)
+    for entry in user_genes:
+        print(entry, user_genes[entry])
     with open("amr_location.txt", "w") as to_output:
         if len(user_genes) > 0:
             to_output.write("\t".join([
