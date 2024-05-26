@@ -83,7 +83,13 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
             if v_contig in viral_dic:
                 genomad_id = viral_dic[v_contig]
                 to_discard.append(genomad_id)
-
+            if v_contig in prophages_dic:
+                for g_coord_pair in prophages_dic[v_contig]:
+                    g_start = g_coord_pair[0]
+                    g_end = g_coord_pair[1]
+                    g_id = prophages_ids[(v_contig, (g_start, g_end))]
+                    to_discard.append(g_id)
+                
         # Finding redundancy on prophages
         elif "prophage" in v_description.split(";")[0]:
             v_start = v_coord[0]
@@ -103,8 +109,11 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                         g_cov = float(intersection) / float(g_len)
                         if any([v_cov > 0.25, g_cov > 0.25]):
                             to_discard.append(g_id)
+            if v_contig in viral_dic:
+                genomad_id = viral_dic[v_contig]
+                to_discard.append(genomad_id)
 
-    ## Discarding genomad redundance from mge_data dictionary
+    ## Discarding genomad redundancy from mge_data dictionary
     to_discard = list(set(to_discard))
     print("Number of geNomad predictions discarded: " + str(len(to_discard)))
     for phage_id in to_discard:
