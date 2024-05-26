@@ -156,7 +156,12 @@ workflow {
 
     if ( !params.skip_amr ) {
         AMRFINDER_PLUS( PROKKA.out.prokka_fna, PROKKA.out.prokka_faa, PROKKA.out.prokka_gff )
-        AMRFINDER_REPORT( AMRFINDER_PLUS.out.amrfinder_tsv, INTEGRATOR.out.mobilome_prokka_gff, RENAME.out.map_file )
+	if ( params.user_genes ) {
+            user_gff = Channel.fromPath( params.prot_gff, checkIfExists: true )
+            AMRFINDER_REPORT( AMRFINDER_PLUS.out.amrfinder_tsv, INTEGRATOR.out.mobilome_prokka_gff, RENAME.out.map_file, user_gff )
+	} else {
+            user_gff = file('no_user_gff')
+            AMRFINDER_REPORT( AMRFINDER_PLUS.out.amrfinder_tsv, INTEGRATOR.out.mobilome_prokka_gff, RENAME.out.map_file, no_user_gff )
+	}
     }
-
 }
