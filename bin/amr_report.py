@@ -10,19 +10,20 @@ import os.path
 
 def user_gff_parser( user_gff ):
     user_genes = {}
-    with open(user_gff, "r") as input_file:
-        for line in input_file:
-            l_line = line.rstrip().split("\t")
-            # Annotation lines have exactly 9 columns
-            if len(l_line) == 9:
-                contig = l_line[0]
-                start = l_line[3]
-                end = l_line[4]
-                strand = l_line[6]
-                attrib = l_line[8]
-                prot_id = attrib.split(";")[0].replace("ID=", "")
-                composite_key = (contig, start, end, strand)
-                user_genes[composite_key] = prot_id
+    if os.stat(user_gff).st_size > 0:
+        with open(user_gff, "r") as input_file:
+            for line in input_file:
+                l_line = line.rstrip().split("\t")
+                # Annotation lines have exactly 9 columns
+                if len(l_line) == 9:
+                    contig = l_line[0]
+                    start = l_line[3]
+                    end = l_line[4]
+                    strand = l_line[6]
+                    attrib = l_line[8]
+                    prot_id = attrib.split(";")[0].replace("ID=", "")
+                    composite_key = (contig, start, end, strand)
+                    user_genes[composite_key] = prot_id
     return( user_genes )
 
 
