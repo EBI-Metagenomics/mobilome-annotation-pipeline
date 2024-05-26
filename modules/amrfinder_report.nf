@@ -10,6 +10,7 @@ process AMRFINDER_REPORT {
     path amrfinder_tsv
     path mobilome_gff
     path map_file
+    path user_gff
 
     output:
     path("amr_location.txt")
@@ -19,7 +20,8 @@ process AMRFINDER_REPORT {
     amr_report.py \
     --amr_out ${amrfinder_tsv} \
     --mobilome ${mobilome_gff} \
-    --contigs_map ${map_file}
+    --contigs_map ${map_file} \
+    --user_gff ${user_gff}
     """
 }
 
