@@ -183,6 +183,9 @@ def gff_writer(
                                     to_gff.write(gff_line + "\n")
 
                             elif "vir" in element:
+                                # Extracting the data type from the attributes line in VIRify and geNomad predictions:
+                                # mobile_element_type=phage_linear;checkv_provirus=Yes;checkv_quality=Low-quality;miuvig_quality=Genome-fragment;taxonomy=unclassified
+                                # mobile_element_type=viral_sequence;taxonomy=Viruses%3BDuplodnaviria%3BHeunggongvirae%3BUroviricota%3BCaudoviricetes
                                 mobile_element_type = mge_data[element][1].split(';')[0].split('=')[1]
                                 if "prophage" in mobile_element_type:
                                     seq_type = "prophage"
