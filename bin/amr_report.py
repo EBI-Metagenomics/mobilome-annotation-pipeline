@@ -205,7 +205,7 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
                     amr_len = amr_end - amr_start + 1
                     for mge_start, mge_end in mob_coords[contig_id]:
                         mge_range = range(mge_start, mge_end + 1)
-                        intersection_len = len(mge_range & amr_range)
+                        intersection_len = len(list(set(mge_range) & set(amr_range)))
                         if intersection_len > 0:
                             amr_cov = intersection_len / amr_len
                             if amr_cov > AMR_GENE_THRES:
