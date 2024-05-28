@@ -14,6 +14,9 @@ import glob
 def mobilome_parser( mobilome_clean ):
     # Parsing the mobilome prediction
     proteins_annot, mobilome_annot, mges_dict, mob_types = {}, {}, {}, {}
+    if os.stat(mobilome_clean).st_size == 0:
+        return (proteins_annot, mobilome_annot, mges_dict, mob_types)
+        
     source_tools = [
         "ICEfinder",
         "IntegronFinder",
@@ -29,47 +32,46 @@ def mobilome_parser( mobilome_clean ):
         "viphog_taxonomy",
         "mobileOG",
     ]
-    
-    if os.stat(mobilome_clean).st_size > 0:
-        with open(mobilome_clean, "r") as input_table:
-            for line in input_table:
-                l_line = line.rstrip().split("\t")
-                # Annotation lines have exactly 9 columns
-                if len(l_line) == 9:
-                    contig = l_line[0]
-                    annot_source = l_line[1]
-                    seq_type = l_line[2]
-                    start = int(l_line[3])
-                    end = int(l_line[4])
-                    strand = l_line[6]
-                    coordinates = (start, end)
-                    if annot_source in source_tools:
-                        composite_key = ( contig, start, end )
-                        mob_types[composite_key] = seq_type                        
-                        if contig in mobilome_annot:
-                            mobilome_annot[contig].append(line.rstrip())
-                            mges_dict[contig].append(coordinates)
-                        else:
-                            mobilome_annot[contig] = [line.rstrip()]
-                            mges_dict[contig] = [coordinates]
+    with open(mobilome_clean, "r") as input_table:
+        for line in input_table:
+            l_line = line.rstrip().split("\t")
+            # Annotation lines have exactly 9 columns
+            if len(l_line) == 9:
+                contig = l_line[0]
+                annot_source = l_line[1]
+                seq_type = l_line[2]
+                start = int(l_line[3])
+                end = int(l_line[4])
+                strand = l_line[6]
+                coordinates = (start, end)
+                if annot_source in source_tools:
+                    composite_key = ( contig, start, end )
+                    mob_types[composite_key] = seq_type                        
+                    if contig in mobilome_annot:
+                        mobilome_annot[contig].append(line.rstrip())
+                        mges_dict[contig].append(coordinates)
                     else:
-                        str_composite_key = (contig, str(start), str(end), strand)
-                        attrib = l_line[8]
-                        extra_list = []
-                        for attr in attrib.split(";"):
-                            att_key = attr.split("=")[0]
-                            att_val = attr.split("=")[1]
-                            if att_key in extra_annot:
-                                extra_list.append(attr)
-                        if len(extra_list) > 0:
-                            extra_val = ";".join(extra_list)
-                            proteins_annot[str_composite_key] = extra_val
-
+                        mobilome_annot[contig] = [line.rstrip()]
+                        mges_dict[contig] = [coordinates]
+                else:
+                    str_composite_key = (contig, str(start), str(end), strand)
+                    attrib = l_line[8]
+                    extra_list = []
+                    for attr in attrib.split(";"):
+                        att_key = attr.split("=")[0]
+                        att_val = attr.split("=")[1]
+                        if att_key in extra_annot:
+                            extra_list.append(attr)
+                    if len(extra_list) > 0:
+                        extra_val = ";".join(extra_list)
+                        proteins_annot[str_composite_key] = extra_val
+                        
     return (proteins_annot, mobilome_annot, mges_dict, mob_types)
 
 
 # Adding the mobilome predictions to the user file
 def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types ):
+    COV_THRESHOLD = 0.75
     used_contigs = []
     if os.stat(user_gff).st_size > 0:
         with open(user_gff, "r") as input_table, open("user_mobilome_extra.gff", "w") as output_extra, open("user_mobilome_full.gff", "w") as output_full, open("user_mobilome_clean.gff", "w") as output_clean:
@@ -115,7 +117,7 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types )
                             intersection = len(list(set(mge_range) & set(u_prot_range)))
                             if intersection > 0:
                                 u_prot_cov = float(intersection) / float(u_prot_len)
-                                if u_prot_cov > 0.75:
+                                if u_prot_cov > COV_THRESHOLD:
                                     passenger_flag = 1
                                     mge_loc.append(mge_label)
                         if passenger_flag == 1:
@@ -129,6 +131,8 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types )
                     output_clean.write(line.rstrip() + "\n")
                     output_extra.write(line.rstrip() + "\n")
                     output_full.write(line.rstrip() + "\n")
+
+
 
 def main():
     parser = argparse.ArgumentParser(
