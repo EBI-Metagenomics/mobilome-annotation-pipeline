@@ -172,7 +172,7 @@ def mob_parser(mobilome):
 def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
     AMR_GENE_THRES = 0.75
     with open("amr_location.tsv", "w", newline='') as to_output:
-        writer = csv.writer(to_output, delimiter='\t', quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(to_output, delimiter='\t', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
         
         # Header
         headers_with_user_gene = [
