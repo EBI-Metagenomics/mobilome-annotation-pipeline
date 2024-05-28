@@ -13,15 +13,15 @@ process AMRFINDER_REPORT {
     path user_gff
 
     output:
-    path("amr_location.txt")
+    path("amr_location.tsv")
 
     script:
+    def user_gff_arg = user_gff.name != "NO_FILE" ? "--user_gff ${user_gff} : ""
     """    
     amr_report.py \
     --amr_out ${amrfinder_tsv} \
     --mobilome ${mobilome_gff} \
-    --contigs_map ${map_file} \
-    --user_gff ${user_gff}
+    --contigs_map ${map_file} $user_gff_arg
     """
 }
 
