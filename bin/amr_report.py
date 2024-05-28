@@ -209,7 +209,7 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
                             if amr_cov > 0.75:
                                 mges_loc.append(current_mge_type)
                 if len(mges_loc) > 0:
-                    location = 'mobilome:'+';'.join(mges_loc)
+                    location = 'mobilome:' + ';'.join(mges_loc)
                 else:
                     location = 'chromosome'
 
