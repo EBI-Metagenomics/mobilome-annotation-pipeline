@@ -24,7 +24,7 @@ def user_gff_parser( user_gff ):
                     prot_id = attrib.split(";")[0].replace("ID=", "")
                     composite_key = (contig, start, end, strand)
                     user_genes[composite_key] = prot_id
-    return( user_genes )
+    return user_genes
 
 
 def names_parser( contigs_map ):
