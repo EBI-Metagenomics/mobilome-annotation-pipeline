@@ -145,7 +145,7 @@ def mob_parser(mobilome):
         else:
             print("No MGE in the protein coordinates for protein "+protein_id+" in contig "+prot_contig)
     
-    return ( mob_prots, mob_coords, mob_types )
+    return mob_prots, mob_coords, mob_types
 
 
 def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
