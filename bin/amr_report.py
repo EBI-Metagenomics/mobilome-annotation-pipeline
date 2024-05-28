@@ -172,7 +172,7 @@ def mob_parser(mobilome):
 def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
     AMR_GENE_THRES = 0.75
     with open("amr_location.tsv", "w", newline='') as to_output:
-        writer = csv.writer(to_output, delimiter='\t', quoting=csv.QUOTE_NONE, escapechar='')
+        writer = csv.writer(to_output, delimiter='\t', quoting=csv.QUOTE_NONE, escapechar='\\')
         
         # Header
         headers_with_user_gene = [
@@ -194,7 +194,7 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
         # Data rows
         for composite_key in amr_data:
             protein_id, contig_id, amr_start, amr_end, strand = composite_key
-            description = amr_data[composite_key]
+            description = amr_data[composite_key].split('\t')
             amr_location_key = (contig_id, str(amr_start), str(amr_end), strand)
             user_prot_id = user_genes.get(amr_location_key, 'NA')
             
@@ -211,13 +211,19 @@ def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
                             if amr_cov > AMR_GENE_THRES:
                                 mges_loc.append(mob_types[(contig_id, mge_start, mge_end)])
                 location = 'mobilome:' + ';'.join(mges_loc) if mges_loc else 'chromosome'
-                
-                row = [user_prot_id, protein_id, contig_id, str(amr_start), str(amr_end), description, location] if len(user_genes) > 0 else [protein_id, contig_id, str(amr_start), str(amr_end), description, location]
+
+                if len(user_genes) > 0:
+                    row = [user_prot_id, protein_id, contig_id, str(amr_start), str(amr_end)] + description + [location] 
+                else:
+                    row = [protein_id, contig_id, str(amr_start), str(amr_end)] + description + [location]
                 writer.writerow(row)
 
             else:  # Regular processing for valid protein IDs
                 location = 'mobilome:' + mob_prots[protein_id] if protein_id in mob_prots else 'chromosome'
-                row = [user_prot_id, protein_id, contig_id, str(amr_start), str(amr_end), description, location] if len(user_genes) > 0 else [protein_id, contig_id, str(amr_start), str(amr_end), description, location]
+                if len(user_genes) > 0:
+                    row = [user_prot_id, protein_id, contig_id, str(amr_start), str(amr_end)] + description + [location] 
+                else:
+                    row = [protein_id, contig_id, str(amr_start), str(amr_end)] + description + [location]
                 writer.writerow(row)
 
                                 
