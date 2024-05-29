@@ -161,7 +161,7 @@ workflow {
             AMRFINDER_REPORT( AMRFINDER_PLUS.out.amrfinder_tsv, INTEGRATOR.out.mobilome_prokka_gff, RENAME.out.map_file, user_gff )
 	} else {
             user_gff = file('no_user_gff')
-            AMRFINDER_REPORT( AMRFINDER_PLUS.out.amrfinder_tsv, INTEGRATOR.out.mobilome_prokka_gff, RENAME.out.map_file, no_user_gff )
+            AMRFINDER_REPORT( AMRFINDER_PLUS.out.amrfinder_tsv, INTEGRATOR.out.mobilome_prokka_gff, RENAME.out.map_file, user_gff )
 	}
     }
 }
