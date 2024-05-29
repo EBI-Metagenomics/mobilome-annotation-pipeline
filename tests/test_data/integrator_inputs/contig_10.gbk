@@ -1,28 +1,1876 @@
-LOCUS       contig_10             155936 bp    DNA              UNK 01-JAN-1980
-DEFINITION  contig_10.
-ACCESSION   contig_10
-VERSION     contig_10
+LOCUS       contig_10             155936 bp    DNA     linear       29-MAY-2024
+DEFINITION  Genus species strain strain.
+ACCESSION   
+VERSION
 KEYWORDS    .
-SOURCE      .
-  ORGANISM  .
-            .
+SOURCE      Genus species
+  ORGANISM  Genus species
+            Unclassified.
+COMMENT     Annotated using prokka 1.14.6 from
+            https://github.com/tseemann/prokka.
 FEATURES             Location/Qualifiers
-     integron        2338..3567
-                     /integron_id="integron_01"
-                     /integron_type="In0"
-     integrase       complement(2338..3567)
-                     /protein_id="contig_10_3"
-                     /gene="intI"
-                     /model="Phage_integrase"
-                     /translation="MARSTFKVLFYVNGSKEKNGIVPIMGRVTINGTVAQFSCKQSVPK
-                     TLWDIKGNRAKGKSKEARDINLALDNIKAQIIKHYQRLSDREAFVTAEMVRNAYQGIGT
-                     EYETLLGAFDRENEVFKKRVGKDRVMATYHSRVRARNHVAAFIKSFYRRTDMSMLEITP
-                     DFIKEFAAYLSTEAGLHNGTIWEKCMWLKGVVMRAHFNGLIPRNPFAQFHISPNVKERE
-                     YLTEDELKALMTHEFGDAKLSYIRDIFVFASFTALSFVDIKELTTDDIVEVNGEKWILS
-                     KRHKTKVPFQVKLLDIPLQIIERYRPLQVDNLVFPNLNYWSICKPLKKVMKECGITKDI
-                     SFHCARHGFATLALSMGMPIESVSRVLGHTNIVTTQIYAKITTQKLDNDLTMLGNRLNQ
-                     SFINVSMAGQ*"
-ORIGIN
+     source          1..155936
+                     /organism="Genus species"
+                     /mol_type="genomic DNA"
+                     /strain="strain"
+     CDS             complement(460..1665)
+                     /locus_tag="DIDGIALJ_00949"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MSEPDICKEEFIRVGTTLYKLVNQPRLNGGYVKKRIVWNNETLR
+                     QDYGKHFLATVPKYDGFCTVPEHVNYRPVVDKFLNLYEPIDHRPQEGDFSHIQSLARH
+                     IFGEQYELGMDYLQLLYLQPIQKLPILLLVSEERNTGKSTFLNFLKALFQNNVTFNTN
+                     EDFRSQFNSDRAGKLLIVVDEVLLSRREDSERLKNLSTTLSYKVEAKGKDRDEIAFFA
+                     KFVLCSNNEYLPVIIDAGETRYWVRKIDRLQSDDTCFLQKLKAEIPAFLYHLQHRQLS
+                     TEKESRMWFAPPLLHTEALQKIIRSNRNRLEIEMCELILDIMTSTGIDIFSFCCNDIL
+                     TLLANTYVKAEKHQVRKVLQECWKLTPAHNTLTYTTYQVDYNRECRYSPLRRTGRFYT
+                     VTRAFLEAL"
+     CDS             complement(1967..2341)
+                     /locus_tag="DIDGIALJ_00950"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKRNIIKITEHGTITIPSETVWMSEAELVSLFGVIAPSIRTAIK
+                     AVYKSGILKEHKAQRHIHLSDKIGVDVYSLEMVVALAFRIHSYGAERVRNAILERLYL
+                     RKEKTSIFFSLVKSIKSSEYQA"
+     CDS             complement(2338..3567)
+                     /gene="xerC_4"
+                     /locus_tag="DIDGIALJ_00951"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_01808"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Tyrosine recombinase XerC"
+                     /translation="MARSTFKVLFYVNGSKEKNGIVPIMGRVTINGTVAQFSCKQSVP
+                     KTLWDIKGNRAKGKSKEARDINLALDNIKAQIIKHYQRLSDREAFVTAEMVRNAYQGI
+                     GTEYETLLGAFDRENEVFKKRVGKDRVMATYHSRVRARNHVAAFIKSFYRRTDMSMLE
+                     ITPDFIKEFAAYLSTEAGLHNGTIWEKCMWLKGVVMRAHFNGLIPRNPFAQFHISPNV
+                     KEREYLTEDELKALMTHEFGDAKLSYIRDIFVFASFTALSFVDIKELTTDDIVEVNGE
+                     KWILSKRHKTKVPFQVKLLDIPLQIIERYRPLQVDNLVFPNLNYWSICKPLKKVMKEC
+                     GITKDISFHCARHGFATLALSMGMPIESVSRVLGHTNIVTTQIYAKITTQKLDNDLTM
+                     LGNRLNQSFINVSMAGQ"
+     CDS             4041..4328
+                     /locus_tag="DIDGIALJ_00952"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MGTLGCINDMLQRDKENRALRKLSRGRMREHYKYLVDRKGPERA
+                     DVTIEEIEKIRRNTTEKELSDKEHLFRAKTILAACALVLLLLGVLCYKLFL"
+     CDS             complement(4310..4429)
+                     /locus_tag="DIDGIALJ_00953"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MRIFYEAWKSAFNRQPMADEFNRVDFLPIGFRPAYKNNL"
+     CDS             4586..5068
+                     /gene="yafP"
+                     /locus_tag="DIDGIALJ_00954"
+                     /EC_number="2.3.1.-"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:Q47158"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="putative N-acetyltransferase YafP"
+                     /db_xref="COG:COG0454"
+                     /translation="MNTDFTIRIAQRSDALELMSLFQETVLHINKRDYSEAEVADWAS
+                     CGNDLSRIKDMIKTHYFIVATNQQSQIVGFSSITHQGYLHSMFVHKDFQGKGIATILL
+                     NEIERYATTRGIMRITSEVSLTARPFFEKRGYIVEVEQKRKANQLYLTNFWMEKRLAE
+                     "
+     CDS             5065..5424
+                     /locus_tag="DIDGIALJ_00955"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKSYNGRIPACGVFCGGCPIYTREKSPCKGAEQNGSRCEKCKTF
+                     HLCCLEKGITHCFQCSDFPCTKFKRFTKRWLKYGQNFIENQKLLKNVGEVKFLKYYNE
+                     RVHDQLTNNDRKSGIKQ"
+     CDS             5456..6037
+                     /locus_tag="DIDGIALJ_00956"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MTDFNSYMGNIDTDFFRELCLRNGELRYYKRNEFILREGEVGSF
+                     FGFIVSGVIKYTCINQTENKTYNVGFSFANEFISDYPNCLYNIKSELNIQAITPCRIY
+                     ICSSELLLQEFEENKENQRIARIAAEQLFFQSYSRYLDLFRFTSEERYLQLLKKCPEI
+                     LQMVPLKEIASYLKITPIHMSRIRHKLSFDSKE"
+     CDS             6205..6456
+                     /locus_tag="DIDGIALJ_00957"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MPLDKILCLSANAILTIIALWSIASVFFENATIDSIIARFSVAS
+                     ACMANLFSKHRLIRIIFLIMAFVLIIVATALYVHKANKM"
+     CDS             complement(6469..7422)
+                     /locus_tag="DIDGIALJ_00958"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MLVRFIKNWTLPLAMLAGTLGYFFFADIPFVAPAKPYVNGLVAF
+                     LTPLLIFSQLLLTFCKVEVHELKPKSWHGWLLLFQTVSCLIVAVLLVCCPMEEVYREV
+                     FEGAMVCLICPTATAAAVITGKLGGSASSLTTYTLLSNLLAAVAVPLVFPLVEPHADI
+                     TFFVAFLKILSKVFPLLLCPFLLAWFLRAFVPKVHHFLLGFHDAAFYLWAVALAIVSG
+                     QTVRSLVNSDAPVFVELLIALAGLITCCIQFYLGKRIGGHYGERISGGQALGQKNTVL
+                     AIWMAYTYLNPLSSVGPGSYVLWQNIINSYQLWKKRKNETE"
+     CDS             7623..8858
+                     /locus_tag="DIDGIALJ_00959"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKLYRRYILYISICLGLLISPFCSGSAEAKDFVVVIDPGHGGHD
+                     PGAVGKISKEKNINLNVALKLGKQIKKNCPDVKVIYTRDRDIFIPLDRRAEIANNAKA
+                     DLFISIHTNALAKNRTAKGASTWTLGLAKSDANLEVAKRENAVILYESDYKTRYAGFN
+                     PNSAESYIIFEFMQDKYMSQSVHLASLVQKHFRQTCKRTDRGVHQAGFLVLKASAMPS
+                     ILVELGFISTPEEERYLNTEAGTTSLANGIFRAFLTYKREQEIRLNGSSNTILPEDVP
+                     EPVQEEGNAATATPEKKNAPQAESNQAAQRPQRSENAAVSQTEQSGIVFKIQILTSSR
+                     PLAKNNKRLKGLKDVDYYKEGGIYKYTYGASPDYNKVLRSKRSITDKFKDAFIIAFKN
+                     GEKININTAISEFKKNRNK"
+     CDS             8872..9765
+                     /locus_tag="DIDGIALJ_00960"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKYITKEVRIGIAGIAALCILVYGINYLKGINMFKPSSYFYVKF
+                     QNVNGLTKSSPVFADGFRVGIVRDLYYDYTQPGKVVAEIDVDPELRIPKESTAELAAE
+                     MLGGVKMNLLLANNPREKYQIGDTIPGVLNNGMMEKVATMMPQVEKMLPKLDSILASL
+                     NVILADPAIPATLHNVQDLTASMAVTSRQLQTLMKDDIPQLTGKLNTIGDNFALISNN
+                     LKEIDYAAAMQKVDATLNNVKMITDKLNQKDNTVGLLLNDPSLYNNLNATTANAASLL
+                     EDLKSHPKRYVHFSLFGKKDK"
+     CDS             10117..11502
+                     /gene="dnaA"
+                     /locus_tag="DIDGIALJ_00961"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P05648"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Chromosomal replication initiator protein DnaA"
+                     /db_xref="COG:COG0593"
+                     /translation="MSEIDHVGLWNRCLEIIRDNVPEQTYKTWFLPIIPLKYEDKTLV
+                     VQVPSQFFYEFLEDKFVDLLRKTLYKVIGEGTKLMYNVMVDKSSRKTVDLESTQRTII
+                     PQKQVMDKRIPQIPVPELDPHLNPEYNFETFIEGYSNKLSRSVAEAVALNPAKTIFNP
+                     LFLYGASGVGKTHLANAIGTKIKELYPEKRVLYVSAHLFQVQYTDSVRNNTTNDFINF
+                     YQTIDILIIDDIQEFAGVTKTQNTFFHIFNHLHQNGKQLILTSDRAPVLLQGMEERLI
+                     TRFKWGMVAELEKPTVELRKNILRNKIHRDGLQFPQEVIDYIAENVGDSVRDLEGIVI
+                     SIMAHSTIYNKEIDLELTQRIVRKVVNSESKAVTVDEIINTVCKHFGLETATIHTKSR
+                     KREVVQARQIAMYLAKNHTDFSTAKIGALIGHKDHATVLHACKTIKELKEVDKSFRAE
+                     IDEIQAALKKG"
+     CDS             complement(11574..12356)
+                     /gene="nfrA2"
+                     /locus_tag="DIDGIALJ_00962"
+                     /EC_number="1.5.1.39"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P94424"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="FMN reductase [NAD(P)H]"
+                     /db_xref="COG:COG0778"
+                     /translation="MNELFVDYIIFAKKERMESLKQRRTIRKYQQKDISADLLNDLLE
+                     TSFRASTVGNMQVYSVIVTRDAERKAKLAPAHFNQPMVRTAPVVLTFCIDLRRFSKWC
+                     EQRKAEPGYNNFEWFVTGAVDTLLVAQTFCVAAEEKGLGICYLGTTTYNPQMIVEALE
+                     LPELVFPITTVTVGWPAEQPEQVDRLPLEAIVHEEVYHDYTPQDIDRLYAYKESLPEN
+                     KQFILENNKETLAQVFTDVRYTKKDSEAMSENLWKIMKKQGF"
+     CDS             12726..15263
+                     /locus_tag="DIDGIALJ_00963"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEKKNYSYDEAYGESLKYFQGDELAARVWVNKYAVKDSFGNIYE
+                     KSPEDMHWRIANEVARIEAKYPNPLSSEELFGLLDHFKYIVPQGSPMTGIGNNYQVAS
+                     LSNCFVIGVDGEADSYGAIFKIDEEQVQLMKRRGGVGHDLSHIRPKGSPVKNSALTST
+                     GLVPFMERYSNSTREVAQDGRRGALMLSVSIKHPDSEAFIDAKMTEGKVTGANVSVKL
+                     TDDFMQAAIEGKPYTQQYPIDATEPAFQKDIDASALWKKIVHNAWKSAEPGVLFWDTI
+                     LKESVPDCYADLGYRTVSTNPCGEIPLCPYDSCRLLAINLYSYVVNPFKPDAYFDFEL
+                     FKKHVALAQRIMDDIIDLELEKIERIMSKIDADPESEDVKHTERVLWQKIYKKSAQGR
+                     RTGVGITAEGDMLAALGLRYGTEEATEFSEKVHKTVALNAYRSSIEMAKERGAFEVYD
+                     TEREKNNPFINRLREADPEMYEEMKKYGRRNIACLTIAPTGTTSLMTQTTSGIEPVFL
+                     PVYKRRRKVNPNDTNVHVDFIDETGDAFEEYIVFHPKFVTWMEAQGYNPAKRYTQEEV
+                     DALVEKSPYYKATSNDVDWLMKVKMQGRIQKWVDHSISVTINLPNDVDEDLVNRLYVE
+                     AWKSGCKGCTVYRDGSRSGVLISTKSDKKSELPPCKPPTVVETRPRILDADVVRFQNN
+                     KEKWVAFVGLLDNHPYEIFTGVLDDDEGIILPKNVVSGHIIKNVDEHGNKRYDFQFEN
+                     KRGYKVTIEGLSEKFNKEYWNYAKLISGVLRYRMPIEQVIKLVGSLQLDSENINTWKN
+                     GVERALKKYIQDGTEAKGKKCPNCGNETLVYQEGCLICKTCGASRCG"
+     CDS             15395..18088
+                     /locus_tag="DIDGIALJ_00964"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MTLIFNIEYRTSWGEEVRVLGSIPELGNNQPNKATPLHTVDGIH
+                     WTAEVDIQIPGNGSVEYSYHIYRDGRTIRTEWNSLPRILHVADNPKKVYRIEDCWKNL
+                     PEQQYFYTSAFTESLLAHRERSAAPKSYKKGLLIKAYAPCIDSDHCLALCGNQKALGD
+                     WNPDKAALMSDIDFPEWQVEVDAGKISFPLEYKFVLYNKKERRAVAWENNPNRYMADP
+                     QIAANETLAVGDRYVYFNLPAWKGSGVAVPVFSLRSEKSFGVGDFGDLKRMIDWAVAT
+                     NQKAVQILPINDTTMTHTWTDSYPYSSISIYAFHPMYADLKQLGSLKDKKVMAEFNKR
+                     QKERNALPAVDYEAVNKTKWEYFHLIFKQEGEKVLASDAFRNFYEANKEWLQPYAVFS
+                     YLRDAYKTPNFREWPKYATYDAKEIETLCRPDSADYPHIAIYYYIQFNLHLQLLAATE
+                     HARANGVVLKGDIPIGISRNSVEAWKEPHYFNLNGQAGAPPDDFSVNGQNWGLPTYNW
+                     DIMEKDGYAWWMKRFHKMAEYFDAYRIDHILGFFRIWEIPMHAVHGLLGQFVPALPMT
+                     REEIESYGLAFREDFFLKPYIHEYFLGQIFGPHTDYVKQTFIEPTDTWEVYRMRPEFD
+                     TQRKVEAYFAGKTDDDSIWIRDGLYALISDVLFVPDRNNPHEYHPRIGVQHDYIYRAL
+                     NDWEKAAFNRLYDQYYYHRHNDFWGQQAMKKLPQLTQSTRMLVCGEDLGMIPDCVAWV
+                     MNDLRILSLEIQRMPKDPKQEFGHTDWYPYRSVCTISTHDMSTLRGWWEEDFQQTQRY
+                     YNTMLGHYGAAPATATPELCEEVVRNHLHSNSILCILSLQDWMSMDGKWRNPNVQEER
+                     INIPANPRHYWRWRMHLTLEQLMKAESLNEKIRCMIESTGR"
+     CDS             18363..18728
+                     /gene="folB"
+                     /locus_tag="DIDGIALJ_00965"
+                     /EC_number="4.1.2.25"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P56740"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Dihydroneopterin aldolase"
+                     /db_xref="COG:COG1539"
+                     /translation="MTSYIFLDTLRFFAHHGVGEQETVVGNEFTVSLRLQVDIRRAAE
+                     TDDVADTVSYADVHTAVKAEMDIPSKLLEHVCGRIINRLFHDFPQIEEITLKLAKRNP
+                     PMGADIEAAGVEICQRRGE"
+     CDS             complement(19382..19900)
+                     /gene="mgsA"
+                     /locus_tag="DIDGIALJ_00966"
+                     /EC_number="4.2.3.3"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:Q9X0R7"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Methylglyoxal synthase"
+                     /db_xref="COG:COG1803"
+                     /translation="MEKLVRKIGLVAHDAMKKDLIEWVLWNSELLMGHKFYCTGTTGT
+                     LILEALREKHPDVEWDFTILKSGPLGGDQQMGSRIVDGEIDYLFFFTDPMTLQPHDTD
+                     VKALTRLAGVENIVFCCNRSTADHIISSPLFVDPTYERTVPDYSNYTKRFANKPVVAE
+                     AVESAKKRKRKK"
+     CDS             complement(19948..20964)
+                     /locus_tag="DIDGIALJ_00967"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MDKIAVVILNWNGCDMLRSFLPSVVRFSEVDGAVVYVADNGSTD
+                     ASVAMLRREFPSVHLILLEENHGFADGYNLALKQVEAEYVVLLNSDVEVTEHWLVPLA
+                     EYMDAYPETAACQPKIRSWRNKGQFEYAGAAGGFIDRYGYPFCRGRIMGVVEEDKGQY
+                     DTVIPIFWATGAALFIRLADYREAGGLDGRFFAHMEEIDLCWRLRARGRQLACIPQSV
+                     VFHVGGATLKKENPRKTFLNFRNNLVMLYKNLPQEDLASVMRVRAVLDYVAAFSFMLK
+                     GQLPNALAVFRARRAYHSLRTSLAASRKENLKKTTLAVIPERTKNSILAQFYLHGKKF
+                     FSQL"
+     CDS             complement(20957..21856)
+                     /gene="lpxL"
+                     /locus_tag="DIDGIALJ_00968"
+                     /EC_number="2.3.1.241"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P0ACV0"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Lipid A biosynthesis lauroyltransferase"
+                     /db_xref="COG:COG1560"
+                     /translation="MKSKIVYWLTYAGMWLVALLPFRALYVLSDGLYFLMRHVVHYRK
+                     KVVRRNLRNSFPEKSETELMEIERKFYHYICDYMLEEVKMLRMSFEELCRRMKYDNKE
+                     EYLAMIEKHGGIVLLIPHYANFEWIIGMGAIMHPGDIPVQVYKPLSNKYLDEMFKHIR
+                     ARFGGYNVAKHSTAREVIKLRREGRRIAIGLITDQSPNRSEAHYWTTFLNQDTVFMDG
+                     AERIAKLMDFPVFYCELERTSRGYCKVLFDLVTETPKQTADGEITECFARRLEQTIRR
+                     EPAYWFWSHKRWKNKRKESVQHG"
+     CDS             complement(21911..23227)
+                     /gene="mtaB"
+                     /locus_tag="DIDGIALJ_00969"
+                     /EC_number="2.8.4.5"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P54462"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Threonylcarbamoyladenosine tRNA
+                     methylthiotransferase MtaB"
+                     /db_xref="COG:COG0621"
+                     /translation="MIDTNIFQDKTAVYYTLGCKLNFSETSTIGKILREAGVRTARKG
+                     EKADICVVNTCSVTEVADKKCRQAIHKLVKQHPGAFVVVTGCYAQLKPETVAKIEGVD
+                     VVLGAEQKKDLLHYLGNLQKHETGEAYTSALKDIRSFAPSCSRGDRTRFFLKVQDGCD
+                     YYCSYCTIPFARGRSRNGSIASMVEQASQAAAEGGKEIVLTGVNIGDFGKSTGETFFD
+                     LVKALDEVEGIERYRISSIEPNLLTDEIIEYVSRSRRFMPHFHIPLQSGSDEVLKLMR
+                     RRYDTALFASKIKKIKEVMPDSFIGVDVIVGTRGETEEYFGQAYEFIKSLDVTQLHVF
+                     SYSERPGTQALKIDHVVAPEEKHRRSQQLLELSDEKTRAFYARHIGQTMPVLLERPKP
+                     GLPMHGFTPNYIRVEVPHDAALDNQLVSVRLGDFNADGTALLGAIE"
+     CDS             23313..24986
+                     /locus_tag="DIDGIALJ_00970"
+                     /EC_number="6.2.1.3"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:O53521"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Long-chain-fatty-acid--CoA ligase FadD15"
+                     /db_xref="COG:COG1022"
+                     /translation="MIQENFIKLYEHSFRENWDLPCYTNYGENESYTYGEVAQEIARL
+                     HLIFKYCQLRRGDKIAVIGKNNARWCIAYMATITYGGIVVPILQDFNPNDVHHIVNHS
+                     ESTFLFTSDAIWEHLEEERLTGIRGVFSLSDFRCLYQRDGETIQRFLKHLGDEMEATY
+                     PNGFRKEDIVYTDLSNDKVMLLNYTSGTTGFSKGVMLTGNNLAGNVTFGIRTELLKKG
+                     DKVLSFLPLAHAYGCAFDFLTATAVGTHVTLLGKVPSPKILMKAFEEVKPNLIITVPL
+                     VIEKIYKNVIQPIINKKTMKWALSIPLLDGQIYGQIRKKLIDALGGRFKEVIIGGAAM
+                     NPEVEEFFHRIKFPFTIGYGMTECAPLISYAPWNEFVPTSSGRVLDIMEARICKENPD
+                     DKLGEIQVRGENVMTGYYKNPEATKEVFTEDGWLRTGDLGTLDDDNNLYIRGRSKTMI
+                     LSSSGQNIFPEEIEARLNNMPFVLESLVIERNKRLVALVYADYEALDSLGLNQPDNLK
+                     TIMDENLKNLNNSVAAYEKVSQIQLYPTEFEKTPKRSIKRYLYNSIAED"
+     CDS             25144..25356
+                     /locus_tag="DIDGIALJ_00971"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKKLVLMAAAIVAVSFASCGNKAANAEQATADSIRIADSIAAVE
+                     AAAAEAAAAAAAADTVAVDSAAVVAE"
+     CDS             25690..25935
+                     /locus_tag="DIDGIALJ_00972"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MNMYIGNLSYNVRESDLRQVMEEYGTVESVKLIMDRNTNRSKGF
+                     AFVEMPEAAEAQQAINKLNGAEYVGRQMVVKEALPRN"
+     CDS             complement(26000..26197)
+                     /locus_tag="DIDGIALJ_00973"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MIRKPGSDKGPGFSMFGAYVCELIEGYVKLRFTHADIEVYESEV
+                     EVYARGIEVWQEYSCVSLRGY"
+     CDS             complement(26212..26661)
+                     /gene="rplI"
+                     /locus_tag="DIDGIALJ_00974"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:Q5SLQ1"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="50S ribosomal protein L9"
+                     /db_xref="COG:COG0359"
+                     /translation="MEIILKEDIVNLGYKNDIVTVKSGYGRNYLIPTGKAVIASPAAK
+                     KMLAEELKQRAHKLEKIKKDAEELAAKLEGVSLKIATKVSSTGTIFGSVGNIQIAEEL
+                     AKLGHNIDRKIIVVKDAVKEVGNYKAIVKLHKEVSVEIPFEVVAEEA"
+     CDS             complement(26677..26949)
+                     /locus_tag="DIDGIALJ_00975"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MVQQVQSEIRYLTPPSVDVKKKKYCRFKKSGIKYIDYKDPEFLK
+                     KFLNEQGKILPRRITGTSLKFQRRVAQAVKRARHLALLPYVTDMMK"
+     CDS             complement(26952..27296)
+                     /locus_tag="DIDGIALJ_00976"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MNQYETVFILTPVLSDVQMKEAVEKFKSILTAEGAEIVNEENWG
+                     LKKLAYPIQKKSTGFYQLIEFNAEPTVIEKLEINFRRDERVIRFLTFKQDKYAAEYAA
+                     KRRSVKSTKKED"
+     CDS             27456..27902
+                     /gene="slyA"
+                     /locus_tag="DIDGIALJ_00977"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_01819"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Transcriptional regulator SlyA"
+                     /translation="MIEQFNFDIRLIFAILNGKVSAAINRKLSRNFRQNGLEITPEQW
+                     TVLIFLWEKDGVTQQELCNATFKDKPSMTRLIDNMERQHLVVRISDKKDRRTNLIHLT
+                     KDGKELEERARVIANQTLKEALKGITIEELSVSQEVLRKIFFNTKD"
+     CDS             28103..28279
+                     /locus_tag="DIDGIALJ_00978"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKGLLKNLGLILVVIGAVILVACSFTGNVNNNAILGSSAVLVVV
+                     GLISYIVINKRIVD"
+     CDS             complement(28369..29070)
+                     /gene="mprA"
+                     /locus_tag="DIDGIALJ_00979"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:A0R3I8"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Response regulator MprA"
+                     /db_xref="COG:COG0745"
+                     /translation="MDEKLRILLCEDDENLGMLLREYLQAKGYAAELYPDGEAGYKAF
+                     LKNKYDLCVFDVMMPKKDGFTLAQEVRAANAEIPIIFLTAKTLKEDILEGFKIGADDY
+                     ITKPFSMEELTFRIEAILRRVRGKKNKESNIYKIGKFTFDTQKQILATAEKQTKLTTK
+                     ESELLGLLCAHANEILQRDFALKTIWIDDNYFNARSMDVYITKLRKHLKEDDSIEIIN
+                     IHGKGYKLITPEAES"
+     CDS             complement(29076..30620)
+                     /gene="sasA_3"
+                     /locus_tag="DIDGIALJ_00980"
+                     /EC_number="2.7.-.-"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_01837"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Adaptive-response sensory-kinase SasA"
+                     /translation="MKKSTIWILGVVMGLSFLSLLYLQISYIEEMVKMRNGQFDESVK
+                     RALMAASKEAESAEVVRWLNEDISEAEKKAWEQSQSSSGVMRTQRFVMTAPDGSVRSS
+                     VELKTFSNEPSELPRAMISRKHGAKTIPQTSRSQIEMLKNRYLYQRALVDEVVLQMVY
+                     NASDKPIEERVNFKSLDQYLKAGLIENGLGDMDYHFKVIDREGREVYRCADYSDAGSE
+                     SSYSQPLFLNDPPARMSIVKIHFPGKKDYIFDSVRFMIPSMIFTFVLLVTFIFTIYIV
+                     FRQKKLTEMKNDFINNMTHEFKTPISTISLAAQMLKDPAVGKSPTMFQHISGVINDET
+                     KRLRFQVEKVLQMSMFDRQKATLKNKELDANELIAGVINTFTLKVERYNGKIESELKA
+                     TNSAIFADEMHITNVIFNLMDNAVKYKRPDADLQLTVKTWNEPGKLMISIQDNGIGIK
+                     KENLKKIFEKFYRVHTGNLHDVKGFGLGLAYVKKIIMDHKGTIRAESELNVGTKFIIA
+                     LPLLKN"
+     CDS             complement(30921..33077)
+                     /gene="fusA"
+                     /locus_tag="DIDGIALJ_00981"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P13551"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Elongation factor G"
+                     /db_xref="COG:COG0480"
+                     /translation="MKVYQTNEIKNIALLGNDGSGKTTLTEALLFESGIIKRRGRITA
+                     KNTVSDYFPVEQEYGYSVFSTVFHVEWNGKKLNIIDCPGSDDFVGAAMTALNVTDTAI
+                     LLLNGQYGPEVGTQNHFRYTEKLGKPVIFLVNQLDNEKCDYDMVLEQLQTIYGPKVVP
+                     VQYPLATGPNFNSLIDVLLMKKYSWGPEGGAPTIEDIPAEEMEKATELHKALVEAAAE
+                     HDEGLMEKFFEQDSLTEDEMREGIRKGLASRGMFPVFCVCAGKDMGVRRLMEFLGNVV
+                     PFVDEMPPVHNTRGEVVKPDSNGPTSLYFFKTAVEPHIGDVQYFKVMSGKVHEGDDFT
+                     NADRGSKERIAQIYACAGANRIKVEEMVAGDIGCTVKLKDVHTGNTLNGKGSENRFNF
+                     IKYPNSKYSRAIKPLNESDTEKMMVALNRMREEDPTWVIDQSKELRQTIVHGQGEFHL
+                     RTLKWRLENNEKLQIKFEEPRIPYRETITKAARADYRHKKQSGGAGQFGEVHLIVEPY
+                     YEGMPLPETYKFNGQEFKMNVKGTEEVPLEWGGKLVFVNSIVGGSIDARFMPAILKGI
+                     MSRMEQGPLTGSYARDVRVIVYDGKMHPVDSNEISFMLAGRNAFSEAFKNAGPKILEP
+                     IYDVEVFVPSDKMGDVMGDLQGRRAMIMGMSSEAGYEKLSAKVPLKEMSSYSTALSSL
+                     TGGRASFIMKFASYELVPSDVQDKLIKEFEAKQAEE"
+     CDS             33328..35097
+                     /locus_tag="DIDGIALJ_00982"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MNKLLLTALLVLCPYLAMGQSNQKTTRKAPLIGISCSHPGRSSS
+                     TQMTYTESVIQAGGTPILISITTDSLVLTDIANRLDGIILIGGGDIHPSYFNESPIEQ
+                     LGEVDSLRDVYDMALIRLATRRNIPMFGICRGEQLINVAFGGTLYQDIPTQHPDTTVC
+                     HQQQEPSSIPTHTVHLTPGSAMASITGQTQLFTNTHHHQAVKQVAPGFSVTGWSSDSI
+                     PEAIESSHEYPIWGVQFHPEALATAGDSISARFFYFLVQKAATYRHAKEIHRRILSLD
+                     THTDTPLDFDVSYNIGTREKTQVCLPKMREGKLDGQYLACWVRQGPCDEENSLKAIDR
+                     VDELIRHIYRQVEMNGEQCAIARTPDDLSRLKTEGKKAFYIGIENGYGIGKDLKNITR
+                     FHDAGVTYITLCHTRNNDICDSSSDTTARWNGLSPYGRKVVKEMNRLGIMIDLSHAAE
+                     STFWDVLKYSKAPVIVSHSSASAIYRHDRNLTDEQLRALAAHGGVAQACLVDEFLNPD
+                     AKKTNLTDFMKHLLHMVEVAGIDHVGIGSDFDGGGGVKGCNGDNDFINITVRLLEHGF
+                     TETDIAKIWGGNFLRVMKQVQTK"
+     CDS             35245..38565
+                     /locus_tag="DIDGIALJ_00983"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKRKIIWSFALLACLCCLPSAKTKAQTKNAAIIPGEVWKDTDGN
+                     PINAHGGGLLYHEGTYYWYGEYKKGGTILPEWATWECYRTDVTGVSCYSSKDLLNWKF
+                     EGIVLPAVKDDEKHDLHPSKVLERPKVIYNEKTKKFVMWAHVESADYSKACAGVAVSD
+                     SPTGTFTYVGSFRPNGAMSRDQTVFVDDNGKAYQFYSSENNATLYISELTDDYLKPTG
+                     RYTRNFVKQSREAPAVFKYNGKYYMLSSGCTGWDPNVAELAVADSIMGQWTTIGNPCT
+                     GPDADKTFYAQSTYVQQVYGKGNAYIAIFDRWKKKNLEDSRYVWLPLEFGKDGTIAIP
+                     WRDSWDPRTQWEGQGDFSAGKGTFLLNGKPFVIKAAELHYPRIPKAYWDQRIKLCKAL
+                     GMNTICLYVFWNSHESQPGVFDFTGQNDLAEFCRLCQQNDMYVILRPGPYVCAEWEMG
+                     GLPWWLLKKKDIRLRESDPYFMERVGIFEKAVAEQVAGMTIQNGGPIIMIQVENEYGS
+                     YGEDKGYVSQIRDIVRANYPGVALFQCDWASNFTKNGLHDLVWTMNFGTGANIDQQFA
+                     PLKKLRPDSPLMCSEFWSGWFDKWGANHETRPAADMIAGIDEMLSKGISFSLYMTHGG
+                     TNWGHWAGANSPGFAPDVTSYDYDAPISESGQTTPKYWELRKALSKYMNGEKQAKVPA
+                     LIKPIRIPSFQFTEMAPLFDNLPAAKKDRNIRTMEEYNQGFGSILYRTTLPEMKTPSL
+                     LTVNDAHDYAQVFLDGKYIGKLDRRNGEKQLEFPACPKGARLDILVEAMGRINFGRAI
+                     KDFKGITQSVELTVDIDGRPFTCNLKDWEVYNLEDTYDFYKNMKFQPIGSLKDELGQR
+                     IPGCYRATFKVNKPSDTFLNFETWGKGLVYVNGHAMGRIWEIGPQQTLYIPGCWLKKG
+                     ENEVIVFDIIGPKEVKSEGLSEPLLDQLLVTKPLTHRNEGENLDLSGEQPVLSGSFNP
+                     GNGWQERKFDQPVTGRYVCLEALSAQDGKDLACIAEMYLLDENGERLSREPWIVNYAD
+                     SEDVSHVNCSADKIFDLQESTYWSTTKDTPYPHSVVIDLGSTRTLTGIQYLPRMESEV
+                     PGGIKDFKVYVKSKAFNY"
+     CDS             complement(38680..39861)
+                     /gene="uxuA_2"
+                     /locus_tag="DIDGIALJ_00984"
+                     /EC_number="4.2.1.8"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P24215"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Mannonate dehydratase"
+                     /db_xref="COG:COG1312"
+                     /translation="MEKTWRWFGKKDKITLAMLRQIGVEGVVTALHDVPNGEIWTLEA
+                     IEDLRDYIESFGLRWSVVESLPVCEAVKYAGSERDRLIENYKISLANLGKAGIRTVCY
+                     NFMPVIDWIRTDLQHPWEDGTSSLYFDRIRFAYFDLKILERENAEADYSPEELDKVAE
+                     LDKVITEFEKAELVDTIIVKTQGFVNGNIKEGDKEPVTLFKRLLALYKGIDREALREN
+                     MRYFLSAIMPVCEEYGVNMCVHPDDPPFQVLGLPRIVTDEADIAWILSAVDNPHNGLT
+                     FCAGSLSAGEQNDTRELARKFARRTHFVHLRSTKAIPGGNFIESSHLEGRGHLIDLIR
+                     IFEKENPGLPMRVDHGRMMLGDEDKGYNAGYSFHGRMLALAQVEGMLAVVDDELYGKS
+                     V"
+     CDS             40024..40602
+                     /gene="tag"
+                     /locus_tag="DIDGIALJ_00985"
+                     /EC_number="3.2.2.20"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P05100"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="DNA-3-methyladenine glycosylase 1"
+                     /db_xref="COG:COG2818"
+                     /translation="MQDITNGRCGWCGTDELYVKYHDEEWGKPVTDDKTLFEFLVLES
+                     AQAGLSWITILKKREGYRKAFCNFDAAQVAQMTDEDVERLMHFDGIVKNRLKIKSTIT
+                     NAKLFLAIQKEFGSFYNYTLSFFPDRNPIINHFQSLSEIPVSSPESDAMSKDMKKRGF
+                     KFFGSTICYAHLQASGFINDHLTDCICRNQKQ"
+     CDS             complement(40728..43823)
+                     /gene="lacZ_4"
+                     /locus_tag="DIDGIALJ_00986"
+                     /EC_number="3.2.1.23"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P81650"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Beta-galactosidase"
+                     /translation="MKKHFITGLLATFAIAASAQSFTEWQNPEVNAVNRAPMHTNYFA
+                     YESADAAARGAKEHSSNYMTLNGIWKFFWVKNADARPTDFWKVGFNDKGWSDMAVPGM
+                     WELNGFGDPIYVNTGYAWRNQFKNNPPQVPTENNNVGSYRREIVIPADWKSKDIIAHF
+                     GSVTSNMYLWVNGKYVGYSEDSKLEAEFNLTPYLKPGQKNLIAFQVFRWCDGTYLEDQ
+                     DFFRYSGVGRDCYLYARDKKRIQDIRVTPDLDTAYKNGSLKVQLDVKGGGNVSLELLD
+                     AAGKQVATAVAKGSATALINVENPHKWTAETPYLYTLRATLQGSSEVIPVKVGFRKIE
+                     LKGSQILVNGQPVLFKGANRHEMDPDGGYVISRERMIQDIQVMKQFNLNAVRTCHYPD
+                     NNLWYDLCDQYGIYVVAEANIESHGMGYGEETLAKREDYKKAHMERNQRNVQRSFNHP
+                     SIIFWSLGNEAGYGANFEAAYDWIKAEDPSRAVQYEQAGKTGKTDIYCPMYYGYDGCK
+                     KYSEDDSMTKPLIQCEYAHAMGNSQGGFKEYWDLVRKYSKFQGGFIWDFVDQSVRWTG
+                     KNGKMIYAYGGDFNRFDASDGNFCDNGLISPDRVPNPHMYEVGRIYQDIWTTPADLKN
+                     GEINVFNEYFFRDLSAYYMEWEVLKGGKVIRTGRVDNLNVAPQQTAKIKLDLGKTCQC
+                     TEWLLNVSYKLKNREGLLSAGHVVAKDQLTLNPYQAPSMELKNCEQSNIEMTAPQVQD
+                     NDWNYLIVSGDAFRVEINKHNGYLTKYEVNGRDMIKDGEALKPNFWRAPVDNDYGANL
+                     QRKYIAWKNPEIKLTSFKQRTENNQVIVESAYDMPGVSAKLNLVYVINNAGAVKVTQK
+                     LTADKNAKVSNMFRFGLQMPMPRSFETVEYYGRGPVENYIDRNHCADLGIYRQSVAEQ
+                     FYPYIRPQENGTKTDIRWWKMLDQSGNGIKIVAAAPFSASALHYTIESLDEGWSKEQG
+                     HSQEVDEADLTNLCIDKVQAGLGCEDSWGRIARPEYLVPYADYEFTFILFPVCHSIGI
+                     E"
+     CDS             complement(44001..45950)
+                     /locus_tag="DIDGIALJ_00987"
+                     /EC_number="3.2.1.55"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P82593"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Extracellular exo-alpha-L-arabinofuranosidase"
+                     /translation="MKRLLFLLTLFVVLGMQAQQHVMTVDVSKPTARINPAMYGIFFE
+                     DINFGADGGLYAELVKNRSFEFPQPLVGWIPFGEVTVQDERPCFDRNPHYVRITNDGC
+                     LLRAGLDNEGYRGIGLKKGEDYRFSAYVRTPDTKPMKLSVELVNSNGENLLKKELEVK
+                     GSEWQKLTAVLKAPFTDVRSRLRVVLQTEGTVDMDHISLFPVNTWKKRENGLRADLVQ
+                     ALYDLNPGVFRFPGGCIIEGNSLATRYQWKNSVGPVENRPLNENRWNYTFKHKAFPDY
+                     FQSYGLGFYEYFLLSEDLGAEPLPVLSCGLSCQYESNEVVPLGELGPYVQDALDLIEF
+                     ANGAATSKWGKVRADMGHPEPFGLKMIAIGNEQWGEVYPERLEVFTKAIRAEYPDMQI
+                     VGSSGPSADGDKFDYLWPEMKRIGVDLVDEHYYMAPDWFFANAARYDDYDRKGPKVFA
+                     GEYASHDHPTGKANNFLAALSEAAFMTGLERNADVVRLATYAPLFAHVDAWQWNPDLI
+                     WFDNLRMMRTPNYYVQQMYGMNAGTDVLNLQMDGKPVTGQDSLYASAVLDAPTGEVIL
+                     KLVNAGSRSEKVQIEFSGLKKRQLVSGSCTYLQSDDWKAKNTLEQEAIVPRIRPVEVA
+                     SRSLSLELQPRSFGVYRLRISTQSK"
+     CDS             complement(46005..47996)
+                     /gene="hypBA1_2"
+                     /locus_tag="DIDGIALJ_00988"
+                     /EC_number="3.2.1.185"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:E8MGH8"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Non-reducing end beta-L-arabinofuranosidase"
+                     /translation="MIRLLTLALVAAMTGSVSAQKQQTLHSGYPIDPVPFTSVKVTDS
+                     FWGQRLKASREVTIPLAFSKCEETGRYENFVKATHPSDKYKVGGFSFDDTDVYKTIEG
+                     ASYSLQTYPDKKLEEYIDSVLVIVAAAQEPDGYLYTARTMNPKHPHDWSGPERWSEVE
+                     NLSHEFYNLGHMVEGAVAYYQATGKRNFLDIAIRYADCVCKNIGEGPGQKRVIPGHQI
+                     AEMALVRLYTVTGDKKYLDQAKFFLDARGTTARKDIYLQSHKPVLEQEEAVGHAVRAG
+                     YMYSGMADVAAITGDSSYIKAIDKIWENIVGKKIYITGGIGARHAGEAFGDNYELPNL
+                     TAYNETCAAIGNVYMNYRLFLLHGDSKYFDVLERTLYNGLISGVSLDGGKFFYPNPLS
+                     CDGKYHFNADHTITRQPWFGCACCPSNISRFIPSLPGYVYAVKDNQVYVNLFLSNRAE
+                     LKLNEKKVVLEQETGYPWNGDIRVKVAQGNLPFTMNIRIPGWVRGSVLPSDLYSYADD
+                     LKLGYRVLVNGEEVTGELRKGYLRIDRKWKKGDVVEVHFDMQPRVVKANEKVVADRGR
+                     VAVERGPIVYCAEWADNDFNIQNIILNRHPKFQVTEKPELLYGVNEITTEVQALGFDA
+                     AGKLATRDVTLTLIPYYAWAHRGEGKMDVWLPVNRIDVE"
+     CDS             complement(48054..50597)
+                     /locus_tag="DIDGIALJ_00989"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MNGFLKLLSLCLFLTLTVPLQAITNGVANEPDSVYLFSYSHADG
+                     SGGLKLAWSPNGNRWFSVAEGSSFVNSDFGPWGQMKRMLKPHLMQTRADDRWHCIWEL
+                     TESGNSLAYVESPDLLQWKAQKYFDRSRLAEYRPAEVYPNVRKEVLLNGTVQQGWMQR
+                     VPYATVQRVISFAEHKKYRQALHAERTEQDPVRFAGLKPVEATIEVETECAKTISKHL
+                     IGIFFEDINYAADGGLYAELVQNRDFEYSSKDGSHQGWDGTYAWAVKEGDAAAAVTIA
+                     AADPIHPNNPHYAVLEARPGVTLQNDGFDGISLKKGEKYDFSLFARVAPGSKGGKVVV
+                     CLLDQTGREIARSSVNVSSKEWKKQQTVLTANADVRAAVLSLQPQTVGTLHLDMISLF
+                     PQNTFKGHKNGLRADLAQTLADLHPRFVRFPGGCVAHGDGIDNIYDWKGSIGPLEARK
+                     PLRNLWGYHQTRGLGYFEYFRFCEDIGAEPLPVLAAGVPCQNSGTHTHYADNCPQGAN
+                     KELMRYGQQGGIPMEEMPAYIRDVLDLIEYANGDARRTVWGRKRAEAGHPKPFNLKYI
+                     GIGNEDMITEVFEERFAMIYKAVKEKHPEITVVGTVGPFYEGTDYAEGWRLATELGVP
+                     MVDEHYYVDPGWMIHNQDYYDRYDRTKSKVYLGEYAAHLPGRPNNIETALAEALYLTS
+                     VERNADVVEMTSYAPLLAKEGHTQWNPDLIYFNNTEVKPTVGYYTQQMYGQNAGTQYI
+                     TSHVTLSNGQEAVRKRVGVSVVKDEVTGDHIVKLVNLLPVEVSSTVKLKGIDLQNPSA
+                     VKTLLTGDPKDKQARSVTSAFVDIGGTEFPYTLPAYSFTVIRIHENKGK"
+     CDS             complement(50823..52769)
+                     /locus_tag="DIDGIALJ_00990"
+                     /EC_number="3.2.1.22"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:Q8A6L0"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Retaining alpha-galactosidase"
+                     /translation="MKNRLKLLVWLFALSGPLAAQSVSVNGPDGKLQLTVSCPSANGE
+                     VSYAVTYNGKQMLESSPLGMETNVGDFYRGLQLKEHKVTALDTVYEQSRIKASHIHYR
+                     ANELLCSFVNGEGKNVQITFRVSNNDVAFRYTLPREQGKGSVTVNSERTGFRFPSQTT
+                     TFLCPQSDAMIGWKRTKPSYEEEYKADAPMNERSGYGHGYTFPCLFKVGDDGWVLLSE
+                     TGVDSRYCGSRLSDWDNGVYRIAFPMPEENNGNGTVSPAFSLPGSTPWRTVTVGETLK
+                     PIVETTVPWDVVEPRYTTTHDYKPGRGTWSWILWQDGSINYDDQVRYVDLAAAMGYEY
+                     VLIDNWWDNNIGRDRMEQFIKYARSKGVEVFLWYSSSGYWNDIEQSPVNRMDNSIARK
+                     QEMRWLQSQGVKGIKVDFFGGDKQETLRLYEEILSDADDHGLMVIFHGCTLPRGWERM
+                     YPNYVGSEAVLASENLVFSQHFCDNEAFNATLHPFIRNAVGCMEFGGVFLNKRLNRSN
+                     DGGTIRRTTDIFQLATAVLFQNPIQNFALAPNNLTDAPQICLDFMKQVPTTWDETRFI
+                     DGYPGRYIVLARRHGNTWYIAAVNATAEPLKLKLDLPVLAGQEVSLYSDDKKMKPQLK
+                     LQKIKTDGSLQLTVQPQGGAVIVE"
+     CDS             complement(52800..54740)
+                     /locus_tag="DIDGIALJ_00991"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MIVRMKNTFRMLLAAMLLSLFALPGYSWQKSFPEKDYVAYLFTY
+                     FTGNSGDEEAVRYAVSMDGYTYWALNDNEPVIDSKVISSTGGVRDPHILRCEDGKTFY
+                     MVVTDMVSANGWSSNRAMVLLKSTDLVNWSHSVINIQKRYSGQEDLKRVWAPQTIYDP
+                     EVGKYMVYWSMLHGDGADVIYYAYANAEFTDLEGEPKPLFLPENGKSCIDGDIVYKDG
+                     VFHLFYKTEGHGNGIKVATTRSLTSGAWTEEPDYKQQTKEAVEGAGTFKLIGQDKYIL
+                     MYDVYMKGSYQFTETTDLKNFKVIDSEVKMNFHPRHGTIIPITRHELLRITDEWGKPT
+                     ELGALPNNPVLPGFHADPEILYSHQTQKYYIYSTTDGQPGWGGWYFTVFSSTDLKTWQ
+                     DEGVMLDLKSEQVPWADGNAWAPCIEEKKVDGKYKYFFYYSGNPKNGGGKQIGVATSD
+                     SPAGPFTDLGRPVVTASPVGGGQQIDVDVFTDPVSGKSYLYWGNGYMAGAELNDDMVS
+                     IKENTVTVMTPAGGTLQDYAFREAAYVFYRNGLYYFMWSVDDTGSPNYHVAYGTSKSP
+                     LGPIEVAKQPVVLIQNPEKEIYGPAHNAVLQIPGTDEWRIVYHRINKWYLKDGPGVHR
+                     EVCIDRMEFNEDGTIRPVVPTF"
+     CDS             complement(54851..55978)
+                     /locus_tag="DIDGIALJ_00992"
+                     /EC_number="3.2.1.-"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:L7P9J4"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Unsaturated 3S-rhamnoglycuronyl hydrolase"
+                     /translation="MKTTCLFLLGLAFCWGLFSCTAQQPKPEEVIEIINRVNNYWQET
+                     HPQHGRSFWDNAAYHTGNMEVFFLTGNPECYAYSEAWAEHNEWKGAKSDNKEEWKYSY
+                     GESDDYVLFGDYQICFQTYADLYTVKPDSGKIARAREVMEYQMSTDKNDYWWWADGLY
+                     MVMPVMTKMYKLTGNPLYLEKLHEYWTYANSIMYDAEEGLYYRDGKYIYPKHKSVNGK
+                     KDFWARGDGWVLAALAKVLKDLPETDQYRQEYIDRFQTMAKSVAACQQPEGYWTRSML
+                     DPEHAPGPETSGTAFFTYGLLWGMNNGLLDKATYQPVVMKAWNYLTTVALQPDGRIGY
+                     VQPIGEKAIPGQVVDANSTANFGVGAFLLAACEMVRFLNAD"
+     CDS             complement(55996..57336)
+                     /locus_tag="DIDGIALJ_00993"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MPIMSKTDSFFIVFILIVWGIGGFPVALCAQGAAGVLPETHLVE
+                     VGKGYSQTSVNTAVFRNNSLVTQGDEQYISYYDAEGFLTLGKRNLHAGQWTLHRTQYK
+                     GNVKDAHNVISMMLDGDGYIHVAFDHHGQPLNYCRSIAPHSLELGEKEPMTGVDEGNV
+                     TYPEFYLLSGGDLLFAYRSGSSGRGNLVMNRYSLKEKKWSRVQDVLIDGENKRNAYWQ
+                     LYVDELGTIHLSWVWRETWHVETNHDLCYARSFDNGVTWYKANGKKYDLPIRLGNAEY
+                     ACRIPQNSELINQTSMSADAGGNPYIASYWRDPDSDVPQYRIVWHDGQMWHSRQVSGR
+                     TTPFSLKGGGTKMIPMARPRIVVDGGEIFYVFRDEERGSKVSLAHATDVANSKWSISD
+                     LTDFTVGAWEPSHDTELWKSRKRLHLFVQHAKQGDGERVVEFAPQSVYVLEVIR"
+     CDS             complement(57320..58573)
+                     /locus_tag="DIDGIALJ_00994"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MRKSNYLWLLLVAVLLLPAQEMAAKKKKEKEVTDRELWAGVLYQ
+                     MAAPVLSNMSEGKLQENMQVELSPTWDGRDKRVTYMECFGRLMAGLAPWLSLPDDDTA
+                     EGKQRRQLREWALKSYAQAVDPESLDYLLWRKEGQPLVDAAYVAESFLRGYDALWVPL
+                     DSLTKRRYIEEFTQLRRVDPPYTNWLLFSSTVECFLRKAGAKSDAYRIVSALRKVEEW
+                     YVGDGFYSDGPGFAFDYYNSFVLHPMYVECLEVFTNSGKNKIWNAPDCNFQRAQKRMQ
+                     RFGMILERFISPEGAFPVFGRSITYRTGTLQPLALLAWRGWLPKELSNGQVRAAMTAV
+                     INRMFGDNRNFNEKGFLTLGFNGSQPHISDWYTNNGSLYMASLAFLPLGLPADHPFWT
+                     DAPQAWTSKKAWGGEEFPKDHAYYE"
+     CDS             complement(58753..58842)
+                     /locus_tag="DIDGIALJ_00995"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MFEGLDFWFEQIIAYCIALVLVQFMKKQI"
+     CDS             59079..60209
+                     /gene="hemW"
+                     /locus_tag="DIDGIALJ_00996"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:Q9CGF7"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Heme chaperone HemW"
+                     /db_xref="COG:COG0635"
+                     /translation="MAGIYIHIPFCKTRCIYCDFYSTTRSELKQQYIRALCTELKTRK
+                     GYLKEEPIETIYFGGGTPSQLAHEDFEQIFRTIKEVYGTEHAEEITLEANPDDLTEEY
+                     VSMLRTLPFNRISMGIQTFDAPTLKLLNRRHNAAQAIAAIHRLRQAGFRNISIDLIYG
+                     LPDETDQRWERDLQQAVGLDVEHISAYHLTYEKGTRIYEMLQSHRISEVDEESSVRFF
+                     SALMDTLGAAGYEHYEISNFCKPGMYSRHNTAYWKGIPYLGCGPSAHSFNAETREWNT
+                     ASLEGYIKSIEEGHRSSETEILDKVTRYNEYIMTSLRTMWGISLTYTEEAFGTELCQY
+                     CTKMAAPYLQSHKLEMQADRLRLTREGIFVSDGIISDLMFID"
+     CDS             60230..60775
+                     /locus_tag="DIDGIALJ_00997"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MTEQEVRRYLRQMKEEDSERAFHSFYNLCYDRLFRIACYFVKHE
+                     EWAQEIVLDVFMKLWEQRALLPEVNNIEDYCFILTKNASLNYLEKENRHPTLSSEQLP
+                     EVSGQADSPEDTLICEELFARYVKALDRLPERCREVFIRLREEKQSYAQVAEELNIST
+                     KTVDAQLQKALTRLKEALLTE"
+     CDS             61062..61580
+                     /locus_tag="DIDGIALJ_00998"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKVNNENFDKVLNKLVASTRSPRGRFTAENSWRLLESRLLKRRS
+                     MKRFWMRTASAAAVVLLCVTSWAAYQFLYVAPPREAIPTEAIHTTEETQVIHSVLTFD
+                     QQPLQEIVRQLSETFRTDIRIEGDSLKNYHMTATFREGESLTEILDLLKDAGNFTYKK
+                     ENNTIILTTKLN"
+     CDS             61583..64321
+                     /locus_tag="DIDGIALJ_00999"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MTSSTICSHHRIRTVLLMCVVLLSASLHAQAQNKETRINLNIRN
+                     ATLESFVKQLENATGFSFIYGEEVKLTHRITLEMKQKNISEILQRAFENEPITFEISG
+                     KHILLHKRPVPQKPVSRKFTISGYVTDGASSETLIGANILESRRSTGTATNPFGFYSL
+                     TLPEGETELVFSYLGYESRHSRFELTKDTLLNVRLDSNNQLAEVVVLSDKREAGIEST
+                     AMGAHEIPMTQIRHTPSILGEADLLKTIQLMPGVQAGMEGFAGMYVRGGGPDQNLVML
+                     DGIPVYNADHLLGVFSIFTPEAVKNTTLFKSSFPARYGGRLSSIVDVRTNDGDMHKYH
+                     GAFSIGLLTDKLHIEGPIWKERTSFSFSARAIPTLFFKNLIVDKDDTYSDKYNYYFYD
+                     VNAKVNHKFSDRSRIFLSFYKGKDHYHYDSYYHGDNYDNSIKNYSKDNSHLNWGNTIA
+                     YGRWNYVFNSKLFCNTTVSYNKYEMGLDGNMEDTYTVANKVQDRYYYSSKFNSGIRDW
+                     SARMDFDYTPMPQHHIKFGAEYIHHTFRPGIATSKIQDIDNGALQEDTVYNTSNSHAM
+                     RGQEISLYAEDNFNVNARFSLNAGVRTSLFHTQGKSYYSLQPRLSARYDLGQGYSAKA
+                     SYTCMAQYVHLLSSTPLSMPTDLWVPITKDISPMYANQFSIGGYYSGLPGWEFSVEGY
+                     YKQMKHILEYQDGVSFFGTSTNWEEKVEMGEGRSFGLELMVQKTLGKTTGWLAYTLSK
+                     TDHRFKNGTINQGRWFPYKYDRRHSISLNLSHKFSDRIDAGASWIFNTGGCITIPEKA
+                     TIIIRPDGSIEETGYISRRNNYRLPASHRLNLGVNFNKKTKHGIRTWNISIYNAYNAM
+                     NPNIVYSKYKNGYNVYYDDFYESIYHGNTGQKKAQTVIKKITILPCIPSVTYTYRF"
+     CDS             64337..65479
+                     /locus_tag="DIDGIALJ_01000"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKTKMKLHLIIYITIVGFLTACENEIPYNPGQQDPQIIMNALLE
+                     TGQAENDVYLHLGEGYSIEHLNEATLFLYINGKIAETPKAVSPEEIYGHLEGELDKDI
+                     YESLLKSIRFKKYRLTSTLHPGDNIRLEATAENGKYHASAEVTVPQPIESLHVDTCLA
+                     YLREYSGQTLYRQYKITLQDRPNEKNYYRLDIWNDRSYYCKWKEYLEDENGSLIKVED
+                     EDGSWHWASIPRDTTILAPRQNEIINREDVILTDGHPGNYDDEENELFPTINNKYNIF
+                     NDNTFRDSYATLKVYTPLYQEYYPVEGHYYDHISRKQTITVRLLSITEAEYRYLKALN
+                     CLDDGDYYDALMEPISLPCNVIGGLGFVGVCSESRVIIELPETVWQ"
+     CDS             65771..66124
+                     /locus_tag="DIDGIALJ_01001"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKRLGLTLVAAVCLTATTFAAGNQPTTAKWEGNINITKLSKYLN
+                     LDSNQHEEVANICEYFTEQMERATNSKKNQEKLLRNAVYGNLKLMKKTLNEKQYADYT
+                     RVLNVTLQNKGIEVK"
+     CDS             complement(66263..67015)
+                     /gene="btsR"
+                     /locus_tag="DIDGIALJ_01002"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P0AFT5"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Transcriptional regulatory protein BtsR"
+                     /db_xref="COG:COG3279"
+                     /translation="MDKYKVAIVDDDEVALENLSFELGKDARFFLKGTARNGKQGKKL
+                     IAKVQPDLLFLDVELPDMTGMELLQEIRDSVSWNMRIVFYTAYDKYMIQAIREAAFDY
+                     LLKPFEEQELRDILARFVEQAEAGQRMSYPIGAPLHTGQTFIVFTPTNDMRALRPAEI
+                     GFFRYCSERKQWEVILNNQPPLVLRRGMTAEQITQYSSSFVQIHQSYIINIDYLMIIK
+                     DSKCMLYPPFDKVTELLVSRKYKKELQDRFCL"
+     CDS             complement(67148..69178)
+                     /locus_tag="DIDGIALJ_01003"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MGERMDKRIRFYIYWILGFVLLGACAPGDKEDVYTEMRAFEDFS
+                     HINGDSVAIVPRKVRLKAFQKMEEAKDSLVKYNYLAMTLKTYLITSQLDSAQIVIQQI
+                     HDFIERQHSSSQMADLESECFNMKGNIFARVGNMDSAEICFRKAYELRMRGTRIEVVP
+                     DILMNLADANNRLGKLDIGAAWYRRALLMCDSLHIASTKKPPIYYGLAQVYVTMRDFE
+                     QCDYYYNLAGESYDSMLPYEKYIYLNNRGTSYYYREDYQTAIKYFQKVIDLVEGYADM
+                     SFELNLGRLNLGDCYLRLNMVDLAVKYINECQLFFEEMGVSTALYYIDTQKIELALLQ
+                     KDFQEARRLLSESVVPPGIDPDMVHIRNKYLQQFYEETGNYKRAYHYLQRNNLLDDSI
+                     RNERVRMRTADLTLRYQQDSTLMAHRVLLQEQKNEVLVLRQTQFVVFAVAVVSILTAV
+                     FLYLYSKKKRALLLARNHRTVSTLRLENIRNRLSPHFIFNVLNREMAERNVEGKQELS
+                     SLVKLMRRNLELAEQLCVTLAEELDFVKTYINLERRSLGPDFHSELKIEKDVQLEQIR
+                     IPSMMIQIPVENAVKHALREKEGERNLWVSVCRRGSGICIKITDNGGGYRPDSRNRGT
+                     GTGMKVIMQTIQILNNKNKEAIDVSVYNVSLQSGEMGCEVTFWLPDNYDYRI"
+     CDS             69524..70969
+                     /gene="pknD_1"
+                     /locus_tag="DIDGIALJ_01004"
+                     /EC_number="2.7.11.1"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_01957"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Serine/threonine-protein kinase PknD"
+                     /translation="MLDSGQIIADRYELLKQLGRGGFSEVWLAQDKLTDVKVAIKIYA
+                     PGMGLDDAGISLFTQEFSLVFDMNHTNLLHPTYYDCWERMPYLILPFCKNGSAFQYLT
+                     DNNRITETESWHLLHDVAEGLAYLHAKTPPVIHQDIKPDNILINDENRYMITDFGISA
+                     RIRSTLRRNQGQESSGGTLAYMGPERFGPSPAPIMASDIWSLGATMYELLTGMPPYGD
+                     HGGVLQKNGADIPLINEDFSQELKDIIYKCLALNPWDRPTARQIADYTSQHINGSPVP
+                     FSLSNNSHDTLQEEEDKTHEDSISAHSSDINKMSPYQDKGKRKKVIVVAAITAIFATI
+                     VIIFSLISGKEPVVESIPEPTPTIDYDQMCLSIIQEGENSKIQGDVFRFDIDTLKQNN
+                     DSVFEDFYINAIGKYRQINYYKDSISAKIYLNATELKQQVEAILDSAYHVFKEKANIM
+                     KDLDQAVAAQAFEDRAKKIEPYINIDNNENE"
+     CDS             70956..71726
+                     /locus_tag="DIDGIALJ_01005"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKMNKLIRLIVLAFALSMPISIWGQCASIYQKGETYMKRGRYRD
+                     AIKSFKAAMKCDSNLEQACKNKIKECEEKINPAPKPAPPAEITRLTIDRKSLEFGCET
+                     KTAESIKIESLPEQWTAISDADWCQVTPGEKKLSISCQTNWLTTERKATITISNEKMK
+                     ATVSVTQGGQEEFINIALDKLEFGSKGEIKELQVDSNAEWEVADIPEWCEAIAKDRGK
+                     LILKVGKTKKAREGTLIVKSKGGKISSIILSQKKGGLF"
+     CDS             71799..72623
+                     /locus_tag="DIDGIALJ_01006"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MRCMNCGWDNLSNTTVCLKCGQPLRMPENYANSQDIFISKEGHG
+                     EAIPKPTVLNVSSNEEKCRKTVVFSTTNEEENHSTVVQPIIECPNCNYPVVGDFTSCP
+                     CCGTPLKRANISTNNEYKTIRVEEEAPSVSEEKMLCHECGSKIAITCSFCPNCGVRVH
+                     RPTIRRQIKNITETEPETKPHCSLTIIPEEEENILPKRFEYEGNSIILNRENTEMSNR
+                     TITSKEQAEIVFDDGHWYLLDRSMLQTTYIQVNRKIEIIPDDIIVLGDRRFKFECD"
+     CDS             72635..73909
+                     /gene="pknD_2"
+                     /locus_tag="DIDGIALJ_01007"
+                     /EC_number="2.7.11.1"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_01957"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Serine/threonine-protein kinase PknD"
+                     /translation="MNNRTVDRCDYNVGEYINNRYRVSQTLGEGSFGKVYRVTDSASK
+                     DYALKLLRLWEVPPEIRKPLMERFEMEFKTGQIDCDYLVRSLDYGTVGGNPYIVMEYC
+                     SGGDLTPYLGSGSSKIPLICQQILIGLHALHTRGKVHRDLKPENVLFKSNGIAALTDF
+                     GIAGDRNKRMTERNIFGKPNQIFGTYAYMPPEQVNRMRGEATVLPTTDIFSFGVLAFQ
+                     LLTGSLPFGELSSHNELALYQKRGKNGDWNRQKLTQLKHREQWQQLFAGCLNPDFKKR
+                     FQSVQEVLEHLPAISQVPMERGYCPPQTVNGFCIRIMQGEEYGKIYQLSELIKYGNRI
+                     LTIGRERDNLLHITEQQSAYISRHHCTIETNPATDKWIIRDGQWQKELKLWQESSNGT
+                     YVNSTQVTKQGHILKIGDIISIGDVKMRFENY"
+     CDS             73926..75668
+                     /locus_tag="DIDGIALJ_01008"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MDTQNYKRTLAGSVGAGMGALMGASGRTYFILEHKTSSKYHQAG
+                     ESQKIIVDQVELGRDASCQVRFDESFETVSRKHAAIVRDGENWKLIHLSHSNPTLVNG
+                     HPINGSYYLQTGDEIQLSVGGPRLGFIVPQGRQALTSSIGLTERMSLFRKQALRPYKT
+                     ALTIMGIVFVLAVAGLAAWNYSLGVKNDLLAQKTEEQELQLKGYQNQLDSLGTERASL
+                     EAQQRELETKLRNSDGNAEALKTQLDNVNSQLKNVNASFYKVKSDLDNLSNSISTKSI
+                     ENSSNAINANIQEGTRLSKDQYYEDPDIADEQDSNASGDLKDYYDYIYTIKVDRIEIE
+                     YNGTKFDPGIQVSDIICGTGFMLSNGMFVTDRQNVEPWIYSNTEWKDPWRKLLAVYKG
+                     AGCNIIIHYRAYSTKGTGKPLTFTSSDFAKDGRNDVQVTEIEVDKSIRVQLREHGIKL
+                     TYTRRKYISVSIVTPAANSWAYIRGKGVYGEGLPYDITAADNMSGGTEVQMVGYAGYA
+                     DIHNLTPAHFNDHTNIADTKYETTILQNRVAEPGYYGSPAFLLENGSYKVVGFMVGSI
+                     EGKDRLVPIRNLIH"
+     CDS             75677..76735
+                     /locus_tag="DIDGIALJ_01009"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MSEISIKLAAGTNVGLVRKNNEDNFVVNRDLCQSEWIIPQSIEP
+                     ISLGRYGSILVVADGMGGTNAGEVASAIAIETVQNAFTPENLGDIVTQEGIVTSEEAV
+                     EEFLSRTVKTADLNIVNTSKEDSSTQGMGTTIVIAWILNDKAYICWCGDSRCYVFNGN
+                     SGFCRLSKDHSYVQDLVDQGKLDPENAFDHPYSNIITRCLGDPTNRSNPDFRSYNLKD
+                     GDTLLLCSDGLCGLCHDEEIMQIIEESQDDLMTCKDRLIEAALEAGGYDNITIVLCHI
+                     MLQDTEPKVKLNNTVFSKPNHHKIRKILLLLLVLALAAGFYLYRNPQQYAKWKTIIYQ
+                     ADTVLVTETDTTNTTLTD"
+     CDS             76752..78230
+                     /gene="pknD_3"
+                     /locus_tag="DIDGIALJ_01010"
+                     /EC_number="2.7.11.1"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_01957"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Serine/threonine-protein kinase PknD"
+                     /translation="MQLKNGDIFAEHYQLKKLLGVGSFGEVWLARNILADVDVAIKLY
+                     GLLDDNGIKDFREEFKLAYKLHHPNLLHLNHFDVFGQCPFLVMPYCPKGSSASLKGKM
+                     SEKQIWRFIRDVSCGLMFLHNQNPPIIHQDIKPDNILIGDDDKFIISDFGISRKLEHT
+                     FRKSINKVESSGTLAYMGPERFAEKPLIVATSDIWSLGMSVYELSTGLVLWEGMGGCV
+                     QLNGAHIPALDEKYSSQLSQFVHACLALNTWDRPTAQQAYEFACSILKQTKTDSPSVQ
+                     LKPIAPLFPKTTSPRLKEKFCPSNMHKRIAGWTGLGIVLILLLVKGGSIYFRHLEEER
+                     KYAACRTEEDYRDFLKEYPSSSHANFIKQFLGNKVNPISPINREENIVMDSVKTDTAK
+                     LEQFQEEPKKQIVHPHPQPSSQPVLPITDIREVRRENEERLFYSCQSVADYEEYLRKY
+                     PKGRFVHKAKRAIQQIESEMMQSNPSTQEIHIRKNTRVNVRL"
+     CDS             complement(78290..79420)
+                     /locus_tag="DIDGIALJ_01011"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKIGDKVRFLSEVGGGVVTGFQGKNIVLVEDADGFDIPMPINEC
+                     VVIETDDYNIPTPAAKAAAKKKREEEQQLRTAATAARPSAMESQVSEPQSVRLEKPQI
+                     SVYRQPEMKGGDILNVFLAFVPEDIKAVSTTPFETYLVNDSNYYMYYTYSSAEGKSWT
+                     ARSHGLIEPNTKLLLEEFEKSELNDRERVMVQLVAFKDNRAFTMKPAVSVEVRIDMVK
+                     FYKLHTFQQTVFFETPALVYDIVRNDQPVKQVYVSAEELKEALIQKKTADTPSKPQTV
+                     IKRGGKNGIVEIDLHIGELLDDTCGMSNSEILNYQLDKFREVMEQYKKKREQRIVFIH
+                     GKGDGVLRKALLDELKRKYPDCRHQDASFQEYGFGATMVTIK"
+     CDS             79548..80777
+                     /gene="queA_2"
+                     /locus_tag="DIDGIALJ_01012"
+                     /EC_number="2.4.99.17"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:Q9WZ44"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="S-adenosylmethionine:tRNA
+                     ribosyltransferase-isomerase"
+                     /db_xref="COG:COG0809"
+                     /translation="MKEDPRHIRISEFNYPLPDERIAKFPLSVRDQSKLLLYRHGEVS
+                     EDRFTSLPEYLPSGSLMIFNNTKVIQARLHFRKETGALIEVFCLEPIQPNDYALNFQQ
+                     TEHAAWLCMVGNLKKWKEGMLRREMTVKGKSLTLTAERGECHGTSHWINFRWNNPEVT
+                     FADILEVFGELPIPPYLNRETQESDKETYQTVYSKIKGSVAAPTAGLHFTPRVLDALR
+                     NKGVELEELTLHVGAGTFKPVKSEEIEGHEMHTEYISVSRNTLEKLIVHGGKAVAVGT
+                     TSVRTLESLYHIGVTLLNNPEATEEDLHVHQWQPYEMSAKATATSAVEALQAIVAYLD
+                     RHSMEALHTSTQIIIAPGYEYKIVKAMVTNFHQPQSTLLLLVSAFVHGDWPKIYNYAL
+                     AHDFRFLSYGDSSLLIP"
+     CDS             80783..81286
+                     /gene="idi"
+                     /locus_tag="DIDGIALJ_01013"
+                     /EC_number="5.3.3.2"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P9WKK5"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Isopentenyl-diphosphate Delta-isomerase"
+                     /db_xref="COG:COG1443"
+                     /translation="MNHDNNQEMFPLVDEQGNITGAATRGECHNGSKLLHPVIHLHVF
+                     NSKGELYLQKRPEWKDIQPGKWDTSVGGHVDLGESVEMALKREVREELGITDFIPETV
+                     MHYVFESAREKELVFVHKTVYDGEIHPSDELDGGRFWSPDEIKANIGKGVFTPNFEGE
+                     IGKVINL"
+     CDS             complement(81303..82658)
+                     /gene="alsT"
+                     /locus_tag="DIDGIALJ_01014"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:Q45068"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Amino-acid carrier protein AlsT"
+                     /db_xref="COG:COG1115"
+                     /translation="MNGILDSIGSAITTVSDFVCGYPLFILLIGGGLFLFFYSGAVSL
+                     CRIGYSIKALRYKSEVAGEGQISSFQALMSAIASTVGMGNIAGVAIAITVGGPGAIFW
+                     MWVSAVVGMSTKFFEGALAIMYKGHDSAGEPQGGTMYIILHGLGERWKPFAYFFAVVG
+                     LIGTLCVMQANQLVESVTTVFTTPAGIENTLGLRFVMGIVISLVVGAVIIGGIRRISV
+                     ISAKIVPVMVTCYMLLVFVILCLNFDKLPGVLASIFQSAFSLEAGIGGILGTALTGAR
+                     RAAYVNEAGVGTASMMHGASRNDNPIREGLVAMIGPAIDSGLVCTLTAFPILIAGNYA
+                     SEGGIKGLYIALNSFEQLLPGYGHYLLMVMVFFFAFSTMFSYSYYGLKCTNFLFGAEN
+                     AKYYNYFYLVMIVVAAMIPLGAVVAIMDLAFALMALPTMTSLLLLAPRVRRKMKEYFA
+                     N"
+     CDS             complement(82758..84146)
+                     /gene="algC"
+                     /locus_tag="DIDGIALJ_01015"
+                     /EC_number="5.4.2.2"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P26276"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Phosphomannomutase/phosphoglucomutase"
+                     /db_xref="COG:COG1109"
+                     /translation="MTLIKSISGIRGTIGGGAGEGLNPLDIVKFTSAYATLIRKTCTV
+                     KSNKIVVGRDARISGEMVKNVVVGTLMGMGWDVVDIDLASTPTTELAVTMEGASGGII
+                     LTASHNPKQWNALKLLNEKGEFLNAAEGQEVLRIAAAEEFDYAEVDQLGSYRQDLSYN
+                     QKHIDSVLALDLVDVEAIRKANFRVAIDCVNSVGGIILPQLLEQLGVQHVEKLYCEPT
+                     GNFQHNPEPLEKNLGDIMNLMKGGKADVAFVVDPDVDRLAMICEDGKMYGEEYTLVTV
+                     ADYVLKHTPGNTVSNLSSTRALRDVTRKYGQEYYASAVGEVNVTTKMKEVGAVIGGEG
+                     NGGVIYPASHYGRDALVGIALFLSHLAHEGKKVSELRASYPAYFMAKNRVDLTPETDV
+                     DAILAKVKELYKNEEINDIDGVKIDFPDKWVHLRKSNTEPIIRVYSEAATPEAAEEIG
+                     QQIMKVIEDLAK"
+     CDS             complement(84172..84783)
+                     /locus_tag="DIDGIALJ_01016"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKKLTLFFFALLAVCLAFQACDNSKTYAEMLEEEKDAIKAFIKD
+                     SSIVVISQSEFYAQDSTTDVSRNEYVQLASGVYMQIVDKGSTNPADTVKPNDLILVRF
+                     EEQGLIAVGGVKSYITNMNSPTVVDEFRYSVTSSSIAGLFTQGYMLIYHGSSVPAGWL
+                     VALNYIRNGAHVKLIVPSKMGQSDAMRDVHPYYYDLHKLQIWN"
+     CDS             complement(84887..85924)
+                     /gene="nrnA"
+                     /locus_tag="DIDGIALJ_01017"
+                     /EC_number="3.1.-.-"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:Q5SM25"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Bifunctional oligoribonuclease and PAP
+                     phosphatase NrnA"
+                     /db_xref="COG:COG0618"
+                     /translation="MLTKVIEQSKIDHFTKWFDRADKIVIVSHVGPDGDAIGSSLGLW
+                     HFFSSQGKTANVIVPNAFPDFLKWMPGSKDVLLYDRYKEFADKLIAEADVICCLDFNA
+                     IHRIDAMGDAVLASPARKILIDHHLHPEDFCKIIISHPEISSTSELVFRLICRMGYFS
+                     DISREGAECIYTGMMTDTGGFTYNSNNREIYFIISELLSKGIDKDEIYRKVFNTYSES
+                     RLRLMGYVLSQMKVYPDYHAALISLTKAEQSQFDYVRGDSEGFVNIPLSIKGVIFSCF
+                     LREDTEKPMIKISLRSVGTFPCNQLAAEFFGGGGHLNASGGEFYGTMDEARKVFEQAL
+                     EKYKPLLNAKG"
+     CDS             complement(86011..88092)
+                     /locus_tag="DIDGIALJ_01018"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MIIDSWQRHPFLRLLMPLVVGILCGDVFPHVLSAWEYVAGFLLF
+                     LFIIGRYKHTGWVYGAAVYLFLGGTGFCLMSWQQGKTAFPFSGKTAVYRVCIREHPEE
+                     RERSILCRVALLGEVEKDTVTGCPRNHLFLAYFPKDSATATLRRGDELLVSARLVPPA
+                     NNGNPDEFDYARYLRRKGYSGTAYVADGHWRKTGHDASRTVSQVALDYREKVVGLYRS
+                     LGFETDELAVLAALTVGDKEELSDDIVETYSVSGASHVLALSGLHIGFLYALLLFVLR
+                     PLWRRWRRLKPLLLLLLVLFLVSFAFFTGLSSSVVRSVVMFSLLAFAGLQPEKPLTLN
+                     TLAATAFLMLLCKPVWLFDVGFQLSFSAVAAIVLVQPKLYALWKVDNRFLRYLWGLMT
+                     VSMAAQLGTAPLVIFYFSRFSTHFLLTNLWVIPMVSLVLYSAVFLLMLTPLPFVQHLF
+                     ARVVEALVHVQNEVLRWIEHLPGAAVDDIWLDIWGVLLVYLFLGMTYYGFLRLTVRRI
+                     CFALLALLAVVSWHSLSIMSNAPRQGIAFYSVRGCPVVHCMADNRHSWLACADSLPDM
+                     PRLCRALSPHWNRLRLETPRLVAGDYTTSGLSMRNQIVSYAGKRICLLSDNRWRNKNS
+                     SHLLSVDYLYVSKGYQGGIEELTSLFSMGMVVLDASLSDYYQNKIANDCVRLGIPYLL
+                     LSQKGSYRILL"
+     CDS             complement(88106..88756)
+                     /gene="rpe"
+                     /locus_tag="DIDGIALJ_01019"
+                     /EC_number="5.1.3.1"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P74061"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Ribulose-phosphate 3-epimerase"
+                     /translation="MKPIISPSILSADFGYLARDIEMINESEAEWVHIDIMDGVFVPN
+                     ISFGFPVLKYVAKLSQKPLDVHLMIVQPEKFIPEVKALGAHVMNVHYEACPHLHRVVQ
+                     QIREAGMQPAVTINPATPVSLLKDIINDVYMVLIMSVNPGFGGQKFIEHSLDKVRELR
+                     ELITVTGSQALIEVDGGVNLDTGARLVEAGADVLVAGNAVFSAPDPKEAIRALRNL"
+     CDS             complement(89022..89993)
+                     /gene="fmt"
+                     /locus_tag="DIDGIALJ_01020"
+                     /EC_number="2.1.2.9"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P99127"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Methionyl-tRNA formyltransferase"
+                     /translation="MVEKKNLRIVYMGTPDFAVEALRCLVEGGYNVVGVITMPDKPAG
+                     RGHKLQFSPVKQYALEHNLPLLQPEKLKDEAFVEALRAWKADLQIVVAFRMLPEVVWN
+                     MPRLGTFNLHASLLPQYRGAAPINWAVINGDTETGITTFFLKHEIDTGEVIQQVRVPI
+                     ADTDNVGIVHDKLMLLGGRLVVETVDAILAGTVKSIPQEEMAVVGELRPAPKIFKDTC
+                     RIDWNRPVKRIYDFIRGLSPYPAAWTELVQPGGESVVVKIFETEKIGESHQLVPGTLQ
+                     TDGKTYIRVAAEDGFVGICSLQLPGKKKLKTDELLRGFRLTEGYVMK"
+     CDS             complement(90167..91957)
+                     /gene="clcB"
+                     /locus_tag="DIDGIALJ_01021"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_01203"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Voltage-gated ClC-type chloride channel ClcB"
+                     /translation="MAEDKRSLLQRFIIWREKNIKEKQFILILSFLVGIFTAFAALIL
+                     KVIIHWIQNFLTDNFNATEANYLYLVYPVVGIFLTGLFVRYVVKDDISHGVTKILYAI
+                     SRRQGRIKRHNTWSSIIASSITIGFGGSVGAEAPIVLTGSAIGSNLGTIFKMEHRTLM
+                     LLVGCGAAGAVAGIFKAPIAGLVFTLEVLMIDLTMSSLLPLLISAVTAATVSYIVTGT
+                     DAMFKFHLDQAFELERIPYVIMLGIFCGLVSLYFTRAMNSVEGVFGRLRTPYKKLIMG
+                     GAMLSILIFLFPPLYGEGYDTIELLLNGMSNAEWDTVMNNSFFYGHGNLLLIYLILII
+                     LFKVFASSATNGGGGCGGIFAPSLYLGCIAGFVFSHFSNEIEMTAYLPEKNFALMGMA
+                     GVMSGVMHAPLTGVFLIAELTGGYDLFLPLMIVSVSSYLTIIMFEPHSIYSMRLAKKG
+                     ELLTHHKDKAILTLMKMENVVEKDFVTVHPEMDLGELVKAISASHRNVFPVTDKEGVL
+                     IGIVLLDDIRNIMFRQELYHRFTVGKLMTSAPARLYDTDSMEQVMRTFDDTKAWNLPV
+                     VDAENKYLGFVSKSKIFNSYREVLVHFSED"
+     CDS             complement(91966..92496)
+                     /gene="tsaC"
+                     /locus_tag="DIDGIALJ_01022"
+                     /EC_number="2.7.7.87"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P45748"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Threonylcarbamoyl-AMP synthase"
+                     /db_xref="COG:COG0009"
+                     /translation="MSEGGVILYPTDTIWGIGCDATNEEAVRRVYEIKQRSDSKAMLV
+                     LVDSPVKVDFYVQDVPEVAWDLIELADKPLTIIYSGARNLAPNLLAEDGSVGIRVTSE
+                     AFSKRLCQQFRKAIVSTSANVSGQPSPGNFSEISEDIKSAVDYIVGYRQEETGRPKPS
+                     SIIKLGKGGVIKIIRE"
+     CDS             92610..93044
+                     /locus_tag="DIDGIALJ_01023"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEEIQFNHTLPIQLRFNDVDKFGHVNNTVYFSFYDLGKTEYFAS
+                     VCPDVDWEKDGIVVVHIEANFLAQIYGSDHIAVQTAVTEIGTKSFHLAQRVIDTETQE
+                     VKCVCTSVMVAFDLAKHESKPLEEKWIEAICKYEGKDLKKKK"
+     CDS             93112..94284
+                     /gene="xylR"
+                     /locus_tag="DIDGIALJ_01024"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P0ACI3"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Xylose operon regulatory protein"
+                     /translation="MIRLILLTDFTESFSYNLLKGVLAYSKSHEPWVVCRMPPSYKNS
+                     HGIEGVLKWAKTWQADAIIGRFDNDDNVELFRENGIIALAQDYKSRFSNIPNITGDYR
+                     KTGRMAAEFFLSKGFQNFAFYGYRDTVWSQERCEGFYECIAAQGFGNNFYSYQDQSLD
+                     DLWFYEAPPLLNWLKSLPQPTALMACDDNQGNRITEICKVNNIRVPDKIAILGVDNDE
+                     IICNLSDPPLSSISQNIVRGGFEAAALIEHLLNDEEATYQDVVLQPVNIINRLSTDFY
+                     STTDAHIQTALKYIHQNIAADITVSDIVKQVPLSRRLLEIRFKQVTQQSIHKYIFNLR
+                     MERFAQLLLASDAPIADVAEQVGINNLKNLSRQFKALKKVSPNEYRKEYQTKSYQR"
+     CDS             complement(94286..95734)
+                     /gene="cpdA_2"
+                     /locus_tag="DIDGIALJ_01025"
+                     /EC_number="3.1.4.53"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_00905"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="3',5'-cyclic adenosine monophosphate
+                     phosphodiesterase CpdA"
+                     /translation="MKKIVVLLVVLLGCMPVTAFAQKQFFFKDGRFVVAQFTDLHWMP
+                     GSAKCAETAATIRAVLAAEHPDIAILSGDVVTDDPAMDGWKSVVDIFNEAKMPFVVMM
+                     GNHDAEYLTRNEIYDFLLKSPYYVGAKGPEDIMGCGNCVISIYSPEKKDQVEALLYCM
+                     DSNDYQPNKIYGAYDWIHFDQIEWYRKQSKHFAEKNGGNPVPALAFFHIPLIEYNEIR
+                     GDGKTYGNDKEGGVASANINSGMFASFLDMRDVMGVFVGHDHDNDFIGIDKGIALGYG
+                     RVTGADAYGELTRGARIIELYEDQFKFDTWISTPSGREAAYYYPSGLNSDEEQSMAYL
+                     PATGTSPKKQGVAYTYYEGKCKRVADIAACNKVKEGVMKNFSIEEVAVPDHFAYDFRT
+                     LVKIPERGVYRFYTFSDDGSKLYIDGKLIVDNDGGHSGRRAEGKVALEAGYHELHLLY
+                     FEDYMGQELEVGYSGRNVLETVLPDTMLFVPD"
+     CDS             complement(95747..98068)
+                     /locus_tag="DIDGIALJ_01026"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKIRYWLLAMSFIFLSCGRVADDVEANYGIIPMPNELAPMQGVY
+                     VLQGKKTVAVPSGEAAMKVFHYLEDALKNTSVTLKDISETGKADICLSIDNSLPNEAY
+                     TLEVSSDRINISSNETAAGFFYGVQSLLQLMPAAIYDGDRKYEGKIRIPAVSITDAPR
+                     FPHRGAMMDVGRNFLPKEEVLKFLDLMAFYKLNKFHFHLTDDQGWRIEIKKYPKLTEI
+                     GSYRKQTQIGHSDYYFPRRYDGKEKRGYYTQEEIKEIVKYASDRFITVIPEIEMPGHA
+                     SAALASYPELSCGLGKTYVVRDYFDVFDEVYCPKEHTFEFLQNVLTEVMELFPSHYIH
+                     IGGDECPKKAWKKCAHCQHLMKWEGLPNEEALQSWFIHRIEQFVNSKGRDIIGWDEIL
+                     EGGLAPNATVMSWRGEKGGIEAARQRHKVIMTPGKKCYLDYYQESPEFAPLAIGGFLP
+                     LDTVYNYNPLPAELTPEEQAYIIGVQANIWGEYIQTPEYFEYMAFPRLLAMSEVQWTQ
+                     PEHKDFESFARRLDKEFERLDYCGVNACRNFYEVNQAGAWNKSQQTYEVTLNTFCPDA
+                     DIYYAVNDSTVNTSSSLYETPIPLDEDATIYSAVYRSGKPLGKVTRKSFAVNKATGCD
+                     YTCNPKAGWEHLNKGFGLTDGRRGYARDMRRWISFYQDTVQIVVELKKPQKVKEVAFS
+                     SLWRPVNEIWPARAMGVSVSMDGQTFIPVGTKRLTYDFSLTEGTRFPASLSFAETEAT
+                     FVRLELLSGGLCPKGYFHEGLQSELAIDEIEIY"
+     CDS             complement(98065..99516)
+                     /locus_tag="DIDGIALJ_01027"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKNNMSRRQFLKTGGLALAAMTFQPASVLSSSGTFSQRYVSLRP
+                     SASKRNFISKAVDAAIEEAKPKIKDEKLRWMFENCFPNTLDTTVRYRVKNGRPDTFVI
+                     TGDIDAMWLRDSSAQVWPYLPLMKKDKDLQLMVAGLVNRQTECILIDPYANAFNDGPL
+                     GSYWETDHTQHMAKELHERKWEIDSLCYPIRLAYHYWQYTEDTSVFDENWHKAMLLVV
+                     KTFKEQQRKQGLGPYSFTRDCDRPTDSQINNGWGAPVKPVGLIVSSFRPSDDATQYGF
+                     LIPANMFAVVSLRQLAEIEDKVYGNKDFSGECITLADEVDAAIRRYGTFNHPVCGRIY
+                     AFEVDGFGNALCMDDANVPSLLAAPYLGYCSFKDAIYQNTRKMIWSGNNPYFFKGKAG
+                     EGVGGPHVGLNYIWPMSIIMKAFTTDDSEEIRACLKQLRDTDGGTGFMHESFHSEDAA
+                     DFTRSWFAWTNTLFGELILNTIKEYPNLLSQIL"
+     CDS             complement(99531..101135)
+                     /locus_tag="DIDGIALJ_01028"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MLKHILLVSLLSFSTLPLLKAQSCGNDEKYHLPYKNTYVKEPLV
+                     TENEYRVAKPETIVPKSFEEARQILPNPIWGGHDKELEMYWKAWEIAIGNIRAPQAGS
+                     GFVSSYLDTAYNGNIFMWDSSFILMFARYGTRFFPFQNTLNNFYAKQHPDGFICREIK
+                     ADGADCFERYDPVSTGPNLMPWCEMVYFHQFGDTERLHKIFPVLCAYYKWLKLNHTWR
+                     NGTYWSSGWGTGMDNMPRVPSEYSPIYSHGHMIWLDTNLQQLFTANLLLEMGFYLERW
+                     QEIEEFEDEAKMLGKYIHDNLWDEKTGFLYDQYADGTLCTTKGIGAYWALFTDVLDSV
+                     QLDRMVKELDNPATFNRKHRIPSLSADNPKYKENGRYWQGGVWPGTNYMVMQGLVQKG
+                     YGKLAREICLNHYAQVFEVYKKTGTFWEYYAPESAEPGFMARDNFVGWAGLPPIAELI
+                     EFIIGIRGDYAKKQIIWDMNLTEINGIERYPFGPEGLISLKAEARRSASDEPRITVDS
+                     NIDFELCVLYGGKEKKINVTSGKHTY"
+     CDS             complement(101157..102269)
+                     /locus_tag="DIDGIALJ_01029"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MLLAVLLLPVELSAQSRRDKEQTYVLDQPYEVTKITPPQGKKIK
+                     NVILMIGDGMSLMHVYSAWTANRGKLFLDNCQVVGLSKTYCANKLITDSGAGGTAIAT
+                     GQKTNYHSVGVDTEGRPLKSLVDLAAAKGKSTGIAVTCRLWDATPADFCCHNKDRDAE
+                     AEIVADYVNCSADYVFGGGAKLFENREDGRDLFKELRDKGFQTPRSWDELAGIKSGKV
+                     FAVPYPVDTPLPAERGDLLARASLKGIELLDQNKNGFFMMIEGSQLDDYGHFNDIDLL
+                     MQETHDFDRTIGAIYEWAAKDGETLVVVTADHETGGLTLVDGDLAEGRIVCKFSTGGH
+                     SGVMVPVYAFGPGAEEFTGIFENTAIFDKIKKLLNL"
+     CDS             complement(102313..103176)
+                     /locus_tag="DIDGIALJ_01030"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MRKLFLLFLPLFAASCGQVKQQAPAPEPVNVMSFNIRYDNPEDS
+                     LDNWQYRKDRAANAIRFYDVDILGTQEVLHNQLEDLKQRLPEYGVIGVGREDGKEKGE
+                     YSALWYKKDRFNLLDSGYFWLSETPEVAGSKGWDGACERIASWAKLQDKVSGKEFFAL
+                     NTHLDHVGVAARREGISLMLDKVNELSGNLPVVVTGDFNASPESDVIKHVTDPSNPEH
+                     LTDARQASAIVYGPAWSFHDFGKIPYDKRPLIDYVFVRNGLKVLRYGVLAETENNAFL
+                     SDHAPILVTVE"
+     CDS             complement(103195..106125)
+                     /locus_tag="DIDGIALJ_01031"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKLKTLICATTAFWACCSCTSGELSPVDYVDPFIGTGFHGHTYP
+                     GATVPFGAVQLSPDTRAGNWDACSGYHYNDTTLKGFSHTHLSGTGCIDLGDILFRPTT
+                     LKPDLTTESIYQPAAFSHKDEDASAGYYSVVLKEEGIKAELTVTAHAGMHRYTFPSGK
+                     EASIIIDLTHLLDNEYIYEAELEQTAANEITGMRRTRGWTDNQYVYFVAQFSKPFQAI
+                     DFIQNKKMVSAGVKLNGTDLQACLSFDNSNGEPVIAKVGLSIVSEKNARENLETEVIG
+                     FDFDAVRSAARSAWEQALSAITVKGGNTDDLKNFYTAMYHSMVVPNVVSDINGEYRRH
+                     NMEIGQLPKGKVQYSTFSLWDTFRAWNPLMTLIDTTLVNNMINSFLDIYESSGELPIW
+                     PLSAGETGTMIGYHAVSVIADAYMKGIRGFDAEKALEAMVVSSEKNKKGADYYIQNGF
+                     IPSNIKKESISCLLEFAYDDWCIARMAQEMSKDDIYQKYIQRSQNYINVFDGNTKFFR
+                     PKRMDGNWETPFNPIEVGRAYTEATAWQYRFFVPHDVSGMAQLFGGKKEFITALDSIF
+                     TVESGVHGDLVDITGLIGQYVHGNEPSHHIAYLYDYVGQPWKTQEMTRRLLHEMYAPT
+                     PEGIIGNEDCGQMSGWYILSCLGIYSVCPGSNEFALTTPLFEKAVVNLANRKTLTILA
+                     NNPKKNVYITKVELNGQPIDVNFITYAQLMEGGELRFTLSDKPNMERGVSSEASPYSY
+                     TKDEVVSIPYVDKDLNLFMDKVTVALATTTKDAEIRYTLDGSEPTEQSVLYEQPFELD
+                     KTTLIKAKGFKEGLRSSRTLSISATKAELKAALSVNPTQNGTSYKYFEGTYQKVADVE
+                     KSPLLESGVMPEPSIKGAKQEDHFGYIFSGLINVPEDGVYTFQTRSDDGSVLYIHDEQ
+                     VVNNDASHAAIPATGMVALKKGFHPYKLYYFEDYEGEYLSWAWKLPSAEKLAPIPASA
+                     LFVK"
+     CDS             complement(106328..107965)
+                     /locus_tag="DIDGIALJ_01032"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:A7LXT5"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="SusD-like protein"
+                     /translation="MKKNILFFAMSATLLMSSCSDFLDVQPEGDATTTTYFTNDLQAI
+                     DAVDALYERFHQEAVYGRELFWEQGAACDVVWGKTRDFPTLATLKYTGDESPLRTIFD
+                     TMYKVMARSNWVIQELLKKGKSTTLSDIEKRSLGEAYFTRGWAHFLIAYRYGLDTQGV
+                     PFVRYEDFEGGYDNSIPPQQASVIDNYKLIISDMDKAIEYLPRFEEYGDNDRGRAHDA
+                     AAVAFKAKVYAYWATWDATQWGNVISMVNELETAYGRDLAGTYEELFSSDFSKWWNKE
+                     YIWTIPGNGGSQGGGSEFPGVVLENKGWGQYNGWGQNKPSYDIYEEMLKDGAGNDRLV
+                     RTVLEYGQEFQFLGESRAFYSSSDIESGFMINKYMDPFKYEDAANKGYINTNGDWPTV
+                     RINFPVIRFAEMLLFRAEAYLMTNKADLATADLNRIRKRANVALLTGTATMADLYHER
+                     RCELAFEFTDHLYDLKRWYRSGNTEIKALAAAELNARPRVRHYANRQDPASTFVVGEY
+                     EDYTDKIAYQDYMIVFPYPSVQITKSDGKLKQNPHYD"
+     CDS             complement(107988..111170)
+                     /locus_tag="DIDGIALJ_01033"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:T2KPJ3"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="TonB-dependent receptor P3"
+                     /translation="MKQVNLRIYRTILTLLLGLFLSAGAYAQQISVKGTVKDQTGEPV
+                     IGANVLVKGTTNGVITDVDGNFNVSADKNGVLVISFVGYVTQEVPVAEKQMVIVLKED
+                     TELLDEVVVLGYGANTRKQDLSASVGVVSNTEELAARPVTSTEGMLQGQLAGVTITAD
+                     GGDPTSSPNIVIRGQGSQDGDNVLWVVDGVPGAPISSMNDIESIVVLKDAASAAIYGA
+                     QSGAGGVVLVTTKKAKQGAPSLTYDGTFGIRQATNLIEPLNAEQQIEMRKISHQNAGL
+                     SLPVGWDVTKNPWIGTTRTDWMDEIFRTAFYQRHNVALNVGSDNFSNRISFAYDNDEG
+                     VLINTFKKNLTLRYNGKMQLNKWVSVSEDFVWQNTTQRSKATDNDAYTGPILSAIYMP
+                     ASATVYNPLDGSYGGVTTEDPAYIEKYGSNFSDIHGDAVNPVRLLEAENLYDKISDIW
+                     STTSLEIANVLPGLKFTSRFTYNMKTNHYKKFNPIRDEVGKPALSNNLQETTYRRDAW
+                     KTENTLTYDKTFGEHTVGALFSTTADHSETRGLEVTGKDFADESEFLQYMAYAGSVTA
+                     SDYLTGPDANVSLIARLAYSYNDRYFATASWRRDYAGRLPKENNYGDFPAVTLGWKIS
+                     NEKFFKKSDFISLLKLRASWGRVGNLSSIGLNYKSALLKKSSWTEQAQYGPEANNIWN
+                     TLIYNGSALNPDLTWETSEQTDLGLDVEMFKNRLSVSLDYFDKRTFNLIQTQSMGWPS
+                     TMGLDAMLINQGEVRNRGFEIQANWSDKINKNLSYFVSGNFSYLKNWVSDIGVKDADG
+                     NPGLWPNDKRFRSIPYMMQSTEGEPLNSFYLIKTDGLFQSDAEVAEWNAKHGTYVTND
+                     NGEKEWVGIQPNAKAGDLKFVDHNGDGKITDADRQYMGSATPKTTFAFTLGMTWKKLS
+                     FSAMFQGVGGAKALYVGKYMLLSDVEGNFNRSSEILNAWSPTNTGSDIPRLSKNDPNG
+                     NFTTASDWYLENASYLRLKNVTLSYDLSDVFRKWSHLNDRNSRLSVYFSGENLATITG
+                     YSGMDPECGGWDALKYPVSRVLSVGVKLTY"
+     CDS             complement(111344..112168)
+                     /gene="bglK"
+                     /locus_tag="DIDGIALJ_01034"
+                     /EC_number="2.7.1.85"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:Q93LQ8"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Beta-glucoside kinase"
+                     /db_xref="COG:COG1940"
+                     /translation="MKLSIDLGGTNIRIAQVEKGNCLNKVSVPCLAQQDASTVLNQLS
+                     QLIRNMMNEQVDGIGIGVPSIVDPEKGIVYNVANISSWKEIHLKEILENEFKVAVAIN
+                     NDSNCFTLGESLYGEGKSYTNMVGVTIGTGIGAGVVIGRRLYGGQYMGAGEIGSFPYL
+                     DSDFEHYCSSFLFKRYGTTGAVVAEKAQQGEQAALEIWKEFGRHLGNLIKAILFAYAP
+                     QAIVLGGGIVSAFPFFKNAMEQTMQSFPYKIISDNVSVVASHQKDSSLLGAAALLE"
+     CDS             complement(112252..113022)
+                     /locus_tag="DIDGIALJ_01035"
+                     /EC_number="4.6.1.13"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P14262"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="1-phosphatidylinositol phosphodiesterase"
+                     /translation="MLKTQATDIPAQLRQGIRAFDIRLEKKGNKLGVFHSHAFQDIYW
+                     EDDVLPAFIHFLQTYPSETLIVSLKKEGGELRDYASLLSVSLSSPEYQSYFVMDFRPE
+                     LTLKDCRGKILFLHRDHAMDNYPGAACVGWEDDSTCLLTLRNKDGKEGVALLEDKYQY
+                     ESGEEAGKKVGVCVRNIEGMSAEPVSSRRWGITFVSATGLPLGTPKVFADKVNKPIAD
+                     YLKQKNSRNCGIVFIDFVSEPGGKDLVEYLIDSNVCAK"
+     CDS             complement(113318..114172)
+                     /locus_tag="DIDGIALJ_01036"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MRKMYLSAPLPFVGQKRMFAREFIKVLGQFPDSTVFVDLFGGSG
+                     LLSHITKCVRPDATVVYNDFDNYRCRLVNIPATNVLLSDLRRIAEGEPRNKRITGEVR
+                     DKMFARIEREEKEHGYVDYITVSASLLFAMKYVTSLEGMKKEAIYNRIRQTDYPEAKD
+                     YLEGLTITSEDYKEVFKRYKDVPGVVFLVDPPYLSTEVGTYKMFWRLADYLDVLTVLK
+                     GHSFVYFTSNKSSILELCDWMDRNPFVGSPFKECRKVEFSASVNYQAKYTDMMLYTKP
+                     DEVSGIAA"
+     CDS             complement(114268..114906)
+                     /gene="thyA"
+                     /locus_tag="DIDGIALJ_01037"
+                     /EC_number="2.1.1.45"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="similar to AA sequence:UniProtKB:P9WFR9"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Thymidylate synthase ThyA"
+                     /db_xref="COG:COG0207"
+                     /translation="MNKYYRILDKILATGKTQTNKKGNIQYLLNEQLSLTPADLLDIF
+                     EGHNIARKKLRSELQLFMQGERNVEKYREAGINWWDYCGSILVNSYPTYFEKLPPLIA
+                     KINRERRNSKNYVLFLGETGAESNQAPCLSLVQFQLDGGELVLSAYQRSSDANLGLPS
+                     DIYHLYLMARQIELPLKSITLYLGNVHIYENNIPGTRALIAGDETVRFGLNV"
+     CDS             complement(114985..115227)
+                     /locus_tag="DIDGIALJ_01038"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKVIEILNFNRELLKRLQAAGIRLEDARYIDLYADYTRLLDQGE
+                     KVSYAVAVLSEKYSVSERKVYALVKRFQSDCKTLAV"
+     CDS             complement(115407..115892)
+                     /locus_tag="DIDGIALJ_01039"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKRVEGTSGIKLIECVSPARNRWRIRWDVQEREDGSASYMEEGF
+                     VGRPHMDTIKSVITDWCNEQIDREILSGFLYEGMPVWLSSENQFNYKAAYDLAVQTGG
+                     ATLPVTFKFGTDEVPQYREFVTLEELTDFYTKAMKHVQDTLSDGWRKKDAFDPEKYRV
+                     E"
+     CDS             complement(115889..117193)
+                     /locus_tag="DIDGIALJ_01040"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MRRVGYIIEEIVEPSNMEASFRQVLRGSKRKRSRQGCYLLAHKP
+                     EVLEELVAQIASGTFRVKDYREREIIEGGKLRRIQVIPMKDRIAVHAIMAVVDRHLRK
+                     RFIRTTSASIKRRGMHDLLAYVRRDMAEDPDGTRYCYKFDITKFYESVKQDFVMYCVS
+                     RVFKDAKLVTMLESFIRLMPEGLSIGLRSSQGLGNLLLSVYLDHYLKDRYAVRHFYRY
+                     CDDGVVLGKTKAELWKIRDAVHGRMECAGLLVKGNERVFPPGEGIDFLGYVTFGADHV
+                     RLRKRIKQKFARKMHEVKSRRRRRELIASFYGMAKHADCHTLFKKLTGKDMRSFKDLN
+                     VSYKPEDGKKRFPGVVVSIRELVNLPIVVKDFETGIKTEQGEDRCIVAIEMNGEPKKF
+                     FTNSEEMKNILLQVKDMPDGFPFETTIKTETFGKGRTKYIFT"
+     CDS             complement(117519..117713)
+                     /locus_tag="DIDGIALJ_01041"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MIGRVKRQSGSEATKHPVFPEQGNAVHYGRQPVEKYFFDVRFCI
+                     CLLNNNLKIVLLHLKGGASP"
+     CDS             complement(117710..124447)
+                     /locus_tag="DIDGIALJ_01042"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MALTESEKTELKNDILNAIKAESQSVDELVEVSSLDNIKSLPAL
+                     RGSELVSAPLTLLRKPADDAAATANASATKADNAAALANKAAGMASDAAGTANQAAET
+                     ANSAAAAASAAAKQAEDAAAGVNDGLVGGMTAVPDEENDTVKLTLLGKTGTEIASVDI
+                     PGGTGGGGNTYNVTAEVPLESGYYVLSSAIGAVDEKYRYKGRCITYEVSQGKWETKQF
+                     VGTSLSSWEQEASWEDFGGAGTMKSLTVNGEKKVPDSEGNVDLTIDKLEVDESLDADS
+                     TNPVQNKTVAAKFQEVEAGTVFGMSAEVSDDESSVRLALTNKSGAEIASVDIPAGSGG
+                     GGESSTTKIVLLAETDKKTVKEGGAVKLTYTYDHQVAGGDDKGSSTGQKATVTIQVKR
+                     GTTTTYSSSLKEVSKGTYTLDLTKYLLVGTSDIYVIAETTDPTTGKAQKKQAYVSVKS
+                     VTLSLSCGYNLAATIQNGGYGTYDSASIPYAVSGTGTKTVSLYVDGVQQNAHTVTRSG
+                     TTNGSFEVSMTGLSVGRHTAQLVAEMETDDLTLKSESIHIDLLKAGTGAPFIGLKLIH
+                     ADGHVLGRDEHLEPVLEAGRYEKLTFDWVAYDPDRVPAEVEFWKNGVKSSTVSAPRSM
+                     MTYSNRFTEEGTQTLVLKAGPTGYTLRIDVGESGIDISEATYGLAVKLDAAGRSNGES
+                     NPGTWESNGVETTFEGFDWSSNGWTGEALKLTNGAKAVIGYRPFATDVKSTGLTIELT
+                     LRVSNPTDSDTAVVDCLDSGKGLYITPSEASFKTGEKVSYTNEDDELVEREIKLGTNY
+                     VEDRWIKVALMVGTRNESRLMELYVDGNRTGADIYDNAFSFRQDNPKYITIDSAGADV
+                     EVKSVRIYTRRLSDDEELENRMVDSADGEEMIALYEENDILGDTDTVDMDKLRAKGKG
+                     VLRIVRQNKLDDVYAENNKKTDFSADIFYYSPFGSEYDFVLRDCYIRIQGTSSTKYPS
+                     KNIRIYISKGGTNLSFTVGGKEQAEKKYPVRPGGIAMNLICLKSDYSDSSMSLNTGGA
+                     KLFNDVLKEMGLLTPPQRYQYETGGSDLNAVTVRTAIDGVPIDMFVAAAEDGENNYVG
+                     QYNFNNEKSKSGDLFGLSGVEGYDPACPLTLEMLNNTEAMCLFKTTSDAHLEEVFDAG
+                     AETNVPDDVKWAGLDESQRTAVKRLYAWIRSCVPDGATSADLSTFKSEKFRDEISDYF
+                     DKAFLLTYYLWTDYFLAVDQRAKNMMLRTWDGLIWYITYYDGDTQMGKRNDCFLVYDY
+                     TTDRDTYDAEAGKYAFEGRDSWLWNLVLANLDADLKTQAQALRGVLTTSRVLDMLNVE
+                     QAGNWCDRAYNKSGELKYILPATQEMYGKVWPFIYALQGSNRAHREYFVRNRFALLDA
+                     KYGTSNFTSDNIDLYLARTAADTPDVLKITANEVYAFGYGTNNSPNIGNTGIIKKDAA
+                     ASLSITGAYTVNDPLRVYGASRMKVLDMSGAADHLKNAFDLGKCTVLRELNLQSSGNG
+                     STGWWLNIGNCKQLRKLNLRNQAQAKTGGSTSTELDLSAQTKLEELEARGTQVQSVVL
+                     AKGSPVTLLHLPGTLTSLRLEYLGRLTTGGLTLESYSKVKTFIFDSCPGIDWETLLGR
+                     CTGVERIRVTGIDREDDGTWLDKFVGMGGVDSDGNTTDTCALVGTVQLTRYIDDDTYS
+                     ALKAHFPELNIRQPEYTMIEFDDEVSDDANVSNLDNGTGYKYDNAYEVSGHISAILKQ
+                     RHRVLAKVTKKATTRGVNMANVDTTVNNLDGEMTYYPLDDTDSNKYADGTAARLDGTE
+                     GDWMMYEPFFWSKGINDYLNGKHYSCYSSNGSDNMPSVPDADVLTLDDIKGTSGGYLS
+                     GRKIMSGKDTLSNSYSTDSTYSVCKVNVDGYKRVRFPSVPGTSLVGSIFTDDSGTVIS
+                     SIVVPTLSNKFEAGMYLIADVPEGATALHFSILNTAEFDKVVLSNSDRIEDMEPEWVP
+                     NDEHLCAVVGSSVVGSKLRACITGGSTTASMTWADFHYYSVQRGMQQIDALMHSRIAN
+                     LFYAKYGRRDSQEQCGAGSHTNNRTTGGTASRGMTDTIGYEEASSINPNVTNSLIENS
+                     VHQYAWYREKDDYGGATVTQVNNICCLGYEDIYGHKYDMMDGVDLPNDTGNSGKWRIW
+                     MPDGSTRLVKGSVSSGIWITAVAHGKYMDVIPVGSVSGSSSTNYCDIYYISTASSRVV
+                     YRGNYYAYPNGGVSMSNASYDSSYTNTYIGSRLAFRGRLVKASSAVAFKAISEVA"
+     CDS             complement(124474..128490)
+                     /locus_tag="DIDGIALJ_01043"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MLTIYDSNGNRRTDIEAGDSSTQVKEVQGDNVLTLSFTHYEYIA
+                     LDVNDRVDFEGERYWLTERYIPKQKSGQEWVYDLKFYGIESLVRRFLVLETTDGNTEP
+                     VFTLTATPREHVAMIVKCINDGMNHTTDWKVGRVDGTDLIVIDYEGKYCNEALKEIAE
+                     AVGGQAEWWVEGQTVNVCRCEHGEEITLGYGKGLTGIERDTTGTDNFYTRLFPVGSTR
+                     NIDPSKYGHSRLMLPGGRQYVEIHTEEYGIYDRYEQDAFSGIYPRRIGAVSSVRSEDV
+                     KDDDGNPFTVYYFRDDSLNFDPNDYELPDETKRVSFQDGDLSGLGQGEDHYFEVNFNS
+                     ATREFEIITIWPYDDDTQLPGGKLIPKSGDRYILWNIRMPDEYYPLAEEEFLTAVEQF
+                     NTECWQDLAVYKAPTDHVWIEENGVSLSVGRRVRLESEEYFPETGYRSSRITKITRKV
+                     NQPGEMDIEISDALHSGAFERVNDSIGELKNYTKSKAEGAALPDIIRSWDKTLPTDNN
+                     LFSARRSQAEHISKKKNDRAKGKITFEAGASFGQEDNAGIDDKGNAELLTLVVREFLR
+                     SPKFVDGLFGEGWRLWMEDALSHLTIDKLTVRQVMVVLELLIEKVRSVGGQLCVSAAN
+                     GKIKTAVLEDGYWRITFEQDNSFQAHDLMRCATFSGGNLKGYWVEVAGVEGDSILVSE
+                     DEFSGSLPEAGDECVLMGNTENPLRQNLILISATEDGQPRVDVMDGVKAKNFTGCLRA
+                     RLGNLDGISDDWFPADNQPHGNGLYSDNAYLRGTFLLVTGEDIKTKFEIVEGRITSAV
+                     TALRNDFATEKGYLNNPAFDDGLEKWNTENETVFFLAGNKWIWANNNVLTRKGDGASV
+                     TVDDGRTVVHIRNKYILQKRANLKSIPSMPVNGDGEKEAVPVYLSFFYRCATKGTLRV
+                     QFLDVDKTGFANFNSLEVEEELSATDGYVQYTCSGLWNGTGDFKLSFTGDIYLYMLVL
+                     STDKVESLAHRYRTLFEQSERLVKITAAVFDRDENMLEETGLVVKPEGAGIYAQDADG
+                     KLALIGVSVDGTDADGNKISVVKLTGDRVKLEGLVTANDNFKILEDGSIEANAGTFSG
+                     HIRTNFHLVESSDAVLTSCSGRGEAGYLIGRELSLKVDMAGSSNGADIILPNDVRYIG
+                     SRVTLYNGCHPPYTRTVGSIRYSSVRVDDGTLLRGSNVNLSSDSLLSYSDPYRIDWIS
+                     GIIELVGTPELNGRILADLVSWRGASAGPPASPSSGWLYYDTKRNRNYLYWYGAWVEF
+                     PVYGGASDDLRITWKGELSSAPENPERNWLYVTSVNRFLLLYTGEDWEEPAIINSLNK
+                     CGWCILGFSALSYHYYND"
+     CDS             complement(128537..129001)
+                     /locus_tag="DIDGIALJ_01044"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEKILGGLVLVNGTDIWSTYGVFLVEDKRGGMDNLTAILTPSKT
+                     KTDTAVNIREEDGEKYSSVLTPRNEARDVTLHFALFGKTQAGWLKKYFEFINFLKKGR
+                     DGWLEISFPQLALTLRVKYTDCSKFQPLTYLWKEGVHAGKFKVKFREPVPVI"
+     CDS             complement(129003..133394)
+                     /locus_tag="DIDGIALJ_01045"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKPVQIEFLMVDHLSARLDKAVGKIERMSQQASSANRQIRELDR
+                     SGSLLNNTVGKLAAAFTIKELVSNITKVRGEFQQLEVSFQTMLGSAEKADTLMQQLVH
+                     TAATTPFGLEDVAQGAKQLLAYGFGAEKVNETLIRLGDIAAGLSIPLNDLVYLYGTTM
+                     SQGRLYTQDLNQFTGRGIPMIAELAKQFGVAESKVKELVEEGKVGFPEVQKVIESLTD
+                     EGGKFSGLMEAQSKTITGQISNIEDAVSMMFNEIGQQSEGVINTTLSGVSYMVEHYER
+                     FGRILLGLVGTYGVYRTAVMTVTAVKGWAVAAEALHYNWLLLVEKAQKMLNRTMLSNP
+                     YVLVATLLAGVAVALISMKTETERLQESEERYQQQKQKTIEAEEEHRRKIEELCSIAG
+                     DEAVSTDARREALNKLEQKYPDIFSKYDTEYEKLKNIKKIKEEIARLEAGESISNPAN
+                     ELKRVDDRIKELEGKTRLATEYYQDSYGRQRARYVRKSARSRDEEAELQNLYGKRKSL
+                     NGQIRKDEVNAYFENLTGVSNETLAQQIKQRRTLLARMSVQEKEYGKITQGDENLTGT
+                     YSRDELKYQLNKLVSEQNRRNLPTDSSTDWVAAAKEKYQDALKAYNAFLQETSNSLSR
+                     EEFEKKAKELKDAVDTAKKEYDKVKPGEDKDSEAERKKADKAEKEAQRRKQVSEKLGQ
+                     ELAGLQRKNDEAEIEMMTEGLEKKLRQIDNEYQARKDEIARQEAGWKRDNAKAGQSGS
+                     LSEDQQSEIDKARELNESGRQKKIAEAYREEFGVMQEYLQAYGTFQQQKLAIATEYAE
+                     KIQKTTSGSEKLSLGVERDSKLAGIEVQELKARIDWGTVFGEFGGMFSDMIKPVLADA
+                     RKYMLTDEFRNADHASQDALVSAVQQMERALGGSGKVSFKKLGAEVTAYQKALSDLKE
+                     AQAVYADTYTALIAAQKSYIEAQQSGTEQEKESARQALETAQANADAASENINALQET
+                     ADSARQSLSNTASGLKTSMENVRDGLQQIASGSISGAYNGLITLGKGAKEVDGKLGEA
+                     FGKVSETLEDVPVVGWIVSIIDLFKDGLSVVIGGLLDAVFNAVSGILDDVLSGDLFVT
+                     IGKSLLSGVGKIFDALTWGGFSSWTTSSNAKEVQETIDRLTERNETLQTAIEDLTEEI
+                     KASKGTKSVAAYRDAYRLQQETNSNYLDMAMSQAGYHGSHHSWNYYWGGFSQEQIDRL
+                     SGQIGRSWNGDIWNLSPEEMKKLRSNVDMWTQIQDTGKGGYGGRLTEKLDDYIDQAGK
+                     LEELTDQLYEGLTGISFDSMYSSFVDNLMDMKYDAAAAAEDISEYFMRAMLSNKIGEL
+                     YSDKLKGWWEKFGKAMEDNDLTEAERKALQDEYMKYVEEAIALRDNLAAATGYDNSGG
+                     TSQSAKTGGFSAMTQDQGTKLDGMFTSGLQHWSSIDEKMESVIDKMNTAEGHLARIEE
+                     NTGTSASHLGKIEEEIRKINRDGVKCK"
+     CDS             complement(133634..134125)
+                     /locus_tag="DIDGIALJ_01046"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MDEAVIKQIQREGADALLDIGVSVPLKAFHIPFRKSPLELRVTM
+                     RRPYMSGQILFARTYLSMGITSEEMWGFSKEEEMQFLASHGKAVSRMVAYTLCRGPFS
+                     RRVLLRPVAWLIRNFMEQRYLVGAIKRFVSLMGTDPFIPIIRSAERTNPMSLRLSQRK
+                     KGS"
+     CDS             complement(134129..134689)
+                     /locus_tag="DIDGIALJ_01047"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MYGVGAVKYKDFVVGYIEKNSFDMGGQKPESAKIEAEQVPGTPV
+                     LIIPQSNGSIAPTFNVIQLNYENLHSLLGGTMHYKEEDSEKKTPIGWTAPTAAVLLTG
+                     PWEIALVSGQSILIPNGTLLSNLGGKLTLTETAKIECTLEVAMPEDGSQPHGVFNTDS
+                     IPEEWKQYKLPPAESAAAASTNLAEE"
+     CDS             complement(134701..135048)
+                     /locus_tag="DIDGIALJ_01048"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MAGIPKSAVSLTIPPDSLRKLPSGSSYHSRNGQAGLTVKSDAAG
+                     NIIAEASCDSLQRLVLCYEEELTRIRNETHEDSFTVETEFERRFSPVKIALAAFITGC
+                     VAGIVLTFKIKKQ"
+     CDS             complement(134990..135469)
+                     /locus_tag="DIDGIALJ_01049"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MDFSAVMNLVLGGGLVATIIAIITLKSTVREARAKAEKATAEAE
+                     TVRIDNTEHATRILIENIVEPLKEELNENRKALQATRREMARLRKAIDTANSCRHHDD
+                     CPVLYGMREYSKEQDGGEPEQQPVVKRRQRVKREAGVVDGGDSEIGGEPDDPSGQPP"
+     CDS             complement(135497..135883)
+                     /locus_tag="DIDGIALJ_01050"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKRFLLFFVLILGFVSATFAQTGTVPEVDYSAMITTFAGFVGGV
+                     VLLTEGIKALFPKMQGLATQIVSWCVGIVAAMLLWWLDAGFVADATWYIALCYGFGAS
+                     LVSNGVADTGFVQWLIGLFAGKDAGK"
+     CDS             complement(135896..136360)
+                     /locus_tag="DIDGIALJ_01051"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MGKLKYLVIHCTATPEGREVSGAEIRAWHTNPVSKGGRGWKQVG
+                     YTDLFHLNGGVERLVNNNEDANVDPWEVTNGVAGYNSVSRHIVYAGGCAKDGKTPADT
+                     RTSWQKKALEKYVKDFHRRFPDVRIVGHNELAAKACPSFDVQRWLKQIGITQ"
+     CDS             complement(136360..137583)
+                     /locus_tag="DIDGIALJ_01052"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MAIVVRNTNYNGEVLEKILVLATTGNDLVEKGLIMVIPGVEKKI
+                     SLPRIKTGKMLQKRKENPTLEDSKGNFNYSEKSLDPEDFMAFTTFNPRAFEHVWRKWQ
+                     PKGNLVFAELPPEAQNTLLDELSKSVKFELGWHYLNGEFGSDDDHLFNGILTQAAKDP
+                     DVIVVPAPSDTSMIGKLKAVRKAIPKALRENPNLRILMSIDDFDKYDDELTEREYKNT
+                     SETDINKKRYKGITIETLNSWPDGLIVATLCSMSADGNLFAGVNLQDDEEVIQIDKWM
+                     NSSELYFFKLLMKADTEIAFGEEFVVLDTRETPVFKVVERSISADPAALSFKAAGESK
+                     EVKVTASGDYSVVSIPAGFTAVGTDGSLTVTAGVNSSGKAVSGTLVLGLDADPEKKVE
+                     IALSQAAVDEEEGGE"
+     CDS             complement(137595..138632)
+                     /gene="clpP"
+                     /locus_tag="DIDGIALJ_01053"
+                     /EC_number="3.4.21.92"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_00444"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="ATP-dependent Clp protease proteolytic subunit"
+                     /translation="MSRFFNMIPGTDACCILLYGDIGEYDDNVRSGDIARELLEAEAL
+                     TGKVDVRINSNGGEVYSGIAIFNALKNSKADITIYVDGIAASMASVIALCGKPVQMSR
+                     YARLMLHSVQGGCYGNKDEMKDCIREIEALEDTLCEMYATRMGKDKEEIRAMYFDGKD
+                     HWLRADEALALGLIDGIYDADPVPEDSTPEQVFQIFNNRLHKPQNENSMNLDELKRRP
+                     RFKNCATDDDFLREIGLLETEAGKVPALDAEVTRLKGELKVFQDKADADDAAARKKLL
+                     DDAEQDGRIDAATRPIYENLLAKDRENGEKALEKLSPKRSVMTDLRVNPTGESPWNKR
+                     MSEIKDKLNHK"
+     CDS             138829..139275
+                     /locus_tag="DIDGIALJ_01054"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MAELTNEQKKAWAKTLYTRETLTQAEIAERVGVSRVTVNNWIGK
+                     GNWEQLKASITITREEQLKNLYRQLAELNNAIMGKPEGERFPNAAEADTISKLSNAIK
+                     KLETEVGLADIISVFSDLLKWVRTYDSTQAKEITPLLDAFVKSKLS"
+     CDS             139277..140845
+                     /locus_tag="DIDGIALJ_01055"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MAKKRLTPQDRIALDNWNELVASVREHSDINPTDTETEIRQRRE
+                     RLEKNDEEWFKYYFAMYCTCESAAFHKKATGRLMRNNRWYEVRAWSRELAKSARSMME
+                     ISKLALTKKIRNVLLISNSADNAERLLLPFMANFEENQRIIQDYGQQKKPGAWETGEF
+                     TCMSGCSFRAIGAGQSPRGTRNRNFRPDFILVDDIDTDEECRNPERIKTKWKWLEEAL
+                     IPTMSVSGNYRILFNGNIIAPDCCIKRAIEKATELKAKGIGHVDIINIRGKDGLSVWP
+                     EKNSEEDIDLFLSLVSAAAAQKEFFNNPVVDGGVFAEITYGKVPALSKFKFLVIYGDP
+                     APGENKTKKSSTKTVCLLGKLAGRLYLIKTFLDRGLNAEFVEWYIKLLEFVGGKTTVY
+                     CYMENNKLQDPFFQQVFQPIVRRIRRERKISLYITGDEEKKTDKATRIEANLEPLNRE
+                     GNLVLNEAEKDNPHMKRMAEQFKLFNLQLTYPADGPDCVEGGNRIIDRKARQSEKPVI
+                     VTRKSTRSQNKYRV"
+     CDS             140864..141289
+                     /locus_tag="DIDGIALJ_01056"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MSKFIELSDYDASIHREILDALTREDDAVVEICEDRAVAEMRCY
+                     LSRRYDCDKIFTATGDKRNQLVLMMAIDIAVYHIFCIHNPRNLSPLRKERHERAVEWL
+                     KAVAAEEISVDGLPLLSEETRAAKSNFLIKSNRKRVNHW"
+     CDS             141291..142679
+                     /locus_tag="DIDGIALJ_01057"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MNKRKKRAGKITQSGNLPRPGQKGPATIILTQPRRFGIDIADYM
+                     LAVRAFENVDYSRRFRLYDLFSDILMDTHLTSVIEKRKNAALASSIEFRRNGKPDEKV
+                     NKQIRSPWFRKFIGDILDAKFWGFSLVQFYRKGEWVNYDLIPRKHVDPVRRLILRHQT
+                     DTTGTSWDEYPDLLFIGSPDDPGLLVKAAIWVIYKRNDVADWAQFAEVFGAPIREYTY
+                     PTDDDEARQRALDDADSTGSLSVFVHAEDTVLKLVEAANKTGSADLYDKLCERCNNEI
+                     SKLFLGNTLTTEASDKGTQALGTVHKDVEEKVTLSDRQDILDVLNYDMADIFAMLGID
+                     TTGGEFCYPEKKLIEPEKKMSILTQLRTNFNLPVGDDYLYEEFGIEKPANYDELKKRQ
+                     EEKAAEIEAAKARETEKAEEDEPDPEEEPELEKHGKGTPKEKKNALKNAYNWLKRFFG
+                     KAPGRDGAALEW"
+     CDS             142697..144112
+                     /locus_tag="DIDGIALJ_01058"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEDKQVETLFSFDEEVLKKALKNIYSKDFHPMTDIEENLFEATW
+                     KTMNKATDKGFGTRKTDDPDYDFYREIRMNNAVFAAFKVHRAQNDMAALLLDKNGSLK
+                     PFEQWVKEAMPIADHQMIHWLRTEYDTAVIRAHQAADWRQFEREKDVLPNLKWMPSTS
+                     VTPGADHQIFWGTIRPIDDPFWNEHRPGDRWNCKCTLSSTDEAPTAVPDENGQNKAHD
+                     GLENNPGKDGKLFSDKHPYITEAHPGAKKAVDALTRRINEMIAEMPDNLTLEEKTDIA
+                     RNNLKIEKALGVTKGKPMTYEQANKGKENPKFGKEEGYRVNCQTCTVTHMLRRLGFDI
+                     EAKPNIRQSAYNEMAKQGITWEERFLNRDGTKPDYDYTYKWQVRKGYQVMNANRLKEY
+                     FREKFREDGIYEIYCAWKGGSAHVFCAEVTEGKTRFFDPQTGKDDASNYIQSMKAGRV
+                     GVIRIDNKLVNPKIMGLFITK"
+     CDS             complement(144095..144394)
+                     /locus_tag="DIDGIALJ_01059"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MTELKNNFILLQQGVFYVPFCVMEIPKQVSELANSSGYNSVVLS
+                     ASSPEGSIYSVGCVDGDGFELPVGLPAFILFDGQSCCLVDGEEGLALSSRLFGDE"
+     CDS             144397..145029
+                     /locus_tag="DIDGIALJ_01060"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MDIKEYSKLIKAKRKELDGLMKRKMPVIAGRMAKDHFQDNFRRE
+                     GFVNGGLHPWPKAKRLSSGRTDAAGSYGTLLSGRNHLFSSVKYMPGEYRVRVANELVY
+                     APVNNWGGEVHPTVTPQMRRFAWAKYYQASGKAKKAATGKRKGKKKGSAANNEPQENQ
+                     EALKWKRLALTKKKKLRIKIPQRQFIGESRELSEKIDRKMENEIRNILNL"
+     CDS             145034..145480
+                     /locus_tag="DIDGIALJ_01061"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEEIFIAIMERIAEKMPELSYIDEDYGQLEAGAEEDHYPVTFPC
+                     VLVGNAESDWNDLGYGVQKSESLITIRLAIDCYDDTHYTSGTYDKVRERQLKAKELYK
+                     ALQEFQCTEETSPLVRVKSRDYSLPGNIKVYETVYSFTLHDESAMQ"
+     CDS             complement(145490..145780)
+                     /locus_tag="DIDGIALJ_01062"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MQHIPELMAKGRDKKLIELRDEALCRRYYYWTEVQRLRFDDALK
+                     VLSRQEFFISEERIMSIIRCKCRELKDLEVKPVPKVKKPRLTAVQLSLFTGE"
+     CDS             145829..146011
+                     /locus_tag="DIDGIALJ_01063"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MNAAFFCLECEQNHMVISSVSSSPGTNGSMRVITLLCTFTRPLP
+                     LQTGHFADKGAPPWSR"
+     CDS             complement(146085..146735)
+                     /locus_tag="DIDGIALJ_01064"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MDLKEQLKSLSAQDRKELLKQLQQEEKESKRNRRDAYEGLRAQF
+                     MLEVKNRLLPVVDDVKAFRDWVEKEAAAFRAVMREYGQLRKDEQASFTIVDGDMKLEV
+                     RSNKVKSFDERADLAAERLVDYLKRYAMGRELGTDDPMYQLGMTMIERNRQGDLDYKS
+                     VSKLYELEDRFDSEYTEIMDLFRESNVVYKTAVNYYFHKRDENGVWHRIEPSFCRL"
+     CDS             complement(146757..147200)
+                     /locus_tag="DIDGIALJ_01065"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MQIDINSRKQLNKPENYAAFYSLLNRLPTSDRDALKESIVSQYT
+                     EGRTTSLRDMTLKEYSAAVSAMQKLVPPTYQEQLRKILRQKRSAVLHQMQLLGIDTAD
+                     WDRVNAFCRDSRIAGKEFRELDCEALDTLQVKLRAIRRKRENKQQ"
+     CDS             complement(147203..147343)
+                     /locus_tag="DIDGIALJ_01066"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MGILEFFDQYKCTKNEKEHLLDYLCTIRVKRVIKEINDLKINKK
+                     TV"
+     CDS             complement(147384..147581)
+                     /locus_tag="DIDGIALJ_01067"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MLIVVTAVGVRKVVEKWLCENMTCELVVSRNARHECCVEVIYDS
+                     GNPSVLRTLLRSAVGEIIELC"
+     CDS             complement(147614..148126)
+                     /locus_tag="DIDGIALJ_01068"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MSENNNKQKRKRVCPHCGRKLWMREFYPLKNGGRSSWCHECVLV
+                     YKREQYRKHRKVADGTFMHRTLGRLVEHKGYSTRIFWNGNMLSIMRRHYHNTLNRELA
+                     EMLGVSERSVTRKAREMGLEKDKGFVASLSREHLLLANARSKELGYPGGFTKGMKFRG
+                     NQYTGRIRVE"
+     CDS             complement(148147..148452)
+                     /locus_tag="DIDGIALJ_01069"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MITEKQKEAVKELCQYVDNFCKENDLSAFMSVAASEDHPDGLEQ
+                     IAGSIITGKTEHIVGSISGGVKANKNVYMLLSVGLMQAYTRKADINTIPFGENLNMN"
+     CDS             complement(148472..149377)
+                     /locus_tag="DIDGIALJ_01070"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MRKEYYNYVVKLPVLLHELFRGKVADYHFSDMTVVMNHLVKSYI
+                     RMTDGGRVSTATRRILLCMDRIPDMSFFFRRQEKSVLFFEMDPAVAGSLQRAIIAGGW
+                     GNRQRLVVRLVCAFCCGAGVTLNNLSMELASEEVFRRPEGYLIHTYVSNYQYVFLKET
+                     AAAQRMSVEGMLTAAAELLVGTDDEGSGYHIPESLGRIADRVFEVRGSTLKDFRRQCL
+                     VSIRTNTIGPDRIASFMEKHGIASAREFLRRVVLFFLEARYLIYRKEVELDEDDLPEE
+                     EETDWEETMYSQYQKRDFAISTYNY"
+     CDS             complement(149381..149617)
+                     /locus_tag="DIDGIALJ_01071"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MSRIKKQLEICPPAYMCKGPNRENFVSTGHKCGYCKGNGWFWGT
+                     EEGSREDVHVSCLVCGGSGELDAIITVDWKPSSK"
+     CDS             complement(149614..150291)
+                     /locus_tag="DIDGIALJ_01072"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEEEKKDNKKAGMRRALNVRDILNKKYDVFPFEGKWKDAFDTPE
+                     VRGCWFVWGNSGNGKTSFVMQLCKELCKYDRVAFNSLEEGTSLTVQNNLRRFGMAEVS
+                     RHLAFIKEDIPTLKIRLRRHKSFNIVIIDSFQYTQMTYRDYIQLKEEFPDKLFVFISH
+                     ARGKNPKGDAATSVMYDADLKIWVEGYVAFSKGRYQGATGEYTIWEKGAYDYWNVAGP
+                     KQKGGQA"
+     CDS             complement(150294..150692)
+                     /locus_tag="DIDGIALJ_01073"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MTPVQIPFKRNFKDMENKFEYLKIDGREQLPAPWSDYPVLREYE
+                     TVTVYRNGRDYLDALVGQQDGWWVAGVHMEVGGSGGGFNPGRKWGQFATRENVLLWAL
+                     GRMLCHEKLRGAARQAVLDRIDNIRQLTLF"
+     CDS             complement(150689..151558)
+                     /locus_tag="DIDGIALJ_01074"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEITMKEKDAISESLRAYVAKYPSQTKAAGSLKGVSVGTVSNIL
+                     NGRYENISDEMFRNVASQVGGVSATGWQIVETGAYQEITAVLSDAQRWRNVTWVTGEA
+                     GCGKSTTARVYLQEHKEVFYILCSEDMKKGDFVREIARTVGIRTEGYNIREVWGLILD
+                     DIIQMDAPLLVFDEADKLTEPVFHYFISLYNKLEEKCGVVFLSTDYIAKRISNGLRYQ
+                     KPGYKEFYSRIGRKFYELEPTDVNDVFAICSANGVTDRKDIDKVIKEASTCDFDLRRV
+                     RKSIHKVKRMTGE"
+     CDS             complement(151594..153633)
+                     /locus_tag="DIDGIALJ_01075"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEYFDNILCVTYKELLDIMPKGTLNSQLSREKLDVVSRGGGENN
+                     PALYAYSSLPEKYKKRWVERHGEPEKQMRQEMIRNIVKKDEKAENFFEDYRYDKNGEM
+                     VALPEDVKKEYTWNASVLNALMEEFKRLSSSNNKLTGFRRNLWELLLVTSEEWRPVYG
+                     HSLPGSVGRLKALINKFRPDNYGVLVSGKYGNSNTLKIEEDGGRYLVALKRSRVPVYT
+                     DMEIFEEYNRVAPERGWKPLKSPRSLREWFNSPRVEPLWYDAVYGEMKAHQRYDRKHR
+                     TILPGRRDSLWYGDGTKLNLYYRDENGNKCTTSVYEVVDAYSEVLLGYYISDNEDYIA
+                     QYHAFRMAIQTSRHKPYEIVCDNQGGHKKNAALGLFSKISRIHRPTAPYNGESKTIEN
+                     IFYRFQSQVLKKRFGFTGQNITAKRDTSRPNLEFINANIDSLPTLEELKEQYAAAREQ
+                     WNSMKHPATGISRIEMYNTSVNEATDAVSVSDMVEMFWYTTEKPSLFTANGIEITVQG
+                     KKYPYEVFSAPGEPDLEWRRRNTYKKFYVQYDPYDMSSVRLLYKDKGGAMRFECVASF
+                     PLMIHRAQQEQTEAEKRFIRAQQEAVINERINRQVVAKDIEYEHGVAPEQNGLRTPDL
+                     KGLGKEAQRQIDRRTRKYSQPARPSIGRDMKVISNVTWDSFEKKEVSIRKVVGKL"
+     CDS             complement(153649..153855)
+                     /locus_tag="DIDGIALJ_01076"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MTLFSDQLHWFARLKRKQRFCVLYFCMSFGILLSIFFINPLLEL
+                     LVVLNFGISVRLLKKHVPLNDLED"
+     CDS             complement(153860..154060)
+                     /locus_tag="DIDGIALJ_01077"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKERIVVEYGEVNKIAELMGCTNVMVSHALAFRKNSKLARSIRK
+                     LAIERGGSKVGGNPQNTSSHEK"
+     tRNA            complement(154086..154169)
+                     /locus_tag="DIDGIALJ_01078"
+                     /product="tRNA-Arg"
+                     /inference="COORDINATES:profile:Aragorn:001002"
+                     /note="tRNA-Arg(cct)"
+     CDS             complement(154180..154371)
+                     /locus_tag="DIDGIALJ_01079"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEVKFKKGQSVRITKRNGEIIDGIVRDWDYNICTFVREYNIDYM
+                     KNGQVWTVICVPEDAIKEL"
+     CDS             154507..154926
+                     /locus_tag="DIDGIALJ_01080"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MSVFSKNLRYLRESRGLKLDEFEFLGIKKGTMSNYELGNTEPKL
+                     SLLCEISKFFRISIDDFLLKDIEAEKITPVVTETAPPETANNNFRELLDVLREKDSTI
+                     REMAEEIGMLKQTITQLKQDKSGRVSDASDSTVANAI"
+     CDS             complement(155037..155258)
+                     /locus_tag="DIDGIALJ_01081"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEGCIYPFERFERLKKWKGYSLAYSFGYSFKLLQKRNVLIAYSF
+                     GYSFLCLFCSNKTGKYLFFIWYSSVFIIL"
+     CDS             complement(155326..155538)
+                     /locus_tag="DIDGIALJ_01082"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MSKVIHVHLIFEKKNIYFGSISAIFETLTEKQVGITKSSLLHAG
+                     LVDDIAKYTKRAMIIQSRLITCTRKG"
+ORIGIN      
         1 ccatgggtgg ggcacttttt aaatgttgtt ccgggtccct tttcaagtgt tagctacatg
        61 tgttccatgc tcaccttgaa cgatgcttct gtttcctgcc ggaacgggga tttgtaccaa
       121 aggttgtttc cttgctgctt cacgggcaag tagcccaaac tttgcagata gtctgccagt
