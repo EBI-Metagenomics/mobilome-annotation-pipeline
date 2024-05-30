@@ -16,6 +16,8 @@ nextflow_process {
                 """
                 input[0] = file("${projectDir}/tests/test_data/mobilome_results/func_annot/amrfinderplus.tsv")
                 input[1] = file("${projectDir}/tests/test_data/mobilome_results/mobilome_prokka.gff")
+                input[2] = file("${projectDir}/tests/test_data/mobilome_results/preprocessing/contigID.map")
+                input[3] = file("${projectDir}/tests/test_data/integrator_inputs/no_user_gff")
                 """
             }
         }

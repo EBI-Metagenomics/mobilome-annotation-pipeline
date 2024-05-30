@@ -7,17 +7,18 @@ process GFF_MAPPING {
     container 'quay.io/biocontainers/python:3.9--1'
 
     input:
-    path mobilome_extra
-	path user_gff
+    path mobilome_clean
+    path user_gff
 
     output:
-	path "user_mobilome_extra.gff"
-	path "user_mobilome_full.gff"
+    path "user_mobilome_extra.gff"
+    path "user_mobilome_full.gff"
+    path "user_mobilome_clean.gff"
 
     script:
     """
     gff_mapping.py \
-    --mobilome_prokka_extra ${mobilome_extra} \
+    --mobilome_clean ${mobilome_clean} \
     --user_gff ${user_gff}
     """
 }

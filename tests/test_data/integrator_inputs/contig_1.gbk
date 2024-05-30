@@ -1,82 +1,112 @@
-LOCUS       contig_1                6203 bp    DNA              UNK 01-JAN-1980
-DEFINITION  contig_1.
-ACCESSION   contig_1
-VERSION     contig_1
+LOCUS       contig_1                6203 bp    DNA     linear       29-MAY-2024
+DEFINITION  Genus species strain strain.
+ACCESSION   
+VERSION
 KEYWORDS    .
-SOURCE      .
-  ORGANISM  .
-            .
+SOURCE      Genus species
+  ORGANISM  Genus species
+            Unclassified.
+COMMENT     Annotated using prokka 1.14.6 from
+            https://github.com/tseemann/prokka.
 FEATURES             Location/Qualifiers
-     integron        1044..6203
-                     /integron_id="integron_01"
-                     /integron_type="complete"
+     source          1..6203
+                     /organism="Genus species"
+                     /mol_type="genomic DNA"
+                     /strain="strain"
+     CDS             54..1028
+                     /locus_tag="DIDGIALJ_00001"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKRKIEIIIDLKVQEYSNIKLKQFDDTQILFKVVDDGISFSLEG
+                     LQASLVFEKPDHTIVYQECEIEEDKIKADLLKSCLRQNGNAQIELQLSNTTEMVSTFQ
+                     IPVVIAKSAKENIESDNTPNYIEILEDAIVEEQIRRQNEELRKSNELERQQNEEERID
+                     NEETREDNEDDRIEAETQRNSNEETRQANETTRGDNEDDRIAAEELRDQAESARAQSY
+                     SEMKNYFDNNAIATHKFRLMINEDYEAGENITIPCYYKVGVGVLDVFLNGEKLLLSSD
+                     AQGTDGHYLEVGEANSISNVIKTTTDWNCEIGDYFDFVVRGEYSVQTE"
      CDS             1044..1502
-                     /protein_id="contig_1_2"
-                     /gene="protein"
-                     /model="NA"
-                     /translation="MLPIFNKLKNVQTEWFEWTPTLACYDATETAALDVRYEQQVGFGC
-                     KIKINKEKSIVFIFVAVRGYIDAVSSGNNYAYIAGLPYTANGGESYNYGGFTWGQFSYG
-                     VDNSHACPHGMFSAKRIQVTTERGGSEKWVANSGRVIIYGSGFYFTKN*"
+                     /locus_tag="DIDGIALJ_00002"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MLPIFNKLKNVQTEWFEWTPTLACYDATETAALDVRYEQQVGFG
+                     CKIKINKEKSIVFIFVAVRGYIDAVSSGNNYAYIAGLPYTANGGESYNYGGFTWGQFS
+                     YGVDNSHACPHGMFSAKRIQVTTERGGSEKWVANSGRVIIYGSGFYFTKN"
      CDS             1586..2017
-                     /protein_id="contig_1_3"
-                     /gene="protein"
-                     /model="NA"
-                     /translation="MLPLNKKTKTTINNMKIETITNENGTAIKFSNGTMICYMHITVTD
-                     QAINSSYGDIFTGIRNWIFPVQFVEKPIVSCGMFKWGTSASWSGVSGIGNSSASLVGYD
-                     LFSRETGTNVNISAIAIRKMEIKKEGRESPMAVHTHTHL*"
-     attC            complement(1641..1701)
-                     /attC="attc_001"
-                     /model="attc_4"
+                     /locus_tag="DIDGIALJ_00003"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MLPLNKKTKTTINNMKIETITNENGTAIKFSNGTMICYMHITVT
+                     DQAINSSYGDIFTGIRNWIFPVQFVEKPIVSCGMFKWGTSASWSGVSGIGNSSASLVG
+                     YDLFSRETGTNVNISAIAIRKMEIKKEGRESPMAVHTHTHL"
      CDS             2048..2440
-                     /protein_id="contig_1_4"
-                     /gene="protein"
-                     /model="NA"
-                     /translation="MLPLSKKTKQKLEEYENKLEDSGWINLSLLNNWTTRSGQNVPSYC
-                     KKNGVVYLHGLIYAGDNVTERIFTKLPADIIPSGIITNLYFTTTAGGSSNREVNTLQIQ
-                     KDGYVLAPKILTQGQWFPLDGISFPV*"
+                     /locus_tag="DIDGIALJ_00004"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MLPLSKKTKQKLEEYENKLEDSGWINLSLLNNWTTRSGQNVPSY
+                     CKKNGVVYLHGLIYAGDNVTERIFTKLPADIIPSGIITNLYFTTTAGGSSNREVNTLQ
+                     IQKDGYVLAPKILTQGQWFPLDGISFPV"
      CDS             2489..3115
-                     /protein_id="contig_1_5"
-                     /gene="protein"
-                     /model="NA"
-                     /translation="METITSILVSITALITAICSLVVAGKKLKKEFEETIPKKIKRQCD
-                     IDLEIVKRLEAIKELLNADRVQIYDFHNGGHYANGRSALKTSCTYEVVRTGIKSCQMYL
-                     QAIPLNCIPHFIQTLLNNSEMKINNLEDIKECMPATYSLKKSQNIGSFFDIILNNRNGE
-                     PIGFLAFQYSKTNKVNFSENEKHEILRLKFFIEENLEKMISRKEV*"
+                     /locus_tag="DIDGIALJ_00005"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="METITSILVSITALITAICSLVVAGKKLKKEFEETIPKKIKRQC
+                     DIDLEIVKRLEAIKELLNADRVQIYDFHNGGHYANGRSALKTSCTYEVVRTGIKSCQM
+                     YLQAIPLNCIPHFIQTLLNNSEMKINNLEDIKECMPATYSLKKSQNIGSFFDIILNNR
+                     NGEPIGFLAFQYSKTNKVNFSENEKHEILRLKFFIEENLEKMISRKEV"
      CDS             3119..3385
-                     /protein_id="contig_1_6"
-                     /gene="protein"
-                     /model="NA"
-                     /translation="MEIKITIEIILAVVTAVITAFLGLAAKKWSWSTEDYIPFQNLAVA
-                     IISGILFIVTGLITNVIVAFIVSFGAAFGAGGLYDLVKTKKEV*"
+                     /locus_tag="DIDGIALJ_00006"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MEIKITIEIILAVVTAVITAFLGLAAKKWSWSTEDYIPFQNLAV
+                     AIISGILFIVTGLITNVIVAFIVSFGAAFGAGGLYDLVKTKKEV"
      CDS             3392..3529
-                     /protein_id="contig_1_7"
-                     /gene="protein"
-                     /model="NA"
-                     /translation="MKDEEIKIGDSVENLTEEERKKIRMSFDPDKMGFEVEEEGTKDED
-                     *"
+                     /locus_tag="DIDGIALJ_00007"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKDEEIKIGDSVENLTEEERKKIRMSFDPDKMGFEVEEEGTKDE
+                     D"
      CDS             3519..4502
-                     /protein_id="contig_1_8"
-                     /gene="protein"
-                     /model="NA"
-                     /translation="MKINRKISLINFYDSNRSKNAIKYIILHYVGAVSTAKNNADYFYS
-                     TFRGASAHYFVDENEIWQVVEDNDSSWAIGANKYYTDARNTNSISIEMCCYKKNGKLDI
-                     KEKVVEKAIELTKELMKKYDIDVDHVIRHYDATRKVCPAPFVNDESRWKNFKKALEDKS
-                     TSSNSSNEKVITTVKVTADIGLNLRKEPSTKSNIIKAFPQNTSLKIYETKNNWGRTDGG
-                     WVCLDYTSYKKSTSSNTSISKTKYTVGRYEVNTEVLTVRTGPGTKYDWLRYDQLSANAK
-                     KQVYEQCGYKPNGLCKGVQCDVSKINGSWGQIPSGWICLDYCKKTK*"
-     integrase       complement(4953..6203)
-                     /protein_id="contig_1_9"
-                     /gene="intI"
-                     /model="Phage_integrase"
-                     /translation="GIFMSEINTRKRGKKWQYQFEAAKIDGKRKQITKSGFNTKKEALE
-                     AGTKALAEYNNSGLHFKPTELSVSDYFDYWYKNYVELELKINTQHSYKNYIENHIKPSI
-                     GMYKLKSVTPAILQEFINSRYINGFSKNHLINLVGVLSGALKYAVEPCNFIKSSPMIYV
-                     KLPKYEHLKTDANHKLITTEEFEKIINRFPYSSNFYIPIMIGYYTAFRIGETLGLTWDD
-                     IDFKNKTISINKIIYYNEDTKLWYFGTPKTPNSTRTIEIGNTLLEILKRYRNDQLKNKL
-                     KYGPHYTCTYEGTEIINNKNYRPLYFLKANVSSGTLKKLEMVCTKEDGEIITPNSFKYA
-                     SKVINYELGITFNYHSLRHTHATTLIDNGAEIKDVQMRLGHANIETTYNTYVHHTEKMS
-                     RNSVEIFENAVNQKRSH*"
-ORIGIN
+                     /locus_tag="DIDGIALJ_00008"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /translation="MKINRKISLINFYDSNRSKNAIKYIILHYVGAVSTAKNNADYFY
+                     STFRGASAHYFVDENEIWQVVEDNDSSWAIGANKYYTDARNTNSISIEMCCYKKNGKL
+                     DIKEKVVEKAIELTKELMKKYDIDVDHVIRHYDATRKVCPAPFVNDESRWKNFKKALE
+                     DKSTSSNSSNEKVITTVKVTADIGLNLRKEPSTKSNIIKAFPQNTSLKIYETKNNWGR
+                     TDGGWVCLDYTSYKKSTSSNTSISKTKYTVGRYEVNTEVLTVRTGPGTKYDWLRYDQL
+                     SANAKKQVYEQCGYKPNGLCKGVQCDVSKINGSWGQIPSGWICLDYCKKTK"
+     CDS             complement(4953..6194)
+                     /gene="xerC_1"
+                     /locus_tag="DIDGIALJ_00009"
+                     /inference="ab initio prediction:Prodigal:002006"
+                     /inference="protein motif:HAMAP:MF_01808"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="Tyrosine recombinase XerC"
+                     /translation="MSEINTRKRGKKWQYQFEAAKIDGKRKQITKSGFNTKKEALEAG
+                     TKALAEYNNSGLHFKPTELSVSDYFDYWYKNYVELELKINTQHSYKNYIENHIKPSIG
+                     MYKLKSVTPAILQEFINSRYINGFSKNHLINLVGVLSGALKYAVEPCNFIKSSPMIYV
+                     KLPKYEHLKTDANHKLITTEEFEKIINRFPYSSNFYIPIMIGYYTAFRIGETLGLTWD
+                     DIDFKNKTISINKIIYYNEDTKLWYFGTPKTPNSTRTIEIGNTLLEILKRYRNDQLKN
+                     KLKYGPHYTCTYEGTEIINNKNYRPLYFLKANVSSGTLKKLEMVCTKEDGEIITPNSF
+                     KYASKVINYELGITFNYHSLRHTHATTLIDNGAEIKDVQMRLGHANIETTYNTYVHHT
+                     EKMSRNSVEIFENAVNQKRSH"
+ORIGIN      
         1 gtaggaagag caattttaaa tgttataggt tataaaagtt aggaggtgga aaattgaaga
        61 gaaaaataga aataataata gatctaaaag tgcaggaata tagcaatata aaattaaaac
       121 aatttgatga tacacagatt ttatttaaag tagttgatga tggaatttct ttttcactag
