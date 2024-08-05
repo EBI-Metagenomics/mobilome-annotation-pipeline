@@ -48,7 +48,7 @@ process ICEFINDER {
             grep 'DR:' result/*/ICE* > result/icf_dr.txt
         else
             echo 'ICEfinder found 0 ICE/IME in assembly... generating dummy files'
-        touch result/icf_concat.summary
+            touch result/icf_concat.summary
             touch result/icf_dr.txt
         fi
         """
