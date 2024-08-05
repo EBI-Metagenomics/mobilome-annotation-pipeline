@@ -18,10 +18,10 @@ process ICEFINDER {
 
     containerOptions {
         args = [
-            "--bind $PWD/$params.outdir/prediction/icefinder_results/input.list:/install/ICEfinder_linux/input.list",
-            "--bind $PWD/$params.outdir/prediction/icefinder_results/gbk/:/install/ICEfinder_linux/gbk/",
-            "--bind $PWD/$params.outdir/prediction/icefinder_results/tmp/:/install/ICEfinder_linux/tmp/",
-            "--bind $PWD/$params.outdir/prediction/icefinder_results/result/:/install/ICEfinder_linux/result/",
+            "--bind ${input_list}:/install/ICEfinder_linux/input.list",
+            "--bind ${gbk_folder}:/install/ICEfinder_linux/gbk/",
+            "--bind ${tmp_folder}:/install/ICEfinder_linux/tmp/",
+            "--bind ${res_folder}:/install/ICEfinder_linux/result/",
             "--pwd /install/ICEfinder_linux/"
         ]
         args.join(" ")
@@ -29,13 +29,13 @@ process ICEFINDER {
 
     input:
     path input_list
-	path gbk_folder, stageAs: "gbk"
+    path gbk_folder, stageAs: "gbk"
     path tmp_folder, stageAs: "tmp"
-	path res_folder, stageAs: "result"
+    path res_folder, stageAs: "result"
 
     output:
     path "result/icf_concat.summary", emit: icf_summ_files
-	path "result/icf_dr.txt", emit: icf_dr
+    path "result/icf_dr.txt", emit: icf_dr
 
     script:
     if(input_list.size() > 0)
@@ -48,14 +48,14 @@ process ICEFINDER {
             grep 'DR:' result/*/ICE* > result/icf_dr.txt
         else
             echo 'ICEfinder found 0 ICE/IME in assembly... generating dummy files'
-	    touch result/icf_concat.summary
+            touch result/icf_concat.summary
             touch result/icf_dr.txt
         fi
         """
     else
         """
         echo 'No input files for ICEfinder... generating dummy files'
-	    touch result/icf_concat.summary
+        touch result/icf_concat.summary
         touch result/icf_dr.txt
         """
 }

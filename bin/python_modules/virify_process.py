@@ -51,10 +51,10 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                 ) = line.rstrip().split("\t")
                 contig = inv_names_equiv[contig]
                 coord = (int(start), int(end))
-                
+
                 if seq_source == "VIRify":
                     mge_counter += 1
-                    mge_id = "vir2_" + str(mge_counter)    
+                    mge_id = "vir2_" + str(mge_counter)
                     composite_val = (contig, attr, coord)
                     virify_predictions[mge_id] = composite_val
 
@@ -89,7 +89,6 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                     g_end = g_coord_pair[1]
                     g_id = prophages_ids[(v_contig, (g_start, g_end))]
                     to_discard.append(g_id)
-                
         # Finding redundancy on prophages
         elif "prophage" in v_description.split(";")[0]:
             v_start = v_coord[0]

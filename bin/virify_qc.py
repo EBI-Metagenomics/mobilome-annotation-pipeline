@@ -20,8 +20,8 @@ def quality_parser(checkv_out):
                 for line in input_table:
                     l_line = line.rstrip().split("\t")
                     phage_id = l_line[0].replace("prophage-0:", "prophage-1:")
-                    if not '|prophage' in phage_id:
-                        phage_id = phage_id + '|viral_sequence'
+                    if not "|prophage" in phage_id:
+                        phage_id = phage_id + "|viral_sequence"
                     viral_genes = int(l_line[5])
                     checkv_quality = l_line[7]
                     kmer_freq = float(l_line[12])
@@ -49,18 +49,18 @@ def virify_parser(virify_gff, hq_list):
     hq_prophages = {}
     hq_viral_contigs = []
     for phage_id in hq_list:
-        if '|prophage' in phage_id:
-            prophage_contig = phage_id.split('|')[0]
-            coordinates = phage_id.split('|')[1].split('-')[1]
-            start = int(coordinates.split(':')[0])
-            end = int(coordinates.split(':')[1])
-            coord_tuple = ( start, end )
+        if "|prophage" in phage_id:
+            prophage_contig = phage_id.split("|")[0]
+            coordinates = phage_id.split("|")[1].split("-")[1]
+            start = int(coordinates.split(":")[0])
+            end = int(coordinates.split(":")[1])
+            coord_tuple = (start, end)
             if prophage_contig in hq_prophages:
                 hq_prophages[prophage_contig].append(coord_tuple)
             else:
                 hq_prophages[prophage_contig] = [coord_tuple]
         else:
-            hq_viral_contigs.append(phage_id.split('|')[0])
+            hq_viral_contigs.append(phage_id.split("|")[0])
 
     with open(virify_gff, "r") as input_table, open("virify_hq.gff", "w") as output_gff:
         for line in input_table:
@@ -102,7 +102,6 @@ def virify_parser(virify_gff, hq_list):
                                 prot_cov = float(intersection) / float(prot_len)
                                 if prot_cov > 0.75:
                                     output_gff.write(line + "\n")
-
 
 
 def main():

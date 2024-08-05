@@ -17,7 +17,6 @@ def rename(input_file):
     with open(output_1kb, "w") as to_1kb, open(output_5kb, "w") as to_5kb, open(
         output_map, "w"
     ) as to_map:
-
         for record in SeqIO.parse(input_file, "fasta"):
             counter += 1
             new_id = ">contig_" + str(counter)

@@ -7,6 +7,7 @@ import os.path
 ##### Alejandra Escobar, EMBL-EBI
 ##### October 4, 2023
 
+
 def icf_dr_parser(icf_dr_file):
     icf_dr = {}
     with open(icf_dr_file, "r") as input_table:
@@ -27,7 +28,7 @@ def icf_dr_parser(icf_dr_file):
                 dr_2 = (dr_2_s, dr_2_e)
                 icf_dr[new_id] = (dr_1, dr_2)
 
-    return(icf_dr)
+    return icf_dr
 
 
 def icf_dr_control(icf_dr, mge_data):
@@ -36,21 +37,21 @@ def icf_dr_control(icf_dr, mge_data):
     for mge in icf_dr:
         start_1 = int(icf_dr[mge][0][0])
         end_1 = int(icf_dr[mge][0][1])
-        len_1 = end_1-start_1
+        len_1 = end_1 - start_1
 
         start_2 = int(icf_dr[mge][1][0])
         end_2 = int(icf_dr[mge][1][1])
-        len_2 = end_2-start_2
-        if start_2>end_2:
+        len_2 = end_2 - start_2
+        if start_2 > end_2:
             mge_start = mge_data[mge][2][0]
             mge_end = mge_data[mge][2][1]
-            new_start_2 = mge_end-len_1
-            print('Corrected  coordinates:',start_2,'   ->   ',new_start_2 )
+            new_start_2 = mge_end - len_1
+            print("Corrected  coordinates:", start_2, "   ->   ", new_start_2)
             dr_1 = (start_1, end_1)
-            new_dr_2 = (new_start_2,mge_end)
+            new_dr_2 = (new_start_2, mge_end)
             icf_dr[mge] = (dr_1, new_dr_2)
 
-    return(icf_dr)
+    return icf_dr
 
 
 def icf_parser(icf_dr_file, icf_results):
@@ -104,6 +105,5 @@ def icf_parser(icf_dr_file, icf_results):
                     icf_dr[mge_id] = icf_dr.pop(composite_id)
 
     icf_dr = icf_dr_control(icf_dr, mge_data)
-    
-    return (mge_data, icf_dr)
 
+    return (mge_data, icf_dr)

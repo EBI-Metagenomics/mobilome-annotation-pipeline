@@ -85,20 +85,29 @@ def main():
 
     ## Parsing results of mobilome prediction tools
     # Parsing ICEfinder results
-    (mge_data, icf_dr,) = icefinder_process.icf_parser(
+    (
+        mge_data,
+        icf_dr,
+    ) = icefinder_process.icf_parser(
         args.icf_lim,
         args.icf_tsv,
     )
 
     # Parsing IntegronFinder results
-    (mge_data, attC_site,) = integronfinder_process.integron_parser(
+    (
+        mge_data,
+        attC_site,
+    ) = integronfinder_process.integron_parser(
         mge_data,
         args.inf_tsv,
         args.inf_gbks,
     )
 
     # Parsing ISEScan results
-    (mge_data, itr_sites,) = isescan_process.isescan_parser(
+    (
+        mge_data,
+        itr_sites,
+    ) = isescan_process.isescan_parser(
         mge_data,
         args.iss_tsv,
     )
@@ -157,7 +166,6 @@ def main():
 
 
 if __name__ == "__main__":
-
     # FIXME: this needs to be refactored to follow python best practices.
     import argparse
     import os.path
