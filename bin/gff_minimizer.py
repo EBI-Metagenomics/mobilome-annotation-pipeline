@@ -32,7 +32,6 @@ def gff_parser(mobilome_prokka_gff):
         ) as to_clean_gff, open("mobilome_extra.gff", "w") as to_extra_gff, open(
             "mobilome_nogenes.gff", "w"
         ) as to_nogenes_gff:
-
             for line in input_file:
                 l_line = line.rstrip().split("\t")
                 # Annotation lines have exactly 9 columns
@@ -57,7 +56,6 @@ def gff_parser(mobilome_prokka_gff):
                         to_extra_gff.write(line)
                         to_nogenes_gff.write(line)
                     else:
-
                         if "location=mobilome" in attr:
                             to_clean_gff.write(line)
                             if any(["viphog=" in attr, "mobileOG=mobileOG" in attr]):

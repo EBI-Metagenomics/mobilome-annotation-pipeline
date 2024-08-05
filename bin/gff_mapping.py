@@ -11,12 +11,12 @@ import glob
 ##### October 19, 2023
 
 
-def mobilome_parser( mobilome_clean ):
+def mobilome_parser(mobilome_clean):
     # Parsing the mobilome prediction
     proteins_annot, mobilome_annot, mges_dict, mob_types = {}, {}, {}, {}
     if os.stat(mobilome_clean).st_size == 0:
         return (proteins_annot, mobilome_annot, mges_dict, mob_types)
-        
+
     source_tools = [
         "ICEfinder",
         "IntegronFinder",
@@ -45,8 +45,8 @@ def mobilome_parser( mobilome_clean ):
                 strand = l_line[6]
                 coordinates = (start, end)
                 if annot_source in source_tools:
-                    composite_key = ( contig, start, end )
-                    mob_types[composite_key] = seq_type                        
+                    composite_key = (contig, start, end)
+                    mob_types[composite_key] = seq_type
                     if contig in mobilome_annot:
                         mobilome_annot[contig].append(line.rstrip())
                         mges_dict[contig].append(coordinates)
@@ -65,16 +65,20 @@ def mobilome_parser( mobilome_clean ):
                     if len(extra_list) > 0:
                         extra_val = ";".join(extra_list)
                         proteins_annot[str_composite_key] = extra_val
-                        
+
     return (proteins_annot, mobilome_annot, mges_dict, mob_types)
 
 
 # Adding the mobilome predictions to the user file
-def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types ):
+def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types):
     COV_THRESHOLD = 0.75
     used_contigs = []
     if os.stat(user_gff).st_size > 0:
-        with open(user_gff, "r") as input_table, open("user_mobilome_extra.gff", "w") as output_extra, open("user_mobilome_full.gff", "w") as output_full, open("user_mobilome_clean.gff", "w") as output_clean:
+        with open(user_gff, "r") as input_table, open(
+            "user_mobilome_extra.gff", "w"
+        ) as output_extra, open("user_mobilome_full.gff", "w") as output_full, open(
+            "user_mobilome_clean.gff", "w"
+        ) as output_clean:
             for line in input_table:
                 l_line = line.rstrip().split("\t")
                 # Annotation lines have exactly 9 columns
@@ -100,7 +104,7 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types )
                         output_full.write(line.rstrip() + ";" + extra_annot + "\n")
                     else:
                         output_full.write(line.rstrip() + "\n")
-                    
+
                     # Finding mobilome proteins in the user file and writing to clean output
                     u_prot_start = int(start)
                     u_prot_end = int(end)
@@ -113,7 +117,7 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types )
                             mge_start = coordinates[0]
                             mge_end = coordinates[1]
                             mge_range = range(mge_start, mge_end + 1)
-                            mge_label = mob_types[( contig, mge_start, mge_end  )]
+                            mge_label = mob_types[(contig, mge_start, mge_end)]
                             intersection = len(list(set(mge_range) & set(u_prot_range)))
                             if intersection > 0:
                                 u_prot_cov = float(intersection) / float(u_prot_len)
@@ -121,17 +125,23 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types )
                                     passenger_flag = 1
                                     mge_loc.append(mge_label)
                         if passenger_flag == 1:
-                            mge_loc = 'mge_location=' + ','.join(mge_loc)
+                            mge_loc = "mge_location=" + ",".join(mge_loc)
                             if composite_val in proteins_annot:
                                 extra_annot = proteins_annot[composite_val]
-                                output_clean.write(line.rstrip() + ";" + extra_annot + ";" + mge_loc + "\n")
+                                output_clean.write(
+                                    line.rstrip()
+                                    + ";"
+                                    + extra_annot
+                                    + ";"
+                                    + mge_loc
+                                    + "\n"
+                                )
                             else:
-                                output_clean.write(line.rstrip() + ";" + mge_loc + "\n" )
+                                output_clean.write(line.rstrip() + ";" + mge_loc + "\n")
                 else:
                     output_clean.write(line.rstrip() + "\n")
                     output_extra.write(line.rstrip() + "\n")
                     output_full.write(line.rstrip() + "\n")
-
 
 
 def main():
@@ -154,10 +164,12 @@ def main():
 
     ## Calling functions
     # Storing the mobilome predictions
-    ( proteins_annot, mobilome_annot, mges_dict, mob_types ) = mobilome_parser(args.mobilome_clean)
+    (proteins_annot, mobilome_annot, mges_dict, mob_types) = mobilome_parser(
+        args.mobilome_clean
+    )
 
     # Adding the mobilome predictions to the user file
-    gff_updater( args.user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types )
+    gff_updater(args.user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types)
 
 
 if __name__ == "__main__":

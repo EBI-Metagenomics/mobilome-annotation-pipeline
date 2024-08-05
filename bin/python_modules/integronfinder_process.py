@@ -17,7 +17,9 @@ def integron_parser(mge_data, integron_results, inf_gbks):
             next(input_table)
             next(input_table)
             for line in input_table:
-                id_replicon, calin, complete, in0, topology, size = line.rstrip().split("\t")
+                id_replicon, calin, complete, in0, topology, size = line.rstrip().split(
+                    "\t"
+                )
 
                 # Saving gbk file names of complete integrons
                 if int(complete) > 0:
@@ -28,7 +30,6 @@ def integron_parser(mge_data, integron_results, inf_gbks):
     attC_site = {}
     for gbk_file in gbk_files_list:
         for gb_record in SeqIO.parse(gbk_file, "genbank"):
-
             # Get indexes for integron records and attC
             indexes_integron, indexes_attc = [], []
             for index, feature in enumerate(gb_record.features):
@@ -51,7 +52,7 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                     mge_end = int(integron_feature.location.end)
                     mge_coord = (mge_start, mge_end)
                     description = "mobile_element_type=complete_integron"
-                    id_replicon = gbk_file.replace('.gbk', '')
+                    id_replicon = gbk_file.replace(".gbk", "")
                     value = (id_replicon, description, mge_coord)
                     mge_data[mge_id] = value
 
