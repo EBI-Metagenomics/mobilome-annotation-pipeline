@@ -89,7 +89,6 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                     g_end = g_coord_pair[1]
                     g_id = prophages_ids[(v_contig, (g_start, g_end))]
                     to_discard.append(g_id)
-
         # Finding redundancy on prophages
         elif "prophage" in v_description.split(";")[0]:
             v_start = v_coord[0]

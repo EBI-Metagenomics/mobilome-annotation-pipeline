@@ -16,7 +16,6 @@ def mobilome_parser(mobilome_clean):
     proteins_annot, mobilome_annot, mges_dict, mob_types = {}, {}, {}, {}
     if os.stat(mobilome_clean).st_size == 0:
         return (proteins_annot, mobilome_annot, mges_dict, mob_types)
-
     source_tools = [
         "ICEfinder",
         "IntegronFinder",
@@ -65,7 +64,6 @@ def mobilome_parser(mobilome_clean):
                     if len(extra_list) > 0:
                         extra_val = ";".join(extra_list)
                         proteins_annot[str_composite_key] = extra_val
-
     return (proteins_annot, mobilome_annot, mges_dict, mob_types)
 
 
@@ -104,7 +102,6 @@ def gff_updater(user_gff, proteins_annot, mobilome_annot, mges_dict, mob_types):
                         output_full.write(line.rstrip() + ";" + extra_annot + "\n")
                     else:
                         output_full.write(line.rstrip() + "\n")
-
                     # Finding mobilome proteins in the user file and writing to clean output
                     u_prot_start = int(start)
                     u_prot_end = int(end)
