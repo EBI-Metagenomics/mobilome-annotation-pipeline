@@ -5,7 +5,9 @@ process PROKKA {
 
     publishDir "$params.outdir/preprocessing", mode: 'copy'
 
-    container 'quay.io/biocontainers/prokka:1.14.6--pl526_0'
+    container "${ workflow.containerEngine in ['singularity', 'apptainer'] ?
+        'https://depot.galaxyproject.org/singularity/prokka:1.14.6--pl526_0' :
+        'biocontainers/prokka:1.14.6--pl526_0' }"
 
     input:
     path assembly_file
@@ -19,6 +21,12 @@ process PROKKA {
     script:
     if(assembly_file.size() > 0)
         """
+        # TMP folder issues in Prokka - https://github.com/tseemann/prokka/issues/402
+        export TMPDIR="\$PWD/tmp"
+        mkdir -p "\$PWD/tmp"
+        # Disable the Java VM performane gathering tool, for improved performance
+        export JAVA_TOOL_OPTIONS="-XX:-UsePerfData"
+
         prokka --outdir prokka_out \
         --prefix contigs \
         --cpus ${task.cpus} \
