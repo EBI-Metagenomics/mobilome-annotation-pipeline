@@ -19,6 +19,7 @@ include { GFF_VALIDATOR } from './modules/validator'
 include { INTEGRONFINDER } from './modules/integronfinder'
 include { ISESCAN } from './modules/isescan'
 include { ICEFINDER } from './modules/icefinder'
+include { CLEANUP } from './modules/cleanup'
 include { INTEGRATOR } from './modules/integrator'
 include { PROKKA } from './modules/prokka'
 include { RENAME } from './modules/rename_contigs'
@@ -95,6 +96,12 @@ workflow {
 		file( "${params.outdir}/prediction/icefinder_results/tmp"),
 		file( "${params.outdir}/prediction/icefinder_results/result")
 	)
+    // remove ICEFINDER tmp directory
+    CLEANUP(
+        file( "${params.outdir}/prediction/icefinder_results/tmp"),
+        ICEFINDER.out.icf_summ_files
+    )
+
     INTEGRONFINDER( RENAME.out.contigs_5kb )
     ISESCAN( RENAME.out.contigs_1kb )
 
