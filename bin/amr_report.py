@@ -1,12 +1,26 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright 2024 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import argparse
 import os.path
 import csv
 
-##### This script integrates the results of amrfinderplus with the mobilome
-##### Alejandra Escobar, EMBL-EBI
-##### May 31, 2023
+# Constants #
+AMR_GENE_THRES = 0.75
+MOB_THRES = 0.75
 
 
 def user_gff_parser(user_gff):
@@ -91,7 +105,6 @@ def arg_parser(amr_out, contig_names):
 
 
 def mob_parser(mobilome):
-    MOB_THRES = 0.75
     ### Saving the proteins in the mobilome
     mob_coords, mob_types, prots_loc = {}, {}, {}
     mges_list = [
@@ -170,7 +183,7 @@ def mob_parser(mobilome):
 
 
 def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
-    AMR_GENE_THRES = 0.75
+    
     with open("amr_location.tsv", "w", newline="") as to_output:
         writer = csv.writer(
             to_output, delimiter="\t", quoting=csv.QUOTE_MINIMAL, lineterminator="\n"

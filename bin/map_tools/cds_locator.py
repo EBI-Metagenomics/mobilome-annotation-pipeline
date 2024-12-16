@@ -1,14 +1,25 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import sys
+# Copyright 2024 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os.path
 
-##### This module locate the genes present in the mobilome
-##### Alejandra Escobar, EMBL-EBI
-##### October 13, 2023
 
-
-def quality_filter(mge_data, mge_proteins, contigs_elements):
+def quality_filter(
+    mge_data, mge_proteins, contigs_elements, output_file
+):
     # Removing predictions of len<500 and with no CDS
     no_cds = []
     len_500 = []
@@ -19,7 +30,7 @@ def quality_filter(mge_data, mge_proteins, contigs_elements):
         elif len(mge_proteins[element]) == 0:
             no_cds.append(element)
 
-    with open("discarded_mge.txt", "a") as to_discard:
+    with open(output_file, "a") as to_discard:
         for element in no_cds:
             to_discard.write(element + "\t" + mge_data[element][1] + "\tno_cds\n")
             del mge_data[element]
@@ -37,31 +48,35 @@ def quality_filter(mge_data, mge_proteins, contigs_elements):
     return (mge_data, contigs_elements)
 
 
-def location_parser(cds_loc, mge_data):
+def _parse_cds_loc(cds_loc: str, contig_prots: dict, prots_coord: dict):
+    if os.stat(cds_loc).st_size == 0:
+        return
+
+    with open(cds_loc, "r") as input_table:
+        for line in input_table:
+            l_line = line.rstrip().split("\t")
+            # Annotation lines have exactly 9 columns
+            if len(l_line) == 9:
+                contig = l_line[0]
+                prot_source = l_line[1]
+                start = int(l_line[3])
+                end = int(l_line[4])
+                attrib = l_line[8]
+                prot_id = attrib.split(";")[0].replace("ID=", "")
+                value = (start, end)
+                prots_coord[prot_id] = value
+                if contig in contig_prots:
+                    contig_prots[contig].append(prot_id)
+                else:
+                    contig_prots[contig] = [prot_id]
+
+
+def location_parser(cds_loc, mge_data, output_file="discarded_mge.txt"):
     ### Saving the CDS' coordinates and contigs location
     contig_prots = {}
     prots_coord = {}
-    contig_seq = {}
-    seq_id = None
-    my_chain = ""
-    if os.stat(cds_loc).st_size > 0:
-        with open(cds_loc, "r") as input_table:
-            for line in input_table:
-                l_line = line.rstrip().split("\t")
-                # Annotation lines have exactly 9 columns
-                if len(l_line) == 9:
-                    contig = l_line[0]
-                    prot_source = l_line[1]
-                    start = int(l_line[3])
-                    end = int(l_line[4])
-                    attrib = l_line[8]
-                    prot_id = attrib.split(";")[0].replace("ID=", "")
-                    value = (start, end)
-                    prots_coord[prot_id] = value
-                    if contig in contig_prots:
-                        contig_prots[contig].append(prot_id)
-                    else:
-                        contig_prots[contig] = [prot_id]
+
+    _parse_cds_loc(cds_loc, contig_prots, prots_coord)
 
     ### Finding the CDS encoded in the mobilome
     mge_proteins = {}
@@ -96,7 +111,7 @@ def location_parser(cds_loc, mge_data):
 
     ## Quality control of small and empty MGEs
     (mge_data, contigs_elements) = quality_filter(
-        mge_data, mge_proteins, contigs_elements
+        mge_data, mge_proteins, contigs_elements, output_file=output_file
     )
 
     return (mge_data, contigs_elements, protein_mge)

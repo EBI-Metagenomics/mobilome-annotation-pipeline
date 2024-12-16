@@ -1,11 +1,18 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import sys
-import os.path
-
-##### This module parse the ICEfinder outputs
-##### Alejandra Escobar, EMBL-EBI
-##### October 4, 2023
+# Copyright 2024 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 
 def icf_dr_parser(icf_dr_file):
@@ -89,7 +96,7 @@ def icf_parser(icf_dr_file, icf_results):
 
             description = "mobile_element_type=" + description
 
-            if not "conjugative_region" in description:
+            if "conjugative_region" not in description:
                 mge_counter += 1
                 mge_id = "icf_" + str(mge_counter)
                 start = int(coordinate.split("..")[0])

@@ -1,14 +1,21 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import sys
-import os.path
+# Copyright 2024 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-##### This module write the report of overlapping long integrons
-##### Alejandra Escobar, EMBL-EBI
-##### October 12, 2023
 
-
-def overlap_report(mge_data, names_equiv):
+def overlap_report(mge_data, names_equiv, output_file = "overlapping_integrons.txt"):
     # Grouping elements by contig
     contig_inmge = {}
     long_mges = [
@@ -29,8 +36,7 @@ def overlap_report(mge_data, names_equiv):
             else:
                 contig_inmge[contig] = [prediction]
 
-    output_nested = "overlapping_integrons.txt"
-    with open(output_nested, "w") as to_nested:
+    with open(output_file, "w") as to_nested:
         to_nested.write(
             "\t".join(
                 [

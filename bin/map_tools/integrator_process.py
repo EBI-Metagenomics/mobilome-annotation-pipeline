@@ -1,11 +1,18 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import sys
-import os.path
-
-##### This module integrates the mobilome predictions
-##### Alejandra Escobar, EMBL-EBI
-##### October 18, 2023
+# Copyright 2024 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 
 def line_builder(id_to_print, source, seq_type, start, end, feat_id, description):
@@ -33,6 +40,7 @@ def gff_writer(
     mog_annot,
     crispr_annot,
     virify_prots,
+    output_gff,
 ):
     ### Writing the mobilome outputs
     source_tools = {
@@ -46,9 +54,7 @@ def gff_writer(
         "phpl": "geNomad_VIRify",
     }
 
-    output_gff = "mobilome_prokka.gff"
     used_contigs = []
-    used_mges = {}
     with open(cds_gff, "r") as input_table, open(output_gff, "w") as to_gff:
         for line in input_table:
             l_line = line.rstrip().split("\t")
@@ -57,7 +63,7 @@ def gff_writer(
                 id_to_print = names_equiv[contig]
 
                 # Writing the MGEs found in the current contig
-                if not contig in used_contigs:
+                if contig not in used_contigs:
                     used_contigs.append(contig)
 
                     if contig in crispr_annot:

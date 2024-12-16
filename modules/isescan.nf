@@ -1,38 +1,27 @@
-#!/usr/bin/env nextflow
-nextflow.enable.dsl=2
-
 process ISESCAN {
 
-    publishDir "$params.outdir/prediction", mode: 'copy'
+    publishDir "${params.outdir}/prediction", mode: 'copy'
 
     container 'quay.io/microbiome-informatics/isescan-v1.7.2.3'
 
     input:
-    path assembly_file
+    tuple val(meta), path(assembly_file)
 
     output:
-    path 'isescan_results/1kb_contigs.fasta.tsv', emit: iss_tsv
+    tuple val(meta), path('isescan_results/1kb_contigs.fasta.tsv'), emit: iss_tsv
 
     script:
-    if (assembly_file.size() > 0)
-        """
-        isescan.py --seqfile ${assembly_file} \
-        --output isescan_results \
-        --nthread ${task.cpus}
+    """
+    isescan.py --seqfile ${assembly_file} \
+    --output isescan_results \
+    --nthread ${task.cpus}
 
-        if ls -l isescan_results/1kb_contigs.fasta.tsv 2>/dev/null | grep -q .
-        then
-            echo 'ISEScan results exists'
-        else
-	    echo 'ISEScan found 0 insertion sequences in input file... generating dummy files'
-            touch isescan_results/1kb_contigs.fasta.tsv
-        fi
-        """
+    if ls -l isescan_results/1kb_contigs.fasta.tsv 2>/dev/null | grep -q .
+    then
+        echo 'ISEScan results exists'
     else
-        """
-	    echo 'ISEScan is not running due to empty input... generating dummy files'
-        mkdir isescan_results
+    echo 'ISEScan found 0 insertion sequences in input file... generating dummy files'
         touch isescan_results/1kb_contigs.fasta.tsv
-        """
+    fi
+    """
 }
-

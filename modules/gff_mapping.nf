@@ -1,25 +1,21 @@
-#!/usr/bin/env nextflow
-nextflow.enable.dsl=2
-
 process GFF_MAPPING {
-    publishDir "$params.outdir/gff_output_files", mode: 'copy'
+    publishDir "${params.outdir}/gff_output_files", mode: 'copy'
 
     container 'quay.io/biocontainers/python:3.9--1'
 
     input:
-    path mobilome_clean
-    path user_gff
+    tuple val(meta), path(mobilome_clean), path(user_gff)
 
     output:
-    path "user_mobilome_extra.gff"
-    path "user_mobilome_full.gff"
-    path "user_mobilome_clean.gff"
+    tuple val(meta), path("${meta.id}_user_mobilome_extra.gff"), emit: mobilome_extra_gff
+    tuple val(meta), path("${meta.id}_user_mobilome_full.gff"), emit: mobilome_full_gff
+    tuple val(meta), path("${meta.id}_user_mobilome_clean.gff"), emit: mobilome_clean_gff
 
     script:
     """
     gff_mapping.py \
+    --prefix ${meta.id} \
     --mobilome_clean ${mobilome_clean} \
     --user_gff ${user_gff}
     """
 }
-
