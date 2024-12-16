@@ -3,7 +3,7 @@ nextflow.enable.dsl=2
 
 process GENOMAD {
 
-    publishDir "$params.outdir/prediction/genomad_out", mode: 'copy'
+    publishDir "$params.outdir/prediction/", mode: 'copy'
 
     container 'quay.io/biocontainers/genomad:1.6.1--pyhdfd78af_0'
 
