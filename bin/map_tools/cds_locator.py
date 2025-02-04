@@ -105,7 +105,7 @@ def location_parser(cds_loc, mge_data, output_file="discarded_mge.txt"):
                 if intersection > 0:
                     mge_cov = float(intersection) / float(mge_len)
                     prot_cov = float(intersection) / float(prot_len)
-                    if any([mge_cov > 0.75, prot_cov > 0.75]):
+                    if any([mge_cov > 0.9, prot_cov > 0.9]):
                         mge_proteins[element].append(protein)
                         protein_mge[protein] = element
 
