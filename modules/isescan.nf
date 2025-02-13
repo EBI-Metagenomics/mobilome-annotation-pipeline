@@ -1,6 +1,6 @@
 process ISESCAN {
-
-    publishDir "${params.outdir}/prediction", mode: 'copy'
+    tag "$meta.id"
+    label 'process_high'
 
     container 'quay.io/microbiome-informatics/isescan-v1.7.2.3'
 

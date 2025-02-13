@@ -1,4 +1,6 @@
 process PROKKA {
+    tag "$meta.id"
+    label 'process_high'
 
     publishDir "${params.outdir}/preprocessing", mode: 'copy'
 

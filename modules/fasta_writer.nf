@@ -1,6 +1,6 @@
 process FASTA_WRITER {
-
-    publishDir "${params.outdir}/", mode: 'copy'
+    tag "$meta.id"
+    label 'process_single'
 
     container 'quay.io/biocontainers/bedtools:2.23.0--h5b5514e_6'
 

@@ -1,0 +1,49 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/ebi-metagenomics/mobilome-annotation-pipeline/master/assets/schema_input.json",
+    "title": "ebi-metagenomics/mobilome-annotation-pipeline pipeline - params.input schema",
+    "description": "Schema for the file provided with params.input",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "sample": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample name must be provided and cannot contain spaces"
+            },
+            "assembly": {
+                "type": "string",
+                "pattern": "^\\S+\\.(fa|fna|fasta)$",
+                "errorMessage": "The assembly needs to be a fasta file"
+            },
+            "user_proteins_gff": {
+                "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file",
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "pattern": "^\\S+\\.gff$"
+                    },
+                    {
+                        "type": "string",
+                        "maxLength": 0
+                    }
+                ]
+	    },
+	    "virify_gff": {
+                "errorMessage": "The VIRify file generated for the assembly needs to be a gff3 file",
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "pattern": "^\\S+\\.gff$"
+                    },
+                    {
+                        "type": "string",
+                        "maxLength": 0
+                    }
+                ]
+	    }
+        },
+        "required": ["sample", "assembly"]
+    }
+}

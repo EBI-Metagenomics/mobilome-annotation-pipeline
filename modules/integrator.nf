@@ -1,6 +1,6 @@
 process INTEGRATOR {
-
-    publishDir "${params.outdir}/", mode: 'copy'
+    tag "$meta.id"
+    label 'process_single'
 
     container 'quay.io/biocontainers/biopython:1.78'
 

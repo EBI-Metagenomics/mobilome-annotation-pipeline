@@ -1,9 +1,6 @@
-#!/usr/bin/env nextflow
-nextflow.enable.dsl = 2
-
 process RENAME {
-
-    publishDir "${params.outdir}/preprocessing", mode: 'copy'
+    tag "$meta.id"
+    label 'process_single'
 
     container 'quay.io/biocontainers/biopython:1.75'
 

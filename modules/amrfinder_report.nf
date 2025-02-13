@@ -1,5 +1,6 @@
 process AMRFINDER_REPORT {
-    publishDir "${params.outdir}/func_annot", mode: 'copy'
+    tag "$meta.id"
+    label 'process_single'
 
     container 'quay.io/biocontainers/python:3.9--1'
 

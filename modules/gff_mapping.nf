@@ -1,5 +1,6 @@
 process GFF_MAPPING {
-    publishDir "${params.outdir}/gff_output_files", mode: 'copy'
+    tag "$meta.id"
+    label 'process_single'
 
     container 'quay.io/biocontainers/python:3.9--1'
 

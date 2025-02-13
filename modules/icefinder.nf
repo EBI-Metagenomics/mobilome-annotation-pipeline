@@ -1,5 +1,5 @@
 process ICEFINDER {
-    publishDir "${params.outdir}/prediction/icefinder_results", mode: 'copy'
+    tag "$meta.id"
 
     container {
         if (params.icefinder_sif) {

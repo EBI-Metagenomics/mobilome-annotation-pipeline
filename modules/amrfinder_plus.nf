@@ -1,6 +1,6 @@
 process AMRFINDER_PLUS {
-
-    publishDir "${params.outdir}/func_annot", mode: 'copy'
+    tag "$meta.id"
+    label 'process_high'
 
     container 'quay.io/biocontainers/ncbi-amrfinderplus:3.11.4--h6e70893_0'
 

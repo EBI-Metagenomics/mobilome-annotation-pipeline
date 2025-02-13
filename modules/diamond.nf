@@ -1,6 +1,6 @@
 process DIAMOND {
-
-    publishDir "$params.outdir/func_annot", mode: 'copy'
+    tag "$meta.id"
+    label 'process_low'
 
     container 'quay.io/biocontainers/diamond:2.0.12--hdcc8f71_0'
 

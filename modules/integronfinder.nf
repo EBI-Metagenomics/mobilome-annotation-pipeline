@@ -1,6 +1,6 @@
 process INTEGRONFINDER {
-
-    publishDir "${params.outdir}/prediction/integron_results", mode: 'copy'
+    tag "$meta.id"
+    label 'process_high'
 
     container 'quay.io/microbiome-informatics/integronfinder:71ee6e0'
 

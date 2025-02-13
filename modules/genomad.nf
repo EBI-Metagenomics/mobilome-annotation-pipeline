@@ -1,6 +1,6 @@
 process GENOMAD {
-
-    publishDir "${params.outdir}/prediction/", mode: 'copy'
+    tag "$meta.id"
+    label 'process_medium'
 
     container 'quay.io/biocontainers/genomad:1.6.1--pyhdfd78af_0'
 

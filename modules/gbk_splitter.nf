@@ -1,7 +1,6 @@
 process GBK_SPLITTER {
-
-    publishDir "${params.outdir}/prediction/icefinder_results/gbk", pattern: '*.gbk', mode: 'copy'
-    publishDir "${params.outdir}/prediction/icefinder_results/", pattern: 'input.list', mode: 'copy'
+    tag "$meta.id"
+    label 'process_single'
 
     input:
     path gbk_file
