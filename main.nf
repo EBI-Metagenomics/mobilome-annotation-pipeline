@@ -6,17 +6,6 @@
 ----------------------------------------------------------------------------------------
 */
 
-nextflow.enable.dsl = 2
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    VALIDATE & PRINT PARAMETER SUMMARY
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-include { validateParameters; paramsSummaryLog; paramsHelp } from 'plugin/nf-schema'
-
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOW FOR PIPELINE
@@ -39,16 +28,6 @@ workflow EBIMETAGENOMICS_MOBILOMEANNOTATION {
 */
 
 workflow {
-
-    validateParameters()
-
-    // Custom validation //
-    // The conditional validation doesn't work yet -> https://github.com/nf-core/tools/issues/2619
-    if ( !params.samplesheet ) {
-        error "--samplesheet is required."
-        exit 1
-    }
-
     EBIMETAGENOMICS_MOBILOMEANNOTATION ()
 }
 
