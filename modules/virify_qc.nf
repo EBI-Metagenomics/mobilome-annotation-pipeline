@@ -1,5 +1,3 @@
-#!/usr/bin/env nextflow
-nextflow.enable.dsl=2
 
 process VIRIFY_QC {
 
@@ -10,22 +8,15 @@ process VIRIFY_QC {
     container 'quay.io/biocontainers/python:3.9--1'
 
     input:
-    path vir_gff
-    path vir_checkv
+    tuple val(meta), path(virify_gff), path(virify_checkv)
 
     output:
-    path("virify_hq.gff"), emit: virify_hq
+    tuple val(meta), path("virify_hq.gff"), emit: virify_hq
 
     script:
-    if(vir_gff.exists())
-        """
-        virify_qc.py \
-        --virify_gff ${vir_gff} \
-        --checkv_out ${vir_checkv.join(' ')}
-        """
-    else
-        """
-        echo 'No input files for VIRify parsing... generating dummy files'
-        touch virify_hq.gff
-        """
+    """
+    virify_qc.py \
+    --virify_gff ${virify_gff} \
+    --checkv_out ${virify_checkv.join(' ')}
+    """
 }

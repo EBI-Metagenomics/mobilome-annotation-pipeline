@@ -1,5 +1,5 @@
 process ICEFINDER {
-    tag "$meta.id"
+    tag "${meta.id}"
 
     container {
         if (params.icefinder_sif) {
@@ -11,23 +11,22 @@ process ICEFINDER {
     containerOptions {
         def args = [
             "--bind ${input_list}:/install/ICEfinder_linux/input.list",
-            "--bind ${gbk_folder}:/install/ICEfinder_linux/gbk/",
-            "--bind ${tmp_folder}:/install/ICEfinder_linux/tmp/",
-            "--bind ${res_folder}:/install/ICEfinder_linux/result/",
+            "--bind ${task.workDir}/gbks:/install/ICEfinder_linux/gbk/",
+            "--bind ${task.workDir}/tmp:/install/ICEfinder_linux/tmp/",
+            "--bind ${task.workDir}/result:/install/ICEfinder_linux/result/",
             "--pwd /install/ICEfinder_linux/"
         ]
         args.join(" ")
     }
 
     input:
-    path input_list
-    path gbk_folder, stageAs: "gbk"
-    path tmp_folder, stageAs: "tmp"
-    path res_folder, stageAs: "result"
+    tuple val(meta), path(input_list), path(gbk_files, stageAs: "gbks/*")
+    // path tmp_folder, stageAs: "tmp"
+    // path res_folder, stageAs: "result"
 
     output:
-    path "result/icf_concat.summary", emit: icf_summ_files
-    path "result/icf_dr.txt", emit: icf_dr
+    tuple val(meta), path("result/icf_concat.summary"), emit: icf_summ_files
+    tuple val(meta), path("result/icf_dr.txt"), emit: icf_dr
 
     script:
     """

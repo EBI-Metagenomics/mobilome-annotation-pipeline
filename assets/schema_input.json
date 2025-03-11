@@ -29,8 +29,8 @@
                         "maxLength": 0
                     }
                 ]
-	    },
-	    "virify_gff": {
+            },
+            "virify_gff": {
                 "errorMessage": "The VIRify file generated for the assembly needs to be a gff3 file",
                 "anyOf": [
                     {
@@ -42,7 +42,7 @@
                         "maxLength": 0
                     }
                 ]
-	    }
+            }
         },
         "required": ["sample", "assembly"]
     }

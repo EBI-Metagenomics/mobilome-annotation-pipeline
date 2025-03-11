@@ -2,6 +2,7 @@ process DIAMOND {
     tag "$meta.id"
     label 'process_low'
 
+    // TODO: add the singularity image
     container 'quay.io/biocontainers/diamond:2.0.12--hdcc8f71_0'
 
     input:

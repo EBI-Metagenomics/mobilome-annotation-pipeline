@@ -3,11 +3,11 @@ process GBK_SPLITTER {
     label 'process_single'
 
     input:
-    path gbk_file
+    tuple val(meta), path(gbk_file)
 
     output:
-    path "*.gbk"
-    path "input.list", emit: gbks
+    tuple val(meta), path("*.gbk"),      emit: gbks
+    tuple val(meta), path("input.list"), emit: intput_list
 
     script:
     """    

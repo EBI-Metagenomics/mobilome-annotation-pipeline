@@ -1,16 +1,17 @@
 process RENAME {
-    tag "$meta.id"
+
+    tag "${meta.id}"
     label 'process_single'
 
     container 'quay.io/biocontainers/biopython:1.75'
 
     input:
-    path assembly_file
+    tuple val(meta), path(assembly_file)
 
     output:
-    path '1kb_contigs.fasta', emit: contigs_1kb
-    path '5kb_contigs.fasta', emit: contigs_5kb
-    path 'contigID.map', emit: map_file
+    tuple val(meta), path('1kb_contigs.fasta'), emit: contigs_1kb
+    tuple val(meta), path('5kb_contigs.fasta'), emit: contigs_5kb
+    tuple val(meta), path('contigID.map')     , emit: map_file
 
     script:
     """
