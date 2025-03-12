@@ -8,7 +8,7 @@ process AMRFINDER_PLUS {
     tuple val(meta), path(fna), path(faa), path(gff)
 
     output:
-    tuple val(meta), path("amrfinderplus.tsv"), emit: amrfinder_tsv
+    tuple val(meta), path("${meta.id}_amrfinderplus.tsv"), emit: amrfinder_tsv
 
     script:
     """    

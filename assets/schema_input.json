@@ -10,7 +10,8 @@
             "sample": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces"
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["id"]
             },
             "assembly": {
                 "type": "string",
@@ -42,6 +43,16 @@
                         "maxLength": 0
                     }
                 ]
+            },
+            "skip_crispr_finder": {
+                "type": "boolean",
+                "default": true,
+                "meta": ["skip_crispr_finder"]
+            },
+            "skip_amrfinder_plus": {
+                "type": "boolean",
+                "default": true,
+                "meta": ["skip_amrfinder_plus"]
             }
         },
         "required": ["sample", "assembly"]

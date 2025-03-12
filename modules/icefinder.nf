@@ -1,12 +1,11 @@
 process ICEFINDER {
     tag "${meta.id}"
 
-    container {
-        if (params.icefinder_sif) {
-            return params.icefinder_sif
-        }
-        return "${params.singularity_cachedir}/icefinder-v1.0-local.sif"
-    }
+    container params.icefinder_sif
+
+    // tmp and results are needed by ICEFinder, and they have to be mounted in the container
+    // so we need to create them before we run the tool
+    beforeScript "mkdir -p ${task.workDir}/{tmp,result}"
 
     containerOptions {
         def args = [
@@ -21,8 +20,7 @@ process ICEFINDER {
 
     input:
     tuple val(meta), path(input_list), path(gbk_files, stageAs: "gbks/*")
-    // path tmp_folder, stageAs: "tmp"
-    // path res_folder, stageAs: "result"
+
 
     output:
     tuple val(meta), path("result/icf_concat.summary"), emit: icf_summ_files

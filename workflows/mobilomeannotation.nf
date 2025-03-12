@@ -22,7 +22,7 @@ include { ICEFINDER        } from '../modules/icefinder'
 include { GENOMAD          } from '../modules/genomad'
 
 // include { VIRIFY_QC    } from './modules/virify_qc'
-// include { CRISPR_FINDER } from './modules/crisprcas'
+include { CRISPR_FINDER    } from '../modules/crisprcas'
 
 // Results integration and writing modules
 include { AMRFINDER_REPORT } from '../modules/amrfinder_report'
@@ -46,7 +46,7 @@ workflow MOBILOMEANNOTATION {
     def ch_inputs = Channel.fromList(samplesheetToList(params.input, "./assets/schema_input.json"))
 
     // PREPROCESSING
-    RENAME( ch_inputs )
+    RENAME( ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } )
 
     PROKKA( RENAME.out.contigs_1kb )
 
@@ -56,20 +56,15 @@ workflow MOBILOMEANNOTATION {
     GBK_SPLITTER( PROKKA.out.prokka_gbk )
 
     ICEFINDER( 
-        GBK_SPLITTER.out.intput_list, GBK_SPLITTER.out.gbks
+        GBK_SPLITTER.out.intput_list.join( GBK_SPLITTER.out.gbks )
     )
 
-    // remove ICEFINDER tmp directory
-    // CLEANUP(
-    //     file( "${params.outdir}/prediction/icefinder_results/tmp"),
-    //     ICEFINDER.out.icf_summ_files
-    // )
-
     INTEGRONFINDER( RENAME.out.contigs_5kb )
+
     ISESCAN( RENAME.out.contigs_1kb )
 
     // ANNOTATION
-    DIAMOND( PROKKA.out.prokka_faa, params.mobileog_db )
+    DIAMOND( PROKKA.out.prokka_faa, file(params.mobileog_db, checkIfExists: true) )
 
     // TODO: disabled
     // if (params.virify){
@@ -82,12 +77,8 @@ workflow MOBILOMEANNOTATION {
     //     virify_results = file('no_virify')
     // }
 
-    // if (params.skip_crispr) {
-    //     crispr_tsv = file('no_crispr')
-    // } else {
-    //     CRISPR_FINDER( RENAME.out.contigs_1kb )
-    //     crispr_tsv = CRISPR_FINDER.out.crispr_report
-    // }
+    
+    CRISPR_FINDER( RENAME.out.contigs_1kb.filter { it -> !it[0].skip_crispr_finder } )
 
     // TODO: I've removed from the Integrator - palidis has to be in the samplesheet too
     // if ( params.palidis ) {
@@ -115,68 +106,50 @@ workflow MOBILOMEANNOTATION {
         ).join(
             GENOMAD.out.genomad_vir
         ).join(
-            GENOMAD.out.genomad_vir
+            GENOMAD.out.genomad_plas
         ).join(
             ch_inputs.map { meta, _assembly, _user_proteins_gff, virify_gff -> {
                     [meta, virify_gff]
                 }
-            }
+            }, remainder: true
         ).join(
-            ch_inputs.map { meta, _assembly, user_proteins_gff, _virify_gff -> {
-                    [meta, user_proteins_gff]
-                }
-            }
-        )
+            CRISPR_FINDER.out.crispr_report, remainder: true
+        ) // TODO add palidis
     )
 
     // POSTPROCESSING
     GFF_REDUCE( INTEGRATOR.out.mobilome_prokka_gff )
 
+    // TODO should the input of fasta writer be the renamed fasta files?
     FASTA_WRITER(
-        ch_inputs.map {}.join( GFF_REDUCE.out.mobilome_nogenes )
+        ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } .join( GFF_REDUCE.out.mobilome_nogenes )
     )
 
-    if ( params.user_genes ) {
-        user_gff = Channel.fromPath( params.prot_gff, checkIfExists: true )
-        GFF_MAPPING(
-            GFF_REDUCE.out.mobilome_clean.join( user_gff )
-        )
-    }
+    def user_proteins_ch = ch_inputs.map { meta, _fasta, user_proteins_gff, _virify_gff -> [meta, user_proteins_gff] }
+
+    GFF_MAPPING(
+        GFF_REDUCE.out.mobilome_clean.join( user_proteins_ch )
+    )
 
     if ( params.gff_validation ) {
         GFF_VALIDATOR( GFF_REDUCE.out.mobilome_nogenes )		
     }
+    
+    // AMRFinder is optional
+    def amr_finder_ch = PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff).filter({ it -> !it[0].skip_amrfinder_plus })
 
-    if ( !params.skip_amr ) {
-        AMRFINDER_PLUS( PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff) )
-        if ( params.user_genes ) {
-            // TODO, this p
-            AMRFINDER_REPORT(
-                AMRFINDER_PLUS.out.amrfinder_tsv.join(
-                    INTEGRATOR.out.mobilome_prokka_gff
-                ).join(
-                    RENAME.out.map_file
-                ).join(
-                    ch_inputs.map { meta, _assembly, user_proteins_gff, _virify_gff -> {
-                            [meta, user_proteins_gff]
-                        }
-                    }
-                )
-            )
-        } else {
-            user_gff = file('no_user_gff')
-            AMRFINDER_REPORT(
-                AMRFINDER_PLUS.out.amrfinder_tsv.join(
-                    INTEGRATOR.out.mobilome_prokka_gff
-                ).join(
-                    RENAME.out.map_file
-                ).join(
-                    ch_inputs.map { meta, _assembly, user_proteins_gff, _virify_gff -> {
-                            [meta, user_proteins_gff]
-                        }
-                    }
-                )
-            )
-        }
-    }
+    AMRFINDER_PLUS( amr_finder_ch )
+
+    AMRFINDER_REPORT(
+        AMRFINDER_PLUS.out.amrfinder_tsv.join(
+                INTEGRATOR.out.mobilome_prokka_gff
+        ).join(
+            RENAME.out.map_file
+        ).join(
+            ch_inputs.map { meta, _assembly, user_proteins_gff, _virify_gff -> {
+                    [meta, user_proteins_gff]
+                }
+            }, remainder: true
+        )
+    )
 }
