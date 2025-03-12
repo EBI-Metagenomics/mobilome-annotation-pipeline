@@ -8,9 +8,9 @@ process GFF_REDUCE {
     tuple val(meta), path(mobilome_prokka_gff)
 
     output:
-    tuple val(meta), path("mobilome_clean.gff"), emit: mobilome_clean
-    tuple val(meta), path("mobilome_extra.gff"), emit: mobilome_extra
-    tuple val(meta), path("mobilome_nogenes.gff"), emit: mobilome_nogenes
+    tuple val(meta), path("${meta.id}_mobilome_clean.gff"),   emit: mobilome_clean
+    tuple val(meta), path("${meta.id}_mobilome_extra.gff"),   emit: mobilome_extra
+    tuple val(meta), path("${meta.id}_mobilome_nogenes.gff"), emit: mobilome_nogenes
 
     script:
     """

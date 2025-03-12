@@ -83,38 +83,34 @@ workflow MOBILOMEANNOTATION {
     // TODO: I've removed from the Integrator - palidis has to be in the samplesheet too
     // if ( params.palidis ) {
     //     pal_info = Channel.fromPath( params.palidis_info, checkIfExists: true )
-    // }else{
+    // } else {
     //     pal_info = 
     // }
+    
+    def integrator_ch = PROKKA.out.prokka_gff.join(
+        RENAME.out.map_file
+    ).join(
+        ISESCAN.out.iss_tsv
+    ).join(
+        INTEGRONFINDER.out.contigs_summary,
+    ).join(
+        INTEGRONFINDER.out.contigs_gbks.collect(),
+    ).join(
+        ICEFINDER.out.icf_summ_files
+    ).join(
+        ICEFINDER.out.icf_dr
+    ).join(
+        DIAMOND.out.blast_out
+    ).join(
+        GENOMAD.out.genomad_vir
+    ).join(
+        GENOMAD.out.genomad_plas
+    )
 
-    // INTEGRATION
     INTEGRATOR(
-        PROKKA.out.prokka_gff.join(
-            RENAME.out.map_file
-        ).join(
-            ISESCAN.out.iss_tsv
-        ).join(
-            INTEGRONFINDER.out.contigs_summary,
-        ).join(
-            INTEGRONFINDER.out.contigs_gbks.collect(), // TODO: I don't think this will work
-        ).join(
-            ICEFINDER.out.icf_summ_files
-        ).join(
-            ICEFINDER.out.icf_dr
-        ).join(
-            DIAMOND.out.blast_out
-        ).join(
-            GENOMAD.out.genomad_vir
-        ).join(
-            GENOMAD.out.genomad_plas
-        ).join(
-            ch_inputs.map { meta, _assembly, _user_proteins_gff, virify_gff -> {
-                    [meta, virify_gff]
-                }
-            }, remainder: true
-        ).join(
-            CRISPR_FINDER.out.crispr_report, remainder: true
-        ) // TODO add palidis
+        integrator_ch,
+        [[], []],
+        [[], []]
     )
 
     // POSTPROCESSING
@@ -128,7 +124,8 @@ workflow MOBILOMEANNOTATION {
     def user_proteins_ch = ch_inputs.map { meta, _fasta, user_proteins_gff, _virify_gff -> [meta, user_proteins_gff] }
 
     GFF_MAPPING(
-        GFF_REDUCE.out.mobilome_clean.join( user_proteins_ch )
+        GFF_REDUCE.out.mobilome_clean,
+        [[],[]] // TODO: user_proteins_ch
     )
 
     if ( params.gff_validation ) {
@@ -145,11 +142,7 @@ workflow MOBILOMEANNOTATION {
                 INTEGRATOR.out.mobilome_prokka_gff
         ).join(
             RENAME.out.map_file
-        ).join(
-            ch_inputs.map { meta, _assembly, user_proteins_gff, _virify_gff -> {
-                    [meta, user_proteins_gff]
-                }
-            }, remainder: true
-        )
+        ),
+        [[],[]] // TODO: add the user proteins if present
     )
 }

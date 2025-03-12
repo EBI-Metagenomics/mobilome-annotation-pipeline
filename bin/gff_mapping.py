@@ -85,10 +85,6 @@ def gff_updater(
     """Adding the mobilome predictions to the user file"""
     used_contigs = []
 
-    if os.stat(user_gff).st_size == 0:
-        logging.debug(f"The input gff {user_gff} file is empty")
-        return
-
     with open(user_gff, "r") as input_table, open(
         f"{output_prefix}_user_mobilome_extra.gff", "w"
     ) as output_extra, open(
@@ -169,7 +165,7 @@ def main():
         "--user_gff",
         type=str,
         help="User GFF file",
-        required=True,
+        required=False,
     )
     parser.add_argument("--prefix", type=str, help="Output files prefix", required=True)
     args = parser.parse_args()
@@ -181,9 +177,10 @@ def main():
     )
 
     # Adding the mobilome predictions to the user file
-    gff_updater(
-        args.user_gff, args.prefix, proteins_annot, mobilome_annot, mges_dict, mob_types
-    )
+    if args.user_gff:
+        gff_updater(
+            args.user_gff, args.prefix, proteins_annot, mobilome_annot, mges_dict, mob_types
+        )
 
 
 if __name__ == "__main__":

@@ -137,12 +137,14 @@ def main():
         + "2. mobilome_nogenes.gff: mobilome only"
     )
     parser.add_argument(
+        "-m",
         "--mobilome_prokka_gff",
         type=str,
         help="Prokka output + mobilome",
         required=True,
     )
     parser.add_argument(
+        "-p",
         "--prefix",
         type=str,
         help="The output prefix",
@@ -150,8 +152,7 @@ def main():
     )
     args = parser.parse_args()
 
-    ## Calling functions
-    gff_parser(args.mobilome_prokka_gff)
+    gff_parser(args.mobilome_prokka_gff, args.prefix)
 
 
 if __name__ == "__main__":

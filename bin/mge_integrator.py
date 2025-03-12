@@ -143,7 +143,7 @@ def main():
     )
 
     # Parsing PaliDIS results and removing redundancy with ISEScan
-    if os.path.exists(args.pal_tsv):
+    if args.pal_tsv and os.path.exists(args.pal_tsv):
         (mge_data, itr_sites) = palidis_process.palids_parser(
             args.pal_tsv, inv_names_equiv, mge_data, itr_sites
         )
@@ -153,7 +153,7 @@ def main():
     (mge_data) = genomad_parser.plasmids_parser(args.geno_plas, mge_data)
 
     # Parsing VIRIfy results and solving redundancy with geNomad
-    if os.path.exists(args.virify_out):
+    if args.virify_out and os.path.exists(args.virify_out):
         (mge_data, virify_prots) = virify_process.virify_reader(
             args.virify_out, inv_names_equiv, mge_data
         )
@@ -174,7 +174,7 @@ def main():
     mog_annot = mobileog_process.mobileog_parser(args.mog_tsv)
 
     # Parsing CRISPRCasFinder results
-    if os.path.exists(args.crispr_out):
+    if args.crispr_out and os.path.exists(args.crispr_out):
         crispr_annot = crispr_process.crispr_parser(args.crispr_out, args.pkka_gff)
     else:
         crispr_annot = {}

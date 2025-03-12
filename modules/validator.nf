@@ -1,5 +1,3 @@
-#!/usr/bin/env nextflow
-nextflow.enable.dsl=2
 
 process GFF_VALIDATOR {
     tag "$meta.id"
@@ -8,11 +6,11 @@ process GFF_VALIDATOR {
     container 'quay.io/biocontainers/genometools-genometools:1.6.5--py310h3db02ab_0'
 
     input:
-    path momo_gff
+    tuple val(meta), path(map_gff)
 
     script:
     """
-    gt gff3validator ${momo_gff}
+    gt gff3validator ${map_gff}
     """
 }
 
