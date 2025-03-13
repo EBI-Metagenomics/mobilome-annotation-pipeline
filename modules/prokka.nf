@@ -2,7 +2,7 @@ process PROKKA {
     tag "$meta.id"
     label 'process_high'
 
-    publishDir "${params.outdir}/preprocessing", mode: 'copy'
+   
 
     container "${workflow.containerEngine in ['singularity', 'apptainer']
         ? 'https://depot.galaxyproject.org/singularity/prokka:1.14.6--pl526_0'

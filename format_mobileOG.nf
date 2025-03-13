@@ -1,8 +1,9 @@
-#!/usr/bin/env nextflow
-nextflow.enable.dsl=2
 
 process database_format {
-    publishDir "$projectDir/databases", mode: 'copy'
+
+    // TODO: publish dir statements go in the modules.config
+    publishDir "${projectDir}/databases", mode: 'copy'
+
     stageInMode = 'copy'
 
     memory "8 GB"

@@ -1,6 +1,7 @@
 process CRISPR_FINDER {
 
-    publishDir "${params.outdir}/func_annot", mode: 'copy'
+    // TODO: publish dir statements go in the modules.config
+    // publishDir "${params.outdir}/func_annot", mode: 'copy'
 
     container 'quay.io/microbiome-informatics/genomes-pipeline.crisprcasfinder:4.3.2patchedv5'
 
