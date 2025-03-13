@@ -179,7 +179,12 @@ def main():
     # Adding the mobilome predictions to the user file
     if args.user_gff:
         gff_updater(
-            args.user_gff, args.prefix, proteins_annot, mobilome_annot, mges_dict, mob_types
+            args.user_gff,
+            args.prefix,
+            proteins_annot,
+            mobilome_annot,
+            mges_dict,
+            mob_types,
         )
 
 

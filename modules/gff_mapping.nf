@@ -6,8 +6,7 @@ process GFF_MAPPING {
     container 'quay.io/biocontainers/python:3.9--1'
 
     input:
-    tuple val(meta), path(mobilome_clean)
-    tuple val(meta2), path(user_gff)
+    tuple val(meta), path(mobilome_clean), path(user_gff)
 
     output:
     tuple val(meta), path("${meta.id}_user_mobilome_clean.gff"), optional: true, emit: mobilome_clean_gff

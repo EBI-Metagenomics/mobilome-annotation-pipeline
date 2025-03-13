@@ -21,7 +21,7 @@ include { ISESCAN          } from '../modules/isescan'
 include { ICEFINDER        } from '../modules/icefinder'
 include { GENOMAD          } from '../modules/genomad'
 
-// include { VIRIFY_QC    } from './modules/virify_qc'
+include { VIRIFY_QC        } from '../modules/virify_qc'
 include { CRISPR_FINDER    } from '../modules/crisprcas'
 
 // Results integration and writing modules
@@ -45,6 +45,33 @@ workflow MOBILOMEANNOTATION {
 
     def ch_inputs = Channel.fromList(samplesheetToList(params.input, "./assets/schema_input.json"))
 
+    /*
+    ******************************************************************************************************
+    * The code below is transforming the input channels to handle optional inputs, such as the
+    * user-provided GFF files for user_proteins and virify.
+    * Nextflow doesn't handle optional inputs well, so we use a common hack to provide an empty
+    * array ([]) when the input is missing.
+    * For the user_proteins_gff, if the file is present, we emit a tuple with the metadata and the
+    * file path. If the file is missing, we emit a tuple with the metadata and an empty array ([]).
+    * Similarly, for the virify_gff, if the file is present, we emit a tuple with the metadata and
+    * the file path. If the file is missing, we emit a tuple with the metadata and an empty array ([]).
+    ******************************************************************************************************
+    */
+
+    def user_proteins_ch = ch_inputs.map { meta, _fasta, user_proteins_gff, _virify_gff -> {
+            if ( user_proteins_gff ) {
+                [meta, user_proteins_gff ]
+            } else {
+                [meta, []]
+            }
+        }
+    }
+
+    def user_virify_gff_ch = ch_inputs.map { meta, _fasta, _user_proteins_gff, virify_gff -> {
+           [meta, virify_gff]
+        }
+    }.filter { _meta, virify_gff -> virify_gff != [] }
+
     // PREPROCESSING
     RENAME( ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } )
 
@@ -66,27 +93,23 @@ workflow MOBILOMEANNOTATION {
     // ANNOTATION
     DIAMOND( PROKKA.out.prokka_faa, file(params.mobileog_db, checkIfExists: true) )
 
-    // TODO: disabled
-    // if (params.virify){
-    //     VIRIFY_QC(
-    //         Channel.fromPath( params.vir_gff, checkIfExists: true ),
-    //         file(params.vir_checkv, checkIfExists: true)
-    //     )
-    //     virify_results = VIRIFY_QC.out.virify_hq
-    // } else {
-    //     virify_results = file('no_virify')
-    // }
+    // TODO: the python script used in this module needs to be fixed as the checkv files are not provided anymore
+    // VIRIFY_QC(
+    //      user_virify_gff_ch
+    // )
 
-    
     CRISPR_FINDER( RENAME.out.contigs_1kb.filter { it -> !it[0].skip_crispr_finder } )
 
-    // TODO: I've removed from the Integrator - palidis has to be in the samplesheet too
-    // if ( params.palidis ) {
-    //     pal_info = Channel.fromPath( params.palidis_info, checkIfExists: true )
-    // } else {
-    //     pal_info = 
-    // }
-    
+    /**********************************************************************************************
+    * The INTEGRATOR step takes a bunch of outputs from the previous steps.
+    * The following code is re-shaping the input to accommodate
+    * optional inputs such as the user-provided GFF and
+    * CRISPR_FINDER, which runs for those entries that don't skip it (skip_crispr_finder).
+    * This is done this way because Nextflow doesn't handle optional inputs. One hack that the
+    * community uses for inputs of type path is to provide an empty array ([]). So, we first
+    * join with CRISPR_FINDER with the remainder, try to get an empty element, and then we use map
+    * to transform the null to [].
+    ***********************************************************************************************/
     def integrator_ch = PROKKA.out.prokka_gff.join(
         RENAME.out.map_file
     ).join(
@@ -105,12 +128,19 @@ workflow MOBILOMEANNOTATION {
         GENOMAD.out.genomad_vir
     ).join(
         GENOMAD.out.genomad_plas
+    ).join(
+        // VIRIFY_QC.out.virify_hq, remainder: true
+        channel.empty()
+    ).join(
+        CRISPR_FINDER.out.crispr_report, remainder: true
     )
 
     INTEGRATOR(
-        integrator_ch,
-        [[], []],
-        [[], []]
+        integrator_ch.map {
+            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, hg_virify_gff, crispr_report -> {
+                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, hg_virify_gff ? hg_virify_gff : [], crispr_report ? crispr_report: [] ]
+            }
+        }
     )
 
     // POSTPROCESSING
@@ -121,11 +151,8 @@ workflow MOBILOMEANNOTATION {
         ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } .join( GFF_REDUCE.out.mobilome_nogenes )
     )
 
-    def user_proteins_ch = ch_inputs.map { meta, _fasta, user_proteins_gff, _virify_gff -> [meta, user_proteins_gff] }
-
     GFF_MAPPING(
-        GFF_REDUCE.out.mobilome_clean,
-        [[],[]] // TODO: user_proteins_ch
+        GFF_REDUCE.out.mobilome_clean.join( user_proteins_ch )
     )
 
     if ( params.gff_validation ) {
@@ -142,7 +169,8 @@ workflow MOBILOMEANNOTATION {
                 INTEGRATOR.out.mobilome_prokka_gff
         ).join(
             RENAME.out.map_file
-        ),
-        [[],[]] // TODO: add the user proteins if present
+        ).join(
+            user_proteins_ch
+        )
     )
 }
