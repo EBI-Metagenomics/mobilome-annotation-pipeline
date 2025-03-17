@@ -20,9 +20,7 @@ include { INTEGRONFINDER   } from '../modules/integronfinder'
 include { ISESCAN          } from '../modules/isescan'
 include { ICEFINDER        } from '../modules/icefinder'
 include { GENOMAD          } from '../modules/genomad'
-
 include { VIRIFY_QC        } from '../modules/virify_qc'
-include { CRISPR_FINDER    } from '../modules/crisprcas'
 
 // Results integration and writing modules
 include { AMRFINDER_REPORT } from '../modules/amrfinder_report'
@@ -94,20 +92,18 @@ workflow MOBILOMEANNOTATION {
     DIAMOND( PROKKA.out.prokka_faa, file(params.mobileog_db, checkIfExists: true) )
 
     // TODO: the python script used in this module needs to be fixed as the checkv files are not provided anymore
-    // VIRIFY_QC(
-    //      user_virify_gff_ch
-    // )
+    VIRIFY_QC(
+        user_virify_gff_ch
+    )
 
-    CRISPR_FINDER( RENAME.out.contigs_1kb.filter { it -> !it[0].skip_crispr_finder } )
 
     /**********************************************************************************************
     * The INTEGRATOR step takes a bunch of outputs from the previous steps.
     * The following code is re-shaping the input to accommodate
-    * optional inputs such as the user-provided GFF and
-    * CRISPR_FINDER, which runs for those entries that don't skip it (skip_crispr_finder).
+    * optional inputs such as the user-provided GFF.
     * This is done this way because Nextflow doesn't handle optional inputs. One hack that the
     * community uses for inputs of type path is to provide an empty array ([]). So, we first
-    * join with CRISPR_FINDER with the remainder, try to get an empty element, and then we use map
+    * join with user-provided GFF with the remainder, try to get an empty element, and then we use map
     * to transform the null to [].
     ***********************************************************************************************/
     def integrator_ch = PROKKA.out.prokka_gff.join(
@@ -129,16 +125,14 @@ workflow MOBILOMEANNOTATION {
     ).join(
         GENOMAD.out.genomad_plas
     ).join(
-        // VIRIFY_QC.out.virify_hq, remainder: true
+        VIRIFY_QC.out.virify_hq, remainder: true
         channel.empty()
-    ).join(
-        CRISPR_FINDER.out.crispr_report, remainder: true
     )
 
     INTEGRATOR(
         integrator_ch.map {
-            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, hg_virify_gff, crispr_report -> {
-                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, hg_virify_gff ? hg_virify_gff : [], crispr_report ? crispr_report: [] ]
+            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, hg_virify_gff -> {
+                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, hg_virify_gff ? hg_virify_gff : [] ]
             }
         }
     )

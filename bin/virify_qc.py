@@ -17,60 +17,9 @@ import argparse
 import os.path
 
 
-# TODO: this is not used anymore - move relevant pieces to the other method
-def quality_parser(checkv_out):
-    checkv_pass = []
-    for summ_file in checkv_out:
-        if os.path.exists(summ_file):
-            head, tail = os.path.split(summ_file)
-            current_qual = tail.split("_")[0]
-            with open(summ_file, "r") as input_table:
-                next(input_table)
-                for line in input_table:
-                    l_line = line.rstrip().split("\t")
-                    phage_id = l_line[0].replace("prophage-0:", "prophage-1:")
-                    if "|prophage" not in phage_id:
-                        phage_id = phage_id + "|viral_sequence"
-                    viral_genes = int(l_line[5])
-                    checkv_quality = l_line[7]
-                    kmer_freq = float(l_line[12])
-                    if current_qual == "high":
-                        checkv_pass.append(phage_id)
-                    else:
-                        if all([viral_genes > 0, checkv_quality != "Not-determined"]):
-                            if any(
-                                [
-                                    checkv_quality == "Low-quality",
-                                    checkv_quality == "Medium",
-                                ]
-                            ):
-                                if kmer_freq <= 1.0:
-                                    checkv_pass.append(phage_id)
-                            else:
-                                checkv_pass.append(phage_id)
-        else:
-            print("No checkV files found\n")
-
-    return checkv_pass
-
-
-def virify_parser(virify_gff, hq_list, output_prefix):
-    hq_prophages = {}
-    hq_viral_contigs = []
-    for phage_id in hq_list:
-        if "|prophage" in phage_id:
-            prophage_contig = phage_id.split("|")[0]
-            coordinates = phage_id.split("|")[1].split("-")[1]
-            start = int(coordinates.split(":")[0])
-            end = int(coordinates.split(":")[1])
-            coord_tuple = (start, end)
-            if prophage_contig in hq_prophages:
-                hq_prophages[prophage_contig].append(coord_tuple)
-            else:
-                hq_prophages[prophage_contig] = [coord_tuple]
-        else:
-            hq_viral_contigs.append(phage_id.split("|")[0])
-
+def virify_parser(virify_gff, output_prefix):
+    qc_passed = []
+    all_proteins = {}
     with open(virify_gff, "r") as input_table, open(f"{output_prefix}_virify_hq.gff", "w") as output_gff:
         for line in input_table:
             line = line.rstrip()
@@ -89,28 +38,58 @@ def virify_parser(virify_gff, hq_list, output_prefix):
                     attr,
                 ) = line.rstrip().split("\t")
 
-                # Saving mobilome predictions
+                # Looking for HQ predictions
+                features_list = attr.split(";")
+                feature_id = features_list[0].split('=')[1]
                 if seq_source == "VIRify":
-                    feature_id = attr.split(";")[0].replace("ID=", "")
-                    if feature_id in hq_list:
+                    virify_quality = features_list[1].split('=')[1]
+                    checkv_quality = features_list[5].split('=')[1]
+                    checkv_kmer_freq = float(features_list[7].split('=')[1])
+                    checkv_viral_genes = int(features_list[8].split('=')[1])
+
+                    if virify_quality == "HC":
                         output_gff.write(line + "\n")
-                else:
-                    if contig in hq_viral_contigs:
-                        output_gff.write(line + "\n")
-                    elif contig in hq_prophages:
-                        prot_start = int(start)
-                        prot_end = int(end)
-                        prot_range = range(prot_start, prot_end + 1)
-                        prot_len = prot_end - prot_start
-                        for phage_loc in hq_prophages[contig]:
-                            phage_start = phage_loc[0]
-                            phage_end = phage_loc[1]
-                            phage_range = range(phage_start, phage_end + 1)
-                            intersection = len(list(set(phage_range) & set(prot_range)))
-                            if intersection > 0:
-                                prot_cov = float(intersection) / float(prot_len)
-                                if prot_cov > 0.75:
+                        qc_passed.append(feature_id)
+                    else:
+                        if all([checkv_viral_genes > 0, checkv_quality != "Not-determined"]):
+                            if any(
+                                [
+                                    checkv_quality == "Low-quality",
+                                    checkv_quality == "Medium-quality",
+                                ]
+                            ):
+                                if checkv_kmer_freq <= 1.0:
                                     output_gff.write(line + "\n")
+                                    qc_passed.append(feature_id)
+                            else:
+                                output_gff.write(line + "\n")
+                                qc_passed.append(feature_id)
+
+
+                # These are proteins. Saving and parsing later
+                else:
+                    id_spliced = feature_id.split('_')
+                    id_spliced.pop(-1)
+                    parent_feature = '_'.join(id_spliced)
+
+                    if not 'prophage' in parent_feature:
+                        parent_feature = parent_feature + '|viral_sequence'
+
+                    if '|phage-circular' in parent_feature:
+                        parent_feature = parent_feature.replace('phage-circular', 'viral_sequence')
+
+                    if parent_feature in all_proteins:
+                        all_proteins[parent_feature].append(line)
+                    else:
+                        all_proteins[parent_feature] = [line]
+
+
+        # Printing proteins belonging to HQ virify predictions
+        for prediction_id in all_proteins:
+            if prediction_id in qc_passed:
+                for protein in all_proteins[prediction_id]:
+                    output_gff.write(protein + "\n")
+
 
 
 def main():
@@ -131,8 +110,6 @@ def main():
 
     args = parser.parse_args()
     
-    # TODO: this needs to be adjusted as the checkv files are not provided anymore
-
     virify_parser(args.virify_gff, args.prefix)
 
 

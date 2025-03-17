@@ -17,7 +17,6 @@
 import argparse
 import os.path
 from map_tools import cds_locator
-from map_tools import crispr_process
 from map_tools import genomad_parser
 from map_tools import icefinder_process
 from map_tools import integrator_process
@@ -26,7 +25,6 @@ from map_tools import isescan_process
 from map_tools import mapping_names
 from map_tools import mobileog_process
 from map_tools import overlap_finder
-from map_tools import palidis_process
 from map_tools import virify_process
 
 
@@ -50,11 +48,6 @@ def main():
         "--iss_tsv",
         type=str,
         help="ISEScan predictions table",
-    )
-    parser.add_argument(
-        "--pal_tsv",
-        type=str,
-        help="PaliDIS predictions table",
     )
     parser.add_argument(
         "--inf_tsv",
@@ -97,11 +90,6 @@ def main():
         help="HQ virify results",
     )
     parser.add_argument(
-        "--crispr_out",
-        type=str,
-        help="CRISPRCasFinder results (tsv file)",
-    )
-    parser.add_argument(
         "--prefix",
         type=str,
         help="The output prefix",
@@ -142,12 +130,6 @@ def main():
         args.iss_tsv,
     )
 
-    # Parsing PaliDIS results and removing redundancy with ISEScan
-    if args.pal_tsv and os.path.exists(args.pal_tsv):
-        (mge_data, itr_sites) = palidis_process.palids_parser(
-            args.pal_tsv, inv_names_equiv, mge_data, itr_sites
-        )
-
     # Parsing geNomad results
     (mge_data) = genomad_parser.genomad_viral(args.geno_out, mge_data)
     (mge_data) = genomad_parser.plasmids_parser(args.geno_plas, mge_data)
@@ -173,12 +155,6 @@ def main():
     # Parsing mobileOG results
     mog_annot = mobileog_process.mobileog_parser(args.mog_tsv)
 
-    # Parsing CRISPRCasFinder results
-    if args.crispr_out and os.path.exists(args.crispr_out):
-        crispr_annot = crispr_process.crispr_parser(args.crispr_out, args.pkka_gff)
-    else:
-        crispr_annot = {}
-
     # Adding the mobilome annotation to the GFF file
     integrator_process.gff_writer(
         args.pkka_gff,
@@ -190,7 +166,6 @@ def main():
         mge_data,
         proteins_mge,
         mog_annot,
-        crispr_annot,
         virify_prots,
         f"{args.prefix}_mobilome_prokka.gff"
     )
