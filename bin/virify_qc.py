@@ -21,6 +21,7 @@ def virify_parser(virify_gff, output_prefix):
     qc_passed = []
     all_proteins = {}
     with open(virify_gff, "r") as input_table, open(f"{output_prefix}_virify_hq.gff", "w") as output_gff:
+        output_gff.write("##gff-version 3\n")
         for line in input_table:
             line = line.rstrip()
             line_l = line.split("\t")

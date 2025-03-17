@@ -3,11 +3,6 @@ process VIRIFY_QC {
 
     tag "${meta.id}"
 
-    // FIXME: this module doesn't produce a valid GFF
-    // gt gff3validator: error: line 1 in file "virify_hq.gff" does not begin with "##gff-version" or "##gff-version"
-    // TODO: publish dir statements go in the modules.config
-    // publishDir "$params.outdir/prediction", mode: 'copy'
-
     container 'quay.io/biocontainers/python:3.9--1'
 
     input:

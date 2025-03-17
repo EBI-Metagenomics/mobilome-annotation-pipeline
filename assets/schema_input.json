@@ -44,14 +44,9 @@
                     }
                 ]
             },
-            "skip_crispr_finder": {
-                "type": "boolean",
-                "default": true,
-                "meta": ["skip_crispr_finder"]
-            },
             "skip_amrfinder_plus": {
                 "type": "boolean",
-                "default": true,
+                "default": false,
                 "meta": ["skip_amrfinder_plus"]
             }
         },

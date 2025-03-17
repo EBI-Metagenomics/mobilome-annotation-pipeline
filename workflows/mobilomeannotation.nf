@@ -38,7 +38,7 @@ include { INTEGRATOR       } from '../modules/integrator'
 */
 
 workflow MOBILOMEANNOTATION {
-    
+
     validateParameters()
 
     def ch_inputs = Channel.fromList(samplesheetToList(params.input, "./assets/schema_input.json"))
@@ -65,10 +65,17 @@ workflow MOBILOMEANNOTATION {
         }
     }
 
+
+    // Parsing VIRify gff file when an input is provided
     def user_virify_gff_ch = ch_inputs.map { meta, _fasta, _user_proteins_gff, virify_gff -> {
            [meta, virify_gff]
         }
     }.filter { _meta, virify_gff -> virify_gff != [] }
+
+    VIRIFY_QC( user_virify_gff_ch )
+
+    println "VIRIFY_QC.out"
+
 
     // PREPROCESSING
     RENAME( ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } )
@@ -91,11 +98,6 @@ workflow MOBILOMEANNOTATION {
     // ANNOTATION
     DIAMOND( PROKKA.out.prokka_faa, file(params.mobileog_db, checkIfExists: true) )
 
-    // TODO: the python script used in this module needs to be fixed as the checkv files are not provided anymore
-    VIRIFY_QC(
-        user_virify_gff_ch
-    )
-
 
     /**********************************************************************************************
     * The INTEGRATOR step takes a bunch of outputs from the previous steps.
@@ -111,9 +113,9 @@ workflow MOBILOMEANNOTATION {
     ).join(
         ISESCAN.out.iss_tsv
     ).join(
-        INTEGRONFINDER.out.contigs_summary,
+        INTEGRONFINDER.out.contigs_summary
     ).join(
-        INTEGRONFINDER.out.contigs_gbks.collect(),
+        INTEGRONFINDER.out.contigs_gbks.collect()
     ).join(
         ICEFINDER.out.icf_summ_files
     ).join(
@@ -126,16 +128,17 @@ workflow MOBILOMEANNOTATION {
         GENOMAD.out.genomad_plas
     ).join(
         VIRIFY_QC.out.virify_hq, remainder: true
-        channel.empty()
     )
+
 
     INTEGRATOR(
         integrator_ch.map {
-            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, hg_virify_gff -> {
-                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, hg_virify_gff ? hg_virify_gff : [] ]
+            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, virify_hq -> {
+                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, virify_hq ? virify_hq : [] ]
             }
         }
     )
+
 
     // POSTPROCESSING
     GFF_REDUCE( INTEGRATOR.out.mobilome_prokka_gff )
