@@ -15,8 +15,8 @@ process GENOMAD {
 
     script:
     """    
-    genomad end-to-end ${assembly_file} \
-    --threads ${task.cpus} \
+    genomad end-to-end ${assembly_file} \\
+    --threads ${task.cpus} \\
     genomad_out ${params.genomad_db}
     """
 }

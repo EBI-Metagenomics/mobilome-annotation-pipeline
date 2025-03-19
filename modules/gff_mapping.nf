@@ -16,8 +16,8 @@ process GFF_MAPPING {
     script:
     def user_proteins_arg = (user_gff) ? "--user_gff ${user_gff}" : ""
     """
-    gff_mapping.py \
-    --prefix ${meta.id} \
+    gff_mapping.py \\
+    --prefix ${meta.id} \\
     --mobilome_clean ${mobilome_clean} ${user_proteins_arg}
     """
 }

@@ -22,9 +22,9 @@ def mge_data_parser(mge_data):
         contig, description, coord = mge_data[mge]
         prefix = mge.split("_")[0]
         if prefix == "vir1":
-            if "viral_sequence" in description.split(";")[0]:
+            if "viral_sequence" in description.split(";")[1]:
                 viral_dic[contig] = mge
-            elif "prophage" in description.split(";")[0]:
+            elif "prophage" in description.split(";")[1]:
                 composite_key = (contig, coord)
                 prophages_ids[composite_key] = mge
                 if contig in prophages_dic:
@@ -40,6 +40,8 @@ def mge_data_parser(mge_data):
 def virify_reader(virify_gff, inv_names_equiv, mge_data):
     virify_predictions, virify_prots = {}, {}
     mge_counter = 0
+    names_equiv = {v: k for k, v in inv_names_equiv.items()}
+
     with open(virify_gff, "r") as input_table:
         for line in input_table:
             line_l = line.rstrip().split("\t")
@@ -66,8 +68,9 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                     virify_predictions[mge_id] = composite_val
 
                 # Saving protein predictions
+                # ID=NODE_7_length_946_cov_8.0571_8;virify_quality=HC;gbkey=CDS;viphog=ViPhOG18043;viphog_taxonomy=Andromedavirus
                 elif seq_source == "Prodigal":
-                    (gene_id, gene_gbkey, viphog, viphog_taxonomy) = attr.split(";")
+                    (gene_id, virify_quality, gbkey, viphog, viphog_taxonomy) = attr.split(";")
                     prot_viphog = viphog + ";" + viphog_taxonomy
                     prot_location = (contig, int(start), int(end))
                     virify_prots[prot_location] = prot_viphog
@@ -86,7 +89,8 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
             phage_plasmids.append(v_contig)
 
         # Finding redundancy on viral genome fragments
-        if "viral_sequence" in v_description.split(";")[0]:
+        if v_description.split(";")[0].split('|')[1] == 'viral_sequence':
+            print("viral_sequence found")
             if v_contig in viral_dic:
                 genomad_id = viral_dic[v_contig]
                 to_discard.append(genomad_id)
@@ -97,7 +101,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                     g_id = prophages_ids[(v_contig, (g_start, g_end))]
                     to_discard.append(g_id)
         # Finding redundancy on prophages
-        elif "prophage" in v_description.split(";")[0]:
+        elif v_description.split(";")[0].split('|')[1].split('-')[0] == 'prophage':
             v_start = v_coord[0]
             v_end = v_coord[1]
             v_len = v_end - v_start
@@ -124,7 +128,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
     print("Number of geNomad predictions discarded: " + str(len(to_discard)))
     for phage_id in to_discard:
         if phage_id in mge_data:
-            print(phage_id, mge_data[phage_id])
+            #print(phage_id, mge_data[phage_id])
             del mge_data[phage_id]
 
     ## Adding missing viral predictions to mge_data
@@ -143,7 +147,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
             virify_predictions[phage][2],
         )
         mge_data[phage] = new_value
-        print(phage, new_value)
+        #print(phage, new_value)
 
     ## Labelling phage-plasmids
     # Storing the plasmid IDs to access values

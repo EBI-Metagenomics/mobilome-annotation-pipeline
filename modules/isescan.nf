@@ -12,8 +12,8 @@ process ISESCAN {
 
     script:
     """
-    isescan.py --seqfile ${assembly_file} \
-    --output isescan_results \
+    isescan.py --seqfile ${assembly_file} \\
+    --output isescan_results \\
     --nthread ${task.cpus}
 
     if ls -l isescan_results/1kb_contigs.fasta.tsv 2>/dev/null | grep -q .

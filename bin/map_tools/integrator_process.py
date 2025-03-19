@@ -38,7 +38,6 @@ def gff_writer(
     mge_data,
     proteins_mge,
     mog_annot,
-    crispr_annot,
     virify_prots,
     output_gff,
 ):
@@ -66,32 +65,13 @@ def gff_writer(
                 if contig not in used_contigs:
                     used_contigs.append(contig)
 
-                    if contig in crispr_annot:
-                        for prediction in crispr_annot[contig]:
-                            pred_start = prediction[1][0]
-                            pred_end = prediction[1][1]
-                            pred_attributes = prediction[0]
-                            to_print = "\t".join(
-                                [
-                                    id_to_print,
-                                    "crisprcasfinder",
-                                    "repeat_region",
-                                    str(pred_start),
-                                    str(pred_end),
-                                    ".",
-                                    ".",
-                                    ".",
-                                    pred_attributes,
-                                ]
-                            )
-
                     if contig in contigs_elements:
                         for element in contigs_elements[contig]:
                             source = source_tools[element.split("_")[0]]
                             e_start = mge_data[element][2][0]
                             e_end = mge_data[element][2][1]
                             e_desc = mge_data[element][1]
-                            if any(["iss" in element, "pal" in element]):
+                            if "iss" in element:
                                 seq_type = "insertion_sequence"
                                 if element in itr_sites:
                                     f_seq_type = "terminal_inverted_repeat_element"
@@ -189,11 +169,14 @@ def gff_writer(
 
                             elif "vir" in element:
                                 # Extracting the data type from the attributes line in VIRify and geNomad predictions:
-                                # mobile_element_type=phage_linear;checkv_provirus=Yes;checkv_quality=Low-quality;miuvig_quality=Genome-fragment;taxonomy=unclassified
-                                # mobile_element_type=viral_sequence;taxonomy=Viruses%3BDuplodnaviria%3BHeunggongvirae%3BUroviricota%3BCaudoviricetes
+                                # mobile_element_type=viral_sequence;taxonomy=Viruses%3BDuplodnaviria%3BHeunggongvirae%3BUroviricota%3BCaudoviricetes%3BCrassvirales
+                                # mobile_element_type=viral_sequence;checkv_provirus=No;checkv_quality=Low-quality;checkv_miuvig_quality=Genome-fragment;checkv_kmer_freq=1.0;checkv_viral_genes=3;taxonomy=Viruses%3BDuplodnaviria%3BHeunggongvirae%3BUroviricota%3BCaudoviricetes
+                                # mobile_element_type=phage_linear;checkv_provirus=No;checkv_quality=Low-quality;checkv_miuvig_quality=Genome-fragment;checkv_kmer_freq=1.0;checkv_viral_genes=10;taxonomy=Prymnesiovirus%3BPhycodnaviridae%3BAlgavirales
+
                                 mobile_element_type = (
-                                    mge_data[element][1].split(";")[0].split("=")[1]
+                                    mge_data[element][1].split(";")[1].split("=")[1]
                                 )
+
                                 if "prophage" in mobile_element_type:
                                     seq_type = "prophage"
                                 else:

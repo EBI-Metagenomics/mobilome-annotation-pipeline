@@ -182,9 +182,8 @@ def mob_parser(mobilome):
     return mob_prots, mob_coords, mob_types
 
 
-def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
-    
-    with open("amr_location.tsv", "w", newline="") as to_output:
+def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes, output_name):
+    with open(output_name, "w", newline="") as to_output:
         writer = csv.writer(
             to_output, delimiter="\t", quoting=csv.QUOTE_MINIMAL, lineterminator="\n"
         )
@@ -320,6 +319,12 @@ def main():
         help="User gff file",
         required=False,
     )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Output file name",
+        required=True,
+    )
     args = parser.parse_args()
 
     ### Calling functions
@@ -331,7 +336,7 @@ def main():
     contig_names = names_parser(args.contigs_map)
     amr_data = arg_parser(args.amr_out, contig_names)
     (mob_prots, mob_coords, mob_types) = mob_parser(args.mobilome)
-    location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes)
+    location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes, args.output)
 
 
 if __name__ == "__main__":

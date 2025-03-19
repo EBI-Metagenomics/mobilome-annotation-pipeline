@@ -66,6 +66,12 @@ workflow MOBILOMEANNOTATION {
     }
 
 
+    // PREPROCESSING
+    RENAME( ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } )
+
+    PROKKA( RENAME.out.contigs_1kb )
+
+
     // Parsing VIRify gff file when an input is provided
     def user_virify_gff_ch = ch_inputs.map { meta, _fasta, _user_proteins_gff, virify_gff -> {
            [meta, virify_gff]
@@ -74,13 +80,6 @@ workflow MOBILOMEANNOTATION {
 
     VIRIFY_QC( user_virify_gff_ch )
 
-    println "VIRIFY_QC.out"
-
-
-    // PREPROCESSING
-    RENAME( ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } )
-
-    PROKKA( RENAME.out.contigs_1kb )
 
     // PREDICTION
     GENOMAD( RENAME.out.contigs_5kb )
