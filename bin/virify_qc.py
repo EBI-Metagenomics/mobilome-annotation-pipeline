@@ -48,23 +48,17 @@ def virify_parser(virify_gff, output_prefix):
                     checkv_kmer_freq = float(features_list[7].split('=')[1])
                     checkv_viral_genes = int(features_list[8].split('=')[1])
 
+                    # Keeping virify high-quality predictions
                     if virify_quality == "HC":
                         output_gff.write(line + "\n")
                         qc_passed.append(feature_id)
                     else:
-                        if all([checkv_viral_genes > 0, checkv_quality != "Not-determined"]):
-                            if any(
-                                [
-                                    checkv_quality == "Low-quality",
-                                    checkv_quality == "Medium-quality",
-                                ]
-                            ):
-                                if checkv_kmer_freq <= 1.0:
-                                    output_gff.write(line + "\n")
-                                    qc_passed.append(feature_id)
-                            else:
-                                output_gff.write(line + "\n")
-                                qc_passed.append(feature_id)
+                        if any( [ checkv_quality == "High-quality", checkv_quality == "Complete" ]):
+                            output_gff.write(line + "\n")
+                            qc_passed.append(feature_id)
+                        elif all([checkv_viral_genes > 0, checkv_quality != "Not-determined", checkv_kmer_freq <= 1.0]):
+                            output_gff.write(line + "\n")
+                            qc_passed.append(feature_id)
 
 
                 # These are proteins. Saving and parsing later

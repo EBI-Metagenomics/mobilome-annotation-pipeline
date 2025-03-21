@@ -90,7 +90,6 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
 
         # Finding redundancy on viral genome fragments
         if v_description.split(";")[0].split('|')[1] == 'viral_sequence':
-            print("viral_sequence found")
             if v_contig in viral_dic:
                 genomad_id = viral_dic[v_contig]
                 to_discard.append(genomad_id)
