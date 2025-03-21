@@ -24,7 +24,7 @@ process ICEFINDER {
 
     output:
     tuple val(meta), path("result/icf_concat.summary"), emit: icf_summ_files
-    tuple val(meta), path("result/icf_dr.txt"), emit: icf_dr
+    tuple val(meta), path("result/icf_dr.txt"),         emit: icf_dr
 
     script:
     """

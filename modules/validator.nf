@@ -1,4 +1,3 @@
-
 process GFF_VALIDATOR {
     tag "$meta.id"
     label 'process_single'

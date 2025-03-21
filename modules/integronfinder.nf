@@ -14,10 +14,10 @@ process INTEGRONFINDER {
     script:
     """
     integron_finder --union-integrases \\
-    --local-max \\
-    --cpu ${task.cpus} \\
-    --gbk \\
-    ${assembly_file}
+        --local-max \\
+        --cpu ${task.cpus} \\
+        --gbk \\
+        ${assembly_file}
 
     if ls -l Results_Integron_Finder_5kb_contigs/contig_*.gbk 2>/dev/null | grep -q .
     then

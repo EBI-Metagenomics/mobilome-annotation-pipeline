@@ -25,10 +25,11 @@ process PROKKA {
     # Disable the Java VM performane gathering tool, for improved performance
     export JAVA_TOOL_OPTIONS="-XX:-UsePerfData"
 
-    prokka --outdir prokka_out \\
-    --prefix ${meta.id} \\
-    --cpus ${task.cpus} \\
-    --metagenome \\
-    ${assembly_file}
+    prokka \\
+        --outdir prokka_out \\
+        --prefix ${meta.id} \\
+        --cpus ${task.cpus} \\
+        --metagenome \\
+        ${assembly_file}
     """
 }

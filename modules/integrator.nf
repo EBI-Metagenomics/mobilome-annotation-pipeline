@@ -16,17 +16,17 @@ process INTEGRATOR {
     def virify_arg = (vir_results) ? "--virify_out ${vir_results}" : ""
     """
     mge_integrator.py \\
-    --pkka_gff ${prokka_gff} \\
-    --map ${map_file} \\
-    --iss_tsv ${iss_tsv} \\
-    --inf_tsv ${inf_summ} \\
-    --inf_gbks ${inf_gbks.join(' ')} \\
-    --icf_tsv ${icf_summ} \\
-    --icf_lim ${icf_dr} \\
-    --mog_tsv ${mog_out} \\
-    --geno_out ${genomad_vir} \\
-    --geno_plas ${genomad_plas} \\
-    ${virify_arg} \\
-    --prefix ${meta.id}
+        --pkka_gff ${prokka_gff} \\
+        --map ${map_file} \\
+        --iss_tsv ${iss_tsv} \\
+        --inf_tsv ${inf_summ} \\
+        --inf_gbks ${inf_gbks.join(' ')} \\
+        --icf_tsv ${icf_summ} \\
+        --icf_lim ${icf_dr} \\
+        --mog_tsv ${mog_out} \\
+        --geno_out ${genomad_vir} \\
+        --geno_plas ${genomad_plas} \\
+        ${virify_arg} \\
+        --prefix ${meta.id}
     """
 }

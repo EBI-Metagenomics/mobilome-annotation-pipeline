@@ -14,9 +14,9 @@ process AMRFINDER_REPORT {
     def user_gff_arg = user_gff ? "--user_gff ${user_gff}" : ""
     """    
     amr_report.py \\
-    --amr_out ${amrfinder_tsv} \\
-    --mobilome ${mobilome_gff} \\
-    --contigs_map ${map_file} ${user_gff_arg} \\
-    --output ${meta.id}_amr_location.tsv
+        --amr_out ${amrfinder_tsv} \\
+        --mobilome ${mobilome_gff} \\
+        --contigs_map ${map_file} ${user_gff_arg} \\
+        --output ${meta.id}_amr_location.tsv
     """
 }

@@ -1,4 +1,3 @@
-
 process VIRIFY_QC {
 
     tag "${meta.id}"
@@ -14,7 +13,7 @@ process VIRIFY_QC {
     script:
     """
     virify_qc.py \\
-    --virify_gff ${virify_gff} \\
-    --prefix ${meta.id}
+        --virify_gff ${virify_gff} \\
+        --prefix ${meta.id}
     """
 }

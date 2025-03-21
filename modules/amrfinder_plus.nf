@@ -13,12 +13,12 @@ process AMRFINDER_PLUS {
     script:
     """    
     amrfinder --plus \\
-    -n ${fna} \\
-    -p ${faa} \\
-    -g ${gff} \\
-    -d ${params.amrfinder_plus_db} \\
-    -a prokka \\
-    --output ${meta.id}_amrfinderplus.tsv \\
-    --threads ${task.cpus}
+        -n ${fna} \\
+        -p ${faa} \\
+        -g ${gff} \\
+        -d ${params.amrfinder_plus_db} \\
+        -a prokka \\
+        --output ${meta.id}_amrfinderplus.tsv \\
+        --threads ${task.cpus}
     """
 }
