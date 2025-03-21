@@ -59,9 +59,6 @@
         },
         "genomad_db": {
             "type": "string"
-        },
-        "kraken2_db": {
-            "type": "string"
         }
     }
 }
