@@ -168,7 +168,6 @@ def gff_writer(
                                     to_gff.write(gff_line + "\n")
 
                             elif "vir" in element:
-                                #print(element,  mge_data[element])
                                 # Extracting the data type from the attributes line in VIRify and geNomad predictions:
                                 # mobile_element_type=viral_sequence;taxonomy=Viruses%3BDuplodnaviria%3BHeunggongvirae%3BUroviricota%3BCaudoviricetes%3BCrassvirales
                                 # mobile_element_type=viral_sequence;checkv_provirus=No;checkv_quality=Low-quality;checkv_miuvig_quality=Genome-fragment;checkv_kmer_freq=1.0;checkv_viral_genes=3;taxonomy=Viruses%3BDuplodnaviria%3BHeunggongvirae%3BUroviricota%3BCaudoviricetes
