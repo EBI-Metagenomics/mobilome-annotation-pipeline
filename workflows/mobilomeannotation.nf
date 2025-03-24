@@ -95,7 +95,8 @@ workflow MOBILOMEANNOTATION {
     ISESCAN( RENAME.out.contigs_1kb )
 
     // ANNOTATION
-    DIAMOND( PROKKA.out.prokka_faa, file(params.mobileog_db, checkIfExists: true) )
+    // DIAMOND( PROKKA.out.prokka_faa, file(params.mobileog_db, checkIfExists: true) )
+    DIAMOND( PROKKA.out.prokka_faa, Channel.value(params.mobileog_db) )
 
 
     /**********************************************************************************************
