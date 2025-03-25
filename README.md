@@ -8,7 +8,7 @@
 
 Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrative elements. Plasmids are mostly extrachromosmal; phages can be found extrachromosmal or as temperate pahes (prophages); whereas integrons are stable inserted in the chromosome. Autonomous elements are those integrative elements capable of excising themselves from the chromosome and reintegrate elsewhere. They can use a transposase (like insertion sequences and transposons) or an integrase/excisionase (like ICEs and IMEs).
 
-The Mobilome Annotation Pipeline is a wrapper that integrates the output of different tools designed for the prediction of plasmids, phages, insertion sequences, and other autonomous integrative mobile genetic elements as ICEs, IMEs and integrons in prokaryotic genomes and metagenomes. The output is PROKKA gff file with extra entries for the mobilome.
+The Mobilome Annotation Pipeline is a wrapper that integrates the output of different tools designed for the prediction of plasmids, phages, insertion sequences, and other autonomous integrative mobile genetic elements such as ICEs, IMEs and integrons in prokaryotic genomes and metagenomes. The output is a PROKKA gff file with extra entries for the mobilome.
 
 ## Contents
 
