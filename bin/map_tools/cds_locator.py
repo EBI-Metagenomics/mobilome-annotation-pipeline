@@ -111,7 +111,7 @@ def location_parser(cds_loc, mge_data, output_file="discarded_mge.txt"):
 
     ## Quality control of small and empty MGEs
     (mge_data, contigs_elements) = quality_filter(
-        mge_data, mge_proteins, contigs_elements, output_file=output_file
+        mge_data, mge_proteins, contigs_elements, output_file
     )
 
     return (mge_data, contigs_elements, protein_mge)

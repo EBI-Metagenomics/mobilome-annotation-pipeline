@@ -83,14 +83,13 @@ $ sudo singularity build ../../singularity/icefinder-v1.0-local.sif icefinder-v1
 
 The path to the ICEfinder image needs to be provided when running the pipeline, unless a custom config file is created.
 
-PaliDIS and VIRIfy are optional steps on the workflow, therefore its installation is optional as well. Visit the corresponding Github sites for installing instructions: [PaliDIS repo](https://github.com/blue-moon22/PaliDIS), [VIRify repo](https://github.com/EBI-Metagenomics/emg-viral-pipeline).
 
 <a name="usage"></a>
 
 
 ## Inputs
 
-To run the Mobilome Annotation Pipeline on multiple samples, prepare a samplesheet with your input data that looks as follows:
+To run the Mobilome Annotation Pipeline on multiple samples, prepare a samplesheet with your input data that looks as in the following example. Note that `virify_gff` is an optional input for this pipeline generated with [VIRify](https://github.com/EBI-Metagenomics/emg-viral-pipeline) v3.0.0 tool. 
 
 `samplesheet.csv`:
 
