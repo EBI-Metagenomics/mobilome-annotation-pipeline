@@ -22,9 +22,9 @@ def mge_data_parser(mge_data):
         contig, description, coord = mge_data[mge]
         prefix = mge.split("_")[0]
         if prefix == "vir1":
-            if "viral_sequence" in description.split(";")[1]:
+            if "viral_sequence" in description:
                 viral_dic[contig] = mge
-            elif "prophage" in description.split(";")[1]:
+            elif "prophage" in description:
                 composite_key = (contig, coord)
                 prophages_ids[composite_key] = mge
                 if contig in prophages_dic:
@@ -95,10 +95,14 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
     for phage in to_discard:
         del virify_predictions[phage]
 
+    print("Number of plasmid-phages detected: " + str(len(to_discard)))
+
+
     to_discard = []
     # Checking redundancy with genomad
     for phage in virify_predictions:
         v_contig, v_description, v_coord = virify_predictions[phage]
+
         # Finding redundancy on viral genome fragments
         if v_description.split(";")[0].split('|')[1] == 'viral_sequence':
             if v_contig in viral_dic:
@@ -140,6 +144,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
         if phage_id in mge_data:
             del mge_data[phage_id]
 
+
     ## Adding Virify predictions to mge_data
     print(
         "Number of VIRify predictions to be added: "
@@ -147,7 +152,8 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
     )
     for phage in virify_predictions:
         description = virify_predictions[phage][1].split(";")
-        description.pop(0)
+        # Removing the prediction ID. This will be regenerated later on
+        # ['ID=ctg4164093_28x_c|viral_sequence', 'virify_quality=HC', 'mobile_element_type=phage_linear', 'checkv_provirus=No', 'checkv_quality=Medium-quality', 'checkv_miuvig_quality=Genome-fragment', 'checkv_kmer_freq=1.0', 'checkv_viral_genes=11', 'taxonomy=Bruynoghevirus']
         description.pop(0)
         description = ";".join(description)
         new_value = (
@@ -195,5 +201,12 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
         new_mge_id = "phpl_" + str(mge_counter)
         del mge_data[pp]
         mge_data[new_mge_id] = new_val
+
+
+    #for data in mge_data:
+    #    print(data,mge_data[data])
+
+
+
 
     return (mge_data, virify_prots)
