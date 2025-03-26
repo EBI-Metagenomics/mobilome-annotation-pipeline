@@ -58,6 +58,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                     phase,
                     attr,
                 ) = line.rstrip().split("\t")
+                attr = attr.replace('gbkey=mobile_element;', '')
                 contig = inv_names_equiv[contig]
                 coord = (int(start), int(end))
 
@@ -80,14 +81,24 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
 
     ## Removing redundancy on viral genome fragments
     to_discard = []
-    phage_plasmids = []
+    virify_plasmids = {}
+    
     for phage in virify_predictions:
         v_contig, v_description, v_coord = virify_predictions[phage]
 
-        # Finding and catching phage-plasmids
-        if v_contig in plasmids_list:
-            phage_plasmids.append(v_contig)
+        # Catching phage-plasmids in viral predictions. No prophages
+        if v_description.split(";")[0].split('|')[1] == 'viral_sequence' and v_contig in plasmids_list:
+            virify_plasmids[v_contig] = virify_predictions[phage]
+            to_discard.append(phage)
+            
+    # Removing viral-phages from virify list
+    for phage in to_discard:
+        del virify_predictions[phage]
 
+    to_discard = []
+    # Checking redundancy with genomad
+    for phage in virify_predictions:
+        v_contig, v_description, v_coord = virify_predictions[phage]
         # Finding redundancy on viral genome fragments
         if v_description.split(";")[0].split('|')[1] == 'viral_sequence':
             if v_contig in viral_dic:
@@ -129,7 +140,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
         if phage_id in mge_data:
             del mge_data[phage_id]
 
-    ## Adding missing viral predictions to mge_data
+    ## Adding Virify predictions to mge_data
     print(
         "Number of VIRify predictions to be added: "
         + str(len(list(virify_predictions.keys())))
@@ -153,16 +164,34 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
         contig, description, coord = mge_data[mge]
         prefix = mge.split("_")[0]
         if prefix == "plas":
-            if contig in phage_plasmids:
+            if contig in virify_plasmids:
                 plas_phage_ids.append(mge)
 
     # Replacing description
     mge_counter = 0
+    useful_info = [
+        "checkv_kmer_freq",
+        "checkv_miuvig_quality",
+        "checkv_provirus",
+        "checkv_quality",
+        "checkv_viral_genes",
+        "taxonomy",
+        "virify_quality",
+    ]
     for pp in plas_phage_ids:
         mge_counter += 1
         old_contig, old_description, old_coord = mge_data[pp]
-        new_desc = "mobile_element_type=phage_plasmid"
-        new_val = (contig, new_desc, old_coord)
+        new_met = "mobile_element_type=phage_plasmid"
+        viral_info = virify_plasmids[old_contig][1].split(';')
+        viral_desc = []
+        for info in viral_info:
+            key = info.split('=')[0]
+            if key in useful_info:
+                viral_desc.append(info)
+
+        viral_desc = ';'.join(viral_desc)
+        new_desc = new_met + ';' + viral_desc
+        new_val = (old_contig, new_desc, old_coord)
         new_mge_id = "phpl_" + str(mge_counter)
         del mge_data[pp]
         mge_data[new_mge_id] = new_val

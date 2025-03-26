@@ -45,6 +45,8 @@ def overlap_report(mge_data, names_equiv, output_file = "overlapping_integrons.t
                     "coord_2",
                     "coverage_1",
                     "coverage_2",
+                    "type_1",
+                    "type_2",
                 ]
             )
             + "\n"
@@ -76,6 +78,8 @@ def overlap_report(mge_data, names_equiv, output_file = "overlapping_integrons.t
                                             str(e2_coord[0]) + "-" + str(e2_coord[1]),
                                             str(e1_cov),
                                             str(e2_cov),
+                                            e1,
+                                            e2,
                                         ]
                                     )
                                     + "\n"

@@ -33,14 +33,14 @@ def genomad_viral(geno_out, mge_data):
                     if "provirus" in pred_id:
                         contig = line_l[0].split("|")[0]
                         description = (
-                            "gbkey=mobile_element;" + "mobile_element_type=prophage;" + "taxonomy=" + taxonomy
+                            "mobile_element_type=prophage;" + "taxonomy=" + taxonomy
                         )
                         start = int(line_l[3].split("-")[0])
                         end = int(line_l[3].split("-")[1])
                     else:
                         contig = line_l[0]
                         description = (
-                            "gbkey=mobile_element;" + "mobile_element_type=viral_sequence;"
+                            "mobile_element_type=viral_sequence;"
                             + "taxonomy="
                             + taxonomy
                         )
