@@ -1,9 +1,31 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+# Copyright 2025 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-##### This script integrates the results for the Mobilome Annotation Pipeline
-##### Alejandra Escobar, EMBL-EBI
-##### January 11, 2023
+import argparse
+import os.path
+from map_tools import cds_locator
+from map_tools import genomad_parser
+from map_tools import icefinder_process
+from map_tools import integrator_process
+from map_tools import integronfinder_process
+from map_tools import isescan_process
+from map_tools import mapping_names
+from map_tools import mobileog_process
+from map_tools import overlap_finder
+from map_tools import virify_process
 
 
 def main():
@@ -26,11 +48,6 @@ def main():
         "--iss_tsv",
         type=str,
         help="ISEScan predictions table",
-    )
-    parser.add_argument(
-        "--pal_tsv",
-        type=str,
-        help="PaliDIS predictions table",
     )
     parser.add_argument(
         "--inf_tsv",
@@ -73,9 +90,10 @@ def main():
         help="HQ virify results",
     )
     parser.add_argument(
-        "--crispr_out",
+        "--prefix",
         type=str,
-        help="CRISPRCasFinder results (tsv file)",
+        help="The output prefix",
+        required=True
     )
     args = parser.parse_args()
 
@@ -112,18 +130,12 @@ def main():
         args.iss_tsv,
     )
 
-    # Parsing PaliDIS results and removing redundancy with ISEScan
-    if os.path.exists(args.pal_tsv):
-        (mge_data, itr_sites) = palidis_process.palids_parser(
-            args.pal_tsv, inv_names_equiv, mge_data, itr_sites
-        )
-
     # Parsing geNomad results
     (mge_data) = genomad_parser.genomad_viral(args.geno_out, mge_data)
     (mge_data) = genomad_parser.plasmids_parser(args.geno_plas, mge_data)
 
     # Parsing VIRIfy results and solving redundancy with geNomad
-    if os.path.exists(args.virify_out):
+    if args.virify_out and os.path.exists(args.virify_out):
         (mge_data, virify_prots) = virify_process.virify_reader(
             args.virify_out, inv_names_equiv, mge_data
         )
@@ -132,22 +144,16 @@ def main():
 
     ## Overlapping report for long MGEs
     # Collecting integrons, virus and plasmids predicted per contig
-    overlap_finder.overlap_report(mge_data, names_equiv)
+    overlap_finder.overlap_report(mge_data, names_equiv, output_file=f"{args.prefix}_overlap_report.txt")
 
     ## Catching proteins on the mobilome and MGEs QC
     (mge_data, contigs_elements, proteins_mge) = cds_locator.location_parser(
-        args.pkka_gff, mge_data
+        args.pkka_gff, mge_data, output_file=f"{args.prefix}_discarded_mge.txt"
     )
 
     ## Storing extra annotation results
     # Parsing mobileOG results
     mog_annot = mobileog_process.mobileog_parser(args.mog_tsv)
-
-    # Parsing CRISPRCasFinder results
-    if os.path.exists(args.crispr_out):
-        crispr_annot = crispr_process.crispr_parser(args.crispr_out, args.pkka_gff)
-    else:
-        crispr_annot = {}
 
     # Adding the mobilome annotation to the GFF file
     integrator_process.gff_writer(
@@ -160,30 +166,10 @@ def main():
         mge_data,
         proteins_mge,
         mog_annot,
-        crispr_annot,
         virify_prots,
+        f"{args.prefix}_mobilome_prokka.gff"
     )
 
 
 if __name__ == "__main__":
-    # FIXME: this needs to be refactored to follow python best practices.
-    import argparse
-    import os.path
-    import sys
-
-    sys.path.append("./python_modules")
-
-    from python_modules import cds_locator
-    from python_modules import crispr_process
-    from python_modules import genomad_parser
-    from python_modules import icefinder_process
-    from python_modules import integrator_process
-    from python_modules import integronfinder_process
-    from python_modules import isescan_process
-    from python_modules import mapping_names
-    from python_modules import mobileog_process
-    from python_modules import overlap_finder
-    from python_modules import palidis_process
-    from python_modules import virify_process
-
     main()

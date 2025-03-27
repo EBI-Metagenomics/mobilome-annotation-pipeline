@@ -1,0 +1,20 @@
+nextflow_pipeline {
+
+    name "Test mobilome annotation pipeline main.nf"
+    script "../main.nf"
+
+    test("Mobilome annotation pipeline with user proteins and virify input") {
+        when {
+            params {
+                input = "${baseDir}/tests/test_samplesheet.csv" 
+                outdir = "tests/map_results"
+            }
+        }
+
+        then {
+            assert workflow.success
+        }
+
+    }
+
+}

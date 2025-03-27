@@ -6,9 +6,9 @@
    <img src="media/mge_pred.png" width="90%"/>
 </p>
 
-Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrative elements. Plasmids are mostly extrachromosmal; phages can be found extrachromosmal or as temperate pahes (prophages); whereas integrons are stable inserted in the chromosome. Autonomous elements are those integrative elements capable of excising themselves from the chromosome and reintegrate elsewhere. They can use a transposase (like insertion sequences and transposons) or an integrase/excisionase (like ICEs and IMEs).
+Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrative elements. Plasmids are mostly extrachromosmal; phages can be found extrachromosmal or as temperate phages (prophages); whereas integrons are stable inserted in the chromosome. Autonomous elements are those integrative elements capable of excising themselves from the chromosome and reintegrate elsewhere. They can use a transposase (like insertion sequences and transposons) or an integrase/excisionase (like ICEs and IMEs).
 
-The Mobilome Annotation Pipeline is a wrapper that integrates the output of different tools designed for the prediction of plasmids, phages and autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. The output is PROKKA gff file with extra entries for the mobilome.
+The Mobilome Annotation Pipeline is a wrapper that integrates the output of different tools designed for the prediction of plasmids, phages, insertion sequences, and other autonomous integrative mobile genetic elements such as ICEs, IMEs and integrons in prokaryotic genomes and metagenomes. The output is a PROKKA gff file with extra entries for the mobilome.
 
 ## Contents
 
@@ -29,12 +29,12 @@ The Mobilome Annotation Pipeline is a wrapper that integrates the output of diff
    <img src="media/workflow.png" width="90%"/>
 </p>
 
-This workflow has the folowing main subworkflows:
+This workflow has the following main subworkflows:
 
 - Preprocessing: Rename and filter contigs, and run PROKKA annotation
 - Prediction: Run geNomad, ICEfinder, IntegronFinder, and ISEScan
-- Annotation: Generate extra-annotation for antimicrobial resistance genes (AMRFinderPlus), CRISPRCas, and other mobilome-related proteins (MobileOG).
-- Integration: Parse and integrate the outputs generated on `Prediction` and `Annotation` subworkflows. In this step optional results of VIRify and PaliDis can be incorporated. MGEs <500 bp lengh and predictions with no genes are discarded.
+- Annotation: Generate extra-annotation for antimicrobial resistance genes (AMRFinderPlus) and other mobilome-related proteins (MobileOG).
+- Integration: Parse and integrate the outputs generated on `Prediction` and `Annotation` subworkflows. In this step optional results of VIRify v3.0.0 can be incorporated. MGEs <500 bp lengh and predictions with no genes are discarded.
 - Postprocessing: Write the mobilome fasta file, write a report of the location of AMR genes (either mobilome or chromosome), and generate three new GFF files:
 
 1. `mobilome_clean.gff`: mobilome + associated CDSs
@@ -83,99 +83,35 @@ $ sudo singularity build ../../singularity/icefinder-v1.0-local.sif icefinder-v1
 
 The path to the ICEfinder image needs to be provided when running the pipeline, unless a custom config file is created.
 
-PaliDIS and VIRIfy are optional steps on the workflow, therefore its installation is optional as well. Visit the corresponding Github sites for installing instructions: [PaliDIS repo](https://github.com/blue-moon22/PaliDIS), [VIRify repo](https://github.com/EBI-Metagenomics/emg-viral-pipeline).
 
 <a name="usage"></a>
 
-## Usage
-
-Running the tool with `--help` option will display the following message:
-
-```bash
-$ nextflow run main.nf --help
-N E X T F L O W  ~  version 23.04.3
-Launching `main.nf` [pensive_newton] DSL2 - revision: b36100bb05
-
-	The Mobilome Annotation Pipeline is a wrapper that integrates the output of different tools designed for the prediction of plasmids, phages and autonomous integrative mobile genetic elements in prokaryotic genomes and metagenomes. The output is PROKKA gff file with extra entries for the mobilome. The defaul tools to run are ISEScan (insertion sequences), IntegronFinder (integrons), geNomad (virus and plasmids), ICEfinder (ICE and IME), PROKKA (cds prediction and general functional annotation), Diamond vs MobileOG database (mobilome functions), AMRfinderplus (AMR annotation), and CRISPRCas (crispr arrays). In addition, the user can provide PaliDIS results to be integrated with ISEScan and VIRify v2.0 results to integrate with geNomad annotation. If the user have a CDS prediction, it can be used to generate an extra gff file with the option --user_genes. See usage below:
-
-        Usage:
-         The basic command for running the pipeline is as follows:
-
-         nextflow run main.nf --assembly contigs.fasta
-
-         Mandatory arguments:
-          --assembly                      (Meta)genomic assembly in fasta format (uncompress)
-
-         Optional arguments:
-    ** Extra annotations provided by the user
-        ** ICEfinder singularity container image
-          --icefinder_sif                 Path to the ICEFinder .sif image, otherwise the pipeline expects the image to be in the \$SINGULARITY_CACHEDIR
-        * Genes prediction
-          --user_genes                    Use the user annotation files. See --prot_gff [false]
-          --prot_gff                      Annotation file in GFF3 format. Mandatory with '--user_genes true'
-        * VIRify (v2.0)
-          --virify                        Integrate VIRify v2.0 results to geNomad predictions [false]
-          --vir_gff                       The final result of VIRify on gff format (08-final/gff/*.gff). Mandatory with '--virify true'
-          --vir_checkv                    CheckV results generated by VIRify (07-checkv/*quality_summary.tsv). Mandatory with '--virify true'
-        * PaliDIS (v2.3.4)
-          --palidis                       Incorporate PaliDIS predictions to final output [false]
-          --palidis_info                  Information file of PaliDIS insertion sequences. Mandatory with '--palidis true'
-    ** Extra annotations inside the pipeline
-          --skip_crispr                   Not to run CRISPRCasFinder. Default behaviour is to run it [false]
-          --skip_amr                      Not to run AMRFinderPlus. Default behaviour is to run it [false]
-    ** Final output validation
-          --gff_validation                Validation of the GFF3 mobilome output [true]
-    ** Output directory
-          --outdir                        Output directory to place results [mobilome_results]
-    ** Show usage message and exit
-          --help                          This usage statement [false]
-```
-
-<a name="in"></a>
 
 ## Inputs
 
-To run the Mobilome Annotation Pipeline on multiple samples, create a directory per sample and launch the tool from the sample directory. The only mandatory input is the (meta)genomic assembly file in fasta format (uncompress).
+To run the Mobilome Annotation Pipeline on multiple samples, prepare a samplesheet with your input data that looks as in the following example. Note that `virify_gff` is an optional input for this pipeline generated with [VIRify](https://github.com/EBI-Metagenomics/emg-viral-pipeline) v3.0.0 tool. 
+
+`samplesheet.csv`:
+
+```csv
+sample,assembly,user_proteins_gff,virify_gff
+minimal,/PATH/assembly.fasta,,
+assembly_proteins,/PATH/assembly.fasta,/PATH/proteins.gff,
+assembly_proteins_virify,/PATH/assembly.fasta,/PATH/proteins.gff,/PATH/virify_out.gff
+```
+
+Each row represents a sample. The minimal input is the (meta)genome assembly in fasta format.
 
 Basic run:
 
 ```bash
-$ nextflow run /PATH/mobilome-annotation-pipeline/main.nf --assembly contigs.fasta [--icefinder_sif icefinder-v1.0-local.sif]
+$ nextflow run /PATH/mobilome-annotation-pipeline/main.nf --input samplesheet.csv [--icefinder_sif icefinder-v1.0-local.sif]
 ```
 
-Note that the final output in gff format is created by adding information to PROKKA output. If you have your own protein prediction files, provide the gff file (uncompressed). This file will be used to generate a `user_mobilome_extra.gff` file containing the mobilome plus any extra annotation generated on the annotation subworkflow.
+Note that the final output in gff format is created by adding information to PROKKA output. If you have your own protein prediction files, provide the path the the uncompressed gff file in the samplesheet.csv. This file will be used to generate a `user_mobilome_extra.gff` file containing the mobilome plus any extra annotation generated on the annotation subworkflow.
 
-Running the pipeline with user's gff:
+If you want to integrate VIRify results to the final output provide the path to the GFF file generated by VIRify v3.0.0 in your samplesheet.csv.
 
-```bash
-$ nextflow run /PATH/mobilome-annotation-pipeline/main.nf \
-    --assembly contigs.fasta \
-    --user_genes true \
-    --prot_gff annotation.gff
-```
-
-If you want to incorporate PaliDIS predictions to the final output, provide the path to the PaliDIS information for each insertion sequence file.
-
-Running the pipeline incorporating PaliDIS results:
-
-```bash
-$ nextflow run /PATH/mobilome-annotation-pipeline/main.nf \
-    --assembly contigs.fasta \
-    --palidis true \
-    --palidis_info insertion_sequences_info.txt
-```
-
-If you want to integrate VIRify results to the final output you will need the GFF file with viral predictions and the checkV reports generated by VIRify:
-
-```bash
-$ nextflow run /PATH/mobilome-annotation-pipeline/main.nf \
-    --assembly contigs.fasta \
-    --virify true \
-    --vir_gff /PATH/08-final/gff/virify.gff \
-    --vir_checkv /PATH/07-checkv/\*quality_summary.tsv
-```
-
-Don't forget to escape the asterisk on the --vir_checkv option for the correct interpretation of Nextflow.
 
 <a name="out"></a>
 
@@ -195,17 +131,16 @@ mobilome_results/
 └── preprocessing
 ```
 
-If AMRFinderPlus results are generated (`--skip_amr = False` by default), the `func_annot/amr_location.txt` file contains a summary of the AMR genes annotated and their location (either mobilome or chromosome).
+The AMRFinderPlus results are generated by default. The `func_annot/amr_location.txt` file contains a summary of the AMR genes annotated and their location (either mobilome or chromosome).
 
 The file `discarded_mge.txt` contains a list of predictions that were discarded, along with the reason for their exclusion. Possible reasons include:
 
-1. overlapping For insertion sequences only, ISEScan prediction is discarded if an overlap with PaliDIS is found.
-2. mge<500bp Discarded by length.
-3. no_cds If there are no genes encoded in the prediction.
+1. 'mge < 500bp' Discarded by length.
+2. 'no_cds' If there are no genes encoded in the prediction.
 
 The file `overlapping_integrons.txt` is a report of long-MGEs with overlapping coordinates. No predictions are discarded in this case.
 
-The main output files containing the mobilome predictions are `mobilome.fasta` containing the nucleotide sequences of every prediction, and `mobilome_prokka.gff` containing the mobilome annotation plus any other feature annotated by PROKKA, mobileOG, CRISPRCasFinder or ViPhOG (only when VIRify results are provided).
+The main output files containing the mobilome predictions are `mobilome.fasta` containing the nucleotide sequences of every prediction, and `mobilome_prokka.gff` containing the mobilome annotation plus any other feature annotated by PROKKA, mobileOG, or ViPhOG (only when VIRify results are provided).
 
 The mobilome prediction IDs are build as follows:
 
@@ -228,7 +163,7 @@ Example:
 >contig_id|mge_type-start:end
 ```
 
-Any CDS with a coverage >= 0.75 in the boundaries of a predicted MGE is considered as part of the mobilome and labelled acordingly in the attributes field under the key `location`.
+Any CDS with a coverage >= 0.9 in the boundaries of a predicted MGE is considered as part of the mobilome and labelled acordingly in the attributes field under the key `location`.
 
 The labels used in the Type column of the gff file corresponds to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001) when possible:
 
@@ -264,13 +199,12 @@ $ nf-test test
 The Mobilome Annotation Pipeline parses and integrates the output of the following tools and DBs sorted alphabetically:
 
 - AMRFinderPlus v3.11.4 with database v2023-02-23.1 [Feldgarden et al., Sci Rep, 2021](https://doi.org/10.1038/s41598-021-91456-0)
-- CRISPRCasFinder v4.3.2 [Couvin et al., Nucleic Acids Res, 2018](https://doi.org/10.1093/nar/gky425)
 - Diamond v2.0.12 [Buchfink et al., Nature Methods, 2021](https://doi.org/10.1038/s41592-021-01101-x)
 - geNomad v1.6.1 [Camargo et al., Nature Biotechnology, 2023](https://doi.org/10.1038/s41587-023-01953-y)
 - ICEfinder v1.0 [Liu et al., Nucleic Acids Res, 2019](https://doi.org/10.1093/nar/gky1123)
 - IntegronFinder2 v2.0.2 [Néron et al., Microorganisms, 2022](https://doi.org/10.3390/microorganisms10040700)
 - ISEScan v1.7.2.3 [Xie et al., Bioinformatics, 2017](https://doi.org/10.1093/bioinformatics/btx433)
 - MobileOG-DB Beatrix 1.6 v1 [Brown et al., Appl Environ Microbiol, 2022](https://doi.org/10.1128/aem.00991-22)
-- PaliDIS v2.3.4 [Carr et al., Microb Genom, 2023](https://doi.org/10.1099/mgen.0.000917)
 - PROKKA v1.14.6 [Seemann, Bioinformatics, 2014](https://doi.org/10.1093/bioinformatics/btu153)
-- VIRify v2.0 [Rangel-Pineros et al., PLoS Comput Biol, 2023](https://doi.org/10.1371/journal.pcbi.1011422)
+- VIRify v3.0.0 [Rangel-Pineros et al., PLoS Comput Biol, 2023](https://doi.org/10.1371/journal.pcbi.1011422)
+

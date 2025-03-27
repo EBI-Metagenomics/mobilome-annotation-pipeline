@@ -1,12 +1,26 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright 2025 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import argparse
 import os.path
 import csv
 
-##### This script integrates the results of amrfinderplus with the mobilome
-##### Alejandra Escobar, EMBL-EBI
-##### May 31, 2023
+# Constants #
+AMR_GENE_THRES = 0.75
+MOB_THRES = 0.75
 
 
 def user_gff_parser(user_gff):
@@ -91,7 +105,6 @@ def arg_parser(amr_out, contig_names):
 
 
 def mob_parser(mobilome):
-    MOB_THRES = 0.75
     ### Saving the proteins in the mobilome
     mob_coords, mob_types, prots_loc = {}, {}, {}
     mges_list = [
@@ -169,9 +182,8 @@ def mob_parser(mobilome):
     return mob_prots, mob_coords, mob_types
 
 
-def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes):
-    AMR_GENE_THRES = 0.75
-    with open("amr_location.tsv", "w", newline="") as to_output:
+def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes, output_name):
+    with open(output_name, "w", newline="") as to_output:
         writer = csv.writer(
             to_output, delimiter="\t", quoting=csv.QUOTE_MINIMAL, lineterminator="\n"
         )
@@ -307,6 +319,12 @@ def main():
         help="User gff file",
         required=False,
     )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Output file name",
+        required=True,
+    )
     args = parser.parse_args()
 
     ### Calling functions
@@ -318,7 +336,7 @@ def main():
     contig_names = names_parser(args.contigs_map)
     amr_data = arg_parser(args.amr_out, contig_names)
     (mob_prots, mob_coords, mob_types) = mob_parser(args.mobilome)
-    location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes)
+    location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes, args.output)
 
 
 if __name__ == "__main__":

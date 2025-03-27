@@ -1,34 +1,22 @@
-#!/usr/bin/env nextflow
-nextflow.enable.dsl=2
-
 process GENOMAD {
+    tag "$meta.id"
+    label 'process_medium'
 
-    publishDir "$params.outdir/prediction/", mode: 'copy'
-
-    container 'quay.io/biocontainers/genomad:1.6.1--pyhdfd78af_0'
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/genomad:1.6.1--pyhdfd78af_0':
+        'biocontainers/genomad:1.6.1--pyhdfd78af_0' }"
 
     input:
-    path assembly_file
+    tuple val(meta), path(assembly_file)
 
     output:
-    path("genomad_out/5kb_contigs_summary/5kb_contigs_virus_summary.tsv"), emit: genomad_vir
-	path("genomad_out/5kb_contigs_summary/5kb_contigs_plasmid_summary.tsv"), emit: genomad_plas
+    tuple val(meta), path("5kb_contigs_summary/5kb_contigs_virus_summary.tsv"), emit: genomad_vir
+    tuple val(meta), path("5kb_contigs_summary/5kb_contigs_plasmid_summary.tsv"), emit: genomad_plas
 
     script:
-    if(assembly_file.size() > 0)
-        """    
-        genomad end-to-end \
-        --threads ${task.cpus} \
-        ${assembly_file} \
-        genomad_out \
-        ${params.genomad_db}
-        """
-    else
-        """
-        echo 'geNomad output file empty due to empty input... generating dummy files'
-        mkdir -p genomad_out/5kb_contigs_summary
-            touch genomad_out/5kb_contigs_summary/5kb_contigs_virus_summary.tsv
-    	touch genomad_out/5kb_contigs_summary/5kb_contigs_plasmid_summary.tsv
-        """
+    """    
+    genomad end-to-end ${assembly_file} \\
+        --threads ${task.cpus} \\
+        . ${params.genomad_db}
+    """
 }
-

@@ -1,4 +1,0 @@
-##gff-version 3
-##sequence-region	b24_11_4	1	155936
-b24_11_4	VIRify	prophage	28319	155588	.	.	.	ID=b24_11_4|prophage-28319:155588;gbkey=mobile_element;mobile_element_type=prophage;checkv_provirus=Yes;checkv_quality=Low-quality;miuvig_quality=Genome-fragment;taxonomy=unclassified
-b24_11_4	Prodigal	CDS	129003	133394	.	-	0	ID=b24_11_4|prophage-28319:155588_67;gbkey=CDS;viphog=ViPhOG5725;viphog_taxonomy=Guernseyvirinae

@@ -1,37 +1,29 @@
-#!/usr/bin/env nextflow
-nextflow.enable.dsl=2
-
 process DIAMOND {
+    tag "$meta.id"
+    label 'process_low'
 
-    publishDir "$params.outdir/func_annot", mode: 'copy'
-
+    // TODO: add the singularity image
     container 'quay.io/biocontainers/diamond:2.0.12--hdcc8f71_0'
 
     input:
-        path proteins_file
-	path diamond_db 
+    tuple val(meta), path(proteins_file)
+    path diamond_db 
 
     output:
-        path 'mobileOG.tsv', emit:blast_out
+    tuple val(meta), path("${meta.id}_mobileog_hits.tsv"), emit: blast_out
 
     script:
-    if(proteins_file.size() > 0)
-        """
-        diamond blastp \
-        -q ${proteins_file} \
-        --db ${diamond_db} \
-        --outfmt 6 stitle qtitle pident bitscore slen evalue qlen sstart send qstart qend \
-        -k 15 \
-        -o mobileOG.tsv \
-        -e 1e-20 \
-        --query-cover 90 \
-        --id 90 \
-        --threads ${task.cpus}
-        """
-    else
-        """
-	echo 'No input files for diamond... generating dummy files'
-        touch mobileOG.tsv
-        """
+    """
+    diamond blastp \\
+        -q ${proteins_file} \\
+        --db ${diamond_db} \\
+        -k 15 \\
+        -e 1e-20 \\
+        --query-cover 90 \\
+        --id 90 \\
+        --threads ${task.cpus} \\
+        --outfmt 6 stitle qtitle pident bitscore slen evalue qlen sstart send qstart qend \\
+        -o ${meta.id}_mobileog_hits.tsv
+    """
 }
 
