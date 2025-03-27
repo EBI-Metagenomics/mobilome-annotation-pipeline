@@ -1,3 +1,0 @@
-IS_name	sample_id	contig	itr1_start_position	itr1_end_position	itr2_start_position	itr2_end_position	description
-IS_length_1221-IPR024445_524_1001-IPR024445_524_992	sample_1	NODE_132173_length_1221_cov_226.823328	1	25	1197	1221	IPR024445:ISXO2-like transposase domain
-IS_length_880-IPR025668_427_634	sample_1	NODE_168743_length_1028_cov_104.434738	1	46	850	880	IPR025668:Transposase DDE domain

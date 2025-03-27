@@ -1,0 +1,64 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/ebi-metagenomics/mobilome-annotation-pipeline/master/nextflow_schema.json",
+    "title": "ebi-metagenomics/mobilome-annotation-pipeline pipeline parameters",
+    "description": "The Mobilome Annotation Pipeline",
+    "type": "object",
+    "$defs": {
+        "input_output_options": {
+            "title": "Input/output options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "properties": {
+                "input": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.csv$",
+                    "schema": "assets/schema_input.json",
+                    "description": "Path to comma-separated file containing information about the sample names and assemblies.",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row.",
+                    "fa_icon": "fas fa-file-csv"
+                },
+                "icefinder_sif": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "The path to the ICEfinder singularity image.",
+                    "exists": true
+                },
+                "outdir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+                    "fa_icon": "fas fa-folder-open",
+                    "default": "mobilome_results"
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/$defs/input_output_options"
+        }
+    ],
+    "properties": {
+        "gff_validation": {
+            "type": "boolean",
+            "default": true
+        },
+        "skip_amr": {
+            "type": "boolean"
+        },
+        "mobileog_db": {
+            "type": "string"
+        },
+        "amrfinder_plus_db": {
+            "type": "string"
+        },
+        "genomad_db": {
+            "type": "string"
+        }
+    }
+}
