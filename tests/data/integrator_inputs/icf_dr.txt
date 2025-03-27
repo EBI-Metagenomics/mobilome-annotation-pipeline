@@ -1,1 +1,0 @@
-result/contig_6/ICEfinder_1_0:DR: 356876..356892	369639..369655
