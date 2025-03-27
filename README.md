@@ -26,7 +26,7 @@ The Mobilome Annotation Pipeline is a wrapper that integrates the output of diff
 ## Workflow
 
 <p align="center" width="100%">
-   <img src="media/workflow.png" width="90%"/>
+   <img src="media/map_wf_v3.png" width="90%"/>
 </p>
 
 This workflow has the following main subworkflows:
