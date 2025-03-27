@@ -1,2 +1,2 @@
 sample,assembly,user_proteins_gff,virify_gff
-test,data/test.fasta,data/test.gff,data/test_virify.gff
+test,https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/raw/refs/heads/dev/tests/data/test.fasta,https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/raw/refs/heads/dev/tests/data/test.gff,https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/raw/refs/heads/dev/tests/data/test_virify.gff
