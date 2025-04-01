@@ -12,21 +12,21 @@ process PROKKA {
     tuple val(meta), path(assembly_file)
 
     output:
-    tuple val(meta), path("prokka_out/${meta.id}.gbk"), emit: prokka_gbk
-    tuple val(meta), path("prokka_out/${meta.id}.gff"), emit: prokka_gff
-    tuple val(meta), path("prokka_out/${meta.id}.faa"), emit: prokka_faa
-    tuple val(meta), path("prokka_out/${meta.id}.fna"), emit: prokka_fna
+    tuple val(meta), path("prokka_results/${meta.id}.gbk"), emit: prokka_gbk
+    tuple val(meta), path("prokka_results/${meta.id}.gff"), emit: prokka_gff
+    tuple val(meta), path("prokka_results/${meta.id}.faa"), emit: prokka_faa
+    tuple val(meta), path("prokka_results/${meta.id}.fna"), emit: prokka_fna
 
     script:
     """
     # TMP folder issues in Prokka - https://github.com/tseemann/prokka/issues/402
     export TMPDIR="\$PWD/tmp"
     mkdir -p "\$PWD/tmp"
-    # Disable the Java VM performane gathering tool, for improved performance
+    # Disable the Java VM performance gathering tool, for improved performance
     export JAVA_TOOL_OPTIONS="-XX:-UsePerfData"
 
     prokka \\
-        --outdir prokka_out \\
+        --outdir prokka_results \\
         --prefix ${meta.id} \\
         --cpus ${task.cpus} \\
         --metagenome \\
