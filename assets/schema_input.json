@@ -11,7 +11,8 @@
                 "type": "string",
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
-                "meta": ["id"]
+                "meta": ["id"],
+		"uniqueItems": true
             },
             "assembly": {
                 "type": "string",
