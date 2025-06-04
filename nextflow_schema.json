@@ -53,7 +53,7 @@
         },
         "publish_all": {
             "type": "boolean",
-            "default": false
+            "default": true
         },
         "mobileog_db": {
             "type": "string"
