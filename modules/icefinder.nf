@@ -23,21 +23,22 @@ process ICEFINDER {
 
 
     output:
-    tuple val(meta), path("result/icf_concat.summary"), emit: icf_summ_files
-    tuple val(meta), path("result/icf_dr.txt"),         emit: icf_dr
+    tuple val(meta), path("result/*_icf_concat.summary"), emit: icf_summ_files
+    tuple val(meta), path("result/*_icf_dr.txt"),         emit: icf_dr
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     cd /install/ICEfinder_linux/ && perl ./ICEfinder_local.pl input.list
 
     if ls -ld result/contig* 2>/dev/null | grep -q .
     then
-        cat result/*/*summary.txt > result/icf_concat.summary
-        grep 'DR:' result/*/ICE* > result/icf_dr.txt
+        cat result/*/*summary.txt > result/${prefix}_icf_concat.summary
+        grep 'DR:' result/*/ICE* > result/${prefix}_icf_dr.txt
     else
         echo 'ICEfinder found 0 ICE/IME in assembly... generating dummy files'
-        touch result/icf_concat.summary
-        touch result/icf_dr.txt
+        touch result/${prefix}_icf_concat_dummy.summary
+        touch result/${prefix}_icf_dr_dummy.txt
     fi
     """
 }

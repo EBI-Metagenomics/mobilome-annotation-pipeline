@@ -10,13 +10,16 @@ process GENOMAD {
     tuple val(meta), path(assembly_file)
 
     output:
-    tuple val(meta), path("5kb_contigs_summary/5kb_contigs_virus_summary.tsv"), emit: genomad_vir
-    tuple val(meta), path("5kb_contigs_summary/5kb_contigs_plasmid_summary.tsv"), emit: genomad_plas
+    tuple val(meta), path("*_5kb_contigs_summary/*_5kb_contigs_virus_summary.tsv"),   emit: genomad_vir
+    tuple val(meta), path("*_5kb_contigs_summary/*_5kb_contigs_plasmid_summary.tsv"), emit: genomad_plas
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """    
-    genomad end-to-end ${assembly_file} \\
+    genomad end-to-end \\
         --threads ${task.cpus} \\
-        . ${params.genomad_db}
+        ${assembly_file} \\
+        . \\
+        ${params.genomad_db}
     """
 }

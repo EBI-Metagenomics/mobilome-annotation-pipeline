@@ -56,8 +56,9 @@ def gff_parser(mobilome_prokka_gff: str, prefix: str) -> None:
         "viral_sequence",
         "prophage",
         "phage_plasmid",
+        "compositional_outlier",
     ]
-    flank = ["terminal_inverted_repeat_element", "attC_site", "direct_repeat_element"]
+    flank = ["attC_site", "direct_repeat_element", "inverted_repeat_element"]
     valid_attr = ["viphog", "viphog_taxonomy", "mobileOG"]
 
     if not os.path.isfile(mobilome_prokka_gff):

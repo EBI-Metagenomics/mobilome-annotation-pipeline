@@ -115,6 +115,7 @@ def mob_parser(mobilome):
         "plasmid",
         "prophage",
         "viral_sequence",
+        "compositional_outlier",
     ]
     with open(mobilome, "r") as input_gff:
         for line in input_gff:

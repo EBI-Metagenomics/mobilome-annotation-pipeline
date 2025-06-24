@@ -32,6 +32,14 @@ include { INTEGRATOR       } from '../modules/integrator'
 
 
 /*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT SUBWORKFLOWS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+include { COMPOSITIONAL_OUTLIER_DETECTION } from '../subworkflows/compositional_outlier_detection'
+
+
+/*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,7 +79,6 @@ workflow MOBILOMEANNOTATION {
 
     PROKKA( RENAME.out.contigs_1kb )
 
-
     // Parsing VIRify gff file when an input is provided
     def user_virify_gff_ch = ch_inputs.map { meta, _fasta, _user_proteins_gff, virify_gff -> {
            [meta, virify_gff]
@@ -94,8 +101,9 @@ workflow MOBILOMEANNOTATION {
 
     ISESCAN( RENAME.out.contigs_1kb )
 
+    COMPOSITIONAL_OUTLIER_DETECTION( RENAME.out.contigs_100kb )
+
     // ANNOTATION
-    // DIAMOND( PROKKA.out.prokka_faa, file(params.mobileog_db, checkIfExists: true) )
     DIAMOND( PROKKA.out.prokka_faa, Channel.value(params.mobileog_db) )
 
 
@@ -127,14 +135,16 @@ workflow MOBILOMEANNOTATION {
     ).join(
         GENOMAD.out.genomad_plas
     ).join(
+        COMPOSITIONAL_OUTLIER_DETECTION.out.bed
+    ).join(
         VIRIFY_QC.out.virify_hq, remainder: true
     )
 
 
     INTEGRATOR(
         integrator_ch.map {
-            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, virify_hq -> {
-                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, virify_hq ? virify_hq : [] ]
+            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, compos_bed, virify_hq -> {
+                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, compos_bed, virify_hq ? virify_hq : [] ]
             }
         }
     )
