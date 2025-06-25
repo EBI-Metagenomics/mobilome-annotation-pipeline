@@ -23,8 +23,8 @@ process ICEFINDER {
 
 
     output:
-    tuple val(meta), path("result/*_icf_concat.summary"), emit: icf_summ_files
-    tuple val(meta), path("result/*_icf_dr.txt"),         emit: icf_dr
+    tuple val(meta), path("result/*.summary"), emit: icf_summ_files
+    tuple val(meta), path("result/*.txt"),     emit: icf_dr
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

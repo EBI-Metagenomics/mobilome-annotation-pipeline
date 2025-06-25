@@ -228,12 +228,12 @@ The labels used in the Type column of the gff file corresponds to the following 
 
 | Type in gff file                 | Sequence ontology ID                                                              | Element description                                         | Reporting tool            |
 | -------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------- |
-| insertion_sequence               | [SO:0000973](http://www.sequenceontology.org/browser/current_svn/term/SO:0000973) | Insertion sequence                                          | ISEScan, PaliDIS          |
+| insertion_sequence               | [SO:0000973](http://www.sequenceontology.org/browser/current_svn/term/SO:0000973) | Insertion sequence                                          | ISEScan                   |
 | inverted_repeat_element | [SO:0000481](http://www.sequenceontology.org/browser/current_svn/term/SO:0000481) | Inverted Repeat (IR) flanking insertion sequences or compositional outliers | ISEScan, MAP       |
 | integron                         | [SO:0000365](http://www.sequenceontology.org/browser/current_svn/term/SO:0000365) | Integrative mobilizable element                             | IntegronFinder, ICEfinder |
 | attC_site                        | [SO:0000950](http://www.sequenceontology.org/browser/current_svn/term/SO:0000950) | Integration site of DNA integron                            | IntegronFinder            |
 | conjugative_integron             | [SO:0000371](http://www.sequenceontology.org/browser/current_svn/term/SO:0000371) | Integrative Conjugative Element                             | ICEfinder                 |
-| direct_repeat                    | [SO:0000314](http://www.sequenceontology.org/browser/current_svn/term/SO:0000314) | Flanking regions on mobilizable elements                    | ICEfinder                 |
+| direct_repeat                    | [SO:0000314](http://www.sequenceontology.org/browser/current_svn/term/SO:0000314) | Flanking regions on mobilizable elements                    | ICEfinder, MAP            |
 | prophage                         | [SO:0001006](http://www.sequenceontology.org/browser/current_svn/term/SO:0001006) | Temperate phage                                             | geNomad, VIRify           |
 | viral_sequence                   | [SO:0001041](http://www.sequenceontology.org/browser/current_svn/term/SO:0001041) | Viral genome fragment                                       | geNomad, VIRify           |
 | plasmid                          | [SO:0000155](http://www.sequenceontology.org/browser/current_svn/term/SO:0000155) | Plasmid                                                     | geNomad                   |
