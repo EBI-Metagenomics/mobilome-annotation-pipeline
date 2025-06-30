@@ -14,9 +14,16 @@ process GENOMAD {
     tuple val(meta), path("5kb_contigs_summary/5kb_contigs_plasmid_summary.tsv"), emit: genomad_plas
 
     script:
-    """    
-    genomad end-to-end ${assembly_file} \\
-        --threads ${task.cpus} \\
-        . ${params.genomad_db}
+
+    """
+    if [ -s ${assembly_file} ]; then
+        genomad end-to-end ${assembly_file} \\
+            --threads ${task.cpus} \\
+            . ${params.genomad_db}
+    else
+        mkdir -p 5kb_contigs_summary
+        touch 5kb_contigs_summary/5kb_contigs_virus_summary.tsv
+        touch 5kb_contigs_summary/5kb_contigs_plasmid_summary.tsv
+    fi
     """
 }
