@@ -2,7 +2,7 @@ process INTEGRONFINDER {
     tag "$meta.id"
     label 'process_high'
 
-    container 'gempasteur/integron_finder:2.0.6'
+    container 'quay.io/biocontainers/integron_finder:2.0.6--pyhdfd78af_0'
 
     input:
     tuple val(meta), path(assembly_file)
