@@ -21,7 +21,7 @@ from Bio import SeqIO
 def integron_parser(mge_data, integron_results, inf_gbks):
     ### Parsing IntegronFinder summary file
     gbk_files_list = []
-    header_skipped = False
+    header_checked = False
     if os.stat(integron_results).st_size > 0:
         with open(integron_results, "r") as input_table:
             # Different versions of IntegronFinder produce a different number of header lines
@@ -29,13 +29,16 @@ def integron_parser(mge_data, integron_results, inf_gbks):
             for line in input_table:
                 if line.startswith("#"):
                     continue
-                if not header_skipped:
-                    # Skipping the header (first line that doesn't start with "#")
-                    header_skipped = True
-                    continue
+
                 id_replicon, calin, complete, in0, topology, size = line.rstrip().split(
                     "\t"
                 )
+
+                if not header_checked:
+                    header_checked = True  # We only want to check the first line after the "#" lines
+                    # Confirm that this is the header in case future tool versions produce a different format
+                    if not str(complete).isdigit():  # If "complete" is not a digit, this is the header, not a value
+                        continue
 
                 # Saving gbk file names of complete integrons
                 if int(complete) > 0:
