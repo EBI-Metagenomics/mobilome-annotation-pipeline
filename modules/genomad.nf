@@ -3,8 +3,8 @@ process GENOMAD {
     label 'process_medium'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/genomad:1.6.1--pyhdfd78af_0':
-        'biocontainers/genomad:1.6.1--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/genomad:1.11.1--pyhdfd78af_0':
+        'biocontainers/genomad:1.11.1--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(assembly_file)
