@@ -49,10 +49,6 @@
                 "type": "boolean",
                 "default": false,
                 "meta": ["skip_amrfinder_plus"]
-            },
-            "publish_all": {
-                "type": "boolean",
-                "default": true
             }
         },
         "required": ["sample", "assembly"]
