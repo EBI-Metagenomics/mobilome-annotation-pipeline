@@ -51,6 +51,10 @@
         "skip_amr": {
             "type": "boolean"
         },
+        "publish_all": {
+            "type": "boolean",
+            "default": true
+        },
         "mobileog_db": {
             "type": "string"
         },

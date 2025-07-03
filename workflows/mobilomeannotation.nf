@@ -115,7 +115,7 @@ workflow MOBILOMEANNOTATION {
     ).join(
         INTEGRONFINDER.out.contigs_summary
     ).join(
-        INTEGRONFINDER.out.contigs_gbks.collect()
+        INTEGRONFINDER.out.contigs_gbks
     ).join(
         ICEFINDER.out.icf_summ_files
     ).join(
@@ -143,8 +143,6 @@ workflow MOBILOMEANNOTATION {
     // POSTPROCESSING
     GFF_REDUCE( INTEGRATOR.out.mobilome_prokka_gff )
 
-    // TODO should the input of fasta writer be the renamed fasta files?
-    // Yes, the integrator deals with the step of names regeneration
     FASTA_WRITER(
         ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } .join( GFF_REDUCE.out.mobilome_nogenes )
     )
