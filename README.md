@@ -3,7 +3,7 @@
 # Mobilome Annotation Pipeline (former MoMofy)
 
 <p align="center" width="100%">
-   <img src="media/mges_scheema.png" width="90%"/>
+   <img src="media/mges_scheema.png" width="100%"/>
 </p>
 
 Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrative elements. Plasmids are mostly extrachromosmal; phages can be found extrachromosmal or as temperate phages (prophages); whereas integrons are stable inserted in the chromosome. Autonomous elements are those integrative elements capable of excising themselves from the chromosome and reintegrate elsewhere. They can use a transposase (like insertion sequences and transposons) or an integrase/excisionase (like ICEs and IMEs).
