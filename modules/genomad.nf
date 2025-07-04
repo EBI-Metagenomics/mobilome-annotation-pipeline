@@ -3,8 +3,8 @@ process GENOMAD {
     label 'process_medium'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/genomad:1.6.1--pyhdfd78af_0':
-        'biocontainers/genomad:1.6.1--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/genomad:1.11.1--pyhdfd78af_0':
+        'biocontainers/genomad:1.11.1--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(assembly_file)
@@ -16,10 +16,14 @@ process GENOMAD {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """    
-    genomad end-to-end \\
-        --threads ${task.cpus} \\
-        ${assembly_file} \\
-        . \\
-        ${params.genomad_db}
+    if [ -s ${assembly_file} ]; then
+        genomad end-to-end ${assembly_file} \\
+            --threads ${task.cpus} \\
+            . ${params.genomad_db}
+    else
+        mkdir -p 5kb_contigs_summary
+        touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_virus_summary.tsv
+        touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_plasmid_summary.tsv
+    fi
     """
 }

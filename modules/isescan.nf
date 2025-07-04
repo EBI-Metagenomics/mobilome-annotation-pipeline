@@ -2,7 +2,7 @@ process ISESCAN {
     tag "$meta.id"
     label 'process_high'
 
-    container 'quay.io/microbiome-informatics/isescan-v1.7.2.3'
+    container 'quay.io/biocontainers/isescan:1.7.3--h7b50bb2_0'
 
     input:
     tuple val(meta), path(assembly_file)
