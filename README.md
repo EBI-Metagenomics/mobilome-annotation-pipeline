@@ -183,7 +183,7 @@ sample/
     ├── sample_mobilome_clean.gff
     ├── sample_mobilome_extra.gff
     ├── sample_mobilome_nogenes.gff
-    ├── samle_user_mobilome_clean.gff
+    ├── sample_user_mobilome_clean.gff
     ├── sample_user_mobilome_extra.gff
     └── sample_user_mobilome_full.gff
 ```
