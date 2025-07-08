@@ -50,7 +50,7 @@ def outliers_parser(comp_bed, mge_data, rnas_coord):
     co_repeats = {}
 
     # Saving integrated mges in the mge_data
-    (integrated_dic) = mge_data_parser(mge_data)
+    integrated_dic = mge_data_parser(mge_data)
 
     # Parsing the compositional outliers (CO) file
     # There is one line per flanking repeat. That means two lines per CO
