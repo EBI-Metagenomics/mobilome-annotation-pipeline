@@ -93,7 +93,7 @@ def outliers_parser(comp_bed, mge_data, rnas_coord):
                     rna_end = rna_coord_pair[1]
                     rna_len = rna_end - rna_start
                     rna_range = range(rna_start, rna_end + 1)
-                    intersection = len(list(set(rna_range) & set(co_range)))
+                    intersection = len(set(rna_range) & set(co_range))
                     if intersection > 0:
                         rna_cov = float(intersection) / float(rna_len)
                         if rna_cov == RNA_COV_THRESHOLD:
