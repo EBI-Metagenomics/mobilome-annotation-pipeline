@@ -110,7 +110,7 @@ def outliers_parser(comp_bed, mge_data, rnas_coord):
                         mge_end = mge_coord_pair[1]
                         mge_len = mge_end - mge_start
                         mge_range = range(mge_start, mge_end +1)
-                        intersection = len(list(set(mge_range) & set(co_range)))
+                        intersection = len(set(mge_range) & set(co_range))
                         if intersection > 0:
                             co_cov = float(intersection) / float(co_len)
                             if co_cov >= CO_COV_THRESHOLD:
