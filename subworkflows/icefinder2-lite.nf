@@ -5,7 +5,6 @@ include { VMATCH                } from '../modules/vmatch'
 include { REFINE_BOUNDARIES     } from '../modules/ice_refine_boundaries'
 include { VALIDATE_ICE_ELEMENTS } from '../modules/validate_ice_elements'
 
-
 workflow ICEFINDER2_LITE {
     take:
     ch_input_files     //  channel: [val(meta), path(fna), path(faa), path(gff)]
@@ -19,7 +18,7 @@ workflow ICEFINDER2_LITE {
  
     MACSYFINDER_PROCESS(MACSYFINDER.out.macsyfinder_tsv.join( ch_input_files.map{ meta, fna, _faa, gff -> [meta, fna, gff] } ))
 
-    // Step 3: ICE boundary refinement using direct repeats and tRNA analysis
+    // Step 2: ICE boundary refinement using direct repeats and tRNA analysis
     ARAGORN(MACSYFINDER_PROCESS.out.all_sys_flanks_fasta)
 
     VMATCH(MACSYFINDER_PROCESS.out.all_sys_flanks_fasta)
@@ -30,7 +29,6 @@ workflow ICEFINDER2_LITE {
         VMATCH.out.vmatch_tsv)
     )
     
-
     // Step 4: Validate final ICE elements
     VALIDATE_ICE_ELEMENTS(
         REFINE_BOUNDARIES.out.refined_tsv
@@ -38,5 +36,5 @@ workflow ICEFINDER2_LITE {
     
     emit:
     ices_tsv = VALIDATE_ICE_ELEMENTS.out.validated_ices
-
+ 
 }

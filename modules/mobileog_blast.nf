@@ -1,4 +1,4 @@
-process DIAMOND {
+process MOBILEOG_BLAST {
     tag "$meta.id"
     label 'process_low'
 
