@@ -8,14 +8,17 @@ include { validateParameters ; paramsHelp ; samplesheetToList } from 'plugin/nf-
 
 // Inputs preparing modules
 include { RENAME           } from '../modules/rename_contigs'
+include { GBK_SPLITTER     } from '../modules/gbk_splitter'
 
-// Annotation modules
+// Protein annotation modules
 include { PROKKA           } from '../modules/prokka'
+include { DIAMOND          } from '../modules/diamond'
 include { AMRFINDER_PLUS   } from '../modules/amrfinder_plus'
 
-// Mobile genetic elements prediction modules
+// Mobile genetic elements annotation modules
 include { INTEGRONFINDER   } from '../modules/integronfinder'
 include { ISESCAN          } from '../modules/isescan'
+include { ICEFINDER        } from '../modules/icefinder'
 include { GENOMAD          } from '../modules/genomad'
 include { VIRIFY_QC        } from '../modules/virify_qc'
 
@@ -27,14 +30,13 @@ include { GFF_REDUCE       } from '../modules/gff_reduce'
 include { GFF_VALIDATOR    } from '../modules/validator'
 include { INTEGRATOR       } from '../modules/integrator'
 
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { COMPOSITIONAL_OUTLIER_DETECTION } from '../subworkflows/compositional_outlier_detection'
-include { ICEFINDER2_LITE                 } from '../subworkflows/icefinder2-lite'
-// add blast annotation workflow from mobilome proteins after integration
 
 
 /*
@@ -87,17 +89,23 @@ workflow MOBILOMEANNOTATION {
 
 
     // PREDICTION
-    
-    def icefinder2_inputs = PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff)
-    ICEFINDER2_LITE( icefinder2_inputs, Channel.value(params.ice_models) )
-
     GENOMAD( RENAME.out.contigs_5kb )
+    
+    GBK_SPLITTER( PROKKA.out.prokka_gbk )
+
+    ICEFINDER( 
+        GBK_SPLITTER.out.intput_list.join( GBK_SPLITTER.out.gbks )
+    )
 
     INTEGRONFINDER( RENAME.out.contigs_5kb )
 
     ISESCAN( RENAME.out.contigs_1kb )
 
     COMPOSITIONAL_OUTLIER_DETECTION( RENAME.out.contigs_100kb )
+
+    // ANNOTATION
+    DIAMOND( PROKKA.out.prokka_faa, Channel.value(params.mobileog_db) )
+
 
     /**********************************************************************************************
     * The INTEGRATOR step takes a bunch of outputs from the previous steps.
@@ -117,7 +125,11 @@ workflow MOBILOMEANNOTATION {
     ).join(
         INTEGRONFINDER.out.contigs_gbks
     ).join(
-        ICEFINDER2_LITE.out.gff3_output
+        ICEFINDER.out.icf_summ_files
+    ).join(
+        ICEFINDER.out.icf_dr
+    ).join(
+        DIAMOND.out.blast_out
     ).join(
         GENOMAD.out.genomad_vir
     ).join(
@@ -128,10 +140,11 @@ workflow MOBILOMEANNOTATION {
         VIRIFY_QC.out.virify_hq, remainder: true
     )
 
+
     INTEGRATOR(
         integrator_ch.map {
-            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, icf_gff, genomad_vir, genomad_plas, compos_bed, virify_hq -> {
-                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, icf_gff, genomad_vir, genomad_plas, compos_bed, virify_hq ? virify_hq : [] ]
+            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, compos_bed, virify_hq -> {
+                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, compos_bed, virify_hq ? virify_hq : [] ]
             }
         }
     )
@@ -152,7 +165,7 @@ workflow MOBILOMEANNOTATION {
         GFF_VALIDATOR( GFF_REDUCE.out.mobilome_nogenes )		
     }
     
-    // AMRFinder is optional. default skip_amr = FALSE
+    // AMRFinder is optional
     def amr_finder_ch = PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff).filter({ it -> !it[0].skip_amrfinder_plus })
 
     AMRFINDER_PLUS( amr_finder_ch )
