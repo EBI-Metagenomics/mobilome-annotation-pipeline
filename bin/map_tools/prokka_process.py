@@ -15,9 +15,14 @@
 # limitations under the License.
 
 import os.path
+from collections import defaultdict
+
 
 def prokka_parser(prokka_gff: str):
-    contig_prots, prots_coord, rnas_coord = {}, {}, {}
+    prots_coord = {}
+
+    contig_prots = defaultdict(list)
+    rnas_coord = defaultdict(list)
 
     if os.stat(prokka_gff).st_size == 0:
         return
@@ -36,16 +41,9 @@ def prokka_parser(prokka_gff: str):
                 prot_id = attrib.split(";")[0].replace("ID=", "")
                 value = (start, end)
                 prots_coord[prot_id] = value
-                if contig in contig_prots:
-                    contig_prots[contig].append(prot_id)
-                else:
-                    contig_prots[contig] = [prot_id]
+                contig_prots[contig].append(prot_id)
 
-                if  "RNA" in feature_type:
-                    if contig in rnas_coord:
-                        rnas_coord[contig].append(value)
-                    else:
-                        rnas_coord[contig] = [value]
+                if "RNA" in feature_type:
+                    rnas_coord[contig].append(value)
 
-    return (contig_prots, prots_coord, rnas_coord)
-
+    return contig_prots, prots_coord, rnas_coord

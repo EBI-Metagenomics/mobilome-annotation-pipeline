@@ -15,7 +15,7 @@ process GENOMAD {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    """    
+    """
     if [ -s ${assembly_file} ]; then
         genomad end-to-end ${assembly_file} \\
             --threads ${task.cpus} \\

@@ -183,7 +183,9 @@ def mob_parser(mobilome):
     return mob_prots, mob_coords, mob_types
 
 
-def location_parser(amr_data, mob_prots, mob_coords, mob_types, user_genes, output_name):
+def location_parser(
+    amr_data, mob_prots, mob_coords, mob_types, user_genes, output_name
+):
     with open(output_name, "w", newline="") as to_output:
         writer = csv.writer(
             to_output, delimiter="\t", quoting=csv.QUOTE_MINIMAL, lineterminator="\n"

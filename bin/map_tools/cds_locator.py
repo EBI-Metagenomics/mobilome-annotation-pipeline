@@ -17,9 +17,7 @@
 import os.path
 
 
-def quality_filter(
-    mge_data, mge_proteins, contigs_elements, output_file
-):
+def quality_filter(mge_data, mge_proteins, contigs_elements, output_file):
     # Removing predictions of len<500 and with no CDS
     no_cds = []
     len_500 = []
@@ -88,4 +86,3 @@ def location_parser(contig_prots, prots_coord, mge_data, output_file):
     )
 
     return (mge_data, contigs_elements, protein_mge)
-

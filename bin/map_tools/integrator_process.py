@@ -174,8 +174,8 @@ def gff_writer(
 
                                 vir_attributes = mge_data[element][1].split(";")
                                 for vir_att in vir_attributes:
-                                    vir_key, vir_value = vir_att.split('=')
-                                    if vir_key == 'mobile_element_type':
+                                    vir_key, vir_value = vir_att.split("=")
+                                    if vir_key == "mobile_element_type":
                                         mobile_element_type = vir_value
 
                                 if "prophage" in mobile_element_type:
@@ -199,13 +199,24 @@ def gff_writer(
                                     element_counter = 0
                                     for repeat_element in co_repeats[element]:
                                         element_counter += 1
-                                        f_seq_prefix, repeat_seq, coords_tuple = list(repeat_element)
-                                        flanking_site = f_seq_prefix + '_' + str(element_counter)
-                                        f_seq_type = f_seq_prefix.replace('DR','direct').replace('IR','inverted') + "_repeat_element"
-                                        extra_info = ';'.join([
-                                            "repeat_sequence=" + repeat_seq,
-                                            "flanking_site=" + flanking_site,
-                                        ])
+                                        f_seq_prefix, repeat_seq, coords_tuple = list(
+                                            repeat_element
+                                        )
+                                        flanking_site = (
+                                            f_seq_prefix + "_" + str(element_counter)
+                                        )
+                                        f_seq_type = (
+                                            f_seq_prefix.replace(
+                                                "DR", "direct"
+                                            ).replace("IR", "inverted")
+                                            + "_repeat_element"
+                                        )
+                                        extra_info = ";".join(
+                                            [
+                                                "repeat_sequence=" + repeat_seq,
+                                                "flanking_site=" + flanking_site,
+                                            ]
+                                        )
 
                                         f_start = coords_tuple[0]
                                         f_end = coords_tuple[1]
@@ -236,7 +247,6 @@ def gff_writer(
                                 e_desc,
                             )
                             to_gff.write(gff_line + "\n")
-
 
                 # Writing the rest of the annotations
                 attrib = l_line[8]

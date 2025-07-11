@@ -23,26 +23,26 @@ logging.basicConfig(level=logging.INFO)
 
 def gff_parser(mobilome_prokka_gff: str, prefix: str) -> None:
     """Parsing and filtering GFF file containing mobile genetic elements annotations.
-    
+
     :param mobilome_prokka_gff: Path to the input GFF file containing Prokka annotations for mobile elements
     :type mobilome_prokka_gff: str
     :param prefix: Prefix to use for output filenames
     :type prefix: str
     :return: None, creates three output files:
              - {prefix}_mobilome_clean.gff
-             - {prefix}_mobilome_extra.gff 
+             - {prefix}_mobilome_extra.gff
              - {prefix}_mobilome_nogenes.gff
     :rtype: None
-    
+
     The function processes mobile genetic elements including:
     - insertion sequences
     - integrons
-    - conjugative integrons 
+    - conjugative integrons
     - plasmids
     - viral sequences
     - prophages
     - phage plasmids
-    
+
     And flanking elements:
     - terminal inverted repeat elements
     - attC sites
@@ -145,11 +145,7 @@ def main():
         required=True,
     )
     parser.add_argument(
-        "-p",
-        "--prefix",
-        type=str,
-        help="The output prefix",
-        required=True
+        "-p", "--prefix", type=str, help="The output prefix", required=True
     )
     args = parser.parse_args()
 
