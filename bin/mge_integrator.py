@@ -62,17 +62,7 @@ def main():
     parser.add_argument(
         "--icf_tsv",
         type=str,
-        help="ICEfinder prediction files (concatenated)",
-    )
-    parser.add_argument(
-        "--icf_lim",
-        type=str,
-        help="ICEfinder DR coordinates",
-    )
-    parser.add_argument(
-        "--mog_tsv",
-        type=str,
-        help="Diamond output versus MobileOG-DB format 6",
+        help="ICEfinder2-lite prediction files",
     )
     parser.add_argument(
         "--geno_out",
@@ -153,7 +143,7 @@ def main():
 
     ## Storing extra annotation results
     # Parsing mobileOG results
-    mog_annot = mobileog_process.mobileog_parser(args.mog_tsv)
+    #mog_annot = mobileog_process.mobileog_parser(args.mog_tsv)
 
     # Adding the mobilome annotation to the GFF file
     integrator_process.gff_writer(
@@ -165,7 +155,6 @@ def main():
         attC_site,
         mge_data,
         proteins_mge,
-        mog_annot,
         virify_prots,
         f"{args.prefix}_mobilome_prokka.gff"
     )

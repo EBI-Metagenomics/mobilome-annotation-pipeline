@@ -5,7 +5,7 @@ process INTEGRATOR {
     container 'quay.io/biocontainers/biopython:1.78'
 
     input:
-    tuple val(meta), path(prokka_gff), path(map_file), path(iss_tsv), path(inf_summ), path(inf_gbks), path(icf_summ), path(icf_dr), path(mog_out), path(genomad_vir), path(genomad_plas), path(vir_results)
+    tuple val(meta), path(prokka_gff), path(map_file), path(iss_tsv), path(inf_summ), path(inf_gbks), path(icf_tsv), path(genomad_vir), path(genomad_plas), path(compos_bed), path(vir_results)
 
     output:
     tuple val(meta), path("${meta.id}_mobilome_prokka.gff"), emit: mobilome_prokka_gff
@@ -21,9 +21,7 @@ process INTEGRATOR {
         --iss_tsv ${iss_tsv} \\
         --inf_tsv ${inf_summ} \\
         --inf_gbks ${inf_gbks.join(' ')} \\
-        --icf_tsv ${icf_summ} \\
-        --icf_lim ${icf_dr} \\
-        --mog_tsv ${mog_out} \\
+        --icf_tsv ${icf_tsv} \\
         --geno_out ${genomad_vir} \\
         --geno_plas ${genomad_plas} \\
         ${virify_arg} \\

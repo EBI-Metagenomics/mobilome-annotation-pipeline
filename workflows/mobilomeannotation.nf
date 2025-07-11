@@ -37,7 +37,7 @@ include { INTEGRATOR       } from '../modules/integrator'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow MOBILOMEANNOTATION {
+workflow MAIN {
 
     validateParameters()
 
@@ -117,11 +117,7 @@ workflow MOBILOMEANNOTATION {
     ).join(
         INTEGRONFINDER.out.contigs_gbks
     ).join(
-        ICEFINDER.out.icf_summ_files
-    ).join(
-        ICEFINDER.out.icf_dr
-    ).join(
-        DIAMOND.out.blast_out
+        ICEFINDER2_LITE.out.ices_tsv
     ).join(
         GENOMAD.out.genomad_vir
     ).join(
@@ -133,8 +129,8 @@ workflow MOBILOMEANNOTATION {
 
     INTEGRATOR(
         integrator_ch.map {
-            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, virify_hq -> {
-                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, summary_file, icf_dr, blast_out, genomad_vir, genomad_plas, virify_hq ? virify_hq : [] ]
+            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv, genomad_vir, genomad_plas, compos_bed, virify_hq -> {
+                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv, genomad_vir, genomad_plas, compos_bed, virify_hq ? virify_hq : [] ]
             }
         }
     )
