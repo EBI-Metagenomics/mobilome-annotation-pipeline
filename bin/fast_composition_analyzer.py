@@ -87,9 +87,10 @@ class FastKmerAnalyzer:
 
             # Normalise frequencies
             total_kmers = sum(kmer_counts.values())
-            for kmer in self.all_kmers[k]:
-                key = f"{k}mer_{''.join(kmer)}"
-                combined_profile[key] = kmer_counts.get("".join(kmer), 0) / total_kmers
+            if total_kmers > 0:
+                for kmer in self.all_kmers[k]:
+                    key = f"{k}mer_{''.join(kmer)}"
+                    combined_profile[key] = kmer_counts.get("".join(kmer), 0) / total_kmers
 
         return combined_profile
 
@@ -242,27 +243,55 @@ class FastRepeatFinder:
         self.min_repeat_length = min_repeat_length
         self.max_repeat_length = max_repeat_length
 
-    def find_exact_matches(
-        self, seq1, seq2, is_inverted: bool
-    ) -> List[Tuple[int, int, int, str]]:
+
+    def find_exact_matches(self, seq1, seq2, is_inverted=False):
+        """Find exact matches between two sequences"""
         matches = []
+    
         if is_inverted:
-            seq2 = str(Seq(seq2).reverse_complement())
-
-        # Parsing all possible lengths
-        for length in list(range(self.max_repeat_length, self.min_repeat_length, -1)):
-            if length > len(seq1) or length > len(seq2):
-                continue
-
+            # Create reverse complement of seq2
+            complement_map = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+            seq2 = ''.join(complement_map.get(base, base) for base in seq2[::-1])
+    
+        # Find all possible matches of different lengths
+        for length in range(self.min_repeat_length, min(len(seq1), len(seq2), self.max_repeat_length) + 1):
             for i in range(len(seq1) - length + 1):
-                subseq1 = seq1[i : i + length]
-
-                # search in seq2
-                pos = seq2.find(subseq1)
-                if pos != -1:
-                    matches.append((i, pos, length, subseq1))
-
+                substring1 = seq1[i:i + length]
+            
+                for j in range(len(seq2) - length + 1):
+                    substring2 = seq2[j:j + length]
+                
+                    if substring1 == substring2:
+                        matches.append((i, j, length, substring1))
+    
+        # Remove overlapping matches, keep the longest ones
+        print(matches)
+        matches = self._filter_best_matches(matches)
         return matches
+
+    def _filter_best_matches(self, matches):
+        """Filter matches to keep only the best (longest) non-overlapping ones"""
+        if not matches:
+            return []
+    
+        # Sort by length (descending) then by position
+        matches.sort(key=lambda x: (-x[2], x[0], x[1]))
+    
+        filtered = []
+        used_positions_seq1 = set()
+        used_positions_seq2 = set()
+    
+        for pos1, pos2, length, sequence in matches:
+            # Check if this match overlaps with already selected matches
+            range1 = set(range(pos1, pos1 + length))
+            range2 = set(range(pos2, pos2 + length))
+        
+            if not (range1 & used_positions_seq1) and not (range2 & used_positions_seq2):
+                filtered.append((pos1, pos2, length, sequence))
+                used_positions_seq1.update(range1)
+                used_positions_seq2.update(range2)
+    
+        return filtered
 
     def extract_flanking_regions(
         self, sequence: str, outlier: Outlier
@@ -416,6 +445,10 @@ class FastGenomicOutlierPipeline:
             self.n_threads = min(mp.cpu_count(), 4)  # Conservative for memory
         else:
             self.n_threads = min(n_threads, mp.cpu_count())
+
+        print(min_contig_length,window_size,step_size,score_threshold,n_threads)
+
+
 
     def load_and_filter_contigs(self, fasta_file: str) -> List[ContigInfo]:
         # Reading fasta file and filter contigs by min lenght
@@ -585,11 +618,11 @@ def main():
 
     # Running the pipeline
     pipeline = FastGenomicOutlierPipeline(
-        min_contig_length=int(args.min_contig_length),
-        window_size=int(args.window_size),
-        step_size=int(args.window_size / 2),
-        score_threshold=float(args.score_threshold),
-        n_threads=int(args.threads),
+        min_contig_length = int(args.min_contig_length),
+        window_size = int(args.window_size),
+        step_size = int(int(args.window_size) / 2),
+        score_threshold = float(args.score_threshold),
+        n_threads = int(args.threads),
     )
 
     pipeline.run_pipeline(args.input_fasta, args.output_bed)
