@@ -269,7 +269,6 @@ class FastRepeatFinder:
                         matches.append((i, j, length, substring1))
 
         # Remove overlapping matches, keep the longest ones
-        print(matches)
         matches = self._filter_best_matches(matches)
         return matches
 

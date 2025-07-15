@@ -20,14 +20,7 @@ workflow COMPOSITIONAL_OUTLIER_DETECTION {
         )
 
         // Group results while preserving the full meta map
-        ch_grouped_results = OUTLIER_FINDER.out.bed
-            .map { meta, bed ->
-                [ meta, bed ]
-            }
-            .groupTuple(by: 0)
-            .map { meta, bed_files ->
-                [ meta, bed_files ]
-            }
+        ch_grouped_results = OUTLIER_FINDER.out.bed.groupTuple(by: 0)
 
         // Merge results from all chunks for each sample
         MERGE_RESULTS (
