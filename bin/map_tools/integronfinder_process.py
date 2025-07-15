@@ -31,9 +31,14 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                     continue
 
                 try:
-                    id_replicon, calin, complete, in0, topology, size = line.rstrip().split(
-                        "\t"
-                    )
+                    (
+                        id_replicon,
+                        calin,
+                        complete,
+                        in0,
+                        topology,
+                        size,
+                    ) = line.rstrip().split("\t")
                 except ValueError:
                     if not header_checked:
                         # When there are no results, integronfinder generates a malformatted header, skip it
@@ -41,13 +46,19 @@ def integron_parser(mge_data, integron_results, inf_gbks):
                         continue
                     else:
                         # If results were generated and the number of fields is incorrect, exit the script
-                        raise ValueError(f"Integronfinder output line does not have expected number of fields (expected "
-                                         f"6): {line}")
+                        raise ValueError(
+                            f"Integronfinder output line does not have expected number of fields (expected "
+                            f"6): {line}"
+                        )
 
                 if not header_checked:
-                    header_checked = True  # We only want to check the first line after the "#" lines
+                    header_checked = (
+                        True  # We only want to check the first line after the "#" lines
+                    )
                     # Confirm that this is the header in case future tool versions produce a different format
-                    if not str(complete).isdigit():  # If "complete" is not a digit, this is the header, not a value
+                    if not str(
+                        complete
+                    ).isdigit():  # If "complete" is not a digit, this is the header, not a value
                         continue
 
                 # Saving gbk file names of complete integrons

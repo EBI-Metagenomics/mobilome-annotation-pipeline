@@ -32,11 +32,11 @@ def mobilome_parser(mobilome_clean):
         "ICEfinder",
         "IntegronFinder",
         "ISEScan",
-        "PaliDIS",
         "geNomad",
         "VIRify",
         "geNomad",
         "geNomad_VIRify",
+        "MAP",
     ]
     extra_annot = [
         "viphog",

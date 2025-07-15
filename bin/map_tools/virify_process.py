@@ -58,7 +58,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                     phase,
                     attr,
                 ) = line.rstrip().split("\t")
-                attr = attr.replace('gbkey=mobile_element;', '')
+                attr = attr.replace("gbkey=mobile_element;", "")
                 contig = inv_names_equiv[contig]
                 coord = (int(start), int(end))
 
@@ -71,7 +71,13 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                 # Saving protein predictions
                 # ID=NODE_7_length_946_cov_8.0571_8;virify_quality=HC;gbkey=CDS;viphog=ViPhOG18043;viphog_taxonomy=Andromedavirus
                 elif seq_source == "Prodigal":
-                    (gene_id, virify_quality, gbkey, viphog, viphog_taxonomy) = attr.split(";")
+                    (
+                        gene_id,
+                        virify_quality,
+                        gbkey,
+                        viphog,
+                        viphog_taxonomy,
+                    ) = attr.split(";")
                     prot_viphog = viphog + ";" + viphog_taxonomy
                     prot_location = (contig, int(start), int(end))
                     virify_prots[prot_location] = prot_viphog
@@ -82,21 +88,23 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
     ## Removing redundancy on viral genome fragments
     to_discard = []
     virify_plasmids = {}
-    
+
     for phage in virify_predictions:
         v_contig, v_description, v_coord = virify_predictions[phage]
 
         # Catching phage-plasmids in viral predictions. No prophages
-        if v_description.split(";")[0].split('|')[1] == 'viral_sequence' and v_contig in plasmids_list:
+        if (
+            v_description.split(";")[0].split("|")[1] == "viral_sequence"
+            and v_contig in plasmids_list
+        ):
             virify_plasmids[v_contig] = virify_predictions[phage]
             to_discard.append(phage)
-            
+
     # Removing viral-phages from virify list
     for phage in to_discard:
         del virify_predictions[phage]
 
     print("Number of plasmid-phages detected: " + str(len(to_discard)))
-
 
     to_discard = []
     # Checking redundancy with genomad
@@ -104,7 +112,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
         v_contig, v_description, v_coord = virify_predictions[phage]
 
         # Finding redundancy on viral genome fragments
-        if v_description.split(";")[0].split('|')[1] == 'viral_sequence':
+        if v_description.split(";")[0].split("|")[1] == "viral_sequence":
             if v_contig in viral_dic:
                 genomad_id = viral_dic[v_contig]
                 to_discard.append(genomad_id)
@@ -115,7 +123,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                     g_id = prophages_ids[(v_contig, (g_start, g_end))]
                     to_discard.append(g_id)
         # Finding redundancy on prophages
-        elif v_description.split(";")[0].split('|')[1].split('-')[0] == 'prophage':
+        elif v_description.split(";")[0].split("|")[1].split("-")[0] == "prophage":
             v_start = v_coord[0]
             v_end = v_coord[1]
             v_len = v_end - v_start
@@ -143,7 +151,6 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
     for phage_id in to_discard:
         if phage_id in mge_data:
             del mge_data[phage_id]
-
 
     ## Adding Virify predictions to mge_data
     print(
@@ -188,25 +195,21 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
         mge_counter += 1
         old_contig, old_description, old_coord = mge_data[pp]
         new_met = "mobile_element_type=phage_plasmid"
-        viral_info = virify_plasmids[old_contig][1].split(';')
+        viral_info = virify_plasmids[old_contig][1].split(";")
         viral_desc = []
         for info in viral_info:
-            key = info.split('=')[0]
+            key = info.split("=")[0]
             if key in useful_info:
                 viral_desc.append(info)
 
-        viral_desc = ';'.join(viral_desc)
-        new_desc = new_met + ';' + viral_desc
+        viral_desc = ";".join(viral_desc)
+        new_desc = new_met + ";" + viral_desc
         new_val = (old_contig, new_desc, old_coord)
         new_mge_id = "phpl_" + str(mge_counter)
         del mge_data[pp]
         mge_data[new_mge_id] = new_val
 
-
-    #for data in mge_data:
+    # for data in mge_data:
     #    print(data,mge_data[data])
-
-
-
 
     return (mge_data, virify_prots)

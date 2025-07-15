@@ -15,7 +15,7 @@
 # limitations under the License.
 
 
-def overlap_report(mge_data, names_equiv, output_file = "overlapping_integrons.txt"):
+def overlap_report(mge_data, names_equiv, output_file="overlapping_integrons.txt"):
     # Grouping elements by contig
     contig_inmge = {}
     long_mges = [

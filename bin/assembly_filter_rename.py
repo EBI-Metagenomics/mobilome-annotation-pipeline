@@ -18,17 +18,16 @@ from Bio import SeqIO
 import argparse
 
 
-def rename(input_file):
-    output_1kb = "1kb_contigs.fasta"
-    output_5kb = "5kb_contigs.fasta"
-    output_map = "contigID.map"
-    counter = 0
+def rename(input_file, prefix):
+    output_1kb = prefix + "_1kb_contigs.fasta"
+    output_5kb = prefix + "_5kb_contigs.fasta"
+    output_100kb = prefix + "_100kb_contigs.fasta"
+    output_map = prefix + "_contigID.map"
 
     with open(output_1kb, "w") as to_1kb, open(output_5kb, "w") as to_5kb, open(
         output_map, "w"
-    ) as to_map:
-        for record in SeqIO.parse(input_file, "fasta"):
-            counter += 1
+    ) as to_map, open(output_100kb, "w") as to_100kb:
+        for counter, record in enumerate(SeqIO.parse(input_file, "fasta"), 1):
             new_id = ">contig_" + str(counter)
             my_chain = str(record.seq).upper()
             to_map.write(new_id + "\t" + str(record.id) + "\n")
@@ -38,6 +37,9 @@ def rename(input_file):
             if len(my_chain) > 5000:
                 to_5kb.write(new_id + "\n")
                 to_5kb.write(my_chain + "\n")
+            if len(my_chain) >= 100000:
+                to_100kb.write(new_id + "\n")
+                to_100kb.write(my_chain + "\n")
 
 
 def main():
@@ -50,11 +52,15 @@ def main():
         help="Input fasta file",
         required=True,
     )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Output prefix",
+        required=True,
+    )
     args = parser.parse_args()
 
-    input_file = args.assembly
-
-    rename(input_file)
+    rename(args.assembly, args.output)
 
 
 if __name__ == "__main__":

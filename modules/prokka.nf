@@ -2,8 +2,6 @@ process PROKKA {
     tag "$meta.id"
     label 'process_high'
 
-   
-
     container "${workflow.containerEngine in ['singularity', 'apptainer']
         ? 'https://depot.galaxyproject.org/singularity/prokka:1.14.6--pl526_0'
         : 'biocontainers/prokka:1.14.6--pl526_0'}"
@@ -12,12 +10,13 @@ process PROKKA {
     tuple val(meta), path(assembly_file)
 
     output:
-    tuple val(meta), path("prokka_results/${meta.id}.gbk"), emit: prokka_gbk
-    tuple val(meta), path("prokka_results/${meta.id}.gff"), emit: prokka_gff
-    tuple val(meta), path("prokka_results/${meta.id}.faa"), emit: prokka_faa
-    tuple val(meta), path("prokka_results/${meta.id}.fna"), emit: prokka_fna
+    tuple val(meta), path("prokka_results/*.gbk"), emit: prokka_gbk
+    tuple val(meta), path("prokka_results/*.gff"), emit: prokka_gff
+    tuple val(meta), path("prokka_results/*.faa"), emit: prokka_faa
+    tuple val(meta), path("prokka_results/*.fna"), emit: prokka_fna
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     # TMP folder issues in Prokka - https://github.com/tseemann/prokka/issues/402
     export TMPDIR="\$PWD/tmp"
@@ -27,7 +26,7 @@ process PROKKA {
 
     prokka \\
         --outdir prokka_results \\
-        --prefix ${meta.id} \\
+        --prefix ${prefix} \\
         --cpus ${task.cpus} \\
         --metagenome \\
         ${assembly_file}
