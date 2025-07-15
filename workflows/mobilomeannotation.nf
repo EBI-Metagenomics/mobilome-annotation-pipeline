@@ -87,7 +87,7 @@ workflow MAIN {
 
 
     // PREDICTION
-    def icefinder2_inputs = PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff)
+    def icefinder2_inputs = PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff )
     ICEFINDER2_LITE( icefinder2_inputs, Channel.value(params.ice_models) )
 
     GENOMAD( RENAME.out.contigs_5kb )

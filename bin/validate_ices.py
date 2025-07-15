@@ -4,7 +4,6 @@ ICE Validation Script
 Based on validation rules from icefinder2 single.py script
 Filters ICE predictions to retain only high-quality candidates
 """
-
 import sys
 import csv
 import argparse
@@ -12,10 +11,8 @@ import argparse
 def validate_ice_entry(row):
     """
     Validate a single ICE entry based on icefinder2 rules
-    
     Args:
         row (dict): Dictionary containing ICE data with expected headers
-    
     Returns:
         tuple: (is_valid, validation_messages)
     """
@@ -31,10 +28,10 @@ def validate_ice_entry(row):
         gc_content = float(row['gc_content'])
         
         # Extract DR coordinates (handle empty values)
-        dr1_start = int(row['dr1_start']) if row['dr1_start'] and row['dr1_start'] != 'NA' else None
-        dr1_end = int(row['dr1_end']) if row['dr1_end'] and row['dr1_end'] != 'NA' else None
-        dr2_start = int(row['dr2_start']) if row['dr2_start'] and row['dr2_start'] != 'NA' else None
-        dr2_end = int(row['dr2_end']) if row['dr2_end'] and row['dr2_end'] != 'NA' else None
+        dr1_start = int(row['dr1_start']) if row['dr1_start'] and row['dr1_start'] != 'NA' and row['dr1_start'].strip() else None
+        dr1_end = int(row['dr1_end']) if row['dr1_end'] and row['dr1_end'] != 'NA' and row['dr1_end'].strip() else None
+        dr2_start = int(row['dr2_start']) if row['dr2_start'] and row['dr2_start'] != 'NA' and row['dr2_start'].strip() else None
+        dr2_end = int(row['dr2_end']) if row['dr2_end'] and row['dr2_end'] != 'NA' and row['dr2_end'].strip() else None
         
     except (ValueError, TypeError) as e:
         validation_messages.append(f"Invalid numeric data: {e}")
@@ -48,9 +45,9 @@ def validate_ice_entry(row):
         validation_messages.append(f"ICE too large: {refined_length} bp > 500000 bp")
         is_valid = False
     
-    # 2. tRNA count validation: Must have at least 2 tRNAs
-    if num_trnas < 2:
-        validation_messages.append(f"Insufficient tRNAs: {num_trnas} < 2")
+    # 2. tRNA count validation: Must have at least 1 tRNA
+    if num_trnas == 0:
+        validation_messages.append(f"Insufficient tRNAs: {num_trnas}")
         is_valid = False
     
     # 3. Boundary consistency validation
@@ -66,10 +63,10 @@ def validate_ice_entry(row):
     
     # 5. GC content validation (reasonable range)
     if gc_content < 0.0 or gc_content > 1.0:
-        validation_messages.append(f"Invalid GC content: {gc_content}%")
+        validation_messages.append(f"Invalid GC content: {gc_content}")
         is_valid = False
     elif gc_content < 0.20 or gc_content > 0.80:
-        validation_messages.append(f"Unusual GC content: {gc_content}% (outside 20-80% range)")
+        validation_messages.append(f"Unusual GC content: {gc_content} (outside 20-80% range)")
         # Note: This is a warning, not a failure
     
     # 6. Direct Repeat validation (if present)
@@ -85,7 +82,6 @@ def validate_ice_entry(row):
         # DR length validation (typical DR length range)
         dr1_length = dr1_end - dr1_start + 1
         dr2_length = dr2_end - dr2_start + 1
-        
         if dr1_length < 10 or dr1_length > 1000:
             validation_messages.append(f"DR1 length out of range: {dr1_length} bp")
             is_valid = False
@@ -123,18 +119,25 @@ def main():
     
     try:
         with open(args.input_file, 'r', newline='') as infile:
-            # Detect if file has headers
-            sniffer = csv.Sniffer()
-            sample = infile.read(1024)
+            # Read first line to check for headers
+            first_line = infile.readline().strip()
             infile.seek(0)
-            has_header = sniffer.has_header(sample)
             
-            reader = csv.DictReader(infile, delimiter=args.delimiter)
+            # Check if first line contains expected headers
+            first_line_fields = first_line.split(args.delimiter)
+            has_header = any(header in first_line_fields for header in expected_headers[:3])  # Check first few headers
             
-            # Validate headers
-            if not has_header or not all(header in reader.fieldnames for header in expected_headers):
-                print(f"Error: Input file must contain all expected headers: {expected_headers}", file=sys.stderr)
-                sys.exit(1)
+            if has_header:
+                reader = csv.DictReader(infile, delimiter=args.delimiter)
+                # Validate that all expected headers are present
+                if not all(header in reader.fieldnames for header in expected_headers):
+                    missing_headers = [h for h in expected_headers if h not in reader.fieldnames]
+                    print(f"Error: Missing required headers: {missing_headers}", file=sys.stderr)
+                    print(f"Found headers: {reader.fieldnames}", file=sys.stderr)
+                    sys.exit(1)
+            else:
+                # No header, use expected headers as fieldnames
+                reader = csv.DictReader(infile, fieldnames=expected_headers, delimiter=args.delimiter)
             
             for row in reader:
                 total_count += 1
@@ -147,7 +150,7 @@ def main():
                         'row_data': row,
                         'rejection_reasons': '; '.join(messages)
                     })
-    
+                    
     except FileNotFoundError:
         print(f"Error: Input file '{args.input_file}' not found", file=sys.stderr)
         sys.exit(1)
@@ -155,13 +158,14 @@ def main():
         print(f"Error reading input file: {e}", file=sys.stderr)
         sys.exit(1)
     
-    # Write validated ICEs
+    # Write ONLY validated ICEs to the main output
     output_file = open(args.output, 'w', newline='') if args.output else sys.stdout
-    
     try:
         writer = csv.DictWriter(output_file, fieldnames=expected_headers, delimiter=args.delimiter)
         writer.writeheader()
-        writer.writerows(valid_ices)
+        # FIXED: Only write valid_ices, not all entries
+        for valid_ice in valid_ices:
+            writer.writerow(valid_ice)
     finally:
         if args.output:
             output_file.close()
@@ -172,7 +176,6 @@ def main():
             fieldnames = expected_headers + ['rejection_reasons']
             writer = csv.DictWriter(rejected_file, fieldnames=fieldnames, delimiter=args.delimiter)
             writer.writeheader()
-            
             for rejected in rejected_ices:
                 row_with_reasons = rejected['row_data'].copy()
                 row_with_reasons['rejection_reasons'] = rejected['rejection_reasons']

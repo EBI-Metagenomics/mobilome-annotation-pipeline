@@ -9,7 +9,7 @@ process VALIDATE_ICE_ELEMENTS {
     
     output:
     tuple val(meta), path("*_refined.tsv") , emit: validated_ices
-    tuple val(meta), path("*_rejected.tsv"), emit: rejected_ices
+    tuple val(meta), path("*_rejected.tsv"), emit: rejected_ices, optional: true
     
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

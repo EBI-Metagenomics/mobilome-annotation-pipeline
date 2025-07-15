@@ -9,16 +9,16 @@ process MACSYFINDER {
     path ice_models
 
     output:
-    tuple val(meta), path("${meta.id}_macsyfinder_results/all_systems.tsv"), emit: macsyfinder_tsv
+    tuple val(meta), path("*_macsyfinder_results/all_systems.tsv"), emit: macsyfinder_tsv
 
     script:
     def macsyfinder_args = task.ext.macsyfinder_args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    # Run MacSyFinder for ICE detection
     macsyfinder \\
         --sequence-db ${faa_file} \\
         --models-dir ${ice_models} \\
-        --out-dir ${meta.id}_macsyfinder_results \\
+        --out-dir ${prefix}_macsyfinder_results \\
         --worker $task.cpus \\
         ${macsyfinder_args}
     """
