@@ -30,9 +30,7 @@ workflow ICEFINDER2_LITE {
     )
     
     // Step 4: Validate final ICE elements
-    VALIDATE_ICE_ELEMENTS(
-        REFINE_BOUNDARIES.out.refined_tsv
-    )
+    VALIDATE_ICE_ELEMENTS( MACSYFINDER.out.macsyfinder_tsv.join( REFINE_BOUNDARIES.out.refined_tsv ))
     
     emit:
     ices_tsv = VALIDATE_ICE_ELEMENTS.out.validated_ices
