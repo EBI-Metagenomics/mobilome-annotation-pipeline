@@ -8,12 +8,15 @@ process GFF_REDUCE {
     tuple val(meta), path(mobilome_prokka_gff)
 
     output:
-    tuple val(meta), path("${meta.id}_mobilome_clean.gff"),   emit: mobilome_clean
-    tuple val(meta), path("${meta.id}_mobilome_extra.gff"),   emit: mobilome_extra
-    tuple val(meta), path("${meta.id}_mobilome_nogenes.gff"), emit: mobilome_nogenes
+    tuple val(meta), path("*_mobilome_clean.gff"),   emit: mobilome_clean
+    tuple val(meta), path("*_mobilome_extra.gff"),   emit: mobilome_extra
+    tuple val(meta), path("*_mobilome_nogenes.gff"), emit: mobilome_nogenes
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    gff_minimizer.py --mobilome_prokka_gff ${mobilome_prokka_gff} --prefix ${meta.id}
+    gff_minimizer.py \\
+        --mobilome_prokka_gff ${mobilome_prokka_gff} \\
+        --prefix ${prefix}
     """
 }

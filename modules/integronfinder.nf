@@ -8,10 +8,11 @@ process INTEGRONFINDER {
     tuple val(meta), path(assembly_file)
 
     output:
-    tuple val(meta), path("Results_Integron_Finder_5kb_contigs/5kb_contigs.summary"), emit: contigs_summary
-    tuple val(meta), path("Results_Integron_Finder_5kb_contigs/contig_*.gbk")       , emit: contigs_gbks
+    tuple val(meta), path("*.summary"), emit: contigs_summary
+    tuple val(meta), path("*.gbk"),     emit: contigs_gbks
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     integron_finder --union-integrases \\
         --local-max \\
@@ -19,12 +20,15 @@ process INTEGRONFINDER {
         --gbk \\
         ${assembly_file}
 
-    if ls -l Results_Integron_Finder_5kb_contigs/contig_*.gbk 2>/dev/null | grep -q .
+    if ls -l Results_Integron_Finder_${prefix}_5kb_contigs/*.gbk 2>/dev/null | grep -q .
     then
         echo 'IntegronFinder outputs complete'
+        mv Results_Integron_Finder_${prefix}_5kb_contigs/*.gbk .
+        mv Results_Integron_Finder_${prefix}_5kb_contigs/*.summary .
     else
         echo 'IntegronFinder found 0 integrons in assembly... generating dummy files'
-        touch Results_Integron_Finder_5kb_contigs/contig_dummy.gbk
+        touch contig_dummy.gbk
+        touch contig_dummy.summary
     fi
     """
 }

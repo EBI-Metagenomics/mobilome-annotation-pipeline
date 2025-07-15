@@ -17,9 +17,7 @@
 import os.path
 
 
-def quality_filter(
-    mge_data, mge_proteins, contigs_elements, output_file
-):
+def quality_filter(mge_data, mge_proteins, contigs_elements, output_file):
     # Removing predictions of len<500 and with no CDS
     no_cds = []
     len_500 = []
@@ -48,36 +46,8 @@ def quality_filter(
     return (mge_data, contigs_elements)
 
 
-def _parse_cds_loc(cds_loc: str, contig_prots: dict, prots_coord: dict):
-    if os.stat(cds_loc).st_size == 0:
-        return
-
-    with open(cds_loc, "r") as input_table:
-        for line in input_table:
-            l_line = line.rstrip().split("\t")
-            # Annotation lines have exactly 9 columns
-            if len(l_line) == 9:
-                contig = l_line[0]
-                prot_source = l_line[1]
-                start = int(l_line[3])
-                end = int(l_line[4])
-                attrib = l_line[8]
-                prot_id = attrib.split(";")[0].replace("ID=", "")
-                value = (start, end)
-                prots_coord[prot_id] = value
-                if contig in contig_prots:
-                    contig_prots[contig].append(prot_id)
-                else:
-                    contig_prots[contig] = [prot_id]
-
-
-def location_parser(cds_loc, mge_data, output_file="discarded_mge.txt"):
-    ### Saving the CDS' coordinates and contigs location
-    contig_prots = {}
-    prots_coord = {}
+def location_parser(contig_prots, prots_coord, mge_data, output_file):
     COV_THRESHOLD = 0.9
-
-    _parse_cds_loc(cds_loc, contig_prots, prots_coord)
 
     ### Finding the CDS encoded in the mobilome
     mge_proteins = {}

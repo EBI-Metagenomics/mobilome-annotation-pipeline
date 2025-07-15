@@ -28,8 +28,6 @@ include { GFF_VALIDATOR    } from '../modules/validator'
 include { INTEGRATOR       } from '../modules/integrator'
 
 /*
-<<<<<<< HEAD
-=======
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,7 +38,6 @@ include { ICEFINDER2_LITE                 } from '../subworkflows/icefinder2-lit
 
 
 /*
->>>>>>> 453eae7 (icefinder2-lite subworkflow and modules)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,7 +77,6 @@ workflow MAIN {
 
     PROKKA( RENAME.out.contigs_1kb )
 
-
     // Parsing VIRify gff file when an input is provided
     def user_virify_gff_ch = ch_inputs.map { meta, _fasta, _user_proteins_gff, virify_gff -> {
            [meta, virify_gff]
@@ -91,7 +87,6 @@ workflow MAIN {
 
 
     // PREDICTION
-    
     def icefinder2_inputs = PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff)
     ICEFINDER2_LITE( icefinder2_inputs, Channel.value(params.ice_models) )
 
@@ -101,14 +96,8 @@ workflow MAIN {
 
     ISESCAN( RENAME.out.contigs_1kb )
 
-<<<<<<< HEAD
-    // ANNOTATION
-    // DIAMOND( PROKKA.out.prokka_faa, file(params.mobileog_db, checkIfExists: true) )
-    DIAMOND( PROKKA.out.prokka_faa, Channel.value(params.mobileog_db) )
-
-=======
     COMPOSITIONAL_OUTLIER_DETECTION( RENAME.out.contigs_100kb )
->>>>>>> 453eae7 (icefinder2-lite subworkflow and modules)
+
 
     /**********************************************************************************************
     * The INTEGRATOR step takes a bunch of outputs from the previous steps.
@@ -128,28 +117,21 @@ workflow MAIN {
     ).join(
         INTEGRONFINDER.out.contigs_gbks
     ).join(
-<<<<<<< HEAD
         ICEFINDER2_LITE.out.ices_tsv
-=======
-        ICEFINDER2_LITE.out.gff3_output
->>>>>>> 453eae7 (icefinder2-lite subworkflow and modules)
     ).join(
         GENOMAD.out.genomad_vir
     ).join(
         GENOMAD.out.genomad_plas
+    ).join(
+        COMPOSITIONAL_OUTLIER_DETECTION.out.bed
     ).join(
         VIRIFY_QC.out.virify_hq, remainder: true
     )
 
     INTEGRATOR(
         integrator_ch.map {
-<<<<<<< HEAD
             meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv, genomad_vir, genomad_plas, compos_bed, virify_hq -> {
                 [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv, genomad_vir, genomad_plas, compos_bed, virify_hq ? virify_hq : [] ]
-=======
-            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, icf_gff, genomad_vir, genomad_plas, compos_bed, virify_hq -> {
-                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, icf_gff, genomad_vir, genomad_plas, compos_bed, virify_hq ? virify_hq : [] ]
->>>>>>> 453eae7 (icefinder2-lite subworkflow and modules)
             }
         }
     )

@@ -2,7 +2,7 @@ process INTEGRATOR {
     tag "$meta.id"
     label 'process_single'
 
-    container 'quay.io/biocontainers/biopython:1.78'
+    container 'quay.io/biocontainers/biopython:1.81'
 
     input:
     tuple val(meta), path(prokka_gff), path(map_file), path(iss_tsv), path(inf_summ), path(inf_gbks), path(icf_tsv), path(genomad_vir), path(genomad_plas), path(compos_bed), path(vir_results)
@@ -14,6 +14,7 @@ process INTEGRATOR {
 
     script:
     def virify_arg = (vir_results) ? "--virify_out ${vir_results}" : ""
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     mge_integrator.py \\
         --pkka_gff ${prokka_gff} \\
@@ -24,7 +25,8 @@ process INTEGRATOR {
         --icf_tsv ${icf_tsv} \\
         --geno_out ${genomad_vir} \\
         --geno_plas ${genomad_plas} \\
+        --comp_bed ${compos_bed} \\
         ${virify_arg} \\
-        --prefix ${meta.id}
+        --prefix ${prefix}
     """
 }

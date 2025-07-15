@@ -24,7 +24,9 @@ from map_tools import integronfinder_process
 from map_tools import isescan_process
 from map_tools import mapping_names
 from map_tools import mobileog_process
+from map_tools import outliers_process
 from map_tools import overlap_finder
+from map_tools import prokka_process
 from map_tools import virify_process
 
 
@@ -75,16 +77,16 @@ def main():
         help="geNomad plasmids summary table (plasmid_summary.tsv)",
     )
     parser.add_argument(
+        "--comp_bed",
+        type=str,
+        help="Compositional outliers prediction in bed format",
+    )
+    parser.add_argument(
         "--virify_out",
         type=str,
         help="HQ virify results",
     )
-    parser.add_argument(
-        "--prefix",
-        type=str,
-        help="The output prefix",
-        required=True
-    )
+    parser.add_argument("--prefix", type=str, help="The output prefix", required=True)
     args = parser.parse_args()
 
     ### Calling functions
@@ -93,29 +95,20 @@ def main():
 
     ## Parsing results of mobilome prediction tools
     # Parsing ICEfinder results
-    (
-        mge_data,
-        icf_dr,
-    ) = icefinder_process.icf_parser(
+    (mge_data, icf_dr,) = icefinder_process.icf_parser(
         args.icf_lim,
         args.icf_tsv,
     )
 
     # Parsing IntegronFinder results
-    (
-        mge_data,
-        attC_site,
-    ) = integronfinder_process.integron_parser(
+    (mge_data, attC_site,) = integronfinder_process.integron_parser(
         mge_data,
         args.inf_tsv,
         args.inf_gbks,
     )
 
     # Parsing ISEScan results
-    (
-        mge_data,
-        itr_sites,
-    ) = isescan_process.isescan_parser(
+    (mge_data, itr_sites,) = isescan_process.isescan_parser(
         mge_data,
         args.iss_tsv,
     )
@@ -132,13 +125,26 @@ def main():
     else:
         virify_prots = {}
 
+    # Parsing prokka rrnas and genes location
+    contig_prots, prots_coord, rnas_coord = prokka_process.prokka_parser(args.pkka_gff)
+
+    # Parsing compositional outliers and removing redundancy with other MGEs
+    mge_data, co_repeats = outliers_process.outliers_parser(
+        args.comp_bed, mge_data, rnas_coord
+    )
+
     ## Overlapping report for long MGEs
     # Collecting integrons, virus and plasmids predicted per contig
-    overlap_finder.overlap_report(mge_data, names_equiv, output_file=f"{args.prefix}_overlap_report.txt")
+    overlap_finder.overlap_report(
+        mge_data, names_equiv, output_file=f"{args.prefix}_overlap_report.txt"
+    )
 
-    ## Catching proteins on the mobilome and MGEs QC
-    (mge_data, contigs_elements, proteins_mge) = cds_locator.location_parser(
-        args.pkka_gff, mge_data, output_file=f"{args.prefix}_discarded_mge.txt"
+    ## Tagging genes on the mobilome and MGEs
+    mge_data, contigs_elements, proteins_mge = cds_locator.location_parser(
+        contig_prots,
+        prots_coord,
+        mge_data,
+        output_file=f"{args.prefix}_discarded_mge.txt",
     )
 
     ## Storing extra annotation results
@@ -153,10 +159,11 @@ def main():
         itr_sites,
         icf_dr,
         attC_site,
+        co_repeats,
         mge_data,
         proteins_mge,
         virify_prots,
-        f"{args.prefix}_mobilome_prokka.gff"
+        f"{args.prefix}_mobilome_prokka.gff",
     )
 
 

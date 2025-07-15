@@ -28,7 +28,7 @@ workflow MAP {
 */
 
 workflow {
-    EBIMETAGENOMICS_MOBILOMEANNOTATION ()
+    MAP ()
 }
 
 /*
