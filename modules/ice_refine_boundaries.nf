@@ -16,7 +16,7 @@ process REFINE_BOUNDARIES {
     ice_boundary_refinement.py \\
         --macsyfinder ${boundaries_tsv} \\
         --trna ${trna_gff} \\
-        --direct-repeats ${vmatch_tsv} \\
-        --output ${prefix}_refined_data.tsv
+        --drs ${vmatch_tsv} \\
+        --output ${prefix}_refined_data.tsv -v
     """
 }
