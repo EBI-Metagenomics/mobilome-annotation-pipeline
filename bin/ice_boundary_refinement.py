@@ -82,7 +82,6 @@ def parse_trna_gff(trna_file):
                         trna_predictions[seqname].append({
                             'start': start,
                             'end': end,
-                            'strand': strand,
                             'product': product
                         })
     except FileNotFoundError:
@@ -97,45 +96,260 @@ def parse_trna_gff(trna_file):
 def parse_direct_repeats(dr_file):
     """Parse direct repeats from vmatch output"""
     direct_repeats = defaultdict(list)
-    
+
     try:
         with open(dr_file, 'r') as f:
             for line in f:
-                if line.strip():
-                    fields = line.strip().split('\t')
-                    if len(fields) >= 5:
-                        seqname = fields[0]
-                        start1 = int(fields[1])
-                        end1 = int(fields[2])
-                        start2 = int(fields[3])
-                        end2 = int(fields[4])
-                        
-                        direct_repeats[seqname].append({
-                            'start1': start1,
-                            'end1': end1,
-                            'start2': start2,
-                            'end2': end2,
-                            'length1': end1 - start1 + 1,
-                            'length2': end2 - start2 + 1,
-                            'distance': start2 - end1
-                        })
+                fields = line.strip().split('\t')
+                # Seqname is the contig ID
+                seqname = fields[0]
+                start1 = int(fields[1])
+                end1 = int(fields[2])
+                start2 = int(fields[3])
+                end2 = int(fields[4])
+                direct_repeats[seqname].append({
+                    'start1': start1,
+                    'end1': end1,
+                    'start2': start2,
+                    'end2': end2,
+                    'length1': end1 - start1 + 1,
+                    'length2': end2 - start2 + 1,
+                    'distance': start2 - end1
+                })
     except FileNotFoundError:
         print(f"Error: Direct repeats file '{dr_file}' not found", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
         print(f"Error parsing direct repeats file: {e}", file=sys.stderr)
         sys.exit(1)
-    
+
     return direct_repeats
 
 
-def find_most_distal_trna( ice_prediction, trna_list ):
-    # Use the coordinates of the original prediction (original_start and original_end) and the coordinates of the extended region 5kb upstreand and downstream the original prediction (corresponding to flank_start and flank_end) to find the most distal RNA. The most distal tRNA should be the closer to the flank_start and/or the flank_end and outside the original region. Consider that RNAs were predicted on the fasta file of the extended region, meaning that the coordinates of the tRNA have to be corrected based on the flank start
+def find_most_distal_trna(ice_prediction, trna_list):
+    """
+    Find the most distal tRNA relative to the original ICE boundaries.
+    The most distal tRNA should be closer to flank_start and/or flank_end and outside the original region.
+    
+    Args:
+        ice_prediction: Dictionary containing ICE prediction data
+        trna_list: List of tRNA predictions with coordinates relative to extended region
+    
+    Returns:
+        Dictionary with distal tRNA information and gap analysis
+    """
+    original_start = ice_prediction['original_start']
+    original_end = ice_prediction['original_end']
+    flank_start = ice_prediction['flank_start']
+    flank_end = ice_prediction['flank_end']
+    contig_length = ice_prediction['contig_length']
+
+    # Convert tRNA coordinates from extended region to original contig coordinates
+    # tRNA coordinates are relative to the extended region starting at flank_start
+    corrected_trnas = []
+    for trna in trna_list:
+        corrected_start = trna['start'] + flank_start - 1  # Convert to contig coordinates
+        corrected_end = trna['end'] + flank_start - 1
+        corrected_trnas.append({
+            'corrected_start': corrected_start,
+            'corrected_end': corrected_end,
+            'product': trna['product']
+        })
+    
+    # Create extended boundaries (equivalent to nfICEnum, neICEnum in single.py)
+    extended_start = flank_start
+    extended_end = flank_end
+    
+    # Build position list for gap analysis (following single.py ICEtagnum logic)
+    position_list = [extended_start, extended_end]
+    
+    # Add tRNA positions within extended region (outside original ICE boundaries)
+    distal_trnas = []
+    for trna in corrected_trnas:
+        trna_pos = trna['corrected_start']  # Use start position as representative
+        
+        # Only consider tRNAs outside the original ICE boundaries
+        if (trna_pos < original_start or trna_pos > original_end) and \
+           (extended_start <= trna_pos <= extended_end):
+            position_list.append(trna_pos)
+            distal_trnas.append(trna)
+    
+    position_list.sort()
+    
+    # Find largest gap between consecutive positions (following single.py find_max_distance)
+    gap_start = None
+    gap_end = None
+    gap_location = None  # 'start', 'end', or 'internal'
+    
+    if len(position_list) >= 2:
+        max_gap = 0
+        for i in range(len(position_list) - 1):
+            gap = position_list[i + 1] - position_list[i]
+            if gap > max_gap:
+                max_gap = gap
+                gap_start = position_list[i]
+                gap_end = position_list[i + 1]
+        
+        # Determine gap location relative to original ICE (following single.py logic)
+        if gap_end == extended_end:
+            gap_location = 'end'  # Gap is at the END boundary
+        elif gap_start == extended_start:
+            gap_location = 'start'  # Gap is at the START boundary
+        else:
+            gap_location = 'internal'  # Gap is internal
+    
+    # Find the most distal tRNAs (those closest to flank boundaries)
+    most_distal_trnas = []
+    if distal_trnas:
+        # Find tRNAs closest to flank_start (upstream distal)
+        upstream_distal = min(distal_trnas, key=lambda t: abs(t['corrected_start'] - flank_start))
+        if upstream_distal['corrected_start'] < original_start:
+            most_distal_trnas.append(('upstream', upstream_distal))
+        
+        # Find tRNAs closest to flank_end (downstream distal)
+        downstream_distal = min(distal_trnas, key=lambda t: abs(t['corrected_start'] - flank_end))
+        if downstream_distal['corrected_start'] > original_end:
+            most_distal_trnas.append(('downstream', downstream_distal))
+    
+    return {
+        'gap_start': gap_start,
+        'gap_end': gap_end,
+        'gap_location': gap_location,
+        'most_distal_trnas': most_distal_trnas,
+        'all_distal_trnas': distal_trnas,
+        'position_list': position_list
+    }
 
 
+def find_dr_flanking_ice_and_trna(ice_prediction, distal_trna_coordinates, direct_repeats):
+    """
+    Parse the list of direct repeat pairs to find those flanking the ICE + distal tRNAs.
+    
+    Args:
+        ice_prediction: Dictionary containing ICE prediction data
+        distal_trna_coordinates: Result from find_most_distal_trna function
+        direct_repeats: List of direct repeat pairs
+    
+    Returns:
+        Dictionary with selected DR pair and refined boundaries
+    """
 
-def find_dr_flanking_ice_and_trna( ice_prediction, distal_trna_coordinates, direct_repeats):
-    # Parse the list of pair of direct repeats coordinates flanking the ICE + distal RNA(s). Consider that direct repeats were predicted on the fasta file of the extended region, meaning that the coordinates of the tRNA have to be corrected based on the flank start 
+    original_start = ice_prediction['original_start']
+    original_end = ice_prediction['original_end']
+    flank_start = ice_prediction['flank_start']
+    flank_end = ice_prediction['flank_end']
+    
+    gap_start = distal_trna_coordinates['gap_start']
+    gap_end = distal_trna_coordinates['gap_end']
+    gap_location = distal_trna_coordinates['gap_location']
+    all_distal_trnas = distal_trna_coordinates['all_distal_trnas']
+    
+    # Initialize refined boundaries based on gap analysis
+    refined_start = original_start
+    refined_end = original_end
+    
+    # Apply gap-based boundary refinement (following single.py logic)
+    if gap_location == 'end' and gap_start is not None:
+        # Gap at END - move start boundary to gap start
+        refined_start = gap_start
+    elif gap_location == 'start' and gap_end is not None:
+        # Gap at START - move end boundary to gap end
+        refined_end = gap_end
+    
+    # Find suitable DR pairs (following single.py criteria)
+    suitable_drs = []
+    for dr in direct_repeats:
+        # Filter by distance (5kb - 500kb total span)
+        total_span = dr['end2'] - dr['start1']
+        if total_span > 500000 or total_span < 5000:
+            continue
+        
+        # Check if DR pair flanks the refined ICE + distal tRNAs
+        left_dr_start = dr['start1']
+        left_dr_end = dr['end1']
+        right_dr_start = dr['start2']
+        right_dr_end = dr['end2']
+
+        # Ensure proper flanking (left DR before refined region, right DR after)
+        if not (left_dr_end <= refined_start and right_dr_start >= refined_end):
+            continue
+        
+        # Count tRNAs between DR pair (following single.py checktrna logic)
+        trnas_between = 0
+        for trna in all_distal_trnas:
+            trna_start = trna['corrected_start']
+            trna_end = trna['corrected_end']
+            
+            # Check if tRNA is between the inner edges of the DR pair
+            if left_dr_end <= trna_start <= right_dr_start and left_dr_end <= trna_end <= right_dr_start:
+                trnas_between += 1
+        
+        # Require at least 2 tRNAs between DRs (following single.py requirement)
+        if trnas_between >= 1:
+            # Additional check based on gap location (following single.py positioning logic)
+            valid_positioning = True
+            
+            if gap_location == 'end':
+                # Gap at END - check if left DR is within refined start region
+                if refined_start - 1000 <= left_dr_start <= refined_start + 1000:
+                    valid_positioning = True
+            elif gap_location == 'start':
+                # Gap at START - check if right DR is within refined end region  
+                if refined_end - 1000 <= right_dr_end <= refined_end + 1000:
+                    valid_positioning = True
+            else:
+                # No specific gap - general flanking is sufficient
+                valid_positioning = True
+        
+            if valid_positioning:
+                suitable_drs.append({
+                    'dr': dr,
+                    'trnas_between': trnas_between,
+                    'total_span': total_span,
+                    'score': trnas_between  # Score based on tRNA count
+                })
+    
+    # Select best DR pair
+    selected_dr = None
+    dr1_start = dr1_end = dr2_start = dr2_end = None
+    final_refined_start = refined_start
+    final_refined_end = refined_end
+    
+    if suitable_drs:
+        # Sort by score (number of tRNAs between DRs), then by smaller total span
+        suitable_drs.sort(key=lambda x: (-x['score'], x['total_span']))
+        best_dr_info = suitable_drs[0]
+        selected_dr = best_dr_info['dr']
+        
+        # Set DR coordinates (attL and attR)
+        dr1_start = selected_dr['start1']  # attL start
+        dr1_end = selected_dr['end1']      # attL end
+        dr2_start = selected_dr['start2']  # attR start
+        dr2_end = selected_dr['end2']      # attR end
+        
+        # Update final boundaries to be between the inner edges of DRs
+        final_refined_start = dr1_end + 1
+        final_refined_end = dr2_start - 1
+    
+    # Ensure boundaries are within flanking regions
+    final_refined_start = max(flank_start, final_refined_start)
+    final_refined_end = min(flank_end, final_refined_end)
+    final_refined_length = max(0, final_refined_end - final_refined_start + 1)
+    
+    return {
+        'refined_start': final_refined_start,
+        'refined_end': final_refined_end,
+        'refined_length': final_refined_length,
+        'dr1_start': dr1_start if dr1_start is not None else 'NA',
+        'dr1_end': dr1_end if dr1_end is not None else 'NA',
+        'dr2_start': dr2_start if dr2_start is not None else 'NA',
+        'dr2_end': dr2_end if dr2_end is not None else 'NA',
+        'selected_dr': selected_dr,
+        'suitable_drs_count': len(suitable_drs),
+        'gap_location': gap_location
+    }
+
+
 
 
 def refine_ice_boundaries(ice_prediction, trna_list, dr_list, verbose=False):
@@ -143,148 +357,31 @@ def refine_ice_boundaries(ice_prediction, trna_list, dr_list, verbose=False):
     Refine ICE boundaries using tRNAs and direct repeats
     Adapted from single.py merge_tRNA function to work with genomic coordinates
     """
-
-    distal_trna_coordinates = find_most_distal_trna(ice_prediction, trna_list)
-
-
-    refined_boundaries = find_dr_flanking_ice_and_trna( ice_prediction, distal_trna_coordinates, direct_repeats )
-
-
-
-    '''
     system_id = ice_prediction['system_id']
-    original_start = ice_prediction['original_start']
-    original_end = ice_prediction['original_end']
-    flank_start = ice_prediction['flank_start']  # This is the start of the extended region
-    flank_end = ice_prediction['flank_end']
-    contig_length = ice_prediction['contig_length']
-
-
-    # Initialize refined boundaries
-    refined_start = original_start
-    refined_end = original_end
-    dr1_start = dr1_end = dr2_start = dr2_end = None
-    num_trnas = len(trna_list)
     
-
-    # Create position list for gap analysis (adapted from ICEtagnum logic)
-    # Include ICE boundaries and tRNA positions
-    position_list = [original_start, original_end]
+    # Find most distal tRNAs and gap analysis
+    distal_trna_coordinates = find_most_distal_trna(ice_prediction, trna_list)
     
-    # Add tRNA positions (using start positions as representative points)
-    for trna in trna_list:
-        position_list.append(trna['start'])
-    
-    # Sort positions
-    position_list = sorted(set(position_list))  # Remove duplicates and sort
+    # Find DR pairs flanking ICE + distal tRNAs
+    refined_boundaries = find_dr_flanking_ice_and_trna(ice_prediction, distal_trna_coordinates, dr_list)
     
     if verbose:
-        print(f"System {system_id}: Found {num_trnas} tRNAs", file=sys.stderr)
-        print(f"Position list: {position_list}", file=sys.stderr)
-    
-    # Find largest gap between positions (following single.py gap logic)
-    if len(position_list) >= 2:
-        gap_start, gap_end = find_largest_gap_in_positions(position_list)
-        
-        if gap_start is not None and gap_end is not None:
-            # The largest gap indicates where the ICE likely ends/begins
-            # Following the original logic: the gap represents the ICE boundaries
-            if gap_start >= original_start and gap_end <= original_end:
-                # Gap is within the ICE - this suggests the ICE should be split
-                # Use the gap to refine boundaries
-                refined_start = gap_start
-                refined_end = gap_end
-            elif gap_start < original_start:
-                # Gap before ICE start - extend start to gap end
-                refined_start = min(gap_end, original_start)
-            elif gap_end > original_end:
-                # Gap after ICE end - extend end to gap start  
-                refined_end = max(gap_start, original_end)
-            
-            if verbose:
-                print(f"System {system_id}: Largest gap between {gap_start} and {gap_end}", file=sys.stderr)
-    
-    # Process direct repeats (following single.py DR selection logic)
-    suitable_drs = []
-    for dr in dr_list:
-        dr_distance = dr['distance']
-        
-        # Filter DRs based on distance criteria (from single.py)
-        if dr_distance > 500000 or dr_distance < 5000:
-            continue
-        
-        # Check if DR appropriately flanks the refined ICE region
-        dr_start1 = dr['start1']
-        dr_end1 = dr['end1']
-        dr_start2 = dr['start2']
-        dr_end2 = dr['end2']
-        
-        # Ensure DRs flank the ICE (one before, one after)
-        if (dr_end1 <= refined_start and dr_start2 >= refined_end) or \
-           (dr_end2 <= refined_start and dr_start1 >= refined_end):
-            
-            # Count tRNAs between the DR pair (checktrna logic from single.py)
-            trnas_between = 0
-            dr_region_start = min(dr_start1, dr_start2)
-            dr_region_end = max(dr_end1, dr_end2)
-            
-            for trna in trna_list:
-                if dr_region_start <= trna['start'] <= dr_region_end:
-                    trnas_between += 1
-            
-            # Require at least 2 tRNAs between DRs (following single.py logic)
-            if trnas_between >= 2:
-                suitable_drs.append({
-                    'dr': dr,
-                    'trnas_between': trnas_between,
-                    'score': trnas_between  # Score based on tRNA count
-                })
-    
-    # Select best DR pair if available
-    if suitable_drs:
-        # Sort by score (number of tRNAs between DRs)
-        suitable_drs.sort(key=lambda x: x['score'], reverse=True)
-        best_dr = suitable_drs[0]['dr']
-        
-        # Update boundaries based on selected DR pair
-        if best_dr['end1'] <= refined_start:
-            # DR1 is upstream, DR2 is downstream
-            dr1_start = best_dr['start1']
-            dr1_end = best_dr['end1']
-            dr2_start = best_dr['start2']
-            dr2_end = best_dr['end2']
-            refined_start = dr1_end + 1
-            refined_end = dr2_start - 1
-        else:
-            # DR2 is upstream, DR1 is downstream
-            dr1_start = best_dr['start2']
-            dr1_end = best_dr['end2']
-            dr2_start = best_dr['start1']
-            dr2_end = best_dr['end1']
-            refined_start = dr1_end + 1
-            refined_end = dr2_start - 1
-        
-        if verbose:
-            print(f"System {system_id}: Selected DR pair with {suitable_drs[0]['score']} tRNAs between", file=sys.stderr)
-    
-    # Ensure refined boundaries are within flanking regions
-    refined_start = max(flank_start, refined_start)
-    refined_end = min(flank_end, refined_end)
-    refined_length = max(0, refined_end - refined_start + 1)
+        print(f"System {system_id}: Gap location: {distal_trna_coordinates['gap_location']}", file=sys.stderr)
+        print(f"System {system_id}: Found {len(distal_trna_coordinates['all_distal_trnas'])} distal tRNAs", file=sys.stderr)
+        print(f"System {system_id}: Found {refined_boundaries['suitable_drs_count']} suitable DR pairs", file=sys.stderr)
+        print(f"System {system_id}: Refined boundaries: {refined_boundaries['refined_start']}-{refined_boundaries['refined_end']}", file=sys.stderr)
     
     return {
-        'refined_start': refined_start,
-        'refined_end': refined_end,
-        'refined_length': refined_length,
-        'dr1_start': dr1_start if dr1_start is not None else 'NA',
-        'dr1_end': dr1_end if dr1_end is not None else 'NA',
-        'dr2_start': dr2_start if dr2_start is not None else 'NA',
-        'dr2_end': dr2_end if dr2_end is not None else 'NA',
-        'num_trnas': num_trnas
+        'refined_start': refined_boundaries['refined_start'],
+        'refined_end': refined_boundaries['refined_end'],
+        'refined_length': refined_boundaries['refined_length'],
+        'dr1_start': refined_boundaries['dr1_start'],
+        'dr1_end': refined_boundaries['dr1_end'],
+        'dr2_start': refined_boundaries['dr2_start'],
+        'dr2_end': refined_boundaries['dr2_end'],
+        'num_trnas': len(distal_trna_coordinates['all_distal_trnas']),
+        'gap_location': refined_boundaries['gap_location']
     }
-
-
-    '''
 
 
 def main():
@@ -319,9 +416,10 @@ def main():
         
         # Find corresponding tRNAs and DRs
         flanked_seqname = f"{system_id}_with_flanks"
+        contig_id = ice_pred['contig']
         
         trnas = trna_predictions.get(flanked_seqname, [])
-        drs = direct_repeats.get(flanked_seqname, [])
+        drs = direct_repeats.get(contig_id, [])
         
         # Also try without _with_flanks suffix
         if not trnas:

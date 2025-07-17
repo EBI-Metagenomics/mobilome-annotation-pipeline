@@ -21,7 +21,7 @@ workflow ICEFINDER2_LITE {
     // Step 2: ICE boundary refinement using direct repeats and tRNA analysis
     ARAGORN(MACSYFINDER_PROCESS.out.all_sys_flanks_fasta)
 
-    VMATCH(MACSYFINDER_PROCESS.out.all_sys_flanks_fasta)
+    VMATCH( MACSYFINDER_PROCESS.out.boundaries_tsv.join( ch_input_files.map{ meta, fna, _faa, _gff -> [meta, fna] }) )
    
     REFINE_BOUNDARIES(
         MACSYFINDER_PROCESS.out.boundaries_tsv.join(
