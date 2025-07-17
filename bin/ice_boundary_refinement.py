@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import argparse
 import sys
 from collections import defaultdict, Counter
@@ -28,7 +27,6 @@ def validate_contig_consistency(ice_predictions, trna_coordinates, direct_repeat
     
     # Report data availability
     all_contigs = ice_contigs | trna_contigs | dr_contigs | gene_contigs
-    
     logging.info(f"Data availability summary:")
     logging.info(f"  Total unique contigs: {len(all_contigs)}")
     logging.info(f"  ICE predictions: {len(ice_contigs)} contigs")
@@ -39,7 +37,6 @@ def validate_contig_consistency(ice_predictions, trna_coordinates, direct_repeat
     
     # Check for missing data per contig
     missing_data_report = []
-    
     for contig in sorted(all_contigs):
         missing = []
         if contig not in ice_contigs:
@@ -87,7 +84,7 @@ def parse_ice_predictions(ice_file):
             for line_num, line in enumerate(f, 2):  # Start from line 2
                 if line.startswith('#') or not line.strip():
                     continue
-                    
+                
                 fields = line.strip().split('\t')
                 if len(fields) >= 5:  # MacSyFinder format has more fields
                     system_id = fields[0]
@@ -98,18 +95,19 @@ def parse_ice_predictions(ice_file):
                     length = int(fields[5]) if len(fields) > 5 else end - start + 1
                     
                     contig_counts[contig] += 1
+                    
                     ice_predictions.append({
                         'seqname': contig,  # Use contig name as sequence name
                         'original_start': start,
                         'original_end': end,
                         'original_length': length,
-                        'system_id': system_id,
+                        'system_id': system_id,  # Keep the MacSyFinder prediction ID
                         'ice_type': ice_type,
                         'line_number': line_num
                     })
                 else:
                     logging.warning(f"Skipping malformed line {line_num} in ICE predictions: insufficient fields")
-    
+                    
     except FileNotFoundError:
         logging.error(f"ICE predictions file not found: {ice_file}")
         sys.exit(1)
@@ -144,14 +142,14 @@ def parse_trna_gff(trna_gff_file):
                     end = int(fields[4])
                     strand = fields[6]
                     attributes = fields[8]
-
+                    
                     for att in attributes.split(';'):
                         att_key, att_value = att.split('=')
                         if att_key == 'ID':
                             trna_id = att_value
                         if att_key == 'product':
                             product = att_value
-     
+                    
                     trna_coordinates[seqname].append({
                         'start': start,
                         'end': end,
@@ -161,9 +159,8 @@ def parse_trna_gff(trna_gff_file):
                         'product': product,
                     })
                     contig_counts[seqname] += 1
-                
                     logging.debug(f"Added tRNA: {seqname}:{trna_id} ({start}-{end}) {product}")
-    
+                    
     except FileNotFoundError:
         logging.error(f"tRNA GFF file not found: {trna_gff_file}")
         sys.exit(1)
@@ -196,49 +193,50 @@ def parse_direct_repeats(dr_file):
                     continue
                 
                 fields = line.strip().split('\t')
-                seqname = fields[0]
-                start1 = int(fields[1])
-                end1 = int(fields[2])
-                start2 = int(fields[3])
-                end2 = int(fields[4])
+                if len(fields) >= 5:
+                    seqname = fields[0]
+                    start1 = int(fields[1])
+                    end1 = int(fields[2])
+                    start2 = int(fields[3])
+                    end2 = int(fields[4])
                     
-                length1 = end1 - start1 + 1
-                length2 = end2 - start2 + 1
-                total_span = end2 - start1 + 1
+                    length1 = end1 - start1 + 1
+                    length2 = end2 - start2 + 1
+                    total_span = end2 - start1 + 1
                     
-                # Track all DRs before filtering
-                contig_counts[seqname] += 1
+                    # Track all DRs before filtering
+                    contig_counts[seqname] += 1
                     
-                # Apply filtering rules from single.py
-                if length1 < 15 or length2 < 15:
-                    filtered_counts['too_short'] += 1
-                    logging.debug(f"Skipping DR shorter than 15bp: {length1}, {length2}")
-                    continue
+                    # Apply filtering rules from single.py
+                    if length1 < 15 or length2 < 15:
+                        filtered_counts['too_short'] += 1
+                        logging.debug(f"Skipping DR shorter than 15bp: {length1}, {length2}")
+                        continue
                     
-                if total_span > 500000:
-                    filtered_counts['too_long'] += 1
-                    logging.debug(f"Skipping DR with span > 500kb: {total_span}")
-                    continue
+                    if total_span > 500000:
+                        filtered_counts['too_long'] += 1
+                        logging.debug(f"Skipping DR with span > 500kb: {total_span}")
+                        continue
                     
-                if total_span < 5000:
-                    filtered_counts['too_small'] += 1
-                    logging.debug(f"Skipping DR with span < 5kb: {total_span}")
-                    continue
+                    if total_span < 5000:
+                        filtered_counts['too_small'] += 1
+                        logging.debug(f"Skipping DR with span < 5kb: {total_span}")
+                        continue
                     
-                direct_repeats[seqname].append({
-                    'start1': start1,
-                    'end1': end1,
-                    'start2': start2,
-                    'end2': end2,
-                    'length1': length1,
-                    'length2': length2,
-                    'total_span': total_span,
-                    'inner_distance': start2 - end1 - 1,
-                    'line_number': line_num
-                })
-            else:
-                logging.warning(f"Skipping malformed line {line_num} in direct repeats: insufficient fields")
-    
+                    direct_repeats[seqname].append({
+                        'start1': start1,
+                        'end1': end1,
+                        'start2': start2,
+                        'end2': end2,
+                        'length1': length1,
+                        'length2': length2,
+                        'total_span': total_span,
+                        'inner_distance': start2 - end1 - 1,
+                        'line_number': line_num
+                    })
+                else:
+                    logging.warning(f"Skipping malformed line {line_num} in direct repeats: insufficient fields")
+                    
     except FileNotFoundError:
         logging.error(f"Direct repeats file not found: {dr_file}")
         sys.exit(1)
@@ -249,7 +247,6 @@ def parse_direct_repeats(dr_file):
     # Report filtering statistics
     total_drs = sum(contig_counts.values())
     kept_drs = sum(len(drs) for drs in direct_repeats.values())
-    
     logging.info(f"Direct repeat filtering summary:")
     logging.info(f"  Total DRs found: {total_drs}")
     logging.info(f"  DRs kept after filtering: {kept_drs}")
@@ -266,7 +263,6 @@ def parse_direct_repeats(dr_file):
         logging.info(f"  ... and {len(dr_per_contig) - 10} more contigs")
     
     return direct_repeats
-
 
 def parse_gff_file(gff_file):
     """
@@ -298,20 +294,19 @@ def parse_gff_file(gff_file):
                         phase,
                         attributes,
                     ) = line.rstrip().split("\t")
-                
+                    
                     if feature_type == 'CDS':
                         for att in attributes.split(';'):
                             att_key, att_value = att.split('=')
                             if att_key == 'ID':
                                 gene_id = att_value
-                    
+                        
                         # Store gene position
                         gene_positions[seqname][gene_id] = {
                             'start': int(start),
                             'end': int(end),
                         }
                         contig_counts[seqname] += 1
-                
                         logging.debug(f"Added gene: {seqname}:{gene_id} ({start}-{end})")
         
         # Report parsing statistics
@@ -326,7 +321,7 @@ def parse_gff_file(gff_file):
             logging.info(f"  {contig}: {count} genes")
         if len(contig_counts) > 10:
             logging.info(f"  ... and {len(contig_counts) - 10} more contigs")
-        
+            
     except FileNotFoundError:
         logging.warning(f"GFF file not found: {gff_file}. Skipping gene boundary validation.")
         return defaultdict(dict)
@@ -351,7 +346,6 @@ def find_genes_near_coordinates(gene_positions, seqname, start, end, window=5):
     
     # Find genes that overlap or are near the ICE region
     nearby_genes = []
-    
     for gene_id, gene_info in sorted_genes:
         gene_start = gene_info['start']
         gene_end = gene_info['end']
@@ -392,7 +386,7 @@ def validate_dr_gene_overlap(dr, ice_prediction, gene_positions):
             logging.debug(f"DR start {dr['start1']} within gene {gene_id} boundaries ({gene_start}-{gene_end})")
             return True
         
-        # Scenario B: DR end within gene boundaries  
+        # Scenario B: DR end within gene boundaries
         if gene_start <= dr['end2'] <= gene_end:
             logging.debug(f"DR end {dr['end2']} within gene {gene_id} boundaries ({gene_start}-{gene_end})")
             return True
@@ -485,7 +479,6 @@ def find_dr_flanking_ice_and_trna(ice_prediction, trna_coordinates, direct_repea
         
         # Count tRNAs within DR span - CRITICAL: Must be ≥2 (not ≥1)
         trnas_between, trnas_in_span = count_trnas_in_span(trna_list, dr['start1'], dr['end2'])
-        
         if trnas_between < 2:  # Following single.py requirement
             logging.debug(f"DR has only {trnas_between} tRNAs, need ≥2")
             continue
@@ -501,7 +494,7 @@ def find_dr_flanking_ice_and_trna(ice_prediction, trna_coordinates, direct_repea
             best_dr = dr
             best_trnas = trnas_in_span
             best_gap = gap_location
-            
+        
         logging.debug(f"DR {dr['start1']}-{dr['end2']}: {trnas_between} tRNAs, max gap: {max_gap}, score: {score}")
     
     if best_dr is None:
@@ -525,6 +518,8 @@ def refine_ice_boundaries(ice_prediction, trna_coordinates, direct_repeats, gene
     original_start = ice_prediction['original_start']
     original_end = ice_prediction['original_end']
     original_length = ice_prediction['original_length']
+    system_id = ice_prediction['system_id']  # FIXED: Include MacSyFinder prediction ID
+    ice_type = ice_prediction['ice_type']    # FIXED: Include ICE type
     
     logging.debug(f"Refining boundaries for ICE {seqname}:{original_start}-{original_end}")
     
@@ -535,13 +530,17 @@ def refine_ice_boundaries(ice_prediction, trna_coordinates, direct_repeats, gene
         # Fallback logic: use original boundaries (like single.py)
         logging.debug(f"No suitable DR found for {seqname}, using original boundaries")
         return {
+            'system_id': system_id,        # FIXED: Include MacSyFinder prediction ID
+            'ice_type': ice_type,          # FIXED: Include ICE type
             'seqname': seqname,
+            'original_start': original_start,
+            'original_end': original_end,
             'refined_start': original_start,
             'refined_end': original_end,
             'refined_length': original_length,
             'dr1_start': original_start,  # attL site
             'dr1_end': original_start,
-            'dr2_start': original_end,    # attR site  
+            'dr2_start': original_end,    # attR site
             'dr2_end': original_end,
             'num_trnas': len(trna_coordinates.get(seqname, [])),
             'gap_location': 'none',
@@ -565,7 +564,11 @@ def refine_ice_boundaries(ice_prediction, trna_coordinates, direct_repeats, gene
     logging.debug(f"Found {dr_result['num_trnas']} tRNAs, largest gap: {gap_desc}")
     
     return {
+        'system_id': system_id,        # FIXED: Include MacSyFinder prediction ID
+        'ice_type': ice_type,          # FIXED: Include ICE type
         'seqname': seqname,
+        'original_start':original_start,
+        'original_end':original_end,
         'refined_start': refined_start,
         'refined_end': refined_end,
         'refined_length': refined_length,
@@ -582,9 +585,9 @@ def write_refined_boundaries(refined_results, output_file):
     """Write refined ICE boundaries to output file with contig organization"""
     try:
         with open(output_file, 'w') as f:
-            # Write header
+            # Write header - FIXED: Include system_id and ice_type
             header = [
-                'seqname', 'refined_start', 'refined_end', 'refined_length',
+                'system_id', 'ice_type', 'contig', 'original_start', 'original_end', 'refined_start', 'refined_end', 'refined_length',
                 'dr1_start', 'dr1_end', 'dr2_start', 'dr2_end',
                 'num_trnas', 'gap_location', 'refinement_method'
             ]
@@ -593,10 +596,14 @@ def write_refined_boundaries(refined_results, output_file):
             # Sort results by contig name and then by start position
             sorted_results = sorted(refined_results, key=lambda x: (x['seqname'], x['refined_start']))
             
-            # Write results
+            # Write results - FIXED: Include system_id and ice_type in output
             for result in sorted_results:
                 row = [
+                    result['system_id'],        # FIXED: Include MacSyFinder prediction ID
+                    result['ice_type'],         # FIXED: Include ICE type
                     result['seqname'],
+                    str(result['original_start']),
+                    str(result['original_end']),
                     str(result['refined_start']),
                     str(result['refined_end']),
                     str(result['refined_length']),
@@ -609,7 +616,7 @@ def write_refined_boundaries(refined_results, output_file):
                     result['refinement_method']
                 ]
                 f.write('\t'.join(row) + '\n')
-                
+        
         logging.info(f"Results written to: {output_file}")
         
     except Exception as e:
@@ -618,14 +625,12 @@ def write_refined_boundaries(refined_results, output_file):
 
 def generate_summary_report(refined_results, data_summary):
     """Generate a comprehensive summary report of the refinement process"""
-    
     # Overall statistics
     total_ices = len(refined_results)
     successful_refinements = sum(1 for r in refined_results if r['refinement_method'] == 'direct_repeat')
     
     # Per-contig statistics
     contig_stats = defaultdict(lambda: {'total': 0, 'refined': 0, 'fallback': 0})
-    
     for result in refined_results:
         contig = result['seqname']
         contig_stats[contig]['total'] += 1
@@ -637,7 +642,6 @@ def generate_summary_report(refined_results, data_summary):
     logging.info("="*60)
     logging.info("REFINEMENT SUMMARY REPORT")
     logging.info("="*60)
-    
     logging.info(f"Overall Statistics:")
     logging.info(f"  Total ICEs processed: {total_ices}")
     logging.info(f"  Successfully refined: {successful_refinements}")
@@ -649,7 +653,6 @@ def generate_summary_report(refined_results, data_summary):
         stats = contig_stats[contig]
         success_rate = stats['refined'] / stats['total'] * 100 if stats['total'] > 0 else 0
         logging.info(f"  {contig}: {stats['refined']}/{stats['total']} ({success_rate:.1f}%)")
-    
     if len(contig_stats) > 10:
         logging.info(f"  ... and {len(contig_stats) - 10} more contigs")
     
@@ -663,163 +666,105 @@ def generate_summary_report(refined_results, data_summary):
     logging.info(f"  ICE contigs missing DR data: {missing_dr}")
     if data_summary['gene_contigs']:
         logging.info(f"  ICE contigs missing gene data: {missing_genes}")
-    
-    logging.info("="*60)
+
 
 def main():
+    """Main function to orchestrate ICE boundary refinement"""
     parser = argparse.ArgumentParser(
-        description='Refine ICE boundaries using direct repeats and tRNA analysis (single.py compatible)',
+        description='Refine ICE boundaries using MacSyFinder predictions, tRNA coordinates, and direct repeats',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s -i ice_predictions.tsv -t trna_coords.gff -d direct_repeats.tsv -o refined_boundaries.tsv
-  %(prog)s -i ice_predictions.tsv -t trna_coords.gff -d direct_repeats.tsv -g annotation.gff -o refined_boundaries.tsv -v
-
-Input file formats:
-  ICE predictions (MacSyFinder): system_id<TAB>contig<TAB>type<TAB>start<TAB>end<TAB>length...
-  tRNA coordinates (GFF): contig<TAB>aragorn<TAB>tRNA<TAB>start<TAB>end<TAB>.<TAB>strand<TAB>.<TAB>attributes
-  Direct repeats (TSV): contig<TAB>start1<TAB>end1<TAB>start2<TAB>end2
-  GFF annotation: Standard GFF3/GTF format
+  python ice_boundary_refinement.py -i ice_predictions.tsv -t trna.gff -d direct_repeats.tsv -o refined_ice.tsv
+  python ice_boundary_refinement.py -i ice_predictions.tsv -t trna.gff -d direct_repeats.tsv -g genes.gff -o refined_ice.tsv -v
         """
     )
     
     parser.add_argument('-i', '--ice-predictions', required=True,
-                        help='Input file with ICE predictions from MacSyFinder (TSV format)')
-    parser.add_argument('-t', '--trna-coordinates', required=True,
-                        help='Input file with tRNA coordinates from aragorn (GFF format)')
+                        help='MacSyFinder ICE predictions file (TSV format)')
+    parser.add_argument('-t', '--trna-gff', required=True,
+                        help='tRNA coordinates file (GFF format from aragorn)')
     parser.add_argument('-d', '--direct-repeats', required=True,
-                        help='Input file with direct repeats (TSV format)')
-    parser.add_argument('-g', '--gff-file', 
-                        help='Optional: GFF/GTF annotation file for gene boundary validation')
+                        help='Direct repeats file (TSV format)')
+    parser.add_argument('-g', '--gff-file', required=False,
+                        help='Gene annotation file (GFF/GTF format) for boundary validation')
     parser.add_argument('-o', '--output', required=True,
-                        help='Output file for refined ICE boundaries (TSV format)')
+                        help='Output file for refined ICE boundaries')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Enable verbose logging')
-    parser.add_argument('--validate-contigs', action='store_true',
-                        help='Perform strict contig name validation across input files')
     
     args = parser.parse_args()
     
     # Setup logging
     setup_logging(args.verbose)
     
-    logging.info("Starting ICE boundary refinement (single.py compatible)")
-    logging.info(f"ICE predictions: {args.ice_predictions}")
-    logging.info(f"tRNA coordinates: {args.trna_coordinates}")
-    logging.info(f"Direct repeats: {args.direct_repeats}")
+    logging.info("Starting ICE boundary refinement analysis")
+    logging.info(f"Input files:")
+    logging.info(f"  ICE predictions: {args.ice_predictions}")
+    logging.info(f"  tRNA coordinates: {args.trna_gff}")
+    logging.info(f"  Direct repeats: {args.direct_repeats}")
     if args.gff_file:
-        logging.info(f"GFF annotation: {args.gff_file}")
-    logging.info(f"Output file: {args.output}")
+        logging.info(f"  Gene annotations: {args.gff_file}")
+    logging.info(f"  Output file: {args.output}")
     
-    # Parse input files with enhanced contig tracking
-    logging.info("\nParsing input files...")
+    # Parse input files
+    logging.info("Parsing input files...")
     ice_predictions = parse_ice_predictions(args.ice_predictions)
-    trna_coordinates = parse_trna_gff(args.trna_coordinates)  # Updated to use GFF parser
+    trna_coordinates = parse_trna_gff(args.trna_gff)
     direct_repeats = parse_direct_repeats(args.direct_repeats)
+    gene_positions = parse_gff_file(args.gff_file) if args.gff_file else None
     
-    gene_positions = None
-    if args.gff_file:
-        gene_positions = parse_gff_file(args.gff_file)
-    
-    # Validate contig consistency and data availability
-    logging.info("\nValidating data consistency across contigs...")
+    # Validate data consistency
+    logging.info("Validating data consistency...")
     processable_contigs, data_summary = validate_contig_consistency(
         ice_predictions, trna_coordinates, direct_repeats, gene_positions
     )
     
-    # Optional strict validation
-    if args.validate_contigs:
-        ice_contigs = data_summary['ice_contigs']
-        trna_contigs = data_summary['trna_contigs']
-        dr_contigs = data_summary['dr_contigs']
-        
-        missing_essential_data = []
-        for contig in ice_contigs:
-            if contig not in trna_contigs:
-                missing_essential_data.append(f"{contig}: missing tRNA data")
-            if contig not in dr_contigs:
-                missing_essential_data.append(f"{contig}: missing DR data")
-        
-        if missing_essential_data:
-            logging.error("Strict validation failed. Missing essential data:")
-            for issue in missing_essential_data[:10]:
-                logging.error(f"  {issue}")
-            if len(missing_essential_data) > 10:
-                logging.error(f"  ... and {len(missing_essential_data) - 10} more issues")
-            logging.error("Use --validate-contigs=false to proceed anyway")
-            sys.exit(1)
+    if not processable_contigs:
+        logging.error("No contigs with ICE predictions found. Exiting.")
+        sys.exit(1)
     
-    # Process each ICE prediction with enhanced error handling
-    logging.info(f"\nProcessing {len(ice_predictions)} ICE predictions...")
+    # Process each ICE prediction
+    logging.info("Refining ICE boundaries...")
     refined_results = []
-    successful_refinements = 0
-    failed_processing = []
     
-    # Group ICEs by contig for better progress reporting
-    ices_by_contig = defaultdict(list)
-    for ice in ice_predictions:
-        ices_by_contig[ice['seqname']].append(ice)
-    
-    processed_contigs = 0
-    total_contigs = len(ices_by_contig)
-    
-    for contig, contig_ices in ices_by_contig.items():
-        processed_contigs += 1
-        logging.info(f"Processing contig {processed_contigs}/{total_contigs}: {contig} ({len(contig_ices)} ICEs)")
+    for i, ice_prediction in enumerate(ice_predictions, 1):
+        seqname = ice_prediction['seqname']
         
-        contig_successes = 0
+        if seqname not in processable_contigs:
+            logging.debug(f"Skipping ICE {i} on {seqname}: no processable data")
+            continue
         
-        for ice_prediction in contig_ices:
-            try:
-                result = refine_ice_boundaries(
-                    ice_prediction, 
-                    trna_coordinates, 
-                    direct_repeats, 
-                    gene_positions, 
-                    args.verbose
-                )
-                refined_results.append(result)
-                
-                if result['refinement_method'] == 'direct_repeat':
-                    successful_refinements += 1
-                    contig_successes += 1
-                    
-            except Exception as e:
-                error_msg = f"Error processing ICE {ice_prediction['seqname']}:{ice_prediction['original_start']}-{ice_prediction['original_end']}: {e}"
-                logging.error(error_msg)
-                failed_processing.append(error_msg)
-                continue
+        logging.debug(f"Processing ICE {i}/{len(ice_predictions)}: {seqname}:{ice_prediction['original_start']}-{ice_prediction['original_end']}")
         
-        if contig_ices:
-            success_rate = contig_successes / len(contig_ices) * 100
-            logging.info(f"  Contig {contig}: {contig_successes}/{len(contig_ices)} refined ({success_rate:.1f}%)")
+        # Refine boundaries for this ICE
+        refined_result = refine_ice_boundaries(
+            ice_prediction, 
+            trna_coordinates, 
+            direct_repeats, 
+            gene_positions,
+            args.verbose
+        )
+        
+        refined_results.append(refined_result)
+        
+        # Progress reporting
+        if i % 100 == 0 or i == len(ice_predictions):
+            logging.info(f"Processed {i}/{len(ice_predictions)} ICE predictions")
     
-    # Write results with enhanced organization
-    logging.info(f"\nWriting results...")
+    # Write results
+    logging.info("Writing refined boundaries...")
     write_refined_boundaries(refined_results, args.output)
     
-    # Generate comprehensive summary report
+    # Generate summary report
     generate_summary_report(refined_results, data_summary)
     
-    # Report any processing failures
-    if failed_processing:
-        logging.warning(f"\nProcessing failures ({len(failed_processing)}):")
-        for failure in failed_processing[:5]:  # Show first 5
-            logging.warning(f"  {failure}")
-        if len(failed_processing) > 5:
-            logging.warning(f"  ... and {len(failed_processing) - 5} more failures")
-    
-    # Final success check
-    if successful_refinements == 0:
-        logging.warning("No ICE boundaries were successfully refined!")
-        logging.warning("Check that:")
-        logging.warning("  1. Direct repeats span the ICE regions")
-        logging.warning("  2. At least 2 tRNAs are present within DR spans")
-        logging.warning("  3. DR lengths are ≥15bp and spans are 5kb-500kb")
-        logging.warning("  4. Contig names match across all input files")
-    
-    logging.info(f"\nProcessing complete. Check {args.output} for results.")
+    logging.info("ICE boundary refinement completed successfully!")
 
 if __name__ == '__main__':
     main()
+
+
+
+
 
