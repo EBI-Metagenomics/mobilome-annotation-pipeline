@@ -5,7 +5,7 @@ process ARAGORN {
     container 'quay.io/biocontainers/aragorn:1.2.41--h7b50bb2_5'
 
     input:
-    tuple val(meta), path(fasta_file)
+    tuple val(meta), path(contigs)
 
     output:
     tuple val(meta), path("*_aragorn.gff"), emit: trna_gff
@@ -17,7 +17,7 @@ process ARAGORN {
     aragorn \\
         ${aragorn_args} \\
         -o ${prefix}_aragorn.tbl \\
-        ${fasta_file}
+        ${contigs}
     
     # Convert into GFF format 
     aragorn_to_gff.sh ${prefix}_aragorn.tbl ${prefix}_aragorn.gff

@@ -1,488 +1,825 @@
 #!/usr/bin/env python3
-"""
-ICE Boundaries Refinement Script
-Adapted from icefinder2 single.py methodology for use with direct tRNA predictions on ICE regions
-"""
 
-import sys
-import csv
 import argparse
-from collections import defaultdict
+import sys
+from collections import defaultdict, Counter
+import logging
+import re
 
-def parse_macsyfinder_results(macsyfinder_file):
-    """Parse MacSyFinder results file to extract ICE predictions with coordinates"""
-    ice_predictions = {}
+def setup_logging(verbose=False):
+    """Setup logging configuration"""
+    level = logging.DEBUG if verbose else logging.INFO
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+def validate_contig_consistency(ice_predictions, trna_coordinates, direct_repeats, gene_positions=None):
+    """
+    Validate that contig names are consistent across all input files
+    and report data availability per contig
+    """
+    # Get all contig names from each data source
+    ice_contigs = set(ice['seqname'] for ice in ice_predictions)
+    trna_contigs = set(trna_coordinates.keys())
+    dr_contigs = set(direct_repeats.keys())
+    gene_contigs = set(gene_positions.keys()) if gene_positions else set()
+    
+    # Report data availability
+    all_contigs = ice_contigs | trna_contigs | dr_contigs | gene_contigs
+    
+    logging.info(f"Data availability summary:")
+    logging.info(f"  Total unique contigs: {len(all_contigs)}")
+    logging.info(f"  ICE predictions: {len(ice_contigs)} contigs")
+    logging.info(f"  tRNA coordinates: {len(trna_contigs)} contigs")
+    logging.info(f"  Direct repeats: {len(dr_contigs)} contigs")
+    if gene_positions:
+        logging.info(f"  Gene annotations: {len(gene_contigs)} contigs")
+    
+    # Check for missing data per contig
+    missing_data_report = []
+    
+    for contig in sorted(all_contigs):
+        missing = []
+        if contig not in ice_contigs:
+            missing.append("ICE")
+        if contig not in trna_contigs:
+            missing.append("tRNA")
+        if contig not in dr_contigs:
+            missing.append("DR")
+        if gene_positions and contig not in gene_contigs:
+            missing.append("genes")
+        
+        if missing:
+            missing_data_report.append(f"  {contig}: missing {', '.join(missing)}")
+    
+    if missing_data_report:
+        logging.warning(f"Contigs with missing data:")
+        for report in missing_data_report[:10]:  # Show first 10
+            logging.warning(report)
+        if len(missing_data_report) > 10:
+            logging.warning(f"  ... and {len(missing_data_report) - 10} more contigs")
+    
+    # Return contigs that have at least ICE predictions
+    processable_contigs = ice_contigs
+    logging.info(f"Will process {len(processable_contigs)} contigs with ICE predictions")
+    
+    return processable_contigs, {
+        'ice_contigs': ice_contigs,
+        'trna_contigs': trna_contigs,
+        'dr_contigs': dr_contigs,
+        'gene_contigs': gene_contigs,
+        'missing_data': missing_data_report
+    }
+
+def parse_ice_predictions(ice_file):
+    """Parse ICE predictions from MacSyFinder TSV format"""
+    ice_predictions = []
+    contig_counts = Counter()
     
     try:
-        with open(macsyfinder_file, 'r') as f:
-            # Skip header if present
-            first_line = f.readline().strip()
-            if not first_line.startswith('system_id'):
-                f.seek(0)  # Reset if no header
+        with open(ice_file, 'r') as f:
+            # Read and skip header
+            header = next(f).strip()
+            logging.debug(f"ICE file header: {header}")
             
-            for line in f:
-                if line.strip() and not line.startswith('system_id'):
-                    fields = line.strip().split('\t')
-                    if len(fields) >= 11:
-                        system_id = fields[0]
-                        contig = fields[1]
-                        ice_type = fields[2]
-                        start = int(fields[3])
-                        end = int(fields[4])
-                        length = int(fields[5])
-                        gc_content = float(fields[6])
-                        num_genes = int(fields[7])
-                        flank_start = int(fields[8])
-                        flank_end = int(fields[9])
-                        contig_length = int(fields[10])
-                        
-                        ice_predictions[system_id] = {
-                            'system_id': system_id,
-                            'contig': contig,
-                            'type': ice_type,
-                            'original_start': start,
-                            'original_end': end,
-                            'original_length': length,
-                            'gc_content': gc_content,
-                            'num_genes': num_genes,
-                            'flank_start': flank_start,
-                            'flank_end': flank_end,
-                            'contig_length': contig_length
-                        }
+            for line_num, line in enumerate(f, 2):  # Start from line 2
+                if line.startswith('#') or not line.strip():
+                    continue
+                    
+                fields = line.strip().split('\t')
+                if len(fields) >= 5:  # MacSyFinder format has more fields
+                    system_id = fields[0]
+                    contig = fields[1]
+                    ice_type = fields[2]
+                    start = int(fields[3])
+                    end = int(fields[4])
+                    length = int(fields[5]) if len(fields) > 5 else end - start + 1
+                    
+                    contig_counts[contig] += 1
+                    ice_predictions.append({
+                        'seqname': contig,  # Use contig name as sequence name
+                        'original_start': start,
+                        'original_end': end,
+                        'original_length': length,
+                        'system_id': system_id,
+                        'ice_type': ice_type,
+                        'line_number': line_num
+                    })
+                else:
+                    logging.warning(f"Skipping malformed line {line_num} in ICE predictions: insufficient fields")
+    
     except FileNotFoundError:
-        print(f"Error: MacSyFinder file '{macsyfinder_file}' not found", file=sys.stderr)
+        logging.error(f"ICE predictions file not found: {ice_file}")
         sys.exit(1)
     except Exception as e:
-        print(f"Error parsing MacSyFinder file: {e}", file=sys.stderr)
+        logging.error(f"Error parsing ICE predictions: {e}")
         sys.exit(1)
+    
+    # Report ICE distribution per contig
+    logging.info(f"ICE predictions per contig:")
+    for contig, count in contig_counts.most_common(10):
+        logging.info(f"  {contig}: {count} ICEs")
+    if len(contig_counts) > 10:
+        logging.info(f"  ... and {len(contig_counts) - 10} more contigs")
     
     return ice_predictions
 
-def parse_trna_gff(trna_file):
-    """Parse tRNA predictions in GFF format"""
-    trna_predictions = defaultdict(list)
+def parse_trna_gff(trna_gff_file):
+    """
+    Parse tRNA coordinates from aragorn GFF format
+    Expected format: contig_1	aragorn	tRNA	18551	18626	.	-	.	ID=tRNA2;product=tRNA-Lys
+    """
+    trna_coordinates = defaultdict(list)
+    contig_counts = Counter()
     
     try:
-        with open(trna_file, 'r') as f:
-            for line in f:
-                if line.strip() and not line.startswith('#'):
-                    fields = line.strip().split('\t')
-                    if len(fields) >= 9 and fields[2] == 'tRNA':
-                        seqname = fields[0]
-                        start = int(fields[3])
-                        end = int(fields[4])
-                        strand = fields[6]
-                        
-                        # Extract product from attributes
-                        attributes = fields[8]
-                        product = 'tRNA'
-                        if 'product=' in attributes:
-                            product = attributes.split('product=')[1].split(';')[0]
-                        
-                        trna_predictions[seqname].append({
-                            'start': start,
-                            'end': end,
-                            'product': product
-                        })
-    except FileNotFoundError:
-        print(f"Error: tRNA file '{trna_file}' not found", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error parsing tRNA file: {e}", file=sys.stderr)
-        sys.exit(1)
-    
-    return trna_predictions
-
-def parse_direct_repeats(dr_file):
-    """Parse direct repeats from vmatch output"""
-    direct_repeats = defaultdict(list)
-
-    try:
-        with open(dr_file, 'r') as f:
+        with open(trna_gff_file, 'r') as f:
             for line in f:
                 fields = line.strip().split('\t')
-                # Seqname is the contig ID
+                if len(fields) == 9 and 'tRNA' in fields[2]:
+                    seqname = fields[0]
+                    start = int(fields[3])
+                    end = int(fields[4])
+                    strand = fields[6]
+                    attributes = fields[8]
+
+                    for att in attributes.split(';'):
+                        att_key, att_value = att.split('=')
+                        if att_key == 'ID':
+                            trna_id = att_value
+                        if att_key == 'product':
+                            product = att_value
+     
+                    trna_coordinates[seqname].append({
+                        'start': start,
+                        'end': end,
+                        'length': end - start + 1,
+                        'strand': strand,
+                        'id': trna_id,
+                        'product': product,
+                    })
+                    contig_counts[seqname] += 1
+                
+                    logging.debug(f"Added tRNA: {seqname}:{trna_id} ({start}-{end}) {product}")
+    
+    except FileNotFoundError:
+        logging.error(f"tRNA GFF file not found: {trna_gff_file}")
+        sys.exit(1)
+    except Exception as e:
+        logging.error(f"Error parsing tRNA GFF file: {e}")
+        sys.exit(1)
+    
+    # Report tRNA distribution per contig
+    logging.info(f"tRNA coordinates per contig:")
+    for contig, count in contig_counts.most_common(10):
+        logging.info(f"  {contig}: {count} tRNAs")
+    if len(contig_counts) > 10:
+        logging.info(f"  ... and {len(contig_counts) - 10} more contigs")
+    
+    return trna_coordinates
+
+def parse_direct_repeats(dr_file):
+    """
+    Parse direct repeats from TSV format with length validation
+    Expected format: contig_1	15291	15305	955	969
+    """
+    direct_repeats = defaultdict(list)
+    contig_counts = Counter()
+    filtered_counts = Counter()
+    
+    try:
+        with open(dr_file, 'r') as f:
+            for line_num, line in enumerate(f, 1):
+                if line.startswith('#') or not line.strip():
+                    continue
+                
+                fields = line.strip().split('\t')
                 seqname = fields[0]
                 start1 = int(fields[1])
                 end1 = int(fields[2])
                 start2 = int(fields[3])
                 end2 = int(fields[4])
+                    
+                length1 = end1 - start1 + 1
+                length2 = end2 - start2 + 1
+                total_span = end2 - start1 + 1
+                    
+                # Track all DRs before filtering
+                contig_counts[seqname] += 1
+                    
+                # Apply filtering rules from single.py
+                if length1 < 15 or length2 < 15:
+                    filtered_counts['too_short'] += 1
+                    logging.debug(f"Skipping DR shorter than 15bp: {length1}, {length2}")
+                    continue
+                    
+                if total_span > 500000:
+                    filtered_counts['too_long'] += 1
+                    logging.debug(f"Skipping DR with span > 500kb: {total_span}")
+                    continue
+                    
+                if total_span < 5000:
+                    filtered_counts['too_small'] += 1
+                    logging.debug(f"Skipping DR with span < 5kb: {total_span}")
+                    continue
+                    
                 direct_repeats[seqname].append({
                     'start1': start1,
                     'end1': end1,
                     'start2': start2,
                     'end2': end2,
-                    'length1': end1 - start1 + 1,
-                    'length2': end2 - start2 + 1,
-                    'distance': start2 - end1
+                    'length1': length1,
+                    'length2': length2,
+                    'total_span': total_span,
+                    'inner_distance': start2 - end1 - 1,
+                    'line_number': line_num
                 })
+            else:
+                logging.warning(f"Skipping malformed line {line_num} in direct repeats: insufficient fields")
+    
     except FileNotFoundError:
-        print(f"Error: Direct repeats file '{dr_file}' not found", file=sys.stderr)
+        logging.error(f"Direct repeats file not found: {dr_file}")
         sys.exit(1)
     except Exception as e:
-        print(f"Error parsing direct repeats file: {e}", file=sys.stderr)
+        logging.error(f"Error parsing direct repeats: {e}")
         sys.exit(1)
-
+    
+    # Report filtering statistics
+    total_drs = sum(contig_counts.values())
+    kept_drs = sum(len(drs) for drs in direct_repeats.values())
+    
+    logging.info(f"Direct repeat filtering summary:")
+    logging.info(f"  Total DRs found: {total_drs}")
+    logging.info(f"  DRs kept after filtering: {kept_drs}")
+    logging.info(f"  Filtered out: {total_drs - kept_drs}")
+    for reason, count in filtered_counts.items():
+        logging.info(f"    {reason}: {count}")
+    
+    # Report DR distribution per contig
+    logging.info(f"Valid direct repeats per contig:")
+    dr_per_contig = {contig: len(drs) for contig, drs in direct_repeats.items()}
+    for contig, count in Counter(dr_per_contig).most_common(10):
+        logging.info(f"  {contig}: {count} DRs")
+    if len(dr_per_contig) > 10:
+        logging.info(f"  ... and {len(dr_per_contig) - 10} more contigs")
+    
     return direct_repeats
 
 
-def find_most_distal_trna(ice_prediction, trna_list):
+def parse_gff_file(gff_file):
     """
-    Find the most distal tRNA relative to the original ICE boundaries.
-    The most distal tRNA should be closer to flank_start and/or flank_end and outside the original region.
-    
-    Args:
-        ice_prediction: Dictionary containing ICE prediction data
-        trna_list: List of tRNA predictions with coordinates relative to extended region
-    
-    Returns:
-        Dictionary with distal tRNA information and gap analysis
+    Parse GFF/GTF file to extract gene positions with contig tracking
+    Returns gene positions organized by sequence and gene ID
     """
-    original_start = ice_prediction['original_start']
-    original_end = ice_prediction['original_end']
-    flank_start = ice_prediction['flank_start']
-    flank_end = ice_prediction['flank_end']
-    contig_length = ice_prediction['contig_length']
+    gene_positions = defaultdict(dict)
+    contig_counts = Counter()
+    feature_counts = Counter()
+    
+    if not gff_file:
+        logging.info("No GFF file provided, skipping gene boundary validation")
+        return gene_positions
+    
+    try:
+        with open(gff_file, 'r') as f:
+            for line in f:
+                line_l = line.rstrip().split("\t")
+                # Annotation lines have exactly 9 columns
+                if len(line_l) == 9:
+                    (
+                        seqname,
+                        seq_source,
+                        feature_type,
+                        start,
+                        end,
+                        score,
+                        strand,
+                        phase,
+                        attributes,
+                    ) = line.rstrip().split("\t")
+                
+                    if feature_type == 'CDS':
+                        for att in attributes.split(';'):
+                            att_key, att_value = att.split('=')
+                            if att_key == 'ID':
+                                gene_id = att_value
+                    
+                        # Store gene position
+                        gene_positions[seqname][gene_id] = {
+                            'start': int(start),
+                            'end': int(end),
+                        }
+                        contig_counts[seqname] += 1
+                
+                        logging.debug(f"Added gene: {seqname}:{gene_id} ({start}-{end})")
+        
+        # Report parsing statistics
+        total_genes = sum(contig_counts.values())
+        logging.info(f"GFF parsing summary:")
+        logging.info(f"  Total genes parsed: {total_genes}")
+        logging.info(f"  Contigs with genes: {len(gene_positions)}")
+        
+        # Report genes per contig
+        logging.info(f"Genes per contig:")
+        for contig, count in contig_counts.most_common(10):
+            logging.info(f"  {contig}: {count} genes")
+        if len(contig_counts) > 10:
+            logging.info(f"  ... and {len(contig_counts) - 10} more contigs")
+        
+    except FileNotFoundError:
+        logging.warning(f"GFF file not found: {gff_file}. Skipping gene boundary validation.")
+        return defaultdict(dict)
+    except Exception as e:
+        logging.warning(f"Error parsing GFF file: {e}. Skipping gene boundary validation.")
+        return defaultdict(dict)
+    
+    return gene_positions
 
-    # Convert tRNA coordinates from extended region to original contig coordinates
-    # tRNA coordinates are relative to the extended region starting at flank_start
-    corrected_trnas = []
+def find_genes_near_coordinates(gene_positions, seqname, start, end, window=5):
+    """
+    Find genes near given coordinates (within ±window genes)
+    Following single.py logic of ±5 genes from ICE boundaries
+    """
+    if seqname not in gene_positions:
+        return []
+    
+    genes = gene_positions[seqname]
+    
+    # Get all genes sorted by start position
+    sorted_genes = sorted(genes.items(), key=lambda x: x[1]['start'])
+    
+    # Find genes that overlap or are near the ICE region
+    nearby_genes = []
+    
+    for gene_id, gene_info in sorted_genes:
+        gene_start = gene_info['start']
+        gene_end = gene_info['end']
+        
+        # Check if gene overlaps with ICE region or is nearby
+        if (gene_end >= start - 10000 and gene_start <= end + 10000):  # 10kb window
+            nearby_genes.append((gene_id, gene_info))
+    
+    return nearby_genes
+
+def validate_dr_gene_overlap(dr, ice_prediction, gene_positions):
+    """
+    Check if DR positions overlap with ICE gene boundaries
+    Following single.py logic for gene boundary validation
+    """
+    seqname = ice_prediction['seqname']
+    ice_start = ice_prediction['original_start']
+    ice_end = ice_prediction['original_end']
+    
+    if seqname not in gene_positions:
+        logging.debug(f"No gene positions available for {seqname}")
+        return True  # Skip validation if no gene data
+    
+    # Find genes near the ICE region
+    nearby_genes = find_genes_near_coordinates(gene_positions, seqname, ice_start, ice_end)
+    
+    if not nearby_genes:
+        logging.debug(f"No genes found near ICE region {seqname}:{ice_start}-{ice_end}")
+        return True  # Skip validation if no nearby genes
+    
+    # Check if DR boundaries overlap with any nearby gene boundaries
+    for gene_id, gene_info in nearby_genes:
+        gene_start = gene_info['start']
+        gene_end = gene_info['end']
+        
+        # Scenario A: DR start within gene boundaries
+        if gene_start <= dr['start1'] <= gene_end:
+            logging.debug(f"DR start {dr['start1']} within gene {gene_id} boundaries ({gene_start}-{gene_end})")
+            return True
+        
+        # Scenario B: DR end within gene boundaries  
+        if gene_start <= dr['end2'] <= gene_end:
+            logging.debug(f"DR end {dr['end2']} within gene {gene_id} boundaries ({gene_start}-{gene_end})")
+            return True
+        
+        # Additional check: gene boundaries within DR span
+        if dr['start1'] <= gene_start <= dr['end2'] or dr['start1'] <= gene_end <= dr['end2']:
+            logging.debug(f"Gene {gene_id} boundaries within DR span")
+            return True
+    
+    logging.debug(f"DR {dr['start1']}-{dr['end2']} doesn't overlap with gene boundaries")
+    return False
+
+def count_trnas_in_span(trna_list, start, end):
+    """Count tRNAs within a given genomic span"""
+    count = 0
+    trnas_in_span = []
+    
     for trna in trna_list:
-        corrected_start = trna['start'] + flank_start - 1  # Convert to contig coordinates
-        corrected_end = trna['end'] + flank_start - 1
-        corrected_trnas.append({
-            'corrected_start': corrected_start,
-            'corrected_end': corrected_end,
-            'product': trna['product']
-        })
+        # Check if tRNA is completely within the span
+        if start <= trna['start'] <= end and start <= trna['end'] <= end:
+            count += 1
+            trnas_in_span.append(trna)
     
-    # Create extended boundaries (equivalent to nfICEnum, neICEnum in single.py)
-    extended_start = flank_start
-    extended_end = flank_end
+    return count, trnas_in_span
+
+def find_max_gap_between_trnas(trnas_in_span):
+    """
+    Find the maximum gap between tRNAs to identify ICE insertion site
+    Following single.py gap analysis logic
+    """
+    if len(trnas_in_span) < 2:
+        return None, 0
     
-    # Build position list for gap analysis (following single.py ICEtagnum logic)
-    position_list = [extended_start, extended_end]
+    # Sort tRNAs by start position
+    sorted_trnas = sorted(trnas_in_span, key=lambda x: x['start'])
     
-    # Add tRNA positions within extended region (outside original ICE boundaries)
-    distal_trnas = []
-    for trna in corrected_trnas:
-        trna_pos = trna['corrected_start']  # Use start position as representative
+    max_gap = 0
+    gap_location = None
+    
+    for i in range(len(sorted_trnas) - 1):
+        current_end = sorted_trnas[i]['end']
+        next_start = sorted_trnas[i + 1]['start']
+        gap = next_start - current_end - 1
         
-        # Only consider tRNAs outside the original ICE boundaries
-        if (trna_pos < original_start or trna_pos > original_end) and \
-           (extended_start <= trna_pos <= extended_end):
-            position_list.append(trna_pos)
-            distal_trnas.append(trna)
+        if gap > max_gap:
+            max_gap = gap
+            gap_location = {
+                'gap_start': current_end + 1,
+                'gap_end': next_start - 1,
+                'gap_size': gap,
+                'upstream_trna': sorted_trnas[i],
+                'downstream_trna': sorted_trnas[i + 1]
+            }
     
-    position_list.sort()
+    return gap_location, max_gap
+
+def find_dr_flanking_ice_and_trna(ice_prediction, trna_coordinates, direct_repeats, gene_positions=None):
+    """
+    Find direct repeats that flank ICE and contain sufficient tRNAs
+    Implements single.py logic with ≥2 tRNA requirement
+    """
+    seqname = ice_prediction['seqname']
+    ice_start = ice_prediction['original_start']
+    ice_end = ice_prediction['original_end']
     
-    # Find largest gap between consecutive positions (following single.py find_max_distance)
-    gap_start = None
-    gap_end = None
-    gap_location = None  # 'start', 'end', or 'internal'
+    if seqname not in trna_coordinates or seqname not in direct_repeats:
+        logging.debug(f"No tRNA or DR data for sequence: {seqname}")
+        return None
     
-    if len(position_list) >= 2:
-        max_gap = 0
-        for i in range(len(position_list) - 1):
-            gap = position_list[i + 1] - position_list[i]
-            if gap > max_gap:
-                max_gap = gap
-                gap_start = position_list[i]
-                gap_end = position_list[i + 1]
+    trna_list = trna_coordinates[seqname]
+    dr_list = direct_repeats[seqname]
+    
+    best_dr = None
+    best_score = 0
+    best_trnas = []
+    best_gap = None
+    
+    logging.debug(f"Evaluating {len(dr_list)} direct repeats for ICE {seqname}:{ice_start}-{ice_end}")
+    
+    for dr in dr_list:
+        # Check if DR spans the ICE region
+        if dr['start1'] > ice_start or dr['end2'] < ice_end:
+            logging.debug(f"DR {dr['start1']}-{dr['end2']} doesn't span ICE {ice_start}-{ice_end}")
+            continue
         
-        # Determine gap location relative to original ICE (following single.py logic)
-        if gap_end == extended_end:
-            gap_location = 'end'  # Gap is at the END boundary
-        elif gap_start == extended_start:
-            gap_location = 'start'  # Gap is at the START boundary
-        else:
-            gap_location = 'internal'  # Gap is internal
-    
-    # Find the most distal tRNAs (those closest to flank boundaries)
-    most_distal_trnas = []
-    if distal_trnas:
-        # Find tRNAs closest to flank_start (upstream distal)
-        upstream_distal = min(distal_trnas, key=lambda t: abs(t['corrected_start'] - flank_start))
-        if upstream_distal['corrected_start'] < original_start:
-            most_distal_trnas.append(('upstream', upstream_distal))
+        # Validate gene boundary overlap if gene positions available
+        if gene_positions and not validate_dr_gene_overlap(dr, ice_prediction, gene_positions):
+            logging.debug(f"DR doesn't meet gene boundary overlap criteria")
+            continue
         
-        # Find tRNAs closest to flank_end (downstream distal)
-        downstream_distal = min(distal_trnas, key=lambda t: abs(t['corrected_start'] - flank_end))
-        if downstream_distal['corrected_start'] > original_end:
-            most_distal_trnas.append(('downstream', downstream_distal))
+        # Count tRNAs within DR span - CRITICAL: Must be ≥2 (not ≥1)
+        trnas_between, trnas_in_span = count_trnas_in_span(trna_list, dr['start1'], dr['end2'])
+        
+        if trnas_between < 2:  # Following single.py requirement
+            logging.debug(f"DR has only {trnas_between} tRNAs, need ≥2")
+            continue
+        
+        # Find the largest gap between tRNAs
+        gap_location, max_gap = find_max_gap_between_trnas(trnas_in_span)
+        
+        # Score this DR (prefer more tRNAs and larger gaps)
+        score = trnas_between * 1000 + max_gap
+        
+        if score > best_score:
+            best_score = score
+            best_dr = dr
+            best_trnas = trnas_in_span
+            best_gap = gap_location
+            
+        logging.debug(f"DR {dr['start1']}-{dr['end2']}: {trnas_between} tRNAs, max gap: {max_gap}, score: {score}")
+    
+    if best_dr is None:
+        logging.debug(f"No suitable DR found for ICE {seqname}:{ice_start}-{ice_end}")
+        return None
     
     return {
-        'gap_start': gap_start,
-        'gap_end': gap_end,
-        'gap_location': gap_location,
-        'most_distal_trnas': most_distal_trnas,
-        'all_distal_trnas': distal_trnas,
-        'position_list': position_list
+        'selected_dr': best_dr,
+        'trnas_in_span': best_trnas,
+        'gap_location': best_gap,
+        'num_trnas': len(best_trnas),
+        'score': best_score
     }
 
-
-def find_dr_flanking_ice_and_trna(ice_prediction, distal_trna_coordinates, direct_repeats):
+def refine_ice_boundaries(ice_prediction, trna_coordinates, direct_repeats, gene_positions=None, verbose=False):
     """
-    Parse the list of direct repeat pairs to find those flanking the ICE + distal tRNAs.
-    
-    Args:
-        ice_prediction: Dictionary containing ICE prediction data
-        distal_trna_coordinates: Result from find_most_distal_trna function
-        direct_repeats: List of direct repeat pairs
-    
-    Returns:
-        Dictionary with selected DR pair and refined boundaries
+    Refine ICE boundaries using direct repeats and tRNA analysis
+    Implements single.py methodology with proper fallback logic
     """
-
+    seqname = ice_prediction['seqname']
     original_start = ice_prediction['original_start']
     original_end = ice_prediction['original_end']
-    flank_start = ice_prediction['flank_start']
-    flank_end = ice_prediction['flank_end']
+    original_length = ice_prediction['original_length']
     
-    gap_start = distal_trna_coordinates['gap_start']
-    gap_end = distal_trna_coordinates['gap_end']
-    gap_location = distal_trna_coordinates['gap_location']
-    all_distal_trnas = distal_trna_coordinates['all_distal_trnas']
+    logging.debug(f"Refining boundaries for ICE {seqname}:{original_start}-{original_end}")
     
-    # Initialize refined boundaries based on gap analysis
-    refined_start = original_start
-    refined_end = original_end
+    # Find the best DR flanking the ICE
+    dr_result = find_dr_flanking_ice_and_trna(ice_prediction, trna_coordinates, direct_repeats, gene_positions)
     
-    # Apply gap-based boundary refinement (following single.py logic)
-    if gap_location == 'end' and gap_start is not None:
-        # Gap at END - move start boundary to gap start
-        refined_start = gap_start
-    elif gap_location == 'start' and gap_end is not None:
-        # Gap at START - move end boundary to gap end
-        refined_end = gap_end
+    if dr_result is None:
+        # Fallback logic: use original boundaries (like single.py)
+        logging.debug(f"No suitable DR found for {seqname}, using original boundaries")
+        return {
+            'seqname': seqname,
+            'refined_start': original_start,
+            'refined_end': original_end,
+            'refined_length': original_length,
+            'dr1_start': original_start,  # attL site
+            'dr1_end': original_start,
+            'dr2_start': original_end,    # attR site  
+            'dr2_end': original_end,
+            'num_trnas': len(trna_coordinates.get(seqname, [])),
+            'gap_location': 'none',
+            'refinement_method': 'fallback_original'
+        }
     
-    # Find suitable DR pairs (following single.py criteria)
-    suitable_drs = []
-    for dr in direct_repeats:
-        # Filter by distance (5kb - 500kb total span)
-        total_span = dr['end2'] - dr['start1']
-        if total_span > 500000 or total_span < 5000:
-            continue
-        
-        # Check if DR pair flanks the refined ICE + distal tRNAs
-        left_dr_start = dr['start1']
-        left_dr_end = dr['end1']
-        right_dr_start = dr['start2']
-        right_dr_end = dr['end2']
-
-        # Ensure proper flanking (left DR before refined region, right DR after)
-        if not (left_dr_end <= refined_start and right_dr_start >= refined_end):
-            continue
-        
-        # Count tRNAs between DR pair (following single.py checktrna logic)
-        trnas_between = 0
-        for trna in all_distal_trnas:
-            trna_start = trna['corrected_start']
-            trna_end = trna['corrected_end']
-            
-            # Check if tRNA is between the inner edges of the DR pair
-            if left_dr_end <= trna_start <= right_dr_start and left_dr_end <= trna_end <= right_dr_start:
-                trnas_between += 1
-        
-        # Require at least 2 tRNAs between DRs (following single.py requirement)
-        if trnas_between >= 1:
-            # Additional check based on gap location (following single.py positioning logic)
-            valid_positioning = True
-            
-            if gap_location == 'end':
-                # Gap at END - check if left DR is within refined start region
-                if refined_start - 1000 <= left_dr_start <= refined_start + 1000:
-                    valid_positioning = True
-            elif gap_location == 'start':
-                # Gap at START - check if right DR is within refined end region  
-                if refined_end - 1000 <= right_dr_end <= refined_end + 1000:
-                    valid_positioning = True
-            else:
-                # No specific gap - general flanking is sufficient
-                valid_positioning = True
-        
-            if valid_positioning:
-                suitable_drs.append({
-                    'dr': dr,
-                    'trnas_between': trnas_between,
-                    'total_span': total_span,
-                    'score': trnas_between  # Score based on tRNA count
-                })
+    # Use DR boundaries for refined ICE coordinates
+    selected_dr = dr_result['selected_dr']
+    gap_info = dr_result['gap_location']
     
-    # Select best DR pair
-    selected_dr = None
-    dr1_start = dr1_end = dr2_start = dr2_end = None
-    final_refined_start = refined_start
-    final_refined_end = refined_end
+    refined_start = selected_dr['start1']
+    refined_end = selected_dr['end2']
+    refined_length = refined_end - refined_start + 1
     
-    if suitable_drs:
-        # Sort by score (number of tRNAs between DRs), then by smaller total span
-        suitable_drs.sort(key=lambda x: (-x['score'], x['total_span']))
-        best_dr_info = suitable_drs[0]
-        selected_dr = best_dr_info['dr']
-        
-        # Set DR coordinates (attL and attR)
-        dr1_start = selected_dr['start1']  # attL start
-        dr1_end = selected_dr['end1']      # attL end
-        dr2_start = selected_dr['start2']  # attR start
-        dr2_end = selected_dr['end2']      # attR end
-        
-        # Update final boundaries to be between the inner edges of DRs
-        final_refined_start = dr1_end + 1
-        final_refined_end = dr2_start - 1
+    # Determine gap location description
+    gap_desc = 'none'
+    if gap_info:
+        gap_desc = f"{gap_info['gap_start']}-{gap_info['gap_end']}"
     
-    # Ensure boundaries are within flanking regions
-    final_refined_start = max(flank_start, final_refined_start)
-    final_refined_end = min(flank_end, final_refined_end)
-    final_refined_length = max(0, final_refined_end - final_refined_start + 1)
+    logging.debug(f"Refined {seqname}: {refined_start}-{refined_end} (length: {refined_length})")
+    logging.debug(f"Found {dr_result['num_trnas']} tRNAs, largest gap: {gap_desc}")
     
     return {
-        'refined_start': final_refined_start,
-        'refined_end': final_refined_end,
-        'refined_length': final_refined_length,
-        'dr1_start': dr1_start if dr1_start is not None else 'NA',
-        'dr1_end': dr1_end if dr1_end is not None else 'NA',
-        'dr2_start': dr2_start if dr2_start is not None else 'NA',
-        'dr2_end': dr2_end if dr2_end is not None else 'NA',
-        'selected_dr': selected_dr,
-        'suitable_drs_count': len(suitable_drs),
-        'gap_location': gap_location
+        'seqname': seqname,
+        'refined_start': refined_start,
+        'refined_end': refined_end,
+        'refined_length': refined_length,
+        'dr1_start': selected_dr['start1'],  # attL site (left DR start)
+        'dr1_end': selected_dr['end1'],      # Left DR end
+        'dr2_start': selected_dr['start2'],  # Right DR start
+        'dr2_end': selected_dr['end2'],      # attR site (right DR end)
+        'num_trnas': dr_result['num_trnas'],
+        'gap_location': gap_desc,
+        'refinement_method': 'direct_repeat'
     }
 
+def write_refined_boundaries(refined_results, output_file):
+    """Write refined ICE boundaries to output file with contig organization"""
+    try:
+        with open(output_file, 'w') as f:
+            # Write header
+            header = [
+                'seqname', 'refined_start', 'refined_end', 'refined_length',
+                'dr1_start', 'dr1_end', 'dr2_start', 'dr2_end',
+                'num_trnas', 'gap_location', 'refinement_method'
+            ]
+            f.write('\t'.join(header) + '\n')
+            
+            # Sort results by contig name and then by start position
+            sorted_results = sorted(refined_results, key=lambda x: (x['seqname'], x['refined_start']))
+            
+            # Write results
+            for result in sorted_results:
+                row = [
+                    result['seqname'],
+                    str(result['refined_start']),
+                    str(result['refined_end']),
+                    str(result['refined_length']),
+                    str(result['dr1_start']),
+                    str(result['dr1_end']),
+                    str(result['dr2_start']),
+                    str(result['dr2_end']),
+                    str(result['num_trnas']),
+                    result['gap_location'],
+                    result['refinement_method']
+                ]
+                f.write('\t'.join(row) + '\n')
+                
+        logging.info(f"Results written to: {output_file}")
+        
+    except Exception as e:
+        logging.error(f"Error writing output file: {e}")
+        sys.exit(1)
 
-
-
-def refine_ice_boundaries(ice_prediction, trna_list, dr_list, verbose=False):
-    """
-    Refine ICE boundaries using tRNAs and direct repeats
-    Adapted from single.py merge_tRNA function to work with genomic coordinates
-    """
-    system_id = ice_prediction['system_id']
+def generate_summary_report(refined_results, data_summary):
+    """Generate a comprehensive summary report of the refinement process"""
     
-    # Find most distal tRNAs and gap analysis
-    distal_trna_coordinates = find_most_distal_trna(ice_prediction, trna_list)
+    # Overall statistics
+    total_ices = len(refined_results)
+    successful_refinements = sum(1 for r in refined_results if r['refinement_method'] == 'direct_repeat')
     
-    # Find DR pairs flanking ICE + distal tRNAs
-    refined_boundaries = find_dr_flanking_ice_and_trna(ice_prediction, distal_trna_coordinates, dr_list)
+    # Per-contig statistics
+    contig_stats = defaultdict(lambda: {'total': 0, 'refined': 0, 'fallback': 0})
     
-    if verbose:
-        print(f"System {system_id}: Gap location: {distal_trna_coordinates['gap_location']}", file=sys.stderr)
-        print(f"System {system_id}: Found {len(distal_trna_coordinates['all_distal_trnas'])} distal tRNAs", file=sys.stderr)
-        print(f"System {system_id}: Found {refined_boundaries['suitable_drs_count']} suitable DR pairs", file=sys.stderr)
-        print(f"System {system_id}: Refined boundaries: {refined_boundaries['refined_start']}-{refined_boundaries['refined_end']}", file=sys.stderr)
+    for result in refined_results:
+        contig = result['seqname']
+        contig_stats[contig]['total'] += 1
+        if result['refinement_method'] == 'direct_repeat':
+            contig_stats[contig]['refined'] += 1
+        else:
+            contig_stats[contig]['fallback'] += 1
     
-    return {
-        'refined_start': refined_boundaries['refined_start'],
-        'refined_end': refined_boundaries['refined_end'],
-        'refined_length': refined_boundaries['refined_length'],
-        'dr1_start': refined_boundaries['dr1_start'],
-        'dr1_end': refined_boundaries['dr1_end'],
-        'dr2_start': refined_boundaries['dr2_start'],
-        'dr2_end': refined_boundaries['dr2_end'],
-        'num_trnas': len(distal_trna_coordinates['all_distal_trnas']),
-        'gap_location': refined_boundaries['gap_location']
-    }
-
+    logging.info("="*60)
+    logging.info("REFINEMENT SUMMARY REPORT")
+    logging.info("="*60)
+    
+    logging.info(f"Overall Statistics:")
+    logging.info(f"  Total ICEs processed: {total_ices}")
+    logging.info(f"  Successfully refined: {successful_refinements}")
+    logging.info(f"  Used fallback boundaries: {total_ices - successful_refinements}")
+    logging.info(f"  Success rate: {successful_refinements/total_ices*100:.1f}%")
+    
+    logging.info(f"\nPer-contig refinement success:")
+    for contig in sorted(contig_stats.keys())[:10]:  # Show top 10
+        stats = contig_stats[contig]
+        success_rate = stats['refined'] / stats['total'] * 100 if stats['total'] > 0 else 0
+        logging.info(f"  {contig}: {stats['refined']}/{stats['total']} ({success_rate:.1f}%)")
+    
+    if len(contig_stats) > 10:
+        logging.info(f"  ... and {len(contig_stats) - 10} more contigs")
+    
+    # Data availability impact
+    logging.info(f"\nData availability impact:")
+    missing_trna = len([c for c in data_summary['ice_contigs'] if c not in data_summary['trna_contigs']])
+    missing_dr = len([c for c in data_summary['ice_contigs'] if c not in data_summary['dr_contigs']])
+    missing_genes = len([c for c in data_summary['ice_contigs'] if c not in data_summary['gene_contigs']]) if data_summary['gene_contigs'] else 0
+    
+    logging.info(f"  ICE contigs missing tRNA data: {missing_trna}")
+    logging.info(f"  ICE contigs missing DR data: {missing_dr}")
+    if data_summary['gene_contigs']:
+        logging.info(f"  ICE contigs missing gene data: {missing_genes}")
+    
+    logging.info("="*60)
 
 def main():
-    parser = argparse.ArgumentParser(description='Refine ICE boundaries using tRNAs and direct repeats')
-    parser.add_argument('--macsyfinder', help='MacSyFinder results file with ICE coordinates')
-    parser.add_argument('--trna', help='tRNA predictions in GFF format')
-    parser.add_argument('--drs', help='Direct repeats in TSV format')
-    parser.add_argument('-o', '--output', help='Output file for refined ICE boundaries (default: stdout)')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Print detailed processing information')
+    parser = argparse.ArgumentParser(
+        description='Refine ICE boundaries using direct repeats and tRNA analysis (single.py compatible)',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s -i ice_predictions.tsv -t trna_coords.gff -d direct_repeats.tsv -o refined_boundaries.tsv
+  %(prog)s -i ice_predictions.tsv -t trna_coords.gff -d direct_repeats.tsv -g annotation.gff -o refined_boundaries.tsv -v
+
+Input file formats:
+  ICE predictions (MacSyFinder): system_id<TAB>contig<TAB>type<TAB>start<TAB>end<TAB>length...
+  tRNA coordinates (GFF): contig<TAB>aragorn<TAB>tRNA<TAB>start<TAB>end<TAB>.<TAB>strand<TAB>.<TAB>attributes
+  Direct repeats (TSV): contig<TAB>start1<TAB>end1<TAB>start2<TAB>end2
+  GFF annotation: Standard GFF3/GTF format
+        """
+    )
+    
+    parser.add_argument('-i', '--ice-predictions', required=True,
+                        help='Input file with ICE predictions from MacSyFinder (TSV format)')
+    parser.add_argument('-t', '--trna-coordinates', required=True,
+                        help='Input file with tRNA coordinates from aragorn (GFF format)')
+    parser.add_argument('-d', '--direct-repeats', required=True,
+                        help='Input file with direct repeats (TSV format)')
+    parser.add_argument('-g', '--gff-file', 
+                        help='Optional: GFF/GTF annotation file for gene boundary validation')
+    parser.add_argument('-o', '--output', required=True,
+                        help='Output file for refined ICE boundaries (TSV format)')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='Enable verbose logging')
+    parser.add_argument('--validate-contigs', action='store_true',
+                        help='Perform strict contig name validation across input files')
     
     args = parser.parse_args()
     
-    if args.verbose:
-        print("Parsing input files...", file=sys.stderr)
+    # Setup logging
+    setup_logging(args.verbose)
     
-    # Parse input files
-    ice_predictions = parse_macsyfinder_results(args.macsyfinder)
-    trna_predictions = parse_trna_gff(args.trna)
-    direct_repeats = parse_direct_repeats(args.drs)
+    logging.info("Starting ICE boundary refinement (single.py compatible)")
+    logging.info(f"ICE predictions: {args.ice_predictions}")
+    logging.info(f"tRNA coordinates: {args.trna_coordinates}")
+    logging.info(f"Direct repeats: {args.direct_repeats}")
+    if args.gff_file:
+        logging.info(f"GFF annotation: {args.gff_file}")
+    logging.info(f"Output file: {args.output}")
     
-    if args.verbose:
-        print(f"Found {len(ice_predictions)} ICE predictions", file=sys.stderr)
-        print(f"Found tRNA predictions for {len(trna_predictions)} sequences", file=sys.stderr)
-        print(f"Found direct repeats for {len(direct_repeats)} sequences", file=sys.stderr)
+    # Parse input files with enhanced contig tracking
+    logging.info("\nParsing input files...")
+    ice_predictions = parse_ice_predictions(args.ice_predictions)
+    trna_coordinates = parse_trna_gff(args.trna_coordinates)  # Updated to use GFF parser
+    direct_repeats = parse_direct_repeats(args.direct_repeats)
     
-    # Process each ICE prediction
+    gene_positions = None
+    if args.gff_file:
+        gene_positions = parse_gff_file(args.gff_file)
+    
+    # Validate contig consistency and data availability
+    logging.info("\nValidating data consistency across contigs...")
+    processable_contigs, data_summary = validate_contig_consistency(
+        ice_predictions, trna_coordinates, direct_repeats, gene_positions
+    )
+    
+    # Optional strict validation
+    if args.validate_contigs:
+        ice_contigs = data_summary['ice_contigs']
+        trna_contigs = data_summary['trna_contigs']
+        dr_contigs = data_summary['dr_contigs']
+        
+        missing_essential_data = []
+        for contig in ice_contigs:
+            if contig not in trna_contigs:
+                missing_essential_data.append(f"{contig}: missing tRNA data")
+            if contig not in dr_contigs:
+                missing_essential_data.append(f"{contig}: missing DR data")
+        
+        if missing_essential_data:
+            logging.error("Strict validation failed. Missing essential data:")
+            for issue in missing_essential_data[:10]:
+                logging.error(f"  {issue}")
+            if len(missing_essential_data) > 10:
+                logging.error(f"  ... and {len(missing_essential_data) - 10} more issues")
+            logging.error("Use --validate-contigs=false to proceed anyway")
+            sys.exit(1)
+    
+    # Process each ICE prediction with enhanced error handling
+    logging.info(f"\nProcessing {len(ice_predictions)} ICE predictions...")
     refined_results = []
+    successful_refinements = 0
+    failed_processing = []
     
-    for system_id, ice_pred in ice_predictions.items():
-        if args.verbose:
-            print(f"Processing system {system_id}...", file=sys.stderr)
-        
-        # Find corresponding tRNAs and DRs
-        flanked_seqname = f"{system_id}_with_flanks"
-        contig_id = ice_pred['contig']
-        
-        trnas = trna_predictions.get(flanked_seqname, [])
-        drs = direct_repeats.get(contig_id, [])
-        
-        # Also try without _with_flanks suffix
-        if not trnas:
-            trnas = trna_predictions.get(system_id, [])
-        if not drs:
-            drs = direct_repeats.get(system_id, [])
-        
-        if args.verbose:
-            print(f"  Found {len(trnas)} tRNAs and {len(drs)} DR pairs", file=sys.stderr)
-        
-        # Refine boundaries
-        refinement = refine_ice_boundaries(ice_pred, trnas, drs, args.verbose)
-        
-        # Combine original prediction with refinement results
-        result = {
-            'system_id': system_id,
-            'contig': ice_pred['contig'],
-            'type': ice_pred['type'],
-            'original_start': ice_pred['original_start'],
-            'original_end': ice_pred['original_end'],
-            'refined_start': refinement['refined_start'],
-            'refined_end': refinement['refined_end'],
-            'refined_length': refinement['refined_length'],
-            'flank_start': ice_pred['flank_start'],
-            'flank_end': ice_pred['flank_end'],
-            'dr1_start': refinement['dr1_start'],
-            'dr1_end': refinement['dr1_end'],
-            'dr2_start': refinement['dr2_start'],
-            'dr2_end': refinement['dr2_end'],
-            'num_trnas': refinement['num_trnas'],
-            'gc_content': ice_pred['gc_content']
-        }
-        
-        refined_results.append(result)
-        
-        if args.verbose:
-            print(f"  Refined: {ice_pred['original_start']}-{ice_pred['original_end']} -> "
-                  f"{refinement['refined_start']}-{refinement['refined_end']} "
-                  f"({refinement['num_trnas']} tRNAs)", file=sys.stderr)
+    # Group ICEs by contig for better progress reporting
+    ices_by_contig = defaultdict(list)
+    for ice in ice_predictions:
+        ices_by_contig[ice['seqname']].append(ice)
     
-    # Write output
-    output_file = open(args.output, 'w', newline='') if args.output else sys.stdout
+    processed_contigs = 0
+    total_contigs = len(ices_by_contig)
     
-    try:
-        fieldnames = [
-            'system_id', 'contig', 'type', 'original_start', 'original_end',
-            'refined_start', 'refined_end', 'refined_length', 'flank_start', 'flank_end',
-            'dr1_start', 'dr1_end', 'dr2_start', 'dr2_end', 'num_trnas', 'gc_content'
-        ]
+    for contig, contig_ices in ices_by_contig.items():
+        processed_contigs += 1
+        logging.info(f"Processing contig {processed_contigs}/{total_contigs}: {contig} ({len(contig_ices)} ICEs)")
         
-        writer = csv.DictWriter(output_file, fieldnames=fieldnames, delimiter='\t')
-        writer.writeheader()
+        contig_successes = 0
         
-        for result in refined_results:
-            writer.writerow(result)
+        for ice_prediction in contig_ices:
+            try:
+                result = refine_ice_boundaries(
+                    ice_prediction, 
+                    trna_coordinates, 
+                    direct_repeats, 
+                    gene_positions, 
+                    args.verbose
+                )
+                refined_results.append(result)
+                
+                if result['refinement_method'] == 'direct_repeat':
+                    successful_refinements += 1
+                    contig_successes += 1
+                    
+            except Exception as e:
+                error_msg = f"Error processing ICE {ice_prediction['seqname']}:{ice_prediction['original_start']}-{ice_prediction['original_end']}: {e}"
+                logging.error(error_msg)
+                failed_processing.append(error_msg)
+                continue
+        
+        if contig_ices:
+            success_rate = contig_successes / len(contig_ices) * 100
+            logging.info(f"  Contig {contig}: {contig_successes}/{len(contig_ices)} refined ({success_rate:.1f}%)")
     
-    finally:
-        if args.output:
-            output_file.close()
+    # Write results with enhanced organization
+    logging.info(f"\nWriting results...")
+    write_refined_boundaries(refined_results, args.output)
     
-    if args.verbose:
-        print(f"Processed {len(refined_results)} ICE predictions", file=sys.stderr)
-        print("Refinement complete!", file=sys.stderr)
+    # Generate comprehensive summary report
+    generate_summary_report(refined_results, data_summary)
+    
+    # Report any processing failures
+    if failed_processing:
+        logging.warning(f"\nProcessing failures ({len(failed_processing)}):")
+        for failure in failed_processing[:5]:  # Show first 5
+            logging.warning(f"  {failure}")
+        if len(failed_processing) > 5:
+            logging.warning(f"  ... and {len(failed_processing) - 5} more failures")
+    
+    # Final success check
+    if successful_refinements == 0:
+        logging.warning("No ICE boundaries were successfully refined!")
+        logging.warning("Check that:")
+        logging.warning("  1. Direct repeats span the ICE regions")
+        logging.warning("  2. At least 2 tRNAs are present within DR spans")
+        logging.warning("  3. DR lengths are ≥15bp and spans are 5kb-500kb")
+        logging.warning("  4. Contig names match across all input files")
+    
+    logging.info(f"\nProcessing complete. Check {args.output} for results.")
 
 if __name__ == '__main__':
     main()
+
