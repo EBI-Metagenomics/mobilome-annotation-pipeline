@@ -15,78 +15,61 @@
 # limitations under the License.
 
 
-def icf_dr_control(icf_dr, mge_data):
-    # Correcting wrong coordinates
-    icf_dr_corr = {}
-    for mge in icf_dr:
-        start_1 = int(icf_dr[mge][0][0])
-        end_1 = int(icf_dr[mge][0][1])
-        len_1 = end_1 - start_1
-
-        start_2 = int(icf_dr[mge][1][0])
-        end_2 = int(icf_dr[mge][1][1])
-        len_2 = end_2 - start_2
-        if start_2 > end_2:
-            mge_start = mge_data[mge][2][0]
-            mge_end = mge_data[mge][2][1]
-            new_start_2 = mge_end - len_1
-            print("Corrected  coordinates:", start_2, "   ->   ", new_start_2)
-            dr_1 = (start_1, end_1)
-            new_dr_2 = (new_start_2, mge_end)
-            icf_dr[mge] = (dr_1, new_dr_2)
-
-    return icf_dr
-
-
-def icf_parser(icf_dr_file, icf_results):
+def icf_parser(icf_results):
     ### Saving the ICEfinder sequences
     mge_counter = 0
     mge_data = {}
     icf_dr = {}
 
-    ### Parsing ICEfinder result
+    ### Parsing ICEfinder2-lite results
     with open(icf_results, "r") as input_table:
+        next(input_table)
         for line in input_table:
             (
-                icefinder_Job_id,
-                strain,
-                genome_len,
-                icefinder_output_name,
-                description,
-                coordinate,
-                length,
-                oriT,
-                gc,
-                genome_GC,
-                delta_GC,
-                arg,
-                vf,
+                contig,  # contig_1
+                ice_id,  # contig_1_ICE2
+                ice_type,  # T4SS-type ICE
+                ice_location,  # 529362..549932
+                ice_length,  # 20571
+                gc_content,  # 0.36
+                direct_repeats,  # attL:529362..529421(TAGGTTGAGGGCCTAGTGGGTGAATAACCCGTGGAGGTTCAAGTCCTCTCGGCCGCATC),attR:549873..549932(TAGGTTGAGGGCCTAGTGGGTGAATAACCCGTGGAGGTTCAAGTCCTCTCGGCCGCATC)
+                relaxase_type,  # MOBT
+                mpf_systems,  # typeFA
+                close_to_RNA,  # tRNA-Glu(528903..528974)[+]
             ) = line.rstrip().split("\t")
-            contig = icefinder_Job_id
+
+            mge_counter += 1
+            mge_id = "icf_" + str(mge_counter)
+            start = int(ice_location.split("..")[0])
+            end = int(ice_location.split("..")[1])
+            mge_coord = (start, end)
+
+            ice_type = ice_type.replace(" ", "_")
+            if len(direct_repeats) > 1:
+                ice_type = ice_type + "_with_DRs"
+
+                dr1, dr2 = direct_repeats.split(",")
+                dr1 = dr1.replace("attL:", "").split("(")[0]
+                dr1_start = int(dr1.split("..")[0])
+                dr1_end = int(dr1.split("..")[1])
+                dr1_coords = (dr1_start, dr1_end)
+
+                dr2 = dr2.replace("attR:", "").split("(")[0]
+                dr2_start = int(dr2.split("..")[0])
+                dr2_end = int(dr2.split("..")[1])
+                dr2_coords = (dr2_start, dr2_end)
+
+                icf_dr[mge_id] = (dr1_coords, dr2_coords)
+
             description = (
-                description.replace(" ", "_")
-                .replace("Putative_", "")
-                .replace("_AICE", "AICE")
-                .replace(":", "")
+                "mobile_element_type="
+                + ice_type
+                + ";relaxase_type="
+                + relaxase_type
+                + ";mpf_systems="
+                + mpf_systems
             )
-
-            description = "mobile_element_type=" + description
-
-            if "conjugative_region" not in description:
-                mge_counter += 1
-                mge_id = "icf_" + str(mge_counter)
-                start = int(coordinate.split("..")[0])
-                end = int(coordinate.split("..")[1])
-                coord = (start, end)
-                value = (contig, description, coord)
-                mge_data[mge_id] = value
-
-                seq_id = contig + "|" + coordinate
-
-                composite_id = contig + "|" + icefinder_output_name
-                if composite_id in icf_dr:
-                    icf_dr[mge_id] = icf_dr.pop(composite_id)
-
-    icf_dr = icf_dr_control(icf_dr, mge_data)
+            value = (contig, description, mge_coord)
+            mge_data[mge_id] = value
 
     return (mge_data, icf_dr)

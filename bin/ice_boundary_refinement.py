@@ -74,7 +74,7 @@ def parse_merged_gff(gff_file, uniprot_annot_dict):
                             if blastp_id in uniprot_annot_dict:
                                 product = uniprot_annot_dict[blastp_id]
                             else:
-                                product = ''
+                                product = ""
 
                     names_map[blastp_id] = ids
                     pos = [int(start), int(end), strand, product]
@@ -450,15 +450,11 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
     ice_output_file = prefix + "_ices.tsv"
     genes_output_file = prefix + "_ice_genes.tsv"
 
-    with open(genes_output_file, 'w') as genes_output:
-        genes_header = '\t'.join([
-            'contig',
-            'ice_id',
-            'gene_id',
-            'gene_coords',
-            'gene_annot',
-            'ice_feature'])
-        genes_output.write(genes_header + '\n')
+    with open(genes_output_file, "w") as genes_output:
+        genes_header = "\t".join(
+            ["contig", "ice_id", "gene_id", "gene_coords", "gene_annot", "ice_feature"]
+        )
+        genes_output.write(genes_header + "\n")
         # Finding gene context per ICE
         ices_summary = []
         for key, value in drs_ice_dict.items():
@@ -527,7 +523,7 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
                 pos = str(s) + ".." + str(e) + "[" + strand + "]"
                 feature = "Flank"
                 product = pro
-    
+
                 mov += 1
                 content = {
                     "gene": locusdict[gene],
@@ -539,18 +535,20 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
 
             # Print gene information into output file
             for gene in genelist:
-                raw_product = gene['prod']
-                raw_product = re.sub(r'^, ', '', raw_product)
-                to_print = '\t'.join([
-                    contig,
-                    key,
-                    gene['gene'],
-                    gene['pos'],
-                    raw_product,
-                    gene['featu'],
-                ])
-                genes_output.write(to_print + '\n')
-        
+                raw_product = gene["prod"]
+                raw_product = re.sub(r"^, ", "", raw_product)
+                to_print = "\t".join(
+                    [
+                        contig,
+                        key,
+                        gene["gene"],
+                        gene["pos"],
+                        raw_product,
+                        gene["featu"],
+                    ]
+                )
+                genes_output.write(to_print + "\n")
+
             # Integrating ICEs meta info
             sgene = zill(header, fICE)
             egene = zill(header, eICE)
@@ -559,7 +557,7 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
             if myDR1 == "0":
                 myDR1 = "1"
 
-            gcc = get_gc(get_sequence(assembly, contig, int(myDR1)-1, int(myDR4)))
+            gcc = get_gc(get_sequence(assembly, contig, int(myDR1) - 1, int(myDR4)))
 
             if myDR2:
                 DR1 = get_sequence(assembly, contig, int(myDR1), int(myDR2))
@@ -610,42 +608,45 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
                 "location": myDR1 + ".." + myDR4,
                 "length": str(int(myDR4) - int(myDR1) + 1),
                 "gc": gcc,
-                "drs": DRw, 
+                "drs": DRw,
                 "relaxase": ",".join(infodict[key]["mob"]),
                 "mating_sys": ",".join(infodict[key]["mpf"]),
                 "tRNA": trnaout,
             }
             ices_summary.append(ICEinfo)
 
-
-    with open(ice_output_file, 'w') as ice_output:
-        summ_header = '\t'.join([
-            'contig',
-            'ice_id',
-            'ice_type',
-            'ice_location',
-            'ice_length',
-            'gc_content',
-            'direct_repeats',
-            'relaxase_type',
-            'mating_pair_formation_systems',
-            'close_to_RNA',
-        ])
-        ice_output.write(summ_header + '\n')
+    with open(ice_output_file, "w") as ice_output:
+        summ_header = "\t".join(
+            [
+                "contig",
+                "ice_id",
+                "ice_type",
+                "ice_location",
+                "ice_length",
+                "gc_content",
+                "direct_repeats",
+                "relaxase_type",
+                "mating_pair_formation_systems",
+                "close_to_RNA",
+            ]
+        )
+        ice_output.write(summ_header + "\n")
         for ice in ices_summary:
-            to_print = '\t'.join([
-                ice['contig'],
-                ice['ice_id'],
-                ice['type'],
-                ice['location'],
-                ice['length'],
-                ice['gc'],
-                ice['drs'],
-                ice['relaxase'],
-                ice['mating_sys'],
-                ice['tRNA'],
-            ])
-            ice_output.write(to_print + '\n')
+            to_print = "\t".join(
+                [
+                    ice["contig"],
+                    ice["ice_id"],
+                    ice["type"],
+                    ice["location"],
+                    ice["length"],
+                    ice["gc"],
+                    ice["drs"],
+                    ice["relaxase"],
+                    ice["mating_sys"],
+                    ice["tRNA"],
+                ]
+            )
+            ice_output.write(to_print + "\n")
 
 
 def get_sequence(fasta_file, contig, start, end):
@@ -657,14 +658,12 @@ def get_sequence(fasta_file, contig, start, end):
 
 def get_gc(seq):
     seq = seq.upper()
-    gc_count = seq.count('G') + seq.count('C')
+    gc_count = seq.count("G") + seq.count("C")
     if len(seq) > 0:
         gcs = str("{:.2f}".format(gc_count / len(seq)))
     else:
         gcs = "0.00"
     return gcs
-
-
 
 
 def main():
@@ -742,7 +741,15 @@ def main():
 
     # Integrating per gene info and ICE summaries
     print("Integrating and writing outputs...")
-    get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, args.assembly, args.prefix)
+    get_map(
+        drs_ice_dict,
+        genes_icedict,
+        posdict,
+        header,
+        infodict,
+        args.assembly,
+        args.prefix,
+    )
 
     print("Processing complete!")
 
