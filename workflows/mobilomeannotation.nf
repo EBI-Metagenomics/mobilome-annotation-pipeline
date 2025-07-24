@@ -24,7 +24,7 @@ include { AMRFINDER_REPORT } from '../modules/amrfinder_report'
 include { FASTA_WRITER     } from '../modules/fasta_writer'
 include { GFF_MAPPING      } from '../modules/gff_mapping'
 include { GFF_REDUCE       } from '../modules/gff_reduce'
-include { GFF_VALIDATOR    } from '../modules/validator'
+include { GFF_VALIDATOR    } from '../modules/gff_validator'
 include { INTEGRATOR       } from '../modules/integrator'
 
 /*

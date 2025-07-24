@@ -572,7 +572,7 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
                     + myDR2
                     + "("
                     + DR1
-                    + ")  "
+                    + "),"
                     + "attR:"
                     + myDR3
                     + ".."
@@ -611,7 +611,7 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
                 "location": myDR1 + ".." + myDR4,
                 "length": str(int(myDR4) - int(myDR1) + 1),
                 "gc": gcc,
-                "drs": DRw,         #TODO: print separated drs
+                "drs": DRw, 
                 "relaxase": ",".join(infodict[key]["mob"]),
                 "mating_sys": ",".join(infodict[key]["mpf"]),
                 "tRNA": trnaout,
@@ -635,16 +635,19 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
         ])
         ice_output.write(summ_header)
         for ice in ices_summary:
-            print(ice['contig'])
-            print(ice['ice_id'])
-            print(ice['type'])
-            print(ice['location'])
-            print(ice['length'])
-            print(ice['gc'])
-            print(ice['drs'])
-            print(ice['relaxase'])
-            print(ice['mating_sys'])
-            print(ice['tRNA'])
+            to_print = '\t'.join([
+                ice['contig'],
+                ice['ice_id'],
+                ice['type'],
+                ice['location'],
+                ice['length'],
+                ice['gc'],
+                ice['drs'],
+                ice['relaxase'],
+                ice['mating_sys'],
+                ice['tRNA'],
+            ])
+            ice_output.write(to_print + '\n')
 
 
 def get_sequence(fasta_file, contig, start, end):
