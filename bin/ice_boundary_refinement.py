@@ -7,7 +7,6 @@ import csv
 import re
 import argparse
 from Bio import SeqIO
-from Bio.SeqUtils import GC
 from Bio.SeqFeature import CompoundLocation, FeatureLocation
 
 
@@ -549,7 +548,7 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
                     gene['pos'],
                     raw_product,
                     gene['featu'],
-                ]) + '\n'
+                ])
                 genes_output.write(to_print + '\n')
         
             # Integrating ICEs meta info
@@ -560,7 +559,7 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
             if myDR1 == "0":
                 myDR1 = "1"
 
-            gcc = gc(get_sequence(assembly, contig, int(myDR1)-1, int(myDR4)))
+            gcc = get_gc(get_sequence(assembly, contig, int(myDR1)-1, int(myDR4)))
 
             if myDR2:
                 DR1 = get_sequence(assembly, contig, int(myDR1), int(myDR2))
@@ -616,7 +615,6 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
                 "mating_sys": ",".join(infodict[key]["mpf"]),
                 "tRNA": trnaout,
             }
-
             ices_summary.append(ICEinfo)
 
 
@@ -633,7 +631,7 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
             'mating_pair_formation_systems',
             'close_to_RNA',
         ])
-        ice_output.write(summ_header)
+        ice_output.write(summ_header + '\n')
         for ice in ices_summary:
             to_print = '\t'.join([
                 ice['contig'],
@@ -657,8 +655,13 @@ def get_sequence(fasta_file, contig, start, end):
     return str(sequence)
 
 
-def gc(sequence):
-    gcs = str("%.2f" % GC(sequence))
+def get_gc(seq):
+    seq = seq.upper()
+    gc_count = seq.count('G') + seq.count('C')
+    if len(seq) > 0:
+        gcs = str("{:.2f}".format(gc_count / len(seq)))
+    else:
+        gcs = "0.00"
     return gcs
 
 

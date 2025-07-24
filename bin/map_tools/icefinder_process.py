@@ -15,31 +15,8 @@
 # limitations under the License.
 
 
-def icf_dr_parser(icf_dr_file):
-    icf_dr = {}
-    with open(icf_dr_file, "r") as input_table:
-        for line in input_table:
-            line_l = line.rstrip().split()
-            if len(line_l) == 3:
-                new_id = (
-                    line_l[0]
-                    .replace("result/", "")
-                    .replace(":DR:", "")
-                    .replace("/", "|")
-                )
-                dr_1_s = line_l[1].split("..")[0]
-                dr_1_e = line_l[1].split("..")[1]
-                dr_1 = (dr_1_s, dr_1_e)
-                dr_2_s = line_l[2].split("..")[0]
-                dr_2_e = line_l[2].split("..")[1]
-                dr_2 = (dr_2_s, dr_2_e)
-                icf_dr[new_id] = (dr_1, dr_2)
-
-    return icf_dr
-
-
 def icf_dr_control(icf_dr, mge_data):
-    # Correcting incorrect coordinates
+    # Correcting wrong coordinates
     icf_dr_corr = {}
     for mge in icf_dr:
         start_1 = int(icf_dr[mge][0][0])
@@ -65,10 +42,9 @@ def icf_parser(icf_dr_file, icf_results):
     ### Saving the ICEfinder sequences
     mge_counter = 0
     mge_data = {}
+    icf_dr = {}
 
-    icf_dr = icf_dr_parser(icf_dr_file)
-
-    ### Parsing ICEfinder summaries
+    ### Parsing ICEfinder result
     with open(icf_results, "r") as input_table:
         for line in input_table:
             (
