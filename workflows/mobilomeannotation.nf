@@ -85,10 +85,26 @@ workflow MAIN {
 
     VIRIFY_QC( user_virify_gff_ch )
 
-
     // PREDICTION
-    def icefinder2_inputs = PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff )
-    ICEFINDER2_LITE( icefinder2_inputs, Channel.value(params.ice_models) )
+    // Collecting ICEfinder2 databases
+    db_ice_hmm_models = Channel.fromPath("${params.ice_hmm_models}.*", checkIfExists: true)
+                        .collect()
+                        .map { ice_db_files ->
+                            [[id: file(params.ice_hmm_models).name ], ice_db_files]
+                        }
+    db_prokka_uniprot = Channel.fromPath("${params.prokka_uniprot_db}.*", checkIfExists: true)
+                        .collect()
+                        .map { uniprot_db_files ->
+                            [[id: file(params.prokka_uniprot_db).name], uniprot_db_files]
+                        }
+
+
+    ICEFINDER2_LITE( 
+        RENAME.out.contigs_5kb,
+        db_ice_hmm_models, 
+        params.ice_macsy_models, 
+        db_prokka_uniprot
+    )
 
     GENOMAD( RENAME.out.contigs_5kb )
 
@@ -159,7 +175,7 @@ workflow MAIN {
 
     AMRFINDER_REPORT(
         AMRFINDER_PLUS.out.amrfinder_tsv.join(
-                INTEGRATOR.out.mobilome_prokka_gff
+            INTEGRATOR.out.mobilome_prokka_gff
         ).join(
             RENAME.out.map_file
         ).join(

@@ -1,44 +1,53 @@
-include { MACSYFINDER           } from '../modules/macsyfinder'
-include { MACSYFINDER_PROCESS   } from '../modules/macsyfinder_processor'
-include { MACSYFINDER_TO_FASTA  } from '../modules/macsyfinder_to_fasta'
+include { PRODIGAL              } from '../modules/prodigal'
+include { HMMSCAN as PRESCAN    } from '../modules/hmmscan'
+include { PRESCAN_TO_FASTA      } from '../modules/prescan_to_fasta'
+include { BLASTP_PROKKA         } from '../modules/blastp_prokka'
+include { PROCESS_BLASTP_PROKKA } from '../modules/process_blastp_prokka'
 include { ARAGORN               } from '../modules/aragorn'
+include { TRNAS_INTEGRATOR      } from '../modules/trnas_integrator'
+include { MACSYFINDER           } from '../modules/macsyfinder'
 include { VMATCH                } from '../modules/vmatch'
 include { REFINE_BOUNDARIES     } from '../modules/ice_refine_boundaries'
-include { VALIDATE_ICE_ELEMENTS } from '../modules/validate_ice_elements'
 
 workflow ICEFINDER2_LITE {
     take:
-    ch_input_files     //  channel: [val(meta), path(fna), path(faa), path(gff)]
-    ch_ice_models   // channel: path(ice_models)
+    ch_assembly             // channel: tuple( val(meta), path(assembly_5kb) )
+    ch_ice_hmm_models       // channel: tuple( val(db_id), path(ice_hmm_models_files))
+    ch_ice_macsy_models     // channel: path(ice_macsy_models)
+    ch_prokka_uniprot_db    // channel: tuple( val(db_id), path(prokka_uniprot_db))
 
     main:
+    // Preannotation to detect candidate contigs
+    PRODIGAL( ch_assembly )
 
-    // Step 1: MacSyFinder ICE detection on proteins
-    MACSYFINDER( ch_input_files.map{ meta, _fna, faa, _gff -> [meta, faa] },
-        ch_ice_models
-    )
- 
-    MACSYFINDER_PROCESS(MACSYFINDER.out.macsyfinder_tsv.join( ch_input_files.map{ meta, fna, _faa, gff -> [meta, fna, gff] } ))
+    PRESCAN( PRODIGAL.out.faa, ch_ice_hmm_models)
+
+    PRESCAN_TO_FASTA( PRESCAN.out.hmmscan_tbl.join( PRODIGAL.out.faa ).join( ch_assembly ) )
+
+    // Actual annotation of candidate contigs 
+    MACSYFINDER( PRESCAN_TO_FASTA.out.candidates_faa, ch_ice_macsy_models )
+
+    BLASTP_PROKKA( PRESCAN_TO_FASTA.out.candidates_faa, ch_prokka_uniprot_db )
+
+    PROCESS_BLASTP_PROKKA( BLASTP_PROKKA.out.uniprot_tsv )
+
+    ARAGORN( PRESCAN_TO_FASTA.out.candidates_fna )
+
+    TRNAS_INTEGRATOR( ARAGORN.out.rnas_tbl.join( PRODIGAL.out.annot )  )
+
+    VMATCH( PRESCAN_TO_FASTA.out.candidates_fna )
 
 
-    // Step 2: ICE boundary refinement using direct repeats and tRNA analysis
-    MACSYFINDER_TO_FASTA( MACSYFINDER_PROCESS.out.boundaries_tsv.join( ch_input_files.map{ meta, fna, _faa, _gff -> [meta, fna] }) )
-
-    ARAGORN( MACSYFINDER_TO_FASTA.out.macsy_contigs )
-
-    VMATCH( MACSYFINDER_TO_FASTA.out.macsy_contigs )
-   
+    // Boundaries refinement of predicted ICEs
     REFINE_BOUNDARIES(
-        ch_input_files.map{ meta, _fna, _faa, gff -> [meta, gff] }.join(
-        MACSYFINDER_PROCESS.out.boundaries_tsv).join(
-        ARAGORN.out.trna_gff).join(
+        ch_assembly.join(
+        TRNAS_INTEGRATOR.out.merged_gff).join(
+        MACSYFINDER.out.macsyfinder_tsv).join(
+        PROCESS_BLASTP_PROKKA.out.uniprot_product_names).join(
         VMATCH.out.vmatch_tsv)
     )
     
-    // Step 4: Validate final ICE elements
-    VALIDATE_ICE_ELEMENTS( MACSYFINDER.out.macsyfinder_tsv.join( REFINE_BOUNDARIES.out.refined_tsv ))
-    
     emit:
-    ices_tsv = VALIDATE_ICE_ELEMENTS.out.validated_ices
+    ices_tsv = REFINE_BOUNDARIES.out.ices_tsv
  
 }

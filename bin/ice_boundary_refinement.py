@@ -1,770 +1,745 @@
 #!/usr/bin/env python3
-import argparse
-import sys
-from collections import defaultdict, Counter
-import logging
-import re
+# -*- coding: utf-8 -*-
 
-def setup_logging(verbose=False):
-    """Setup logging configuration"""
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+import os
+import sys
+import csv
+import re
+import argparse
+from Bio import SeqIO
+from Bio.SeqUtils import GC
+from Bio.SeqFeature import CompoundLocation, FeatureLocation
+
+
+def parse_blast_uniprot(uniprot_annot):
+    uniprot_annot_dict = {}
+    with open(uniprot_annot, "r") as input_file:
+        for line in input_file:
+            l_line = line.rstrip().split("\t")
+            # Match qulity filters set up during blast process according with prokka settings:
+            # "-evalue 1E-9 -qcov_hsp_perc 80 -num_descriptions 1 -num_alignments 1 -seg no"
+            query_id = l_line[0]
+            product = l_line[2]
+            uniprot_annot_dict[query_id] = product
+    return uniprot_annot_dict
+
+
+def parse_merged_gff(gff_file, uniprot_annot_dict):
+    names_map, trnadict, posdict, totalnum_dict, locusdict = {}, {}, {}, {}, {}
+    valid_rnas = ["tRNA", "tmRNA"]
+    with open(gff_file, "r") as input_gff:
+        for line in input_gff:
+            l_line = line.rstrip().split("\t")
+            # Annotation lines have exactly 9 columns
+            if len(l_line) == 9:
+                (
+                    contig,
+                    seq_source,
+                    seq_type,
+                    start,
+                    end,
+                    score,
+                    strand,
+                    phase,
+                    attr,
+                ) = line.rstrip().split("\t")
+
+                if contig in totalnum_dict:
+                    totalnum_dict[contig] += 1
+                else:
+                    totalnum_dict[contig] = 1
+
+                if seq_type in valid_rnas:
+                    for attribute in attr.split(";"):
+                        key, value = attribute.split("=")
+                        if key == "ID":
+                            ids = value
+                            locusdict[ids] = ids
+                        if key == "product":
+                            product = value
+                    pos = [int(start), int(end), strand, product]
+                    trnadict[ids] = pos
+
+                elif seq_type == "CDS":
+                    for attribute in attr.split(";"):
+                        key, value = attribute.split("=")
+                        if key == "ID":
+                            ids = value
+                            locusdict[ids] = ids
+                            header = ids.split("_")
+                            header.pop(-1)
+                            header = "_".join(header)
+                        if key == "ori_id":
+                            blastp_id = value
+
+                            if blastp_id in uniprot_annot_dict:
+                                product = uniprot_annot_dict[blastp_id]
+                            else:
+                                product = ''
+
+                    names_map[blastp_id] = ids
+                    pos = [int(start), int(end), strand, product]
+
+                posdict[ids] = pos
+
+    return names_map, trnadict, posdict, header, totalnum_dict, locusdict
+
+
+def get_DR(dr_file):
+    dr_dict = {}
+    with open(dr_file, "r") as input_tsv:
+        for line in input_tsv.readlines():
+            contig, dr1_start, dr1_end, dr2_start, dr2_end = line.strip().split()
+            dr = "|".join([dr1_start, dr1_end, dr2_start, dr2_end])
+            if contig in dr_dict:
+                dr_dict[contig].append(dr)
+            else:
+                dr_dict[contig] = [dr]
+    return dr_dict
+
+
+def ICE_filter(macsyfinder_out):
+    filtered_lines = []
+    with open(macsyfinder_out, "r") as ICEin:
+        ICEfdict = {"ICE": []}
+        IMEfdict = {}
+        IMEgendict = {}
+        AICEfdict = {}
+        fICE = []
+        fAICE = []
+        for line in ICEin.readlines():
+            if "Chromosome" in line:
+                lines = line.strip().split("\t")
+                if lines[7] != "1":
+                    continue
+                else:
+                    filtered_lines.append(line)
+                    IDtag = lines[3]
+                    ICEtag = lines[5]
+                    if "IME" in ICEtag:
+                        if ICEtag not in IMEfdict:
+                            IMEfdict[ICEtag] = [IDtag]
+                            IMEgendict[ICEtag] = [lines[2]]
+                        else:
+                            IMEfdict[ICEtag] += [IDtag]
+                            IMEgendict[ICEtag] += [lines[2]]
+                    elif "AICE" in ICEtag:
+                        if ICEtag not in AICEfdict:
+                            AICEfdict[ICEtag] = [IDtag]
+                        else:
+                            AICEfdict[ICEtag] += [IDtag]
+                        if ICEtag not in fAICE:
+                            fAICE.append(ICEtag)
+                    else:
+                        ICEfdict["ICE"] += [IDtag]
+                        if ICEtag not in fICE:
+                            fICE.append(ICEtag)
+
+    Indict = {
+        "Phage_integrase": "Integrase",
+        "UPF0236": "Integrase",
+        "Recombinase": "Integrase",
+        "rve": "Integrase",
+        "TIGR02224": "Integrase",
+        "TIGR02249": "Integrase",
+        "TIGR02225": "Integrase",
+        "PB001819": "Integrase",
+    }
+
+    IMEgenlist = []
+    for k, v in IMEgendict.items():
+        genecount = []
+        for line in v:
+            if "Relaxase_" in line or "T4SS_MOB" in line:
+                genecount.append("MOB")
+            elif line in Indict:
+                genecount.append("Int")
+        if len(set(genecount)) == 2:
+            IMEgenlist.append(k)
+
+    fIME = []
+    for k, v in IMEfdict.items():
+        for k1, v1 in ICEfdict.items():
+            if not set(v).issubset(set(v1)):
+                if k not in fIME and k in IMEgenlist:
+                    fIME.append(k)
+
+    return fICE + fIME + fAICE, filtered_lines
+
+
+def get_feat(feat):
+    featuredict = {
+        "Phage_integrase": "Integrase",
+        "UPF0236": "Integrase",
+        "Recombinase": "Integrase",
+        "rve": "Integrase",
+        "TIGR02224": "Integrase",
+        "TIGR02249": "Integrase",
+        "TIGR02225": "Integrase",
+        "PB001819": "Integrase",
+        "RepSAv2": "Rep",
+        "DUF3631": "Rep",
+        "Prim-Pol": "Rep",
+        "FtsK_SpoIIIE": "Tra",
+    }
+
+    if feat in featuredict:
+        return featuredict[feat] + "@" + feat
+    elif "T4SS_MOB" in feat:
+        tag = feat.split("_")[1]
+        return "Relaxase@" + tag
+    elif "Relaxase_" in feat:
+        tag = feat.split("_")[1:]
+        return "Relaxase@" + "_".join(tag)
+    elif "t4cp" in feat:
+        tag = feat.split("_")[1]
+        return "T4CP@" + tag
+    elif "tcpA" in feat:
+        tag = feat.split("_")[1]
+        return "T4CP@" + tag
+    elif "FATA_" in feat or "FA_" in feat:
+        tag = feat.split("_")[1]
+        return "T4SS@" + tag
+    else:
+        return "T4SS@" + feat.replace("T4SS_", "")
+
+
+def getnum(gene_id):
+    id_num = int(gene_id.split("_")[-1].lstrip("0"))
+    return id_num
+
+
+def zill(header, num):
+    restored_id = header + "_" + str(num).zfill(5)
+    return restored_id
+
+
+def find_max_distance(numbers):
+    max_distance = -1
+    max_distance_index = -1
+
+    for i in range(len(numbers) - 1):
+        distance = abs(numbers[i] - numbers[i + 1])
+        if distance > max_distance:
+            max_distance = distance
+            max_distance_index = i
+
+    if max_distance_index == -1:
+        return None
+
+    return numbers[max_distance_index], numbers[max_distance_index + 1]
+
+
+def pos_tag(pos, posdict, ICE, final, totalnum, dirtag):
+    tICE = ICE
+    tfinal = final
+    for k, v in posdict.items():
+        vstart, vend = int(v[0]), int(v[1])
+        if int(pos) <= vend:
+            if dirtag == "s":
+                tICE = getnum(k)
+                tfinal = max(1, tICE - 5)
+            else:
+                if vstart > int(pos):
+                    tICE = getnum(k) - 1
+                else:
+                    tICE = getnum(k)
+                tfinal = min(totalnum, tICE + 5)
+            break
+    return tICE, tfinal
+
+
+def merge_tRNA(contig_id, ICEdict, DRlist, listgff):
+
+    [trnadict, posdict, header, totalnum, locusdict] = listgff
+
+    fICE = getnum(next(iter(ICEdict)))
+    eICE = getnum(list(ICEdict.keys())[-1])
+    nfICEnum = max(1, fICE - 5)
+    neICEnum = min(totalnum, eICE + 5)
+
+    ICEtagnum = [nfICEnum, neICEnum]
+    trnalist = []
+    for key, value in trnadict.items():
+        if nfICEnum <= getnum(key) <= neICEnum:
+            ICEtagnum.append(getnum(key))
+            trnalist.append(value)
+
+    ICEtagnum.sort()
+    finalstart, finalend = find_max_distance(ICEtagnum)
+
+    myDR1 = posdict[zill(header, fICE)][0]
+    myDR2 = ""
+    myDR3 = ""
+    myDR4 = posdict[zill(header, eICE)][1]
+
+    if trnalist:
+        if finalend == neICEnum:
+            fICE = finalstart
+            finalstart = max(1, finalstart - 5)
+            myDR1 = posdict[zill(header, fICE)][0]
+            for line in DRlist:
+                DRs = line.split("|")
+                if int(DRs[3]) - int(DRs[0]) > 500000:
+                    continue
+                if int(DRs[3]) - int(DRs[0]) < 5000:
+                    continue
+                if (
+                    int(posdict[zill(header, fICE)][0])
+                    < int(DRs[0])
+                    < int(posdict[zill(header, fICE)][1])
+                ):
+                    checktrna = 0
+                    for key, value in trnadict.items():
+                        if int(DRs[0]) <= int(value[0]) <= int(DRs[3]) and int(
+                            DRs[0]
+                        ) <= int(value[1]) <= int(DRs[3]):
+                            checktrna += 1
+                    if checktrna >= 2:
+                        break
+
+                    eICE, finalend = pos_tag(
+                        DRs[3], posdict, eICE, finalend, totalnum, "e"
+                    )
+                    myDR1 = DRs[0]
+                    myDR2 = DRs[1]
+                    myDR3 = DRs[2]
+                    myDR4 = DRs[3]
+                    break
+
+        elif finalstart == nfICEnum:
+            eICE = finalend
+            finalend = min(totalnum, finalend + 5)
+            myDR4 = posdict[zill(header, eICE)][1]
+            for line in DRlist:
+                DRs = line.split("|")
+                if int(DRs[3]) - int(DRs[0]) > 500000:
+                    continue
+                if int(DRs[3]) - int(DRs[0]) < 5000:
+                    continue
+                if (
+                    int(posdict[zill(header, eICE)][0])
+                    < int(DRs[3])
+                    < int(posdict[zill(header, eICE)][1])
+                ):
+                    checktrna = 0
+                    for key, value in trnadict.items():
+                        if int(DRs[0]) <= int(value[0]) <= int(DRs[3]) and int(
+                            DRs[0]
+                        ) <= int(value[1]) <= int(DRs[3]):
+                            checktrna += 1
+                    if checktrna >= 2:
+                        break
+
+                    fICE, finalstart = pos_tag(
+                        DRs[0], posdict, fICE, finalstart, totalnum, "s"
+                    )
+                    myDR1 = DRs[0]
+                    myDR2 = DRs[1]
+                    myDR3 = DRs[2]
+                    myDR4 = DRs[3]
+                    break
+
+    return (
+        myDR1,
+        myDR2,
+        myDR3,
+        myDR4,
+        fICE,
+        eICE,
+        finalstart,
+        finalend,
+        posdict,
+        header,
+        trnalist,
+        locusdict,
     )
 
-def validate_contig_consistency(ice_predictions, trna_coordinates, direct_repeats, gene_positions=None):
-    """
-    Validate that contig names are consistent across all input files
-    and report data availability per contig
-    """
-    # Get all contig names from each data source
-    ice_contigs = set(ice['seqname'] for ice in ice_predictions)
-    trna_contigs = set(trna_coordinates.keys())
-    dr_contigs = set(direct_repeats.keys())
-    gene_contigs = set(gene_positions.keys()) if gene_positions else set()
-    
-    # Report data availability
-    all_contigs = ice_contigs | trna_contigs | dr_contigs | gene_contigs
-    logging.info(f"Data availability summary:")
-    logging.info(f"  Total unique contigs: {len(all_contigs)}")
-    logging.info(f"  ICE predictions: {len(ice_contigs)} contigs")
-    logging.info(f"  tRNA coordinates: {len(trna_contigs)} contigs")
-    logging.info(f"  Direct repeats: {len(dr_contigs)} contigs")
-    if gene_positions:
-        logging.info(f"  Gene annotations: {len(gene_contigs)} contigs")
-    
-    # Check for missing data per contig
-    missing_data_report = []
-    for contig in sorted(all_contigs):
-        missing = []
-        if contig not in ice_contigs:
-            missing.append("ICE")
-        if contig not in trna_contigs:
-            missing.append("tRNA")
-        if contig not in dr_contigs:
-            missing.append("DR")
-        if gene_positions and contig not in gene_contigs:
-            missing.append("genes")
-        
-        if missing:
-            missing_data_report.append(f"  {contig}: missing {', '.join(missing)}")
-    
-    if missing_data_report:
-        logging.warning(f"Contigs with missing data:")
-        for report in missing_data_report[:10]:  # Show first 10
-            logging.warning(report)
-        if len(missing_data_report) > 10:
-            logging.warning(f"  ... and {len(missing_data_report) - 10} more contigs")
-    
-    # Return contigs that have at least ICE predictions
-    processable_contigs = ice_contigs
-    logging.info(f"Will process {len(processable_contigs)} contigs with ICE predictions")
-    
-    return processable_contigs, {
-        'ice_contigs': ice_contigs,
-        'trna_contigs': trna_contigs,
-        'dr_contigs': dr_contigs,
-        'gene_contigs': gene_contigs,
-        'missing_data': missing_data_report
-    }
 
-def parse_ice_predictions(ice_file):
-    """Parse ICE predictions from MacSyFinder TSV format"""
-    ice_predictions = []
-    contig_counts = Counter()
-    
-    try:
-        with open(ice_file, 'r') as f:
-            # Read and skip header
-            header = next(f).strip()
-            logging.debug(f"ICE file header: {header}")
-            
-            for line_num, line in enumerate(f, 2):  # Start from line 2
-                if line.startswith('#') or not line.strip():
-                    continue
-                
-                fields = line.strip().split('\t')
-                if len(fields) >= 5:  # MacSyFinder format has more fields
-                    system_id = fields[0]
-                    contig = fields[1]
-                    ice_type = fields[2]
-                    start = int(fields[3])
-                    end = int(fields[4])
-                    length = int(fields[5]) if len(fields) > 5 else end - start + 1
-                    
-                    contig_counts[contig] += 1
-                    
-                    ice_predictions.append({
-                        'seqname': contig,  # Use contig name as sequence name
-                        'original_start': start,
-                        'original_end': end,
-                        'original_length': length,
-                        'system_id': system_id,  # Keep the MacSyFinder prediction ID
-                        'ice_type': ice_type,
-                        'line_number': line_num
-                    })
-                else:
-                    logging.warning(f"Skipping malformed line {line_num} in ICE predictions: insufficient fields")
-                    
-    except FileNotFoundError:
-        logging.error(f"ICE predictions file not found: {ice_file}")
-        sys.exit(1)
-    except Exception as e:
-        logging.error(f"Error parsing ICE predictions: {e}")
-        sys.exit(1)
-    
-    # Report ICE distribution per contig
-    logging.info(f"ICE predictions per contig:")
-    for contig, count in contig_counts.most_common(10):
-        logging.info(f"  {contig}: {count} ICEs")
-    if len(contig_counts) > 10:
-        logging.info(f"  ... and {len(contig_counts) - 10} more contigs")
-    
-    return ice_predictions
+def get_ICE(
+    macsyfinder_out,
+    dr_dict,
+    trnadict,
+    posdict,
+    header,
+    totalnum_dict,
+    locusdict,
+    names_map,
+):
+    # Based in get_ICE, ICE_filter, get_feat, and merge_tRNA functions in single.py code
+    # Filtering ICE predictions macsyfinder output file all_systmes.tsv
+    ftag, filtered_lines = ICE_filter(macsyfinder_out)
 
-def parse_trna_gff(trna_gff_file):
-    """
-    Parse tRNA coordinates from aragorn GFF format
-    Expected format: contig_1	aragorn	tRNA	18551	18626	.	-	.	ID=tRNA2;product=tRNA-Lys
-    """
-    trna_coordinates = defaultdict(list)
-    contig_counts = Counter()
-    
-    try:
-        with open(trna_gff_file, 'r') as f:
-            for line in f:
-                fields = line.strip().split('\t')
-                if len(fields) == 9 and 'tRNA' in fields[2]:
-                    seqname = fields[0]
-                    start = int(fields[3])
-                    end = int(fields[4])
-                    strand = fields[6]
-                    attributes = fields[8]
-                    
-                    for att in attributes.split(';'):
-                        att_key, att_value = att.split('=')
-                        if att_key == 'ID':
-                            trna_id = att_value
-                        if att_key == 'product':
-                            product = att_value
-                    
-                    trna_coordinates[seqname].append({
-                        'start': start,
-                        'end': end,
-                        'length': end - start + 1,
-                        'strand': strand,
-                        'id': trna_id,
-                        'product': product,
-                    })
-                    contig_counts[seqname] += 1
-                    logging.debug(f"Added tRNA: {seqname}:{trna_id} ({start}-{end}) {product}")
-                    
-    except FileNotFoundError:
-        logging.error(f"tRNA GFF file not found: {trna_gff_file}")
-        sys.exit(1)
-    except Exception as e:
-        logging.error(f"Error parsing tRNA GFF file: {e}")
-        sys.exit(1)
-    
-    # Report tRNA distribution per contig
-    logging.info(f"tRNA coordinates per contig:")
-    for contig, count in contig_counts.most_common(10):
-        logging.info(f"  {contig}: {count} tRNAs")
-    if len(contig_counts) > 10:
-        logging.info(f"  ... and {len(contig_counts) - 10} more contigs")
-    
-    return trna_coordinates
-
-def parse_direct_repeats(dr_file):
-    """
-    Parse direct repeats from TSV format with length validation
-    Expected format: contig_1	15291	15305	955	969
-    """
-    direct_repeats = defaultdict(list)
-    contig_counts = Counter()
-    filtered_counts = Counter()
-    
-    try:
-        with open(dr_file, 'r') as f:
-            for line_num, line in enumerate(f, 1):
-                if line.startswith('#') or not line.strip():
-                    continue
-                
-                fields = line.strip().split('\t')
-                if len(fields) >= 5:
-                    seqname = fields[0]
-                    start1 = int(fields[1])
-                    end1 = int(fields[2])
-                    start2 = int(fields[3])
-                    end2 = int(fields[4])
-                    
-                    length1 = end1 - start1 + 1
-                    length2 = end2 - start2 + 1
-                    total_span = end2 - start1 + 1
-                    
-                    # Track all DRs before filtering
-                    contig_counts[seqname] += 1
-                    
-                    # Apply filtering rules from single.py
-                    if length1 < 15 or length2 < 15:
-                        filtered_counts['too_short'] += 1
-                        logging.debug(f"Skipping DR shorter than 15bp: {length1}, {length2}")
-                        continue
-                    
-                    if total_span > 500000:
-                        filtered_counts['too_long'] += 1
-                        logging.debug(f"Skipping DR with span > 500kb: {total_span}")
-                        continue
-                    
-                    if total_span < 5000:
-                        filtered_counts['too_small'] += 1
-                        logging.debug(f"Skipping DR with span < 5kb: {total_span}")
-                        continue
-                    
-                    direct_repeats[seqname].append({
-                        'start1': start1,
-                        'end1': end1,
-                        'start2': start2,
-                        'end2': end2,
-                        'length1': length1,
-                        'length2': length2,
-                        'total_span': total_span,
-                        'inner_distance': start2 - end1 - 1,
-                        'line_number': line_num
-                    })
-                else:
-                    logging.warning(f"Skipping malformed line {line_num} in direct repeats: insufficient fields")
-                    
-    except FileNotFoundError:
-        logging.error(f"Direct repeats file not found: {dr_file}")
-        sys.exit(1)
-    except Exception as e:
-        logging.error(f"Error parsing direct repeats: {e}")
-        sys.exit(1)
-    
-    # Report filtering statistics
-    total_drs = sum(contig_counts.values())
-    kept_drs = sum(len(drs) for drs in direct_repeats.values())
-    logging.info(f"Direct repeat filtering summary:")
-    logging.info(f"  Total DRs found: {total_drs}")
-    logging.info(f"  DRs kept after filtering: {kept_drs}")
-    logging.info(f"  Filtered out: {total_drs - kept_drs}")
-    for reason, count in filtered_counts.items():
-        logging.info(f"    {reason}: {count}")
-    
-    # Report DR distribution per contig
-    logging.info(f"Valid direct repeats per contig:")
-    dr_per_contig = {contig: len(drs) for contig, drs in direct_repeats.items()}
-    for contig, count in Counter(dr_per_contig).most_common(10):
-        logging.info(f"  {contig}: {count} DRs")
-    if len(dr_per_contig) > 10:
-        logging.info(f"  ... and {len(dr_per_contig) - 10} more contigs")
-    
-    return direct_repeats
-
-def parse_gff_file(gff_file):
-    """
-    Parse GFF/GTF file to extract gene positions with contig tracking
-    Returns gene positions organized by sequence and gene ID
-    """
-    gene_positions = defaultdict(dict)
-    contig_counts = Counter()
-    feature_counts = Counter()
-    
-    if not gff_file:
-        logging.info("No GFF file provided, skipping gene boundary validation")
-        return gene_positions
-    
-    try:
-        with open(gff_file, 'r') as f:
-            for line in f:
-                line_l = line.rstrip().split("\t")
-                # Annotation lines have exactly 9 columns
-                if len(line_l) == 9:
-                    (
-                        seqname,
-                        seq_source,
-                        feature_type,
-                        start,
-                        end,
-                        score,
-                        strand,
-                        phase,
-                        attributes,
-                    ) = line.rstrip().split("\t")
-                    
-                    if feature_type == 'CDS':
-                        for att in attributes.split(';'):
-                            att_key, att_value = att.split('=')
-                            if att_key == 'ID':
-                                gene_id = att_value
-                        
-                        # Store gene position
-                        gene_positions[seqname][gene_id] = {
-                            'start': int(start),
-                            'end': int(end),
-                        }
-                        contig_counts[seqname] += 1
-                        logging.debug(f"Added gene: {seqname}:{gene_id} ({start}-{end})")
-        
-        # Report parsing statistics
-        total_genes = sum(contig_counts.values())
-        logging.info(f"GFF parsing summary:")
-        logging.info(f"  Total genes parsed: {total_genes}")
-        logging.info(f"  Contigs with genes: {len(gene_positions)}")
-        
-        # Report genes per contig
-        logging.info(f"Genes per contig:")
-        for contig, count in contig_counts.most_common(10):
-            logging.info(f"  {contig}: {count} genes")
-        if len(contig_counts) > 10:
-            logging.info(f"  ... and {len(contig_counts) - 10} more contigs")
-            
-    except FileNotFoundError:
-        logging.warning(f"GFF file not found: {gff_file}. Skipping gene boundary validation.")
-        return defaultdict(dict)
-    except Exception as e:
-        logging.warning(f"Error parsing GFF file: {e}. Skipping gene boundary validation.")
-        return defaultdict(dict)
-    
-    return gene_positions
-
-def find_genes_near_coordinates(gene_positions, seqname, start, end, window=5):
-    """
-    Find genes near given coordinates (within ±window genes)
-    Following single.py logic of ±5 genes from ICE boundaries
-    """
-    if seqname not in gene_positions:
-        return []
-    
-    genes = gene_positions[seqname]
-    
-    # Get all genes sorted by start position
-    sorted_genes = sorted(genes.items(), key=lambda x: x[1]['start'])
-    
-    # Find genes that overlap or are near the ICE region
-    nearby_genes = []
-    for gene_id, gene_info in sorted_genes:
-        gene_start = gene_info['start']
-        gene_end = gene_info['end']
-        
-        # Check if gene overlaps with ICE region or is nearby
-        if (gene_end >= start - 10000 and gene_start <= end + 10000):  # 10kb window
-            nearby_genes.append((gene_id, gene_info))
-    
-    return nearby_genes
-
-def validate_dr_gene_overlap(dr, ice_prediction, gene_positions):
-    """
-    Check if DR positions overlap with ICE gene boundaries
-    Following single.py logic for gene boundary validation
-    """
-    seqname = ice_prediction['seqname']
-    ice_start = ice_prediction['original_start']
-    ice_end = ice_prediction['original_end']
-    
-    if seqname not in gene_positions:
-        logging.debug(f"No gene positions available for {seqname}")
-        return True  # Skip validation if no gene data
-    
-    # Find genes near the ICE region
-    nearby_genes = find_genes_near_coordinates(gene_positions, seqname, ice_start, ice_end)
-    
-    if not nearby_genes:
-        logging.debug(f"No genes found near ICE region {seqname}:{ice_start}-{ice_end}")
-        return True  # Skip validation if no nearby genes
-    
-    # Check if DR boundaries overlap with any nearby gene boundaries
-    for gene_id, gene_info in nearby_genes:
-        gene_start = gene_info['start']
-        gene_end = gene_info['end']
-        
-        # Scenario A: DR start within gene boundaries
-        if gene_start <= dr['start1'] <= gene_end:
-            logging.debug(f"DR start {dr['start1']} within gene {gene_id} boundaries ({gene_start}-{gene_end})")
-            return True
-        
-        # Scenario B: DR end within gene boundaries
-        if gene_start <= dr['end2'] <= gene_end:
-            logging.debug(f"DR end {dr['end2']} within gene {gene_id} boundaries ({gene_start}-{gene_end})")
-            return True
-        
-        # Additional check: gene boundaries within DR span
-        if dr['start1'] <= gene_start <= dr['end2'] or dr['start1'] <= gene_end <= dr['end2']:
-            logging.debug(f"Gene {gene_id} boundaries within DR span")
-            return True
-    
-    logging.debug(f"DR {dr['start1']}-{dr['end2']} doesn't overlap with gene boundaries")
-    return False
-
-def count_trnas_in_span(trna_list, start, end):
-    """Count tRNAs within a given genomic span"""
-    count = 0
-    trnas_in_span = []
-    
-    for trna in trna_list:
-        # Check if tRNA is completely within the span
-        if start <= trna['start'] <= end and start <= trna['end'] <= end:
-            count += 1
-            trnas_in_span.append(trna)
-    
-    return count, trnas_in_span
-
-def find_max_gap_between_trnas(trnas_in_span):
-    """
-    Find the maximum gap between tRNAs to identify ICE insertion site
-    Following single.py gap analysis logic
-    """
-    if len(trnas_in_span) < 2:
-        return None, 0
-    
-    # Sort tRNAs by start position
-    sorted_trnas = sorted(trnas_in_span, key=lambda x: x['start'])
-    
-    max_gap = 0
-    gap_location = None
-    
-    for i in range(len(sorted_trnas) - 1):
-        current_end = sorted_trnas[i]['end']
-        next_start = sorted_trnas[i + 1]['start']
-        gap = next_start - current_end - 1
-        
-        if gap > max_gap:
-            max_gap = gap
-            gap_location = {
-                'gap_start': current_end + 1,
-                'gap_end': next_start - 1,
-                'gap_size': gap,
-                'upstream_trna': sorted_trnas[i],
-                'downstream_trna': sorted_trnas[i + 1]
-            }
-    
-    return gap_location, max_gap
-
-def find_dr_flanking_ice_and_trna(ice_prediction, trna_coordinates, direct_repeats, gene_positions=None):
-    """
-    Find direct repeats that flank ICE and contain sufficient tRNAs
-    Implements single.py logic with ≥2 tRNA requirement
-    """
-    seqname = ice_prediction['seqname']
-    ice_start = ice_prediction['original_start']
-    ice_end = ice_prediction['original_end']
-    
-    if seqname not in trna_coordinates or seqname not in direct_repeats:
-        logging.debug(f"No tRNA or DR data for sequence: {seqname}")
-        return None
-    
-    trna_list = trna_coordinates[seqname]
-    dr_list = direct_repeats[seqname]
-    
-    best_dr = None
-    best_score = 0
-    best_trnas = []
-    best_gap = None
-    
-    logging.debug(f"Evaluating {len(dr_list)} direct repeats for ICE {seqname}:{ice_start}-{ice_end}")
-    
-    for dr in dr_list:
-        # Check if DR spans the ICE region
-        if dr['start1'] > ice_start or dr['end2'] < ice_end:
-            logging.debug(f"DR {dr['start1']}-{dr['end2']} doesn't span ICE {ice_start}-{ice_end}")
+    # Parsing again the macsyfinder info
+    genes_icedict = {}
+    infodict = {}
+    for line in filtered_lines:
+        lines = line.strip().split("\t")
+        if lines[5] not in ftag:
             continue
-        
-        # Validate gene boundary overlap if gene positions available
-        if gene_positions and not validate_dr_gene_overlap(dr, ice_prediction, gene_positions):
-            logging.debug(f"DR doesn't meet gene boundary overlap criteria")
-            continue
-        
-        # Count tRNAs within DR span - CRITICAL: Must be ≥2 (not ≥1)
-        trnas_between, trnas_in_span = count_trnas_in_span(trna_list, dr['start1'], dr['end2'])
-        if trnas_between < 2:  # Following single.py requirement
-            logging.debug(f"DR has only {trnas_between} tRNAs, need ≥2")
-            continue
-        
-        # Find the largest gap between tRNAs
-        gap_location, max_gap = find_max_gap_between_trnas(trnas_in_span)
-        
-        # Score this DR (prefer more tRNAs and larger gaps)
-        score = trnas_between * 1000 + max_gap
-        
-        if score > best_score:
-            best_score = score
-            best_dr = dr
-            best_trnas = trnas_in_span
-            best_gap = gap_location
-        
-        logging.debug(f"DR {dr['start1']}-{dr['end2']}: {trnas_between} tRNAs, max gap: {max_gap}, score: {score}")
-    
-    if best_dr is None:
-        logging.debug(f"No suitable DR found for ICE {seqname}:{ice_start}-{ice_end}")
-        return None
-    
-    return {
-        'selected_dr': best_dr,
-        'trnas_in_span': best_trnas,
-        'gap_location': best_gap,
-        'num_trnas': len(best_trnas),
-        'score': best_score
-    }
-
-def refine_ice_boundaries(ice_prediction, trna_coordinates, direct_repeats, gene_positions=None, verbose=False):
-    """
-    Refine ICE boundaries using direct repeats and tRNA analysis
-    Implements single.py methodology with proper fallback logic
-    """
-    seqname = ice_prediction['seqname']
-    original_start = ice_prediction['original_start']
-    original_end = ice_prediction['original_end']
-    original_length = ice_prediction['original_length']
-    system_id = ice_prediction['system_id']  # FIXED: Include MacSyFinder prediction ID
-    ice_type = ice_prediction['ice_type']    # FIXED: Include ICE type
-    
-    logging.debug(f"Refining boundaries for ICE {seqname}:{original_start}-{original_end}")
-    
-    # Find the best DR flanking the ICE
-    dr_result = find_dr_flanking_ice_and_trna(ice_prediction, trna_coordinates, direct_repeats, gene_positions)
-    
-    if dr_result is None:
-        # Fallback logic: use original boundaries (like single.py)
-        logging.debug(f"No suitable DR found for {seqname}, using original boundaries")
-        return {
-            'system_id': system_id,        # FIXED: Include MacSyFinder prediction ID
-            'ice_type': ice_type,          # FIXED: Include ICE type
-            'seqname': seqname,
-            'original_start': original_start,
-            'original_end': original_end,
-            'refined_start': original_start,
-            'refined_end': original_end,
-            'refined_length': original_length,
-            'dr1_start': original_start,  # attL site
-            'dr1_end': original_start,
-            'dr2_start': original_end,    # attR site
-            'dr2_end': original_end,
-            'num_trnas': len(trna_coordinates.get(seqname, [])),
-            'gap_location': 'none',
-            'refinement_method': 'fallback_original'
-        }
-    
-    # Use DR boundaries for refined ICE coordinates
-    selected_dr = dr_result['selected_dr']
-    gap_info = dr_result['gap_location']
-    
-    refined_start = selected_dr['start1']
-    refined_end = selected_dr['end2']
-    refined_length = refined_end - refined_start + 1
-    
-    # Determine gap location description
-    gap_desc = 'none'
-    if gap_info:
-        gap_desc = f"{gap_info['gap_start']}-{gap_info['gap_end']}"
-    
-    logging.debug(f"Refined {seqname}: {refined_start}-{refined_end} (length: {refined_length})")
-    logging.debug(f"Found {dr_result['num_trnas']} tRNAs, largest gap: {gap_desc}")
-    
-    return {
-        'system_id': system_id,        # FIXED: Include MacSyFinder prediction ID
-        'ice_type': ice_type,          # FIXED: Include ICE type
-        'seqname': seqname,
-        'original_start':original_start,
-        'original_end':original_end,
-        'refined_start': refined_start,
-        'refined_end': refined_end,
-        'refined_length': refined_length,
-        'dr1_start': selected_dr['start1'],  # attL site (left DR start)
-        'dr1_end': selected_dr['end1'],      # Left DR end
-        'dr2_start': selected_dr['start2'],  # Right DR start
-        'dr2_end': selected_dr['end2'],      # attR site (right DR end)
-        'num_trnas': dr_result['num_trnas'],
-        'gap_location': gap_desc,
-        'refinement_method': 'direct_repeat'
-    }
-
-def write_refined_boundaries(refined_results, output_file):
-    """Write refined ICE boundaries to output file with contig organization"""
-    try:
-        with open(output_file, 'w') as f:
-            # Write header - FIXED: Include system_id and ice_type
-            header = [
-                'system_id', 'ice_type', 'contig', 'original_start', 'original_end', 'refined_start', 'refined_end', 'refined_length',
-                'dr1_start', 'dr1_end', 'dr2_start', 'dr2_end',
-                'num_trnas', 'gap_location', 'refinement_method'
-            ]
-            f.write('\t'.join(header) + '\n')
-            
-            # Sort results by contig name and then by start position
-            sorted_results = sorted(refined_results, key=lambda x: (x['seqname'], x['refined_start']))
-            
-            # Write results - FIXED: Include system_id and ice_type in output
-            for result in sorted_results:
-                row = [
-                    result['system_id'],        # FIXED: Include MacSyFinder prediction ID
-                    result['ice_type'],         # FIXED: Include ICE type
-                    result['seqname'],
-                    str(result['original_start']),
-                    str(result['original_end']),
-                    str(result['refined_start']),
-                    str(result['refined_end']),
-                    str(result['refined_length']),
-                    str(result['dr1_start']),
-                    str(result['dr1_end']),
-                    str(result['dr2_start']),
-                    str(result['dr2_end']),
-                    str(result['num_trnas']),
-                    result['gap_location'],
-                    result['refinement_method']
-                ]
-                f.write('\t'.join(row) + '\n')
-        
-        logging.info(f"Results written to: {output_file}")
-        
-    except Exception as e:
-        logging.error(f"Error writing output file: {e}")
-        sys.exit(1)
-
-def generate_summary_report(refined_results, data_summary):
-    """Generate a comprehensive summary report of the refinement process"""
-    # Overall statistics
-    total_ices = len(refined_results)
-    successful_refinements = sum(1 for r in refined_results if r['refinement_method'] == 'direct_repeat')
-    
-    # Per-contig statistics
-    contig_stats = defaultdict(lambda: {'total': 0, 'refined': 0, 'fallback': 0})
-    for result in refined_results:
-        contig = result['seqname']
-        contig_stats[contig]['total'] += 1
-        if result['refinement_method'] == 'direct_repeat':
-            contig_stats[contig]['refined'] += 1
         else:
-            contig_stats[contig]['fallback'] += 1
+            gbname = names_map[lines[1]]
+            tags = get_feat(lines[2])
+
+            if "T4SS" in lines[4]:
+                mpf = lines[4].split("/")[-1].split("_")[1]
+            else:
+                mpf = ""
+            if "Relaxase@" in tags:
+                mob = tags.split("@")[1]
+            else:
+                mob = ""
+            ICEtag = "ICE" + lines[5].split("_")[-1]
+
+            if "IME" in lines[5]:
+                ICEtag = "IME" + lines[5].split("_")[-1]
+            elif "AICE" in lines[5]:
+                ICEtag = "AICE" + lines[5].split("_")[-1]
+            else:
+                ICEtag = "ICE" + lines[5].split("_")[-1]
+
+            genes_icedict.setdefault(ICEtag, {})[gbname] = tags
+
+            if ICEtag not in infodict:
+                infodict[ICEtag] = {"mob": [], "mpf": []}
+            if mob not in infodict[ICEtag]["mob"]:
+                if mob:
+                    infodict[ICEtag]["mob"].append(mob)
+            if mpf not in infodict[ICEtag]["mpf"]:
+                infodict[ICEtag]["mpf"].append(mpf)
+
+    for contig in dr_dict:
+        drs_ice_dict = {}
+        dr_list = dr_dict[contig]
+        totalnum = totalnum_dict[contig]
+        listgff = [trnadict, posdict, header, totalnum, locusdict]
+        for key, value in genes_icedict.items():
+            (
+                myDR1,
+                myDR2,
+                myDR3,
+                myDR4,
+                fICE,
+                eICE,
+                finalstart,
+                finalend,
+                posdict,
+                header,
+                trnalist,
+                locusdict,
+            ) = merge_tRNA(contig, value, dr_list, listgff)
+
+            drs_ice_dict[key] = [
+                contig,
+                myDR1,
+                myDR2,
+                myDR3,
+                myDR4,
+                fICE,
+                eICE,
+                finalstart,
+                finalend,
+                trnalist,
+                locusdict,
+            ]
+
+    return drs_ice_dict, genes_icedict, posdict, header, infodict
+
+
+def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, prefix):
+
+    ice_output_file = prefix + "_ices.tsv"
+    genes_output_file = prefix + "_ice_genes.tsv"
+
+    with open(genes_output_file, 'w') as genes_output:
+        genes_header = '\t'.join([
+            'contig',
+            'ice_id',
+            'gene_id',
+            'gene_coords',
+            'gene_annot',
+            'ice_feature'])
+        genes_output.write(genes_header + '\n')
+        # Finding gene context per ICE
+        ices_summary = []
+        for key, value in drs_ice_dict.items():
+            genelist = []
+            [
+                contig,
+                myDR1,
+                myDR2,
+                myDR3,
+                myDR4,
+                fICE,
+                eICE,
+                finalstart,
+                finalend,
+                trnalist,
+                locusdict,
+            ] = value
+            regi = contig + "_" + key
+            start = finalstart
+            while start < fICE:
+                gene = zill(header, start)
+                s, e, strand, pro = posdict[gene]
+                pos = str(s) + ".." + str(e) + " [" + strand + "]"
+                feature = "Flank"
+                product = pro
+                start += 1
+                content = {
+                    "gene": locusdict[gene],
+                    "pos": pos,
+                    "prod": product,
+                    "featu": feature,
+                }
+                genelist.append(content)
+
+            mov = fICE
+            while mov <= eICE:
+                gene = zill(header, mov)
+                s, e, strand, pro = posdict[gene]
+                pos = str(s) + ".." + str(e) + " [" + strand + "]"
+
+                if gene in genes_icedict[key]:
+                    [feature, pro11] = genes_icedict[key][gene].split("@")
+                else:
+                    feature, pro11 = "", ""
+
+                if pro11:
+                    if pro == "hypothetical protein":
+                        product = pro11
+                    else:
+                        product = pro + ", " + pro11
+                else:
+                    product = pro
+
+                mov += 1
+                content = {
+                    "gene": locusdict[gene],
+                    "pos": pos,
+                    "prod": product,
+                    "featu": feature,
+                }
+                genelist.append(content)
+
+            while mov <= finalend:
+                gene = zill(header, mov)
+                s, e, strand, pro = posdict[gene]
+                pos = str(s) + ".." + str(e) + "[" + strand + "]"
+                feature = "Flank"
+                product = pro
     
-    logging.info("="*60)
-    logging.info("REFINEMENT SUMMARY REPORT")
-    logging.info("="*60)
-    logging.info(f"Overall Statistics:")
-    logging.info(f"  Total ICEs processed: {total_ices}")
-    logging.info(f"  Successfully refined: {successful_refinements}")
-    logging.info(f"  Used fallback boundaries: {total_ices - successful_refinements}")
-    logging.info(f"  Success rate: {successful_refinements/total_ices*100:.1f}%")
-    
-    logging.info(f"\nPer-contig refinement success:")
-    for contig in sorted(contig_stats.keys())[:10]:  # Show top 10
-        stats = contig_stats[contig]
-        success_rate = stats['refined'] / stats['total'] * 100 if stats['total'] > 0 else 0
-        logging.info(f"  {contig}: {stats['refined']}/{stats['total']} ({success_rate:.1f}%)")
-    if len(contig_stats) > 10:
-        logging.info(f"  ... and {len(contig_stats) - 10} more contigs")
-    
-    # Data availability impact
-    logging.info(f"\nData availability impact:")
-    missing_trna = len([c for c in data_summary['ice_contigs'] if c not in data_summary['trna_contigs']])
-    missing_dr = len([c for c in data_summary['ice_contigs'] if c not in data_summary['dr_contigs']])
-    missing_genes = len([c for c in data_summary['ice_contigs'] if c not in data_summary['gene_contigs']]) if data_summary['gene_contigs'] else 0
-    
-    logging.info(f"  ICE contigs missing tRNA data: {missing_trna}")
-    logging.info(f"  ICE contigs missing DR data: {missing_dr}")
-    if data_summary['gene_contigs']:
-        logging.info(f"  ICE contigs missing gene data: {missing_genes}")
+                mov += 1
+                content = {
+                    "gene": locusdict[gene],
+                    "pos": pos,
+                    "prod": product,
+                    "featu": feature,
+                }
+                genelist.append(content)
+
+            # Print gene information into output file
+            for gene in genelist:
+                raw_product = gene['prod']
+                raw_product = re.sub(r'^, ', '', raw_product)
+                to_print = '\t'.join([
+                    contig,
+                    key,
+                    gene['gene'],
+                    gene['pos'],
+                    raw_product,
+                    gene['featu'],
+                ]) + '\n'
+                genes_output.write(to_print + '\n')
+        
+            # Integrating ICEs meta info
+            sgene = zill(header, fICE)
+            egene = zill(header, eICE)
+            s1, e1, strand1, pro1 = posdict[sgene]
+            s2, e2, strand2, pro2 = posdict[egene]
+            if myDR1 == "0":
+                myDR1 = "1"
+
+            gcc = gc(get_sequence(assembly, contig, int(myDR1)-1, int(myDR4)))
+
+            if myDR2:
+                DR1 = get_sequence(assembly, contig, int(myDR1), int(myDR2))
+                DR2 = get_sequence(assembly, contig, int(myDR3), int(myDR4))
+                DRw = (
+                    "attL:"
+                    + myDR1
+                    + ".."
+                    + myDR2
+                    + "("
+                    + DR1
+                    + ")  "
+                    + "attR:"
+                    + myDR3
+                    + ".."
+                    + myDR4
+                    + "("
+                    + DR2
+                    + ")"
+                )
+            else:
+                DRw = "-"
+            if trnalist:
+                trnaout = (
+                    trnalist[0][3]
+                    + "("
+                    + str(trnalist[0][0])
+                    + ".."
+                    + str(trnalist[0][1])
+                    + ")["
+                    + trnalist[0][2]
+                    + "]"
+                )
+            else:
+                trnaout = "-"
+
+            if "IME" in regi:
+                typeIE = "IME"
+            elif "AICE" in regi:
+                typeIE = "AICE"
+            else:
+                typeIE = "T4SS-type ICE"
+
+            ICEinfo = {
+                "contig": contig,
+                "ice_id": regi,
+                "type": typeIE,
+                "location": myDR1 + ".." + myDR4,
+                "length": str(int(myDR4) - int(myDR1) + 1),
+                "gc": gcc,
+                "drs": DRw,         #TODO: print separated drs
+                "relaxase": ",".join(infodict[key]["mob"]),
+                "mating_sys": ",".join(infodict[key]["mpf"]),
+                "tRNA": trnaout,
+            }
+
+            ices_summary.append(ICEinfo)
+
+
+    with open(ice_output_file, 'w') as ice_output:
+        summ_header = '\t'.join([
+            'contig',
+            'ice_id',
+            'ice_type',
+            'ice_location',
+            'ice_length',
+            'gc_content',
+            'direct_repeats',
+            'relaxase_type',
+            'mating_pair_formation_systems',
+            'close_to_RNA',
+        ])
+        ice_output.write(summ_header)
+        for ice in ices_summary:
+            print(ice['contig'])
+            print(ice['ice_id'])
+            print(ice['type'])
+            print(ice['location'])
+            print(ice['length'])
+            print(ice['gc'])
+            print(ice['drs'])
+            print(ice['relaxase'])
+            print(ice['mating_sys'])
+            print(ice['tRNA'])
+
+
+def get_sequence(fasta_file, contig, start, end):
+    for record in SeqIO.parse(fasta_file, "fasta"):
+        if str(record.id) == contig:
+            sequence = record.seq[start:end]
+    return str(sequence)
+
+
+def gc(sequence):
+    gcs = str("%.2f" % GC(sequence))
+    return gcs
+
+
 
 
 def main():
-    """Main function to orchestrate ICE boundary refinement"""
     parser = argparse.ArgumentParser(
-        description='Refine ICE boundaries using MacSyFinder predictions, tRNA coordinates, and direct repeats',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python ice_boundary_refinement.py -i ice_predictions.tsv -t trna.gff -d direct_repeats.tsv -o refined_ice.tsv
-  python ice_boundary_refinement.py -i ice_predictions.tsv -t trna.gff -d direct_repeats.tsv -g genes.gff -o refined_ice.tsv -v
-        """
+        description="This script process the following input files: the (meta)genomic assembly, macsyfinder results, vmatch direct repeats predictions, prodigal GFF file integrated with aragorn annotation of tRNAs, and proteins annotation vs uniprotKB as generated by prokka. The outputs are two tsv files, a summary of ICEs predictions and the info per gene"
     )
-    
-    parser.add_argument('-i', '--ice-predictions', required=True,
-                        help='MacSyFinder ICE predictions file (TSV format)')
-    parser.add_argument('-t', '--trna-gff', required=True,
-                        help='tRNA coordinates file (GFF format from aragorn)')
-    parser.add_argument('-d', '--direct-repeats', required=True,
-                        help='Direct repeats file (TSV format)')
-    parser.add_argument('-g', '--gff-file', required=False,
-                        help='Gene annotation file (GFF/GTF format) for boundary validation')
-    parser.add_argument('-o', '--output', required=True,
-                        help='Output file for refined ICE boundaries')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='Enable verbose logging')
-    
+    parser.add_argument(
+        "--assembly",
+        type=str,
+        help="Assembly file in fasta format",
+        required=True,
+    )
+    parser.add_argument(
+        "--gff_file",
+        type=str,
+        help="Prodigal gff file with aragorn trnas interleaved (merged_gff)",
+        required=True,
+    )
+    parser.add_argument(
+        "--macsyfinder_out",
+        type=str,
+        help="Result of macsyfinder tool in tsv format (all_systems.tsv)",
+        required=True,
+    )
+    parser.add_argument(
+        "--uniprot_annot",
+        type=str,
+        help="Result of blastp vs uniprotkb-sp in prokka style",
+        required=True,
+    )
+    parser.add_argument(
+        "--drs_tsv",
+        type=str,
+        help="Result of Vmatch tool in tsv format",
+        required=True,
+    )
+    parser.add_argument(
+        "--prefix",
+        type=str,
+        help="Output files prefix",
+        required=True,
+    )
     args = parser.parse_args()
-    
-    # Setup logging
-    setup_logging(args.verbose)
-    
-    logging.info("Starting ICE boundary refinement analysis")
-    logging.info(f"Input files:")
-    logging.info(f"  ICE predictions: {args.ice_predictions}")
-    logging.info(f"  tRNA coordinates: {args.trna_gff}")
-    logging.info(f"  Direct repeats: {args.direct_repeats}")
-    if args.gff_file:
-        logging.info(f"  Gene annotations: {args.gff_file}")
-    logging.info(f"  Output file: {args.output}")
-    
-    # Parse input files
-    logging.info("Parsing input files...")
-    ice_predictions = parse_ice_predictions(args.ice_predictions)
-    trna_coordinates = parse_trna_gff(args.trna_gff)
-    direct_repeats = parse_direct_repeats(args.direct_repeats)
-    gene_positions = parse_gff_file(args.gff_file) if args.gff_file else None
-    
-    # Validate data consistency
-    logging.info("Validating data consistency...")
-    processable_contigs, data_summary = validate_contig_consistency(
-        ice_predictions, trna_coordinates, direct_repeats, gene_positions
+
+    # We have to generate the the following data structure according with single.py script
+    # listgff = [trnadict,posdict,header,totalnum,locusdict]
+    # We are recycling as much as possible code to avoid introducing bugs
+
+    # Parsing uniprotkb blast result
+    print("Parsing uniprotkb blast result...")
+    uniprot_annot_dict = parse_blast_uniprot(args.uniprot_annot)
+
+    # Parsing gff annotation to save the protein names correspondance with per-protein annotation results: macsyfinder and uniprotkb
+    print("Parsing merged gff file...")
+    names_map, trnadict, posdict, header, totalnum_dict, locusdict = parse_merged_gff(
+        args.gff_file, uniprot_annot_dict
     )
-    
-    if not processable_contigs:
-        logging.error("No contigs with ICE predictions found. Exiting.")
-        sys.exit(1)
-    
-    # Process each ICE prediction
-    logging.info("Refining ICE boundaries...")
-    refined_results = []
-    
-    for i, ice_prediction in enumerate(ice_predictions, 1):
-        seqname = ice_prediction['seqname']
-        
-        if seqname not in processable_contigs:
-            logging.debug(f"Skipping ICE {i} on {seqname}: no processable data")
-            continue
-        
-        logging.debug(f"Processing ICE {i}/{len(ice_predictions)}: {seqname}:{ice_prediction['original_start']}-{ice_prediction['original_end']}")
-        
-        # Refine boundaries for this ICE
-        refined_result = refine_ice_boundaries(
-            ice_prediction, 
-            trna_coordinates, 
-            direct_repeats, 
-            gene_positions,
-            args.verbose
-        )
-        
-        refined_results.append(refined_result)
-        
-        # Progress reporting
-        if i % 100 == 0 or i == len(ice_predictions):
-            logging.info(f"Processed {i}/{len(ice_predictions)} ICE predictions")
-    
-    # Write results
-    logging.info("Writing refined boundaries...")
-    write_refined_boundaries(refined_results, args.output)
-    
-    # Generate summary report
-    generate_summary_report(refined_results, data_summary)
-    
-    logging.info("ICE boundary refinement completed successfully!")
 
-if __name__ == '__main__':
+    # Parsing direct repeats prediction:
+    print("Parsing direct repeats prediction file...")
+    dr_dict = get_DR(args.drs_tsv)
+
+    # Parsing macsyfinder results and processing ICEs
+    print("Parsing macsyfinder results...")
+    drs_ice_dict, genes_icedict, posdict, header, infodict = get_ICE(
+        args.macsyfinder_out,
+        dr_dict,
+        trnadict,
+        posdict,
+        header,
+        totalnum_dict,
+        locusdict,
+        names_map,
+    )
+
+    # Integrating per gene info and ICE summaries
+    print("Integrating and writing outputs...")
+    get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, args.assembly, args.prefix)
+
+    print("Processing complete!")
+
+
+if __name__ == "__main__":
     main()
-
-
-
-
-

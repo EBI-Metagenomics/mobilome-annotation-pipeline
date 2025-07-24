@@ -8,7 +8,7 @@ process ARAGORN {
     tuple val(meta), path(contigs)
 
     output:
-    tuple val(meta), path("*_aragorn.gff"), emit: trna_gff
+    tuple val(meta), path("*_aragorn.tbl"), emit: rnas_tbl
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -18,8 +18,5 @@ process ARAGORN {
         ${aragorn_args} \\
         -o ${prefix}_aragorn.tbl \\
         ${contigs}
-    
-    # Convert into GFF format 
-    aragorn_to_gff.sh ${prefix}_aragorn.tbl ${prefix}_aragorn.gff
     """
 }

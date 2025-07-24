@@ -55,8 +55,14 @@
         "genomad_db": {
             "type": "string"
         },
-        "ice_models": {
+        "ice_hmm_models": {
             "type": "string"
-	}
+	},
+        "ice_macsy_models": {
+	    "type": "string"
+	},
+	"prokka_uniprot_db": {
+            "type": "string"
+        }
     }
 }
