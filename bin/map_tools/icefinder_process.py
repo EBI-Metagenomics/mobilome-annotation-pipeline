@@ -60,14 +60,14 @@ def icf_parser(icf_results):
 
                     icf_dr[mge_id] = (dr1_coords, dr2_coords)
 
-                description = (
-                    "mobile_element_type="
-                    + ice_type
-                    + ";relaxase_type="
-                    + relaxase_type
-                    + ";mpf_systems="
-                    + mpf_systems
-                )
+                desc_list = [ "mobile_element_type=" + ice_type  ]
+
+                if len(relaxase_type) > 0:
+                    desc_list.append( "relaxase_type=" + relaxase_type )
+                if len(mpf_systems) > 0:
+                    desc_list.append( "mpf_systems=" + mpf_systems )
+
+                description = ';'.join(desc_list) 
                 value = (contig, description, mge_coord)
                 mge_data[mge_id] = value
 

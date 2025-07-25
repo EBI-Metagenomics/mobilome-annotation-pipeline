@@ -605,7 +605,7 @@ def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, pr
                 "contig": contig,
                 "ice_id": regi,
                 "type": typeIE,
-                "location": myDR1 + ".." + myDR4,
+                "location": str(myDR1) + ".." + str(myDR4),
                 "length": str(int(myDR4) - int(myDR1) + 1),
                 "gc": gcc,
                 "drs": DRw,
