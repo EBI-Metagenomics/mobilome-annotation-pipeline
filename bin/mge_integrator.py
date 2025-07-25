@@ -64,6 +64,7 @@ def main():
     parser.add_argument(
         "--icf_tsv",
         type=str,
+        nargs='?',
         help="ICEfinder2-lite prediction file",
     )
     parser.add_argument(
@@ -79,6 +80,7 @@ def main():
     parser.add_argument(
         "--comp_bed",
         type=str,
+        nargs='?',
         help="Compositional outliers prediction in bed format",
     )
     parser.add_argument(
@@ -90,14 +92,17 @@ def main():
     args = parser.parse_args()
 
     ### Calling functions
+    mge_data = {}
+
     ## Mapping contig names
     (names_equiv, inv_names_equiv) = mapping_names.names_map(args.map)
 
     ## Parsing results of mobilome prediction tools
     # Parsing ICEfinder results
-    mge_data = {}
-    icf_dr = {}
-    (mge_data, icf_dr) = icefinder_process.icf_parser(args.icf_tsv)
+    if args.icf_tsv and os.path.exists(args.icf_tsv):
+        (mge_data, icf_dr) = icefinder_process.icf_parser(args.icf_tsv)
+    else:
+        icf_dr = {}
 
     # Parsing IntegronFinder results
     (mge_data, attC_site) = integronfinder_process.integron_parser(
@@ -128,9 +133,12 @@ def main():
     contig_prots, prots_coord, rnas_coord = prokka_process.prokka_parser(args.pkka_gff)
 
     # Parsing compositional outliers and removing redundancy with other MGEs
-    mge_data, co_repeats = outliers_process.outliers_parser(
-        args.comp_bed, mge_data, rnas_coord
-    )
+    if args.comp_bed and os.path.exists(args.comp_bed):
+        mge_data, co_repeats = outliers_process.outliers_parser(
+            args.comp_bed, mge_data, rnas_coord
+        )
+    else:
+        co_repeats = {}
 
     ## Overlapping report for long MGEs
     # Collecting integrons, virus and plasmids predicted per contig

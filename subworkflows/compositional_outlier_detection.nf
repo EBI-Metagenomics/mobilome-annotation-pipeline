@@ -1,13 +1,9 @@
-/*
- * Run Compositional Outliers detection
-*/
-
 include { OUTLIER_FINDER } from '../modules/compositional_outlier_detection'
 include { MERGE_RESULTS  } from '../modules/merge_results'
 
 workflow COMPOSITIONAL_OUTLIER_DETECTION {
     take:
-        ch_assembly  // tuple(meta, assembly_fasta)
+        ch_assembly  // tuple(meta, 100kb_contigs)
 
     main:
         // Split FASTA files into chunks with meta naming

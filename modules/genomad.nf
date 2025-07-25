@@ -21,7 +21,7 @@ process GENOMAD {
             --threads ${task.cpus} \\
             . ${params.genomad_db}
     else
-        mkdir -p 5kb_contigs_summary
+        mkdir -p ${prefix}_5kb_contigs_summary
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_virus_summary.tsv
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_plasmid_summary.tsv
     fi

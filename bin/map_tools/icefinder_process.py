@@ -17,7 +17,7 @@
 
 def icf_parser(icf_results):
     if len(icf_results) > 0:
-        ### Saving the ICEfinder sequences
+        mge_data, icf_dr = {}, {}
         mge_counter = 0
 
         ### Parsing ICEfinder2-lite results

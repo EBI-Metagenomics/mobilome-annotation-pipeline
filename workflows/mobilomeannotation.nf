@@ -133,13 +133,13 @@ workflow MAIN {
     ).join(
         INTEGRONFINDER.out.contigs_gbks
     ).join(
-        ICEFINDER2_LITE.out.ices_tsv
+        ICEFINDER2_LITE.out.ices_tsv, remainder: true
     ).join(
         GENOMAD.out.genomad_vir
     ).join(
         GENOMAD.out.genomad_plas
     ).join(
-        COMPOSITIONAL_OUTLIER_DETECTION.out.bed
+        COMPOSITIONAL_OUTLIER_DETECTION.out.bed, remainder: true
     ).join(
         VIRIFY_QC.out.virify_hq, remainder: true
     )
@@ -147,7 +147,7 @@ workflow MAIN {
     INTEGRATOR(
         integrator_ch.map {
             meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv, genomad_vir, genomad_plas, compos_bed, virify_hq -> {
-                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv, genomad_vir, genomad_plas, compos_bed, virify_hq ? virify_hq : [] ]
+                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv ? ices_tsv : [], genomad_vir, genomad_plas, compos_bed ? compos_bed : [], virify_hq ? virify_hq : [] ]
             }
         }
     )
