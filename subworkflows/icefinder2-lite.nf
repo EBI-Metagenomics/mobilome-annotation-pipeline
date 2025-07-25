@@ -19,24 +19,25 @@ workflow ICEFINDER2_LITE {
     main:
     // Preannotation to detect candidate contigs
     PRODIGAL( ch_assembly )
-
     PRESCAN( PRODIGAL.out.faa, ch_ice_hmm_models)
-
     PRESCAN_TO_FASTA( PRESCAN.out.hmmscan_tbl.join( PRODIGAL.out.faa ).join( ch_assembly ) )
 
-    // Actual annotation of candidate contigs 
-    MACSYFINDER( PRESCAN_TO_FASTA.out.candidates_faa, ch_ice_macsy_models )
+    // Join assembly with candidates to track which samples have candidates
+    ch_candidates = PRESCAN_TO_FASTA.out.candidates_faa
+                   .join(PRESCAN_TO_FASTA.out.candidates_fna)
 
-    BLASTP_PROKKA( PRESCAN_TO_FASTA.out.candidates_faa, ch_prokka_uniprot_db )
+    // Evaluating if candidates file exists
+    ch_candidates_present = ch_candidates.filter { meta, faa, fna ->
+        faa.exists()
+    }
 
+    // Run all downstream processes on existing outputs
+    MACSYFINDER( ch_candidates_present.map { meta, faa, _fna -> tuple(meta, faa) }, ch_ice_macsy_models )
+    BLASTP_PROKKA( ch_candidates_present.map { meta, faa, _fna -> tuple(meta, faa) }, ch_prokka_uniprot_db )
     PROCESS_BLASTP_PROKKA( BLASTP_PROKKA.out.uniprot_tsv )
-
-    ARAGORN( PRESCAN_TO_FASTA.out.candidates_fna )
-
-    TRNAS_INTEGRATOR( ARAGORN.out.rnas_tbl.join( PRODIGAL.out.annot )  )
-
-    VMATCH( PRESCAN_TO_FASTA.out.candidates_fna )
-
+    ARAGORN( ch_candidates_present.map { meta, _faa, fna -> tuple(meta, fna) } )
+    TRNAS_INTEGRATOR( ARAGORN.out.rnas_tbl.join( PRODIGAL.out.annot ) )
+    VMATCH( ch_candidates_present.map { meta, _faa, fna -> tuple(meta, fna) } )
 
     // Boundaries refinement of predicted ICEs
     REFINE_BOUNDARIES(
@@ -46,8 +47,20 @@ workflow ICEFINDER2_LITE {
         PROCESS_BLASTP_PROKKA.out.uniprot_product_names).join(
         VMATCH.out.vmatch_tsv)
     )
+
+
+    // Create a channel that includes all samples, with empty arrays for those without ICEs
+    ch_all_samples = ch_assembly.map { meta, assembly -> meta }
     
+    ch_ices_with_empty = ch_all_samples.join(
+        REFINE_BOUNDARIES.out.ices_tsv, 
+        remainder: true
+    ).map { meta, ices_tsv ->
+        tuple(meta, ices_tsv ?: [])
+    }
+
     emit:
-    ices_tsv = REFINE_BOUNDARIES.out.ices_tsv
- 
+    ices_tsv = ch_ices_with_empty
+
 }
+

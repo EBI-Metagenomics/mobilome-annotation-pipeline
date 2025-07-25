@@ -8,8 +8,8 @@ process PRESCAN_TO_FASTA {
     tuple val(meta), path(hmmscan_tbl), path( faa ), path( assembly )
 
     output:
-    tuple val(meta), path("*_candidates.fasta"), emit: candidates_fna
-    tuple val(meta), path("*_candidates.faa")  , emit: candidates_faa
+    tuple val(meta), path("*_candidates.fasta"), emit: candidates_fna, optional: true
+    tuple val(meta), path("*_candidates.faa")  , emit: candidates_faa, optional: true
 
 
     script:

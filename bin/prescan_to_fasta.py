@@ -60,7 +60,6 @@ def hmm_parser(hmm_out):
     for k, v in icedict.items():
         if scanf(v):
             chosen.append(k)
-
     return chosen
 
 
@@ -116,8 +115,10 @@ def main():
 
     # Running functions
     candidates_list = hmm_parser(args.hmm_out)
-    fasta_parser(args.assembly, candidates_list, args.output)
-    proteins_parser(args.proteins, candidates_list, args.output)
+
+    if len(candidates_list) > 0:
+        fasta_parser(args.assembly, candidates_list, args.output)
+        proteins_parser(args.proteins, candidates_list, args.output)
 
 
 if __name__ == "__main__":

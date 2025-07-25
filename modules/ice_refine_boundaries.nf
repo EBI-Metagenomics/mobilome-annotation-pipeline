@@ -8,8 +8,8 @@ process REFINE_BOUNDARIES {
     tuple val(meta), path(assembly), path(merged_gff), path(macsyfinder_tsv), path(uniprot_product_names), path(vmatch_tsv)
     
     output:
-    tuple val(meta), path("*_ices.tsv")     , emit: ices_tsv
-    tuple val(meta), path("*_ice_genes.tsv"), emit: ice_genes_tsv
+    tuple val(meta), path("*_ices.tsv")     , emit: ices_tsv, optional: true
+    tuple val(meta), path("*_ice_genes.tsv"), emit: ice_genes_tsv, optional: true
     
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

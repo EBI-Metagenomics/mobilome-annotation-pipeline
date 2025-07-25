@@ -95,6 +95,8 @@ def main():
 
     ## Parsing results of mobilome prediction tools
     # Parsing ICEfinder results
+    mge_data = {}
+    icf_dr = {}
     (mge_data, icf_dr) = icefinder_process.icf_parser(args.icf_tsv)
 
     # Parsing IntegronFinder results
