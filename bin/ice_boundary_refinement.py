@@ -24,7 +24,7 @@ def parse_blast_uniprot(uniprot_annot):
 
 
 def parse_merged_gff(gff_file, uniprot_annot_dict):
-    names_map, trnadict, posdict, totalnum_dict, locusdict = {}, {}, {}, {}, {}
+    names_map, trnadict, posdict, totalnum_dict, locusdict, prots_contigs = {}, {}, {}, {}, {}, {}
     valid_rnas = ["tRNA", "tmRNA"]
     with open(gff_file, "r") as input_gff:
         for line in input_gff:
@@ -80,8 +80,9 @@ def parse_merged_gff(gff_file, uniprot_annot_dict):
                     pos = [int(start), int(end), strand, product]
 
                 posdict[ids] = pos
+                prots_contigs[ids] = contig
 
-    return names_map, trnadict, posdict, header, totalnum_dict, locusdict
+    return names_map, trnadict, posdict, header, totalnum_dict, locusdict, prots_contigs
 
 
 def get_DR(dr_file):
@@ -163,7 +164,9 @@ def ICE_filter(macsyfinder_out):
                 if k not in fIME and k in IMEgenlist:
                     fIME.append(k)
 
-    return fICE + fIME + fAICE, filtered_lines
+    concat_array = fICE + fIME + fAICE
+
+    return concat_array, filtered_lines
 
 
 def get_feat(feat):
@@ -248,10 +251,15 @@ def pos_tag(pos, posdict, ICE, final, totalnum, dirtag):
     return tICE, tfinal
 
 
-def merge_tRNA(contig_id, ICEdict, DRlist, listgff):
+def merge_tRNA(ice_id, ICEdict, DR_dict, listgff, prots_contigs):
 
-    [trnadict, posdict, header, totalnum, locusdict] = listgff
+    [trnadict, posdict, header, total_dict, locusdict] = listgff
 
+    for key in ICEdict:
+        if key in prots_contigs:
+            contig = prots_contigs[key]
+    totalnum = total_dict[contig]
+    
     fICE = getnum(next(iter(ICEdict)))
     eICE = getnum(list(ICEdict.keys())[-1])
     nfICEnum = max(1, fICE - 5)
@@ -263,6 +271,8 @@ def merge_tRNA(contig_id, ICEdict, DRlist, listgff):
         if nfICEnum <= getnum(key) <= neICEnum:
             ICEtagnum.append(getnum(key))
             trnalist.append(value)
+
+    DRlist = DR_dict[contig]
 
     ICEtagnum.sort()
     finalstart, finalend = find_max_distance(ICEtagnum)
@@ -340,6 +350,7 @@ def merge_tRNA(contig_id, ICEdict, DRlist, listgff):
                     break
 
     return (
+        contig,
         myDR1,
         myDR2,
         myDR3,
@@ -364,6 +375,7 @@ def get_ICE(
     totalnum_dict,
     locusdict,
     names_map,
+    prots_contigs,
 ):
     # Based in get_ICE, ICE_filter, get_feat, and merge_tRNA functions in single.py code
     # Filtering ICE predictions macsyfinder output file all_systmes.tsv
@@ -407,40 +419,46 @@ def get_ICE(
             if mpf not in infodict[ICEtag]["mpf"]:
                 infodict[ICEtag]["mpf"].append(mpf)
 
-    for contig in dr_dict:
-        drs_ice_dict = {}
-        dr_list = dr_dict[contig]
-        totalnum = totalnum_dict[contig]
-        listgff = [trnadict, posdict, header, totalnum, locusdict]
-        for key, value in genes_icedict.items():
-            (
-                myDR1,
-                myDR2,
-                myDR3,
-                myDR4,
-                fICE,
-                eICE,
-                finalstart,
-                finalend,
-                posdict,
-                header,
-                trnalist,
-                locusdict,
-            ) = merge_tRNA(contig, value, dr_list, listgff)
+    drs_ice_dict = {}
+    listgff = [trnadict, posdict, header, totalnum_dict, locusdict]
+    for key, value in genes_icedict.items():
+        (
+            contig,
+            myDR1,
+            myDR2,
+            myDR3,
+            myDR4,
+            fICE,
+            eICE,
+            finalstart,
+            finalend,
+            posdict,
+            header,
+            trnalist,
+            locusdict,
+        ) = merge_tRNA(key, value, dr_dict, listgff, prots_contigs)
 
-            drs_ice_dict[key] = [
-                contig,
-                myDR1,
-                myDR2,
-                myDR3,
-                myDR4,
-                fICE,
-                eICE,
-                finalstart,
-                finalend,
-                trnalist,
-                locusdict,
-            ]
+
+        #print(contig)
+        drs_ice_dict[key] = [
+            contig,
+            myDR1,
+            myDR2,
+            myDR3,
+            myDR4,
+            fICE,
+            eICE,
+            finalstart,
+            finalend,
+            trnalist,
+            locusdict,
+        ]
+
+
+    #for ice in drs_ice_dict:
+    #   print(ice,drs_ice_dict[ice][0])
+
+
 
     return drs_ice_dict, genes_icedict, posdict, header, infodict
 
@@ -718,7 +736,7 @@ def main():
 
     # Parsing gff annotation to save the protein names correspondance with per-protein annotation results: macsyfinder and uniprotkb
     print("Parsing merged gff file...")
-    names_map, trnadict, posdict, header, totalnum_dict, locusdict = parse_merged_gff(
+    names_map, trnadict, posdict, header, totalnum_dict, locusdict, prots_contigs = parse_merged_gff(
         args.gff_file, uniprot_annot_dict
     )
 
@@ -737,6 +755,7 @@ def main():
         totalnum_dict,
         locusdict,
         names_map,
+        prots_contigs,
     )
 
     # Integrating per gene info and ICE summaries
