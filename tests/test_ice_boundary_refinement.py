@@ -74,21 +74,21 @@ class TestParseMergedGff:
     
     def test_parse_merged_gff_with_trna_and_cds(self):
         """Test parsing GFF with tRNA and CDS entries"""
-        test_gff = """contig1\tprodigal\ttRNA\t100\t175\t.\t+\t.\tID=tRNA_001;product=tRNA-Ala
-contig1\tprodigal\tCDS\t200\t500\t.\t+\t.\tID=CDS_001;ori_id=prot_001
-contig1\tprodigal\tCDS\t600\t900\t.\t-\t.\tID=CDS_002;ori_id=prot_002"""
+        test_gff = """contig_1\tprodigal\ttRNA\t100\t175\t.\t+\t.\tID=CP003200_00017;product=tRNA-Glu
+contig_1\tprodigal\tCDS\t200\t500\t.\t+\t.\tID=CP003200_00018;ori_id=contig_1_17
+contig_1\tprodigal\tCDS\t600\t900\t.\t-\t.\tID=CP003200_00019;ori_id=contig_1_18"""
         
-        uniprot_dict = {"prot_001": "hypothetical protein", "prot_002": "integrase"}
+        uniprot_dict = {"contig_1_17": "hypothetical protein", "contig_1_18": "integrase"}
         
         with patch("builtins.open", mock_open(read_data=test_gff)):
             names_map, trnadict, posdict, header, totalnum_dict, locusdict, prots_contigs = \
                 parse_merged_gff("test.gff", uniprot_dict)
         
-        assert "prot_001" in names_map
-        assert "tRNA_001" in trnadict
-        assert "CDS_001" in posdict
-        assert totalnum_dict["contig1"] == 3
-        assert "CDS_001" in locusdict
+        assert "contig_1_17" in names_map
+        assert "CP003200_00017" in trnadict
+        assert "CP003200_00018" in posdict
+        assert totalnum_dict["contig_1"] == 3
+        assert "CP003200_00018" in locusdict
     
     def test_parse_merged_gff_empty_file(self):
         """Test parsing empty GFF file"""
@@ -109,16 +109,16 @@ class TestGetDR:
     
     def test_get_dr_valid_input(self):
         """Test parsing valid direct repeat file"""
-        test_data = "contig1 100 120 500 520\n" \
-                   "contig1 200 220 600 620\n" \
-                   "contig2 300 320 700 720\n"
+        test_data = "contig_1 100 120 500 520\n" \
+                   "contig_1 200 220 600 620\n" \
+                   "contig_2 300 320 700 720\n"
         
         with patch("builtins.open", mock_open(read_data=test_data)):
             result = get_DR("test_dr.tsv")
         
         expected = {
-            "contig1": ["100|120|500|520", "200|220|600|620"],
-            "contig2": ["300|320|700|720"]
+            "contig_1": ["100|120|500|520", "200|220|600|620"],
+            "contig_2": ["300|320|700|720"]
         }
         assert result == expected
     
@@ -169,7 +169,7 @@ class TestGetFeat:
     
     def test_get_feat_relaxase(self):
         """Test feature mapping for relaxase"""
-        assert get_feat("T4SS_MOB_F") == "Relaxase@F"
+        assert get_feat("T4SS_MOB_F") == "Relaxase@MOB"
         assert get_feat("Relaxase_MOB_P") == "Relaxase@MOB_P"
     
     def test_get_feat_t4cp(self):
@@ -260,25 +260,30 @@ class TestIntegrationFunctions:
     
     def test_merge_trna_basic(self):
         """Test merge_tRNA function with basic input"""
-        ice_dict = {"contig_00005": "Integrase@Phage_integrase"}
-        dr_dict = {"contig1": ["1000|1020|5000|5020"]}
-        
-        trnadict = {"contig_00003": [800, 875, "+", "tRNA-Ala"]}
+        ice_dict = {
+                'CP003200_00010': 'Integrase@Phage_integrase',
+                'CP003200_00011': 'T4SS@T_virB1',
+                'CP003200_00012': 'T4SS@T_virB2',
+            }
+
+        dr_dict = {"contig_1": ["1000|1020|5000|5020"]}
+        trnadict = {"CP003200_00009": [3433680, 3433710, "+", "tRNA-Ala"]}
         posdict = {
-            "contig_00001": [100, 200, "+", "protein1"],
-            "contig_00005": [1500, 1800, "+", "integrase"],
-            "contig_00010": [2000, 2300, "-", "protein3"]
-        }
-        totalnum_dict = {"contig1": 15}
-        locusdict = {"contig_00005": "contig_00005"}
-        prots_contigs = {"contig_00005": "contig1"}
+                'CP003200_00009': [3433680, 3433710, "+", "tRNA-Ala"],
+                'CP003200_00010': [3433717, 3434979, '+', 'Prophage integrase IntA'],
+                'CP003200_00011': [3468340, 3469050, '+', ''],
+                'CP003200_00012': [3469050, 3469343, '+', 'Type IV secretion system protein PtlA']
+                }
+        totalnum_dict = {"contig_1": 15}
+        locusdict = {"CP003200_00010": "CP003200_00010"}
+        prots_contigs = {"CP003200_00010": "contig_1"}
         
-        listgff = [trnadict, posdict, "contig", totalnum_dict, locusdict]
+        listgff = [trnadict, posdict, "CP003200", totalnum_dict, locusdict]
         
         result = merge_tRNA("ICE1", ice_dict, dr_dict, listgff, prots_contigs)
         
         assert len(result) == 13  # Should return tuple with 13 elements
-        assert result[0] == "contig1"  # contig name
+        assert result[0] == "contig_1"  # contig name
 
 
 class TestMainFunction:
@@ -353,12 +358,86 @@ class TestFileIO:
             
             # Mock the required data structures
             drs_ice_dict = {
-                "ICE1": ["contig1", "1000", "1020", "5000", "5020", 5, 10, 1, 15, [], {}]
+                "ICE1": [
+                    "contig_1", 
+                    '3433540', 
+                    '3433556', 
+                    '3495689', 
+                    '3495705', 
+                    10, 
+                    20, 
+                    10, 
+                    20, 
+                    [
+                        [
+                            3433480, 
+                            3433555, 
+                            '+', 
+                            'tRNA-Asn'
+                        ]
+                    ], {
+                        'CP003200_00001': 'CP003200_00001', 
+                        'CP003200_00002': 'CP003200_00002', 
+                        'CP003200_00003': 'CP003200_00003', 
+                        'CP003200_00004': 'CP003200_00004', 
+                        'CP003200_00005': 'CP003200_00005', 
+                        'CP003200_00006': 'CP003200_00006', 
+                        'CP003200_00007': 'CP003200_00007', 
+                        'CP003200_00008': 'CP003200_00008', 
+                        'CP003200_00009': 'CP003200_00009', 
+                        'CP003200_00010': 'CP003200_00010', 
+                        'CP003200_00011': 'CP003200_00011', 
+                        'CP003200_00012': 'CP003200_00012', 
+                        'CP003200_00013': 'CP003200_00013', 
+                        'CP003200_00014': 'CP003200_00014', 
+                        'CP003200_00015': 'CP003200_00015', 
+                        'CP003200_00016': 'CP003200_00016', 
+                        'CP003200_00017': 'CP003200_00017', 
+                        'CP003200_00018': 'CP003200_00018', 
+                        'CP003200_00019': 'CP003200_00019', 
+                        'CP003200_00020': 'CP003200_00020', 
+                        'CP003200_00021': 'CP003200_00021', 
+                        'CP003200_00022': 'CP003200_00022', 
+                        'CP003200_00023': 'CP003200_00023', 
+                        'CP003200_00024': 'CP003200_00024', 
+                        'CP003200_00025': 'CP003200_00025'
+                    }]
             }
-            genes_icedict = {"ICE1": {"contig_00005": "Integrase@Phage_integrase"}}
-            posdict = {"contig_00005": [1500, 1800, "+", "integrase"]}
-            header = "contig"
-            infodict = {"ICE1": {"mob": ["F"], "mpf": ["T4SS"]}}
+
+            genes_icedict = {
+                'ICE1': {
+                    'CP003200_00010': 'Integrase@Phage_integrase', 
+                    'CP003200_00011': 'T4SS@T_virB1', 
+                    'CP003200_00012': 'T4SS@T_virB2', 
+                    'CP003200_00013': 'T4SS@virb4', 
+                    'CP003200_00015': 'T4SS@T_virB6', 
+                    'CP003200_00016': 'T4SS@T_virB8', 
+                    'CP003200_00017': 'T4SS@T_virB9', 
+                    'CP003200_00018': 'T4SS@T_virB10', 
+                    'CP003200_00019': 'T4SS@T_virB11', 
+                    'CP003200_00020': 'T4CP@t4cp2', 
+                    'CP003200_00021': 'Relaxase@MOBC'
+                }
+            }
+            
+            posdict = {
+                'CP003200_00010': [3433717, 3434979, '+', 'Prophage integrase IntA'],
+                'CP003200_00011': [3468340, 3469050, '+', ''],
+                'CP003200_00012': [3469050, 3469343, '+', 'Type IV secretion system protein PtlA'],
+                'CP003200_00013': [3469356, 3472094, '+', 'Type IV secretion system protein virB4'],
+                'CP003200_00014': [3473073, 3474146, '+', ''],
+                'CP003200_00015': [3474368, 3475051, '+', 'Type IV secretion system protein PtlE'],
+                'CP003200_00016': [3475051, 3475956, '+', 'Type IV secretion system protein virB9'],
+                'CP003200_00017': [3476000, 3477250, '+', ''],
+                'CP003200_00018': [3477240, 3478265, '+', 'Type IV secretion system protein VirB11'],
+                'CP003200_00019': [3480058, 3481917, '+', ''],
+                'CP003200_00020': [3481927, 3482673, '+', '']
+            }
+
+            header = "CP003200"
+
+            infodict = {'ICE1': {'mob': ['MOBC'], 'mpf': ['typeT']}}
+
             assembly = "test.fasta"
             
             with patch('ice_boundary_refinement.get_sequence', return_value="ATCG"):

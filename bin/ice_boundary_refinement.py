@@ -26,6 +26,7 @@ def parse_blast_uniprot(uniprot_annot):
 def parse_merged_gff(gff_file, uniprot_annot_dict):
     names_map, trnadict, posdict, totalnum_dict, locusdict, prots_contigs = {}, {}, {}, {}, {}, {}
     valid_rnas = ["tRNA", "tmRNA"]
+    header = ''
     with open(gff_file, "r") as input_gff:
         for line in input_gff:
             l_line = line.rstrip().split("\t")
@@ -255,6 +256,7 @@ def merge_tRNA(ice_id, ICEdict, DR_dict, listgff, prots_contigs):
 
     [trnadict, posdict, header, total_dict, locusdict] = listgff
 
+    contig = ''
     for key in ICEdict:
         if key in prots_contigs:
             contig = prots_contigs[key]
@@ -438,8 +440,6 @@ def get_ICE(
             locusdict,
         ) = merge_tRNA(key, value, dr_dict, listgff, prots_contigs)
 
-
-        #print(contig)
         drs_ice_dict[key] = [
             contig,
             myDR1,
@@ -453,12 +453,6 @@ def get_ICE(
             trnalist,
             locusdict,
         ]
-
-
-    #for ice in drs_ice_dict:
-    #   print(ice,drs_ice_dict[ice][0])
-
-
 
     return drs_ice_dict, genes_icedict, posdict, header, infodict
 
