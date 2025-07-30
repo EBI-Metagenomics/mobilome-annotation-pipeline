@@ -19,7 +19,7 @@
                 "pattern": "^\\S+\\.(fa|fna|fasta)$",
                 "errorMessage": "The assembly needs to be a fasta file"
             },
-            "user_proteins_gff": {
+            "user_gff": {
                 "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file",
                 "anyOf": [
                     {
@@ -44,11 +44,6 @@
                         "maxLength": 0
                     }
                 ]
-            },
-            "skip_amrfinder_plus": {
-                "type": "boolean",
-                "default": false,
-                "meta": ["skip_amrfinder_plus"]
             },
         },
         "required": ["sample", "assembly"]

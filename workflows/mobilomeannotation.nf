@@ -34,7 +34,8 @@ include { INTEGRATOR       } from '../modules/integrator'
 */
 include { COMPOSITIONAL_OUTLIER_DETECTION } from '../subworkflows/compositional_outlier_detection'
 include { ICEFINDER2_LITE                 } from '../subworkflows/icefinder2-lite'
-// add blast annotation workflow from mobilome proteins after integration
+
+// TODO: add diamond based annotation subworkflow for genes and pathofacrt modules
 
 
 /*
@@ -75,7 +76,30 @@ workflow MAIN {
     // PREPROCESSING
     RENAME( ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } )
 
-    PROKKA( RENAME.out.contigs_1kb )
+    // PROKKA annotation is optional and is skipped by default.
+    // When PROKKA annotation is activated, AMRfinder plus run as well
+    if ( params.run_prokka ) {
+        PROKKA( RENAME.out.contigs_1kb )
+
+        def amr_finder_ch = PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff)
+
+        AMRFINDER_PLUS( amr_finder_ch )
+
+        AMRFINDER_REPORT(
+            AMRFINDER_PLUS.out.amrfinder_tsv
+            .join(
+                INTEGRATOR.out.mobilome_prokka_gff
+            ).join(
+                RENAME.out.map_file
+            ).join(
+                user_proteins_ch
+            )
+        )
+        prokka_gff_ch = PROKKA.out.prokka_gff
+    } else {
+        prokka_gff_ch = null
+    }
+
 
     // Parsing VIRify gff file when an input is provided
     def user_virify_gff_ch = ch_inputs.map { meta, _fasta, _user_proteins_gff, virify_gff -> {
@@ -97,7 +121,6 @@ workflow MAIN {
                         .map { uniprot_db_files ->
                             [[id: file(params.prokka_uniprot_db).name], uniprot_db_files]
                         }
-
 
     ICEFINDER2_LITE( 
         RENAME.out.contigs_5kb,
@@ -124,7 +147,9 @@ workflow MAIN {
     * join with user-provided GFF with the remainder, try to get an empty element, and then we use map
     * to transform the null to [].
     ***********************************************************************************************/
-    def integrator_ch = PROKKA.out.prokka_gff.join(
+    def integrator_ch = 
+        prokka_gff_ch
+    .join(
         RENAME.out.map_file
     ).join(
         ISESCAN.out.iss_tsv
@@ -146,9 +171,30 @@ workflow MAIN {
 
     INTEGRATOR(
         integrator_ch.map {
-            meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv, genomad_vir, genomad_plas, compos_bed, virify_hq -> {
-                [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv ? ices_tsv : [], genomad_vir, genomad_plas, compos_bed ? compos_bed : [], virify_hq ? virify_hq : [] ]
-            }
+            meta, 
+            prokka_gff, 
+            map_file, 
+            iss_tsv, 
+            contigs_summary, 
+            gbks, 
+            ices_tsv, 
+            genomad_vir, 
+            genomad_plas, 
+            compos_bed, 
+            virify_hq 
+                -> {[
+                meta, 
+                prokka_gff ? prokka_gff : [], 
+                map_file, 
+                iss_tsv, 
+                contigs_summary, 
+                gbks, 
+                ices_tsv ? ices_tsv : [], 
+                genomad_vir, 
+                genomad_plas, 
+                compos_bed ? compos_bed : [], 
+                virify_hq ? virify_hq : [] 
+            ]}
         }
     )
 
@@ -166,20 +212,6 @@ workflow MAIN {
 
     if ( params.gff_validation ) {
         GFF_VALIDATOR( GFF_REDUCE.out.mobilome_nogenes )		
-    }
-    
-    // AMRFinder is optional. default skip_amr = FALSE
-    def amr_finder_ch = PROKKA.out.prokka_fna.join( PROKKA.out.prokka_faa ).join( PROKKA.out.prokka_gff).filter({ it -> !it[0].skip_amrfinder_plus })
+    }    
 
-    AMRFINDER_PLUS( amr_finder_ch )
-
-    AMRFINDER_REPORT(
-        AMRFINDER_PLUS.out.amrfinder_tsv.join(
-            INTEGRATOR.out.mobilome_prokka_gff
-        ).join(
-            RENAME.out.map_file
-        ).join(
-            user_proteins_ch
-        )
-    )
 }

@@ -42,8 +42,9 @@
             "type": "boolean",
             "default": true
         },
-        "skip_amr": {
-            "type": "boolean"
+	"run_prokka": {
+            "type": "boolea",
+	    "default": false
         },
         "publish_all": {
             "type": "boolean",
