@@ -18,7 +18,7 @@ import os.path
 from collections import defaultdict
 
 
-def prokka_parser(prokka_gff: str):
+def gff_parser(prokka_gff: str):
     prots_coord = {}
 
     contig_prots = defaultdict(list)

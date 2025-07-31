@@ -8,7 +8,7 @@ process PRODIGAL {
     tuple val(meta), path(fasta)
 
     output:
-    tuple val(meta), path("*.gff")  , emit: annot
+    tuple val(meta), path("*.gff")  , emit: gff
     tuple val(meta), path("*.faa")  , emit: faa
 
     script:

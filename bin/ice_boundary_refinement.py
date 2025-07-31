@@ -24,7 +24,7 @@ def parse_blast_uniprot(uniprot_annot):
 
 
 def parse_merged_gff(gff_file, uniprot_annot_dict):
-    names_map, trnadict, posdict, totalnum_dict, locusdict, prots_contigs = {}, {}, {}, {}, {}, {}
+    trnadict, posdict, totalnum_dict, locusdict, prots_contigs = {}, {}, {}, {}, {}
     valid_rnas = ["tRNA", "tmRNA"]
     header = ''
     with open(gff_file, "r") as input_gff:
@@ -69,21 +69,18 @@ def parse_merged_gff(gff_file, uniprot_annot_dict):
                             header = ids.split("_")
                             header.pop(-1)
                             header = "_".join(header)
-                        if key == "ori_id":
-                            blastp_id = value
 
-                            if blastp_id in uniprot_annot_dict:
-                                product = uniprot_annot_dict[blastp_id]
+                            if ids in uniprot_annot_dict:
+                                product = uniprot_annot_dict[ids]
                             else:
                                 product = ""
 
-                    names_map[blastp_id] = ids
                     pos = [int(start), int(end), strand, product]
 
                 posdict[ids] = pos
                 prots_contigs[ids] = contig
 
-    return names_map, trnadict, posdict, header, totalnum_dict, locusdict, prots_contigs
+    return trnadict, posdict, header, totalnum_dict, locusdict, prots_contigs
 
 
 def get_DR(dr_file):
@@ -376,7 +373,6 @@ def get_ICE(
     header,
     totalnum_dict,
     locusdict,
-    names_map,
     prots_contigs,
 ):
     # Based in get_ICE, ICE_filter, get_feat, and merge_tRNA functions in single.py code
@@ -391,7 +387,7 @@ def get_ICE(
         if lines[5] not in ftag:
             continue
         else:
-            gbname = names_map[lines[1]]
+            gbname = lines[1]
             tags = get_feat(lines[2])
 
             if "T4SS" in lines[4]:
@@ -730,7 +726,7 @@ def main():
 
     # Parsing gff annotation to save the protein names correspondance with per-protein annotation results: macsyfinder and uniprotkb
     print("Parsing merged gff file...")
-    names_map, trnadict, posdict, header, totalnum_dict, locusdict, prots_contigs = parse_merged_gff(
+    trnadict, posdict, header, totalnum_dict, locusdict, prots_contigs = parse_merged_gff(
         args.gff_file, uniprot_annot_dict
     )
 
@@ -748,7 +744,6 @@ def main():
         header,
         totalnum_dict,
         locusdict,
-        names_map,
         prots_contigs,
     )
 

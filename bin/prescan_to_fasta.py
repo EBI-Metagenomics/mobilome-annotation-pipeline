@@ -40,7 +40,7 @@ def scanf(hmmlist):
         return False
 
 
-def hmm_parser(hmm_out):
+def hmm_parser(hmm_out, protein_contig):
     icedict = {}
     chosen = []
     with open(hmm_out, "r") as outfile:
@@ -49,18 +49,46 @@ def hmm_parser(hmm_out):
                 lines = line.strip().split()
                 if lines[2] in icedict:
                     continue
-                id_parts = lines[2].split("_")
-                key = "_".join(id_parts[0:2])
+
+                protein_id = lines[2]
+                contig = protein_contig[protein_id]
                 if float(lines[4]) < 0.00001:
-                    if key in icedict:
-                        icedict[key].append(lines[0])
+                    if contig in icedict:
+                        icedict[contig].append(lines[0])
                     else:
-                        icedict[key] = [lines[0]]
+                        icedict[contig] = [lines[0]]
 
     for k, v in icedict.items():
         if scanf(v):
             chosen.append(k)
     return chosen
+
+
+def gff_parser( gff_file ):
+    protein_contig = {}
+    with open(gff_file, "r") as input_table:
+        for line in input_table:
+            line = line.rstrip()
+            line_l = line.split("\t")
+            # Annotation lines have exactly 9 columns
+            if len(line_l) == 9:
+                (
+                    contig,
+                    seq_source,
+                    seq_type,
+                    start,
+                    end,
+                    score,
+                    strand,
+                    phase,
+                    attr,
+                ) = line.rstrip().split("\t")
+                for attributes in attr.split(';'):
+                    key, value = attributes.split('=')
+                    if key == 'ID':
+                        protein_contig[value] = contig
+
+    return protein_contig
 
 
 def fasta_parser(assembly_file, candidates_list, output_prefix):
@@ -72,16 +100,19 @@ def fasta_parser(assembly_file, candidates_list, output_prefix):
                 fasta_out.write(">" + seq_id + "\n")
                 fasta_out.write(seq + "\n")
 
+def proteins_parser(proteins_fasta, candidates_list, protein_contig, output_prefix):
+    proteins_list = []
+    for protein in protein_contig:
+        contig = protein_contig[protein]
+        if contig in candidates_list:
+            proteins_list.append(protein)
 
-def proteins_parser(proteins_fasta, candidates_list, output_prefix):
     with open(output_prefix + "_candidates.faa", "w") as faa_out:
         for record in SeqIO.parse(proteins_fasta, "fasta"):
             prot_id = str(record.id)
             seq = str(record.seq).upper().replace("*", "")
-            id_split = prot_id.split("_")
-            id_split.pop(-1)
-            contig_id = "_".join(id_split)
-            if contig_id in candidates_list:
+
+            if prot_id in proteins_list:
                 faa_out.write(">" + prot_id + "\n")
                 faa_out.write(seq + "\n")
 
@@ -91,13 +122,30 @@ def main():
         description="Process hmmscan output vs ICEs models for prescaning of contigs"
     )
     parser.add_argument(
-        "--hmm_out", required=True, help="Path to all_systems.tsv file from macsyfinder"
+        "--hmm_out", 
+        required=True, 
+        help="Path to all_systems.tsv file from macsyfinder"
     )
     parser.add_argument(
-        "--proteins", required=True, help="Path to aminoacids FASTA file"
+        "--proteins", 
+        required=True, 
+        help="Path to aminoacids FASTA file"
     )
-    parser.add_argument("--assembly", required=True, help="Path to assembly FASTA file")
-    parser.add_argument("--output", required=True, help="Output prefix name")
+    parser.add_argument(
+        "--assembly", 
+        required=True, 
+        help="Path to assembly FASTA file"
+    )
+    parser.add_argument(
+        "--gff_file", 
+        required=True, 
+        help="Path to GFF file"
+    )   
+    parser.add_argument(
+        "--output", 
+        required=True, 
+        help="Output prefix name"
+    )
     args = parser.parse_args()
 
     # Validate input files
@@ -114,11 +162,14 @@ def main():
         sys.exit(1)
 
     # Running functions
-    candidates_list = hmm_parser(args.hmm_out)
+    protein_contig = gff_parser( args.gff_file )
+    candidates_list = hmm_parser(args.hmm_out, protein_contig)
+
+    print('candidates list ->>>> ',candidates_list)
 
     if len(candidates_list) > 0:
         fasta_parser(args.assembly, candidates_list, args.output)
-        proteins_parser(args.proteins, candidates_list, args.output)
+        proteins_parser(args.proteins, candidates_list, protein_contig, args.output)
 
 
 if __name__ == "__main__":

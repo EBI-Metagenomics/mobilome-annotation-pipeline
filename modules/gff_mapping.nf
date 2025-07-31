@@ -5,19 +5,19 @@ process GFF_MAPPING {
     container 'quay.io/biocontainers/python:3.9--1'
 
     input:
-    tuple val(meta), path(mobilome_clean), path(user_gff)
+    tuple val(meta), path(mobilome_gff), path(cds_gff), val(gff_type)
 
     output:
-    tuple val(meta), path("*_user_mobilome_clean.gff"), optional: true, emit: mobilome_clean_gff
-    tuple val(meta), path("*_user_mobilome_extra.gff"), optional: true, emit: mobilome_extra_gff
-    tuple val(meta), path("*_user_mobilome_full.gff"),  optional: true, emit: mobilome_full_gff
+    tuple val(meta), path("*_mobilome_clean.gff"), optional: true, emit: mobilome_clean_gff
+    tuple val(meta), path("*_mobilome_extra.gff"), optional: true, emit: mobilome_extra_gff
+    tuple val(meta), path("*_mobilome_full.gff"),  optional: true, emit: mobilome_full_gff
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def user_proteins_arg = (user_gff) ? "--user_gff ${user_gff}" : ""
     """
     gff_mapping.py \\
-        --prefix ${prefix} \\
-        --mobilome_clean ${mobilome_clean} ${user_proteins_arg}
+        --mobilome_gff ${mobilome_gff} \\
+        --cds_gff ${cds_gff} \\
+        --prefix ${prefix}_${gff_type}
     """
 }

@@ -5,7 +5,7 @@ process PRESCAN_TO_FASTA {
     container 'quay.io/biocontainers/biopython:1.81'
 
     input:
-    tuple val(meta), path(hmmscan_tbl), path( faa ), path( assembly )
+    tuple val(meta), path(hmmscan_tbl), path( faa ), path( assembly ), path( gff )
 
     output:
     tuple val(meta), path("*_candidates.fasta"), emit: candidates_fna, optional: true
@@ -19,6 +19,7 @@ process PRESCAN_TO_FASTA {
         --hmm_out ${hmmscan_tbl} \\
         --proteins ${faa} \\
         --assembly ${assembly} \\
+        --gff_file ${gff} \\
         --output ${prefix}
     """
 }

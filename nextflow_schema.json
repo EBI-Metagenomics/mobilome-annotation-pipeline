@@ -43,7 +43,7 @@
             "default": true
         },
 	"run_prokka": {
-            "type": "boolea",
+            "type": "boolean",
 	    "default": false
         },
         "publish_all": {
