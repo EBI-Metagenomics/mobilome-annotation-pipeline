@@ -16,7 +16,7 @@
             },
             "assembly": {
                 "type": "string",
-                "pattern": "^\\S+\\.(fa|fna|fasta)$",
+                "pattern": "^.+\\.(fa|fasta|fna)(\\.gz)?$",
                 "errorMessage": "The assembly needs to be a fasta file"
             },
             "user_gff": {
@@ -44,7 +44,7 @@
                         "maxLength": 0
                     }
                 ]
-            },
+            }
         },
         "required": ["sample", "assembly"]
     }
