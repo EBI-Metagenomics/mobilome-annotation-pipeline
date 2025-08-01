@@ -17,6 +17,7 @@
 from Bio import SeqIO
 import argparse
 import fileinput
+import os
 
 
 def rename(input_file, prefix):
@@ -28,7 +29,8 @@ def rename(input_file, prefix):
     with open(output_1kb, "w") as to_1kb, open(output_5kb, "w") as to_5kb, open(
         output_map, "w"
     ) as to_map, open(output_100kb, "w") as to_100kb:
-        with fileinput.hook_compressed(input_file, "r", encoding="utf-8") as file_in:
+        real_path = os.path.realpath(input_file)
+        with fileinput.hook_compressed(real_path, "rt") as file_in:
             for counter, record in enumerate(SeqIO.parse(file_in, "fasta"), 1):
                 new_id = ">contig_" + str(counter)
                 my_chain = str(record.seq).upper()
