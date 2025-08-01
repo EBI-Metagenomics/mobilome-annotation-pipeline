@@ -77,8 +77,9 @@ workflow MAIN {
         }
     }
 
+    assembly_files = ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] }
     // PREPROCESSING
-    RENAME( ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] } )
+    RENAME( assembly_files )
 
     // PROKKA annotation is optional and is skipped by default.
     // When PROKKA annotation is activated, AMRfinder plus run as well
