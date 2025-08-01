@@ -242,7 +242,7 @@ workflow MAIN {
         }
 
     GFF_MAPPING(
-        INTEGRATOR.out.mobilome_gff.join( valid_to_append_gff_ch )
+        INTEGRATOR.out.mobilome_gff.join( RENAME.out.map_file ).join( valid_to_append_gff_ch )
     )
 
 

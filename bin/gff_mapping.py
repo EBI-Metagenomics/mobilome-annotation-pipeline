@@ -23,6 +23,16 @@ logging.basicConfig(level=logging.INFO)
 COV_THRESHOLD = 0.75
 
 
+def names_map(map_file):
+    names_equiv = {}
+    with open(map_file, "r") as input_map:
+        for line in input_map:
+            new_name, old_name = line.rstrip().split("\t")
+            names_equiv[new_name.replace(">", "")] = old_name
+
+    return names_equiv
+
+
 def mobilome_parser(mobilome_clean):
     # Parsing the mobilome prediction
     proteins_annot, mobilome_annot, mges_dict, mob_types = {}, {}, {}, {}
@@ -80,7 +90,7 @@ def mobilome_parser(mobilome_clean):
 
 
 def gff_updater(
-    user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types
+    names_equiv, user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types, mode
 ):
     """Adding the mobilome predictions to the user file"""
     used_contigs = []
@@ -96,7 +106,10 @@ def gff_updater(
             l_line = line.rstrip().split("\t")
             # Annotation lines have exactly 9 columns
             if len(l_line) == 9:
-                contig = l_line[0]
+                if mode == 'prokka':
+                    contig = names_equiv[l_line[0]]
+                else:
+                    contig = l_line[0]
                 start = l_line[3]
                 end = l_line[4]
                 strand = l_line[6]
@@ -116,6 +129,10 @@ def gff_updater(
                     output_extra.write(line.rstrip() + ";" + extra_annot + "\n")
                     output_full.write(line.rstrip() + ";" + extra_annot + "\n")
                 else:
+                    current_line = line.rstrip().split("\t")
+                    current_line.pop(0)
+                    current_line.insert(0, contig)
+                    line = '\t'.join(current_line)
                     output_full.write(line.rstrip() + "\n")
                 # Finding mobilome proteins in the user file and writing to clean output
                 u_prot_start = int(start)
@@ -156,36 +173,58 @@ def main():
         description="This script add the extra annotations to the user GFF file"
     )
     parser.add_argument(
-        "--mobilome_clean",
+        "--mobilome_gff",
         type=str,
         help="Mobilome prediction on prokka gff file containing the mobilome proteins",
         required=True,
     )
     parser.add_argument(
-        "--user_gff",
+        "--cds_gff",
         type=str,
         help="User GFF file",
         required=False,
     )
-    parser.add_argument("--prefix", type=str, help="Output files prefix", required=True)
+
+    parser.add_argument(
+        "--map_file",
+        type=str,
+        help="Contigs rename map file",
+        required=False,
+    )
+    parser.add_argument(
+        "--prefix", 
+        type=str, 
+        help="Output files prefix", 
+        required=True
+    )
+    parser.add_argument(
+        "--mode",
+        type=str,
+        help="Either user or prokka",
+        required=True
+    )
     args = parser.parse_args()
 
     ## Calling functions
+    # Mapping names
+    names_equiv = names_map(args.map_file)
+
     # Storing the mobilome predictions
     (proteins_annot, mobilome_annot, mges_dict, mob_types) = mobilome_parser(
-        args.mobilome_clean
+        args.mobilome_gff
     )
 
     # Adding the mobilome predictions to the user file
-    if args.user_gff:
-        gff_updater(
-            args.user_gff,
-            args.prefix,
-            proteins_annot,
-            mobilome_annot,
-            mges_dict,
-            mob_types,
-        )
+    gff_updater(
+        names_equiv,
+        args.cds_gff,
+        args.prefix,
+        proteins_annot,
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+        args.mode,
+    )
 
 
 if __name__ == "__main__":
