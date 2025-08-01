@@ -8,7 +8,6 @@ include { validateParameters ; paramsHelp ; samplesheetToList } from 'plugin/nf-
 
 // Inputs preparing modules
 include { RENAME           } from '../modules/rename_contigs'
-include { GUNZIP           } from '../modules/gunzip'
 
 // Annotation modules
 include { PRODIGAL         } from '../modules/prodigal'
@@ -78,16 +77,9 @@ workflow MAIN {
         }
     }
 
-    // Uncompress .gz assemblies
     assembly_files = ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] }
-    assembly_files.branch { meta, fasta ->
-        compressed: fasta.name.endsWith('.gz')
-        uncompressed: !fasta.name.endsWith('.gz')
-    }.set { branched_fasta }
-    GUNZIP ( branched_fasta.compressed )
-
     // PREPROCESSING
-    RENAME( GUNZIP.out.uncompressed.mix(branched_fasta.uncompressed) )
+    RENAME( assembly_files )
 
     // PROKKA annotation is optional and is skipped by default.
     // When PROKKA annotation is activated, AMRfinder plus run as well

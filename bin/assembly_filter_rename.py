@@ -16,6 +16,7 @@
 
 from Bio import SeqIO
 import argparse
+import fileinput
 
 
 def rename(input_file, prefix):
@@ -27,19 +28,20 @@ def rename(input_file, prefix):
     with open(output_1kb, "w") as to_1kb, open(output_5kb, "w") as to_5kb, open(
         output_map, "w"
     ) as to_map, open(output_100kb, "w") as to_100kb:
-        for counter, record in enumerate(SeqIO.parse(input_file, "fasta"), 1):
-            new_id = ">contig_" + str(counter)
-            my_chain = str(record.seq).upper()
-            to_map.write(new_id + "\t" + str(record.id) + "\n")
-            if len(my_chain) > 1000:
-                to_1kb.write(new_id + "\n")
-                to_1kb.write(my_chain + "\n")
-            if len(my_chain) > 5000:
-                to_5kb.write(new_id + "\n")
-                to_5kb.write(my_chain + "\n")
-            if len(my_chain) >= 100000:
-                to_100kb.write(new_id + "\n")
-                to_100kb.write(my_chain + "\n")
+        with fileinput.hook_compressed(input_file, "r", encoding="utf-8") as file_in:
+            for counter, record in enumerate(SeqIO.parse(file_in, "fasta"), 1):
+                new_id = ">contig_" + str(counter)
+                my_chain = str(record.seq).upper()
+                to_map.write(new_id + "\t" + str(record.id) + "\n")
+                if len(my_chain) > 1000:
+                    to_1kb.write(new_id + "\n")
+                    to_1kb.write(my_chain + "\n")
+                if len(my_chain) > 5000:
+                    to_5kb.write(new_id + "\n")
+                    to_5kb.write(my_chain + "\n")
+                if len(my_chain) >= 100000:
+                    to_100kb.write(new_id + "\n")
+                    to_100kb.write(my_chain + "\n")
 
 
 def main():
