@@ -12,13 +12,13 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { MAIN } from './workflows/mobilomeannotation'
+include { MOBILOMEANNOTATION } from './workflows/mobilomeannotation'
 
 //
 // WORKFLOW: Run main ebi-metagenomics/mobilome-annotation-pipeline analysis pipeline
 //
 workflow MAP {
-    MAIN ()
+    MOBILOMEANNOTATION ()
 }
 
 /*

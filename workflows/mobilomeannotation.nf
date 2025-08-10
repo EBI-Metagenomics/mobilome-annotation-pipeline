@@ -39,11 +39,11 @@ include { ICEFINDER2_LITE                 } from '../subworkflows/icefinder2-lit
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    RUN MAIN WORKFLOW
+    RUN MOBILOMEANNOTATION WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow MAIN {
+workflow MOBILOMEANNOTATION {
 
     validateParameters()
 
