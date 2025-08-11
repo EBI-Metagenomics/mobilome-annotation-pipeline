@@ -1,5 +1,6 @@
 process DEFENSEFINDER {
     conda "bioconda::defense-finder=2.0.1"
+    container 'quay.io/biocontainers/defense-finder:2.0.1--pyhdfd78af_0'
     
     input:
     tuple val(meta), path(input_file)

@@ -16,7 +16,7 @@ process HMMSCAN {
     """
     hmmscan \\
         --tblout ${prefix}_prescan.tbl \\
-        ${meta2.id} \\
+        ${ice_hmm_models} \\
         ${faa_file}
     """
 }
