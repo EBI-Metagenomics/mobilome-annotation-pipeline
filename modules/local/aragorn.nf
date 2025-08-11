@@ -9,6 +9,7 @@ process ARAGORN {
 
     output:
     tuple val(meta), path("*_aragorn.tbl"), emit: rnas_tbl
+    path "versions.yml"           , emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -18,5 +19,10 @@ process ARAGORN {
         ${aragorn_args} \\
         -o ${prefix}_aragorn.tbl \\
         ${contigs}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        aragorn: \$(aragorn -h | head -n 1 | sed 's/ARAGORN v//' | cut -d ' ' -f1)
+    END_VERSIONS
     """
 }

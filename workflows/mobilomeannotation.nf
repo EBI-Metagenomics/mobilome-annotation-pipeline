@@ -7,25 +7,25 @@ include { validateParameters ; paramsHelp ; samplesheetToList } from 'plugin/nf-
 */
 
 // Inputs preparing modules
-include { RENAME           } from '../modules/rename_contigs'
+include { RENAME           } from '../modules/local/rename_contigs'
 
 // Annotation modules
-include { PROKKA           } from '../modules/prokka'
-include { AMRFINDER_PLUS   } from '../modules/amrfinder_plus'
+include { PROKKA           } from '../modules/local/prokka'
+include { AMRFINDER_PLUS   } from '../modules/local/amrfinder_plus'
 
 // Mobile genetic elements prediction modules
-include { INTEGRONFINDER   } from '../modules/integronfinder'
-include { ISESCAN          } from '../modules/isescan'
-include { GENOMAD          } from '../modules/genomad'
-include { VIRIFY_QC        } from '../modules/virify_qc'
+include { INTEGRONFINDER   } from '../modules/local/integronfinder'
+include { ISESCAN          } from '../modules/local/isescan'
+include { GENOMAD          } from '../modules/local/genomad'
+include { VIRIFY_QC        } from '../modules/local/virify_qc'
 
 // Results integration and writing modules
-include { AMRFINDER_REPORT } from '../modules/amrfinder_report'
-include { FASTA_WRITER     } from '../modules/fasta_writer'
-include { GFF_MAPPING      } from '../modules/gff_mapping'
-include { GFF_REDUCE       } from '../modules/gff_reduce'
-include { GFF_VALIDATOR    } from '../modules/gff_validator'
-include { INTEGRATOR       } from '../modules/integrator'
+include { AMRFINDER_REPORT } from '../modules/local/amrfinder_report'
+include { FASTA_WRITER     } from '../modules/local/fasta_writer'
+include { GFF_MAPPING      } from '../modules/local/gff_mapping'
+include { GFF_REDUCE       } from '../modules/local/gff_reduce'
+include { GFF_VALIDATOR    } from '../modules/local/gff_validator'
+include { INTEGRATOR       } from '../modules/local/integrator'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

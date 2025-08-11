@@ -12,6 +12,7 @@ process BLASTP_PROKKA {
 
     output:
     tuple val(meta), path("*_blastp_uniprot.tsv"), emit: uniprot_tsv
+    path "versions.yml"                       , emit: versions
 
     script:
     def blastp_args = task.ext.blastp_args ?: ''
@@ -24,5 +25,10 @@ process BLASTP_PROKKA {
         -out ${prefix}_blastp_uniprot.tsv \\
         -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen stitle" \\
         ${blastp_args}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        blast: \$(blastp -version | head -n 1 | sed 's/blastp: //' | cut -d ' ' -f1)
+    END_VERSIONS
     """
 }

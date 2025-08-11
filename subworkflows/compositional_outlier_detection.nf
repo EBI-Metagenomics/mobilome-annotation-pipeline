@@ -1,5 +1,5 @@
-include { OUTLIER_FINDER } from '../modules/compositional_outlier_detection'
-include { MERGE_RESULTS  } from '../modules/merge_results'
+include { OUTLIER_FINDER } from '../modules/local/compositional_outlier_detection'
+include { MERGE_RESULTS  } from '../modules/local/merge_results'
 
 workflow COMPOSITIONAL_OUTLIER_DETECTION {
     take:

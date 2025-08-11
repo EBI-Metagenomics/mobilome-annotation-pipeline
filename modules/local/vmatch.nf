@@ -9,6 +9,7 @@ process VMATCH {
     
     output:
     tuple val(meta), path("*_vmatch.tsv"), emit: vmatch_tsv
+    path "versions.yml"                 , emit: versions
     
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -28,5 +29,10 @@ process VMATCH {
 
     # Transform into coordinates table
     vmatch_to_tsv.sh ${prefix}_vmatch.out ${prefix}_vmatch.tsv
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        vmatch: \$(vmatch -version 2>&1 | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+    END_VERSIONS
     """
 }

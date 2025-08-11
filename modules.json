@@ -14,6 +14,11 @@
             "branch": "master",
             "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
             "installed_by": ["modules"]
+          },
+          "diamond/blastp": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["modules"]
           }
         }
       }

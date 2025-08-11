@@ -10,6 +10,7 @@ process MACSYFINDER {
 
     output:
     tuple val(meta), path("*_macsyfinder_results/all_systems.tsv"), emit: macsyfinder_tsv
+    path "versions.yml"                                          , emit: versions
 
     script:
     def macsyfinder_args = task.ext.macsyfinder_args ?: ''
@@ -21,5 +22,10 @@ process MACSYFINDER {
         --out-dir ${prefix}_macsyfinder_results \\
         --worker $task.cpus \\
         ${macsyfinder_args}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        macsyfinder: \$(macsyfinder --version | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+    END_VERSIONS
     """
 }
