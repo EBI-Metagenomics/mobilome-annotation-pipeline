@@ -1,4 +1,4 @@
-include { BLAST_BLASTP as MOBILEOG_BLAST         } from '../modules/nf-core/blast/blastp'
+include { DIAMOND_BLASTP as MOBILEOG_BLAST       } from '../modules/nf-core/diamond/blastp'
 include { BLAST_BLASTN as RESFINDER_BLAST        } from '../modules/nf-core/blast/blastn'
 include { BLAST_BLASTP as VFDB_BLAST             } from '../modules/nf-core/blast/blastp'
 include { BLAST_BLASTP as ISFINDER_BLAST         } from '../modules/nf-core/blast/blastp'
