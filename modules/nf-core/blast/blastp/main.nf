@@ -26,15 +26,16 @@ process BLAST_BLASTP {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def is_compressed = fasta.getExtension() == "gz" ? true : false
     def fasta_name = is_compressed ? fasta.getBaseName() : fasta
-    switch ( out_ext ) {
-        case "xml": outfmt = 5; break
-        case "tsv": outfmt = 6; break
-        case "csv": outfmt = 10; break
-        default:
-            outfmt = '6';
-            out_ext = 'tsv';
-            log.warn("Unknown output file format provided (${out_ext}): selecting BLAST default of tabular BLAST output (tsv)");
-            break
+    if (out_ext == "xml") {
+        outfmt = 5
+    } else if (out_ext == "tsv") {
+        outfmt = 6
+    } else if (out_ext == "csv") {
+        outfmt = 10
+    } else {
+        outfmt = 6
+        out_ext = 'tsv'
+        log.warn("Unknown output file format provided (${out_ext}): selecting BLAST default of tabular BLAST output (tsv)")
     }
 
     """
@@ -60,17 +61,17 @@ process BLAST_BLASTP {
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    switch ( out_ext ) {
-        case "xml": outfmt = 5; break
-        case "tsv": outfmt = 6; break
-        case "csv": outfmt = 10; break
-        default:
-            outfmt = '6';
-            out_ext = 'tsv';
-            log.warn("Unknown output file format provided (${out_ext}): selecting BLAST default of tabular BLAST output (tsv)");
-            break
+    if (out_ext == "xml") {
+        outfmt = 5
+    } else if (out_ext == "tsv") {
+        outfmt = 6
+    } else if (out_ext == "csv") {
+        outfmt = 10
+    } else {
+        outfmt = 6
+        out_ext = 'tsv'
+        log.warn("Unknown output file format provided (${out_ext}): selecting BLAST default of tabular BLAST output (tsv)")
     }
-
     """
     touch ${prefix}.${out_ext}
 

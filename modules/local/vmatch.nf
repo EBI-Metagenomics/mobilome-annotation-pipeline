@@ -13,18 +13,18 @@ process VMATCH {
     
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def index_args = task.ext.index_args ?: ''
-    def vmatch_args = task.ext.vmatch_args ?: ''
+    def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: ''
     """
     # Create vmatch index
     mkvtree \\
         -db ${contigs} \\
-        ${index_args} \\
+        ${args} \\
         -indexname ${prefix}_vindex
     
     # Find direct repeats using vmatch
     vmatch \\
-        ${vmatch_args} \\
+        ${args2} \\
         ${prefix}_vindex > ${prefix}_vmatch.out 
 
     # Transform into coordinates table

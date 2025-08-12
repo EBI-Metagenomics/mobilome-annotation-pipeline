@@ -13,7 +13,7 @@ process MACSYFINDER {
     path "versions.yml"                                          , emit: versions
 
     script:
-    def macsyfinder_args = task.ext.macsyfinder_args ?: ''
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     macsyfinder \\
@@ -21,7 +21,7 @@ process MACSYFINDER {
         --models-dir ${ice_models} \\
         --out-dir ${prefix}_macsyfinder_results \\
         --worker $task.cpus \\
-        ${macsyfinder_args}
+        ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

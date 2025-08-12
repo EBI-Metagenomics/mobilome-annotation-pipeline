@@ -13,10 +13,10 @@ process ARAGORN {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def aragorn_args = task.ext.aragorn_args ?: ''
+    def args = task.ext.args ?: ''
     """
     aragorn \\
-        ${aragorn_args} \\
+        ${args} \\
         -o ${prefix}_aragorn.tbl \\
         ${contigs}
 

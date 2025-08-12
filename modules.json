@@ -19,6 +19,11 @@
             "branch": "master",
             "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
             "installed_by": ["modules"]
+          },
+          "prodigal": {
+            "branch": "master",
+            "git_sha": "ddb0d667cf6cdee3bab9497241de4bbf6b88d8cc",
+            "installed_by": ["modules"]
           }
         }
       }

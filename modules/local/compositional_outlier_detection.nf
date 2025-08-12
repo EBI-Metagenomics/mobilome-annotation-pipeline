@@ -11,12 +11,12 @@ process OUTLIER_FINDER {
     tuple val(meta), path("*.bed"), emit: bed
 
     script:
-    def outliers_args = task.ext.outliers_args
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${fasta.baseName}"
     """
     fast_composition_analyzer.py \\
         --input_fasta ${fasta} \\
         --output_bed ${prefix}.bed \\
-        --threads ${task.cpus} $outliers_args
+        --threads ${task.cpus} ${args}
     """
 }
