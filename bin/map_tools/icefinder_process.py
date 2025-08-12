@@ -16,6 +16,28 @@
 
 
 def icf_parser(icf_results):
+    """
+    Parse ICEfinder2-lite results to extract mobile genetic element data and direct repeats.
+    
+    This function processes ICEfinder2lite output files containing information about
+    Integrative and Conjugative Elements (ICEs). It extracts mobile genetic element 
+    data including coordinates, types, relaxase types, and mating pair formation systems,
+    as well as direct repeat coordinates when present.
+    
+    :param icf_results: Path to the ICEfinder2lite results file
+    :type icf_results: str
+    :return: Tuple containing mobile genetic element data dictionary and direct repeats dictionary
+    :rtype: tuple(dict, dict)
+    
+    .. note::
+       The direct_repeats format expected is:
+       attL:start..end(sequence),attR:start..end(sequence)
+       
+    .. example::
+       >>> mge_data, icf_dr = icf_parser('ice_results.tsv')
+       >>> # mge_data contains: {mge_id: (contig, description, coordinates)}
+       >>> # icf_dr contains: {mge_id: ((dr1_start, dr1_end), (dr2_start, dr2_end))}
+    """
     if len(icf_results) > 0:
         mge_data, icf_dr = {}, {}
         mge_counter = 0

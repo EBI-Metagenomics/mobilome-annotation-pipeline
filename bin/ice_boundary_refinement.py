@@ -1,16 +1,42 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import csv
+# Copyright 2025 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import re
 import argparse
 from Bio import SeqIO
-from Bio.SeqFeature import CompoundLocation, FeatureLocation
 
 
 def parse_blast_uniprot(uniprot_annot):
+    """
+    Parse UniProt BLAST annotation file to create a query-to-product mapping dictionary.
+    
+    This function reads a tab-separated BLAST annotation file and extracts the mapping
+    between query IDs and their corresponding UniProt product descriptions. The file
+    is expected to follow the BLAST settings and quality filtering that that Prokka applies.
+    
+    :param uniprot_annot: Path to the UniProt annotation file
+    :type uniprot_annot: str
+    :return: Dictionary mapping query IDs to product descriptions
+    :rtype: dict
+    
+    .. note::
+       Expects BLAST results with quality filters matching prokka settings:
+       "-evalue 1E-9 -qcov_hsp_perc 80 -num_descriptions 1 -num_alignments 1 -seg no"
+    """
     uniprot_annot_dict = {}
     with open(uniprot_annot, "r") as input_file:
         for line in input_file:
@@ -24,6 +50,25 @@ def parse_blast_uniprot(uniprot_annot):
 
 
 def parse_merged_gff(gff_file, uniprot_annot_dict):
+    """
+    Parse the merged GFF file and extract the feature information with UniProt annotations.
+    
+    This function processes a GFF3 file containing genomic features and extracts
+    information about tRNA/tmRNA features and coding sequences (CDS). It enriches CDS
+    features with UniProt product annotations and organizes data for downstream analysis.
+    
+    :param gff_file: Path to the merged GFF3 file
+    :type gff_file: str
+    :param uniprot_annot_dict: Dictionary mapping query IDs to UniProt product descriptions
+    :type uniprot_annot_dict: dict
+    :return: Tuple containing multiple dictionaries for names mapping, tRNA data, 
+             position data, total counts, locus mapping, and protein-contig associations
+    :rtype: tuple
+    
+    .. note::
+       The function processes both tRNA/tmRNA and CDS features, creating separate
+       data structures for each feature type based on the GFF3 format.
+    """
     names_map, trnadict, posdict, totalnum_dict, locusdict, prots_contigs = {}, {}, {}, {}, {}, {}
     valid_rnas = ["tRNA", "tmRNA"]
     header = ''
