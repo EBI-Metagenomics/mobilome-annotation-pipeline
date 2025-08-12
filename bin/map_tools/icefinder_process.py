@@ -14,6 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#
+# This script contains algorithms and methods derived from or inspired by ICEfinder2
+# Original ICEfinder2 work licensed under CC BY-NC-SA 4.0
+# (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+# Modified and adapted for this pipeline by EMBL-EBI
+#
+
 
 def icf_parser(icf_results):
     """
