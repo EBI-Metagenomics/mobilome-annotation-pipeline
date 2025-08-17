@@ -155,9 +155,6 @@ def main():
     )
 
     ## Storing extra annotation results
-    # Parsing mobileOG results
-    # mog_annot = mobileog_process.mobileog_parser(args.mog_tsv)
-
     # Adding the mobilome annotation to the GFF file
     integrator_process.gff_writer(
         args.pkka_gff,

@@ -24,6 +24,7 @@
 import os
 import sys
 import argparse
+from collections import defaultdict
 from Bio import SeqIO
 
 
@@ -96,21 +97,20 @@ def hmm_parser(hmm_out, evalue_threshold=0.00001):
        The default E-value threshold of 0.00001 provides stringent filtering
        for high-quality HMM matches.
     """
-    icedict = {}
+    icedict = defaultdict(list)
+    processed_ids = set()
     chosen = []
     with open(hmm_out, "r") as outfile:
         for line in outfile.readlines():
             if not line.startswith("#"):
                 lines = line.strip().split()
-                if lines[2] in icedict:
+                if lines[2] in processed_ids:
                     continue
+                processed_ids.add(lines[2])
                 id_parts = lines[2].split("_")
                 key = "_".join(id_parts[0:2])
                 if float(lines[4]) < evalue_threshold:
-                    if key in icedict:
-                        icedict[key].append(lines[0])
-                    else:
-                        icedict[key] = [lines[0]]
+                    icedict[key].append(lines[0])
 
     for k, v in icedict.items():
         if scanf(v):
