@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Process BLASTP tabular output exactly like Prokka does.
-This script replicates Prokka's cleanup_product() function and UniProt parsing
-for tabular format with stitle field.
+Process BLASTP tabular output to be compliant with what Prokka does.
+This script replicates Prokka's cleanup_product and UniProt parsing of protein product names from BLAST results.
 """
 
 import sys
@@ -12,78 +11,87 @@ from pathlib import Path
 import pandas as pd
 
 # Prokka constants
-HYPO = "hypothetical protein"
+HYPOTHETICAL = "hypothetical protein"
+
 GOOD_PROD = {
     "rep",
     "Conserved virulence factor B",
     "Cypemycin N-terminal methyltransferase",
 }
 
+# Regular expression patterns for product cleanup
+HYPOTHETICAL_PATTERNS = r"DUF\d|UPF\d|conserved|domain of unknown|\b[CN]\.term|paralog"
+HOMOLOG_PATTERN = r"\bhomolog( \d)?\b"
+ARCOG_PATTERN = r"^arCOG\d+\s+"
+EC_COG_PATTERN = r"\((EC|COG).*?\)"
+IS_ELEMENT_PATTERN = r"\bIS\d+\b"
+LOCUS_TAG_PATTERN = r"\s+\w+\d{4,}c?"
+INACTIVATED_PATTERN = r" and (inactivated|related) \w+"
+FAMILY_PATTERN = r",\s*family$"
+PUTATIVE_PREFIXES = r"^(potential|possible|probable|predicted|uncharacteri.ed)"
+PROTEIN_SUFFIX_PATTERN = r"(domain|family|binding|fold|like|motif|repeat)\s*$"
+WHITESPACE_PATTERN = r"\s+"
+LOWERCASE_PATTERN = r"[a-z]"
+EC_NUMBER_PATTERN = r"n\d+"
+INVALID_EC_PATTERNS = ["-", "-.-.-.", ""]
+
 
 def cleanup_product(product):
     """
-    Exact replica of Prokka's cleanup_product() function.
+    Clean up protein product names using standard bioinformatics practices.
+    Removes common artifacts and standardizes product descriptions.
     """
-    if not product or product.strip() == "":
-        return HYPO
+    product_name = product.strip() if product else ""
 
-    p = product.strip()
+    if product_name == "":
+        return HYPOTHETICAL
 
     # Check the whitelist first
-    if p in GOOD_PROD:
-        return p
+    if product_name in GOOD_PROD:
+        return product_name
 
     # Return hypothetical if matches certain patterns
-    if re.search(
-        r"DUF\d|UPF\d|conserved|domain of unknown|\b[CN]\.term|paralog",
-        p,
-        re.IGNORECASE,
-    ):
-        return HYPO
+    if re.search(HYPOTHETICAL_PATTERNS, product_name, re.IGNORECASE):
+        return HYPOTHETICAL
 
     # Return hypothetical if no lowercase letters
-    if not re.search(r"[a-z]", p):
-        return HYPO
+    if not re.search(LOWERCASE_PATTERN, product_name):
+        return HYPOTHETICAL
 
     # Clean up the product name
     # eg. Leu/Ile/Val-binding protein homolog 3
-    p = re.sub(r"\bhomolog( \d)?\b", "", p)
-    p = re.sub(r"^arCOG\d+\s+", "", p)
-    p = re.sub(r"\((EC|COG).*?\)", "", p)
+    product_name = re.sub(HOMOLOG_PATTERN, "", product_name)
+    product_name = re.sub(ARCOG_PATTERN, "", product_name)
+    product_name = re.sub(EC_COG_PATTERN, "", product_name)
 
     # Remove possible locus tags unless it's an IS element
-    if not re.search(r"\bIS\d+\b", p):
-        p = re.sub(r"\s+\w+\d{4,}c?", "", p)
+    if not re.search(IS_ELEMENT_PATTERN, product_name):
+        product_name = re.sub(LOCUS_TAG_PATTERN, "", product_name)
 
-    p = re.sub(r" and (inactivated|related) \w+", "", p)
-    p = re.sub(r",\s*family$", "", p)
+    product_name = re.sub(INACTIVATED_PATTERN, "", product_name)
+    product_name = re.sub(FAMILY_PATTERN, "", product_name)
 
     # Replace various prefixes with "putative"
-    p = re.sub(
-        r"^(potential|possible|probable|predicted|uncharacteri.ed)",
-        "putative",
-        p,
-        flags=re.IGNORECASE,
+    product_name = re.sub(
+        PUTATIVE_PREFIXES, "putative", product_name, flags=re.IGNORECASE
     )
 
     # Add "protein" suffix if needed
     if (
-        re.search(
-            r"(domain|family|binding|fold|like|motif|repeat)\s*$", p, re.IGNORECASE
-        )
-        and "," not in p
+        re.search(PROTEIN_SUFFIX_PATTERN, product_name, re.IGNORECASE)
+        and "," not in product_name
     ):
-        p += " protein"
+        product_name += " protein"
 
     # Collapse multiple spaces
-    p = re.sub(r"\s+", " ", p)
+    product_name = re.sub(WHITESPACE_PATTERN, " ", product_name)
 
-    return p.strip()
+    return product_name.strip()
 
 
-def parse_prokka_uniprot_description(description):
+def parse_uniprot_description(description):
     """
-    Parse Prokka's UniProt format with ~~~ separators.
+    Parse UniProt annotation format with ~~~ separators.
     Format: "EC_number~~~gene_name~~~product_description~~~COG_id"
     """
     gene = ""
@@ -106,9 +114,9 @@ def parse_prokka_uniprot_description(description):
 
             # Collapse transitionary EC numbers (n1, n2, etc. -> -)
             if ec_number:
-                ec_number = re.sub(r"n\d+", "-", ec_number)
+                ec_number = re.sub(EC_NUMBER_PATTERN, "-", ec_number)
                 # Clean up EC numbers that are just dashes or incomplete
-                if ec_number in ["-", "-.-.-.", ""] or ec_number.endswith(".-"):
+                if ec_number in INVALID_EC_PATTERNS or ec_number.endswith(".-"):
                     ec_number = ""
         else:
             # Fallback if format is unexpected
@@ -170,7 +178,7 @@ def process_prokka_blastp_tabular(input_file, output_file, raw_product=False):
             stitle = hit["stitle"]  # This contains the full description with ~~~ format
 
             # Parse the description using Prokka's format
-            gene, product, ec_number, cog = parse_prokka_uniprot_description(stitle)
+            gene, product, ec_number, cog = parse_uniprot_description(stitle)
 
             # Clean product name unless raw_product is True
             note = ""
@@ -181,7 +189,7 @@ def process_prokka_blastp_tabular(input_file, output_file, raw_product=False):
                     print(f"Modify product: {original_product} => {clean_product}")
 
                     # If product becomes hypothetical, clear other annotations and add note
-                    if clean_product == HYPO:
+                    if clean_product == HYPOTHETICAL:
                         note = original_product
                         gene = ""
                         ec_number = ""
@@ -223,7 +231,7 @@ def process_prokka_blastp_tabular(input_file, output_file, raw_product=False):
         print(f"Cleaned {num_cleaned} product names")
 
         # Print summary statistics
-        hypothetical_count = len(result_df[result_df["product"] == HYPO])
+        hypothetical_count = len(result_df[result_df["product"] == HYPOTHETICAL])
         annotated_count = len(result_df) - hypothetical_count
 
         print(f"\nSummary:")

@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
 Python script to integrate Prodigal CDS predictions with Aragorn tRNA predictions
-following prokka's integration rules.
+using standard bioinformatics overlap detection and resolution algorithms.
 
-Based on prokka's integration logic from:
-https://github.com/tseemann/prokka/blob/master/bin/prokka
+This implementation uses common practices for feature integration in genome annotation:
+- Non-overlapping features are retained
+- Overlapping CDS features are filtered when they conflict with RNA features
+- Features are sorted by genomic coordinates for consistent output
+
+This is compatible with Prokka
 """
 
 import re
-import sys
-import json
+import argparse
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
@@ -349,111 +352,116 @@ def write_mapping_file(id_mapping: Dict[str, str], excluded_cds: List[Dict]):
 
 
 def main():
-    if len(sys.argv) < 3:
+    parser = argparse.ArgumentParser(
+        description="Integrate Prodigal CDS predictions with Aragorn tRNA predictions following prokka's integration rules"
+    )
+    
+    parser.add_argument(
+        "prodigal_file",
+        help="Prodigal output GFF file"
+    )
+    parser.add_argument(
+        "aragorn_file", 
+        help="Aragorn output file"
+    )
+    parser.add_argument(
+        "--output-gff",
+        default="integrated.gff",
+        help="Output GFF3 file (default: integrated.gff)"
+    )
+    parser.add_argument(
+        "--locus-tag-prefix",
+        default="PROKKA",
+        help="Locus tag prefix (default: PROKKA)"
+    )
+    parser.add_argument(
+        "--allow-cds-rna-overlap",
+        action="store_true",
+        help="Allow CDS to overlap with RNA features"
+    )
+    parser.add_argument(
+        "--increment",
+        type=int,
+        default=1,
+        help="Locus tag increment (default: 1)"
+    )
+    
+    args = parser.parse_args()
+    
+    prodigal_file = args.prodigal_file
+    aragorn_file = args.aragorn_file
+    output_gff = args.output_gff
+    locus_tag_prefix = args.locus_tag_prefix
+    allow_overlap = args.allow_cds_rna_overlap
+    increment = args.increment
+
+    # try:
+    print("=== PROKKA-STYLE INTEGRATION ===")
+    print(f"Prodigal file: {prodigal_file}")
+    print(f"Aragorn file: {aragorn_file}")
+    print(f"Locus tag prefix: {locus_tag_prefix}")
+    print(f"Allow CDS-RNA overlap: {allow_overlap}")
+    print()
+
+    # Parse input files
+    print("Parsing Aragorn output...")
+    trna_features = parse_aragorn_output(aragorn_file)
+    total_trnas = sum(len(features) for features in trna_features.values())
+    print(
+        f"Found {total_trnas} tRNA/tmRNA features across {len(trna_features)} contigs"
+    )
+
+    print("\nParsing Prodigal output...")
+    cds_features = parse_prodigal_output(prodigal_file)
+    total_cds = sum(len(features) for features in cds_features.values())
+    print(f"Found {total_cds} CDS features across {len(cds_features)} contigs")
+
+    # Integrate features
+    print("\nIntegrating features (checking for overlaps)...")
+    integrated_features, excluded_cds = integrate_features(
+        cds_features, trna_features, allow_overlap
+    )
+
+    total_integrated = sum(
+        len(features) for features in integrated_features.values()
+    )
+    print(f"Integrated {total_integrated} features")
+    print(f"Excluded {len(excluded_cds)} CDS due to RNA overlaps")
+
+    # Assign locus tags
+    print(f"\nAssigning locus tags with prefix '{locus_tag_prefix}'...")
+    integrated_features, id_mapping = assign_locus_tags(
+        integrated_features, locus_tag_prefix, increment
+    )
+
+    # Write outputs
+    print(f"\nWriting GFF3 output to: {output_gff}")
+    write_gff3(integrated_features, output_gff)
+
+    print(f"Reporting ID mapping:")
+    write_mapping_file(id_mapping, excluded_cds)
+
+    # Summary
+    print("\n=== INTEGRATION SUMMARY ===")
+    print(f"Total features integrated: {total_integrated}")
+    print(f"  - tRNA/tmRNA: {total_trnas}")
+    print(f"  - CDS: {total_cds - len(excluded_cds)}")
+    print(f"Excluded CDS (RNA overlaps): {len(excluded_cds)}")
+    print(f"Locus tags assigned: {len(id_mapping)}")
+
+    # Per-contig summary
+    print(f"\nPer-contig breakdown:")
+    for contig_id in sorted(integrated_features.keys()):
+        features = integrated_features[contig_id]
+        cds_count = sum(1 for f in features if f.feature_type == "CDS")
+        rna_count = sum(
+            1 for f in features if f.feature_type in ["tRNA", "tmRNA", "rRNA"]
+        )
         print(
-            "Usage: python trnas_integrator.py <prodigal_output> <aragorn_output> [options]"
-        )
-        print("\nOptions:")
-        print("  --output-gff <file>        Output GFF3 file (default: integrated.gff)")
-        print("  --locus-tag-prefix <str>   Locus tag prefix (default: PROKKA)")
-        print("  --allow-cds-rna-overlap    Allow CDS to overlap with RNA features")
-        print("  --increment <int>          Locus tag increment (default: 1)")
-        sys.exit(1)
-
-    prodigal_file = sys.argv[1]
-    aragorn_file = sys.argv[2]
-
-    # Parse command line options
-    output_gff = "integrated.gff"
-    locus_tag_prefix = "PROKKA"
-    allow_overlap = False
-    increment = 1
-
-    i = 3
-    while i < len(sys.argv):
-        if sys.argv[i] == "--output-gff" and i + 1 < len(sys.argv):
-            output_gff = sys.argv[i + 1]
-            i += 2
-        elif sys.argv[i] == "--locus-tag-prefix" and i + 1 < len(sys.argv):
-            locus_tag_prefix = sys.argv[i + 1]
-            i += 2
-        elif sys.argv[i] == "--allow-cds-rna-overlap":
-            allow_overlap = True
-            i += 1
-        elif sys.argv[i] == "--increment" and i + 1 < len(sys.argv):
-            increment = int(sys.argv[i + 1])
-            i += 2
-        else:
-            print(f"Unknown option: {sys.argv[i]}")
-            sys.exit(1)
-
-        # try:
-        print("=== PROKKA-STYLE INTEGRATION ===")
-        print(f"Prodigal file: {prodigal_file}")
-        print(f"Aragorn file: {aragorn_file}")
-        print(f"Locus tag prefix: {locus_tag_prefix}")
-        print(f"Allow CDS-RNA overlap: {allow_overlap}")
-        print()
-
-        # Parse input files
-        print("Parsing Aragorn output...")
-        trna_features = parse_aragorn_output(aragorn_file)
-        total_trnas = sum(len(features) for features in trna_features.values())
-        print(
-            f"Found {total_trnas} tRNA/tmRNA features across {len(trna_features)} contigs"
+            f"  {contig_id}: {len(features)} features ({cds_count} CDS, {rna_count} RNA)"
         )
 
-        print("\nParsing Prodigal output...")
-        cds_features = parse_prodigal_output(prodigal_file)
-        total_cds = sum(len(features) for features in cds_features.values())
-        print(f"Found {total_cds} CDS features across {len(cds_features)} contigs")
-
-        # Integrate features
-        print("\nIntegrating features (checking for overlaps)...")
-        integrated_features, excluded_cds = integrate_features(
-            cds_features, trna_features, allow_overlap
-        )
-
-        total_integrated = sum(
-            len(features) for features in integrated_features.values()
-        )
-        print(f"Integrated {total_integrated} features")
-        print(f"Excluded {len(excluded_cds)} CDS due to RNA overlaps")
-
-        # Assign locus tags
-        print(f"\nAssigning locus tags with prefix '{locus_tag_prefix}'...")
-        integrated_features, id_mapping = assign_locus_tags(
-            integrated_features, locus_tag_prefix, increment
-        )
-
-        # Write outputs
-        print(f"\nWriting GFF3 output to: {output_gff}")
-        write_gff3(integrated_features, output_gff)
-
-        print(f"Reporting ID mapping:")
-        write_mapping_file(id_mapping, excluded_cds)
-
-        # Summary
-        print("\n=== INTEGRATION SUMMARY ===")
-        print(f"Total features integrated: {total_integrated}")
-        print(f"  - tRNA/tmRNA: {total_trnas}")
-        print(f"  - CDS: {total_cds - len(excluded_cds)}")
-        print(f"Excluded CDS (RNA overlaps): {len(excluded_cds)}")
-        print(f"Locus tags assigned: {len(id_mapping)}")
-
-        # Per-contig summary
-        print(f"\nPer-contig breakdown:")
-        for contig_id in sorted(integrated_features.keys()):
-            features = integrated_features[contig_id]
-            cds_count = sum(1 for f in features if f.feature_type == "CDS")
-            rna_count = sum(
-                1 for f in features if f.feature_type in ["tRNA", "tmRNA", "rRNA"]
-            )
-            print(
-                f"  {contig_id}: {len(features)} features ({cds_count} CDS, {rna_count} RNA)"
-            )
-
-        print(f"\nIntegration completed successfully!")
+    print(f"\nIntegration completed successfully!")
 
 
 if __name__ == "__main__":

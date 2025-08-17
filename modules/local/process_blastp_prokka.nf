@@ -14,7 +14,7 @@ process PROCESS_BLASTP_PROKKA {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    prokka_blastp_processor.py \\
+    prokka_compatible_blastp_processor.py \\
         --input ${uniprot_tsv} \\
         --output ${prefix}_uniprot_names.tsv
     """
