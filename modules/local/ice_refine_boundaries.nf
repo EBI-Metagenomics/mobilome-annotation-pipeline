@@ -3,15 +3,15 @@ process REFINE_BOUNDARIES {
     label 'process_single'
 
     container 'quay.io/biocontainers/biopython:1.81'
-    
+
     input:
     tuple val(meta), path(assembly), path(merged_gff), path(macsyfinder_tsv), path(uniprot_product_names), path(vmatch_tsv)
-    
+
     output:
-    tuple val(meta), path("*_ices.tsv")     , emit: ices_tsv, optional: true
+    tuple val(meta), path("*_ices.tsv"), emit: ices_tsv, optional: true
     tuple val(meta), path("*_ice_genes.tsv"), emit: ice_genes_tsv, optional: true
-    path "versions.yml"                     , emit: versions
-    
+    path "versions.yml", emit: versions
+
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """

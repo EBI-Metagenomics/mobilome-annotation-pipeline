@@ -24,7 +24,7 @@ include { AMRFINDER_REPORT                } from '../modules/local/amrfinder_rep
 include { FASTA_WRITER                    } from '../modules/local/fasta_writer'
 include { GFF_MAPPING                     } from '../modules/local/gff_mapping'
 include { GFF_REDUCE                      } from '../modules/local/gff_reduce'
-include { GFF_VALIDATOR                   } from '../modules/local/gff_validator'
+include { GT_GFF3VALIDATOR                } from '../modules/nf-core/gt/gff3validator/main'
 include { INTEGRATOR                      } from '../modules/local/integrator'
 
 /*
@@ -34,6 +34,8 @@ include { INTEGRATOR                      } from '../modules/local/integrator'
 */
 include { COMPOSITIONAL_OUTLIER_DETECTION } from '../subworkflows/compositional_outlier_detection'
 include { ICEFINDER2_LITE                 } from '../subworkflows/icefinder2lite'
+include { CUSTOM_DUMPSOFTWAREVERSIONS     } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { MULTIQC                         } from '../modules/nf-core/multiqc/main'
 
 // TODO: add blast annotation workflow from mobilome proteins after integration
 
@@ -44,10 +46,12 @@ include { ICEFINDER2_LITE                 } from '../subworkflows/icefinder2lite
 */
 
 workflow MOBILOMEANNOTATION {
+    main:
 
     validateParameters()
 
     def ch_inputs = Channel.fromList(samplesheetToList(params.input, "./assets/schema_input.json"))
+    ch_versions = Channel.empty()
 
     /*
     ******************************************************************************************************
@@ -73,11 +77,12 @@ workflow MOBILOMEANNOTATION {
         }
     }
 
-
     // PREPROCESSING
     RENAME(ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] })
+    ch_versions = ch_versions.mix(RENAME.out.versions)
 
     PROKKA(RENAME.out.contigs_1kb)
+    ch_versions = ch_versions.mix(PROKKA.out.versions)
 
     // Parsing VIRify gff file when an input is provided
     def user_virify_gff_ch = ch_inputs
@@ -89,6 +94,7 @@ workflow MOBILOMEANNOTATION {
         .filter { _meta, virify_gff -> virify_gff != [] }
 
     VIRIFY_QC(user_virify_gff_ch)
+    ch_versions = ch_versions.mix(VIRIFY_QC.out.versions)
 
     // PREDICTION
     // Collecting ICEfinder2 databases
@@ -110,14 +116,19 @@ workflow MOBILOMEANNOTATION {
         params.ice_macsy_models,
         db_prokka_uniprot,
     )
+    ch_versions = ch_versions.mix(ICEFINDER2_LITE.out.versions)
 
     GENOMAD(RENAME.out.contigs_5kb)
+    ch_versions = ch_versions.mix(GENOMAD.out.versions)
 
     INTEGRONFINDER(RENAME.out.contigs_5kb)
+    ch_versions = ch_versions.mix(INTEGRONFINDER.out.versions)
 
     ISESCAN(RENAME.out.contigs_1kb)
+    ch_versions = ch_versions.mix(ISESCAN.out.versions)
 
     COMPOSITIONAL_OUTLIER_DETECTION(RENAME.out.contigs_100kb)
+    ch_versions = ch_versions.mix(COMPOSITIONAL_OUTLIER_DETECTION.out.versions)
 
     /**********************************************************************************************
     * The INTEGRATOR step takes a bunch of outputs from the previous steps.
@@ -165,27 +176,33 @@ workflow MOBILOMEANNOTATION {
             [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv ? ices_tsv : [], genomad_vir, genomad_plas, compos_bed ? compos_bed : [], virify_hq ? virify_hq : []]
         }
     )
+    ch_versions = ch_versions.mix(INTEGRATOR.out.versions)
 
 
     // POSTPROCESSING
     GFF_REDUCE(INTEGRATOR.out.mobilome_prokka_gff)
+    ch_versions = ch_versions.mix(GFF_REDUCE.out.versions)
 
     FASTA_WRITER(
         ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] }.join(GFF_REDUCE.out.mobilome_nogenes)
     )
+    ch_versions = ch_versions.mix(FASTA_WRITER.out.versions)
 
     GFF_MAPPING(
         GFF_REDUCE.out.mobilome_clean.join(user_proteins_ch)
     )
+    ch_versions = ch_versions.mix(GFF_MAPPING.out.versions)
 
     if (params.gff_validation) {
-        GFF_VALIDATOR(GFF_REDUCE.out.mobilome_nogenes)
+        GT_GFF3VALIDATOR(GFF_REDUCE.out.mobilome_nogenes)
+        ch_versions = ch_versions.mix(GT_GFF3VALIDATOR.out.versions)
     }
 
     // AMRFinder is optional. default skip_amr = FALSE
     def amr_finder_ch = PROKKA.out.prokka_fna.join(PROKKA.out.prokka_faa).join(PROKKA.out.prokka_gff).filter { it -> !it[0].skip_amrfinder_plus }
 
     AMRFINDER_PLUS(amr_finder_ch)
+    ch_versions = ch_versions.mix(AMRFINDER_PLUS.out.versions)
 
     AMRFINDER_REPORT(
         AMRFINDER_PLUS.out.amrfinder_tsv.join(
@@ -196,4 +213,26 @@ workflow MOBILOMEANNOTATION {
             user_proteins_ch
         )
     )
+    ch_versions = ch_versions.mix(AMRFINDER_REPORT.out.versions)
+
+    //
+    // Collate and save software versions
+    //
+
+    // Version collating //
+    CUSTOM_DUMPSOFTWAREVERSIONS(
+        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    )
+
+    MULTIQC(
+        CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.first(),
+        params.multiqc_config,
+        [],
+        [],
+        [],
+        []
+    )
+
+    emit:
+    versions = ch_versions
 }

@@ -11,6 +11,7 @@ process INTEGRATOR {
     tuple val(meta), path("${meta.id}_mobilome_prokka.gff"), emit: mobilome_prokka_gff
     tuple val(meta), path("${meta.id}_overlap_report.txt"), emit: overlapping_integrons_txt
     tuple val(meta), path("${meta.id}_discarded_mge.txt"), emit: discarded_mge_txt
+    path "versions.yml", emit: versions
 
     script:
     def virify_arg = vir_results ? "--virify_out ${vir_results}" : ""
@@ -28,5 +29,11 @@ process INTEGRATOR {
         --comp_bed ${compos_bed} \\
         ${virify_arg} \\
         --prefix ${prefix}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+        biopython: \$(python -c "import Bio; print(Bio.__version__)")
+    END_VERSIONS
     """
 }

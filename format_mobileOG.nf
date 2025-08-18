@@ -4,7 +4,7 @@ process database_format {
     // TODO: publish dir statements go in the modules.config
     publishDir "${projectDir}/databases", mode: 'copy'
 
-    stageInMode = 'copy'
+    stageInMode 'copy'
 
     memory "8 GB"
     cpus 4

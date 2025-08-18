@@ -1,17 +1,19 @@
 process GENOMAD {
-    tag "$meta.id"
+    // TODO: use the nf-core version
+    tag "${meta.id}"
     label 'process_medium'
 
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/genomad:1.11.1--pyhdfd78af_0':
-        'biocontainers/genomad:1.11.1--pyhdfd78af_0' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/genomad:1.11.1--pyhdfd78af_0'
+        : 'biocontainers/genomad:1.11.1--pyhdfd78af_0'}"
 
     input:
     tuple val(meta), path(assembly_file)
 
     output:
-    tuple val(meta), path("*_5kb_contigs_summary/*_5kb_contigs_virus_summary.tsv"),   emit: genomad_vir
+    tuple val(meta), path("*_5kb_contigs_summary/*_5kb_contigs_virus_summary.tsv"), emit: genomad_vir
     tuple val(meta), path("*_5kb_contigs_summary/*_5kb_contigs_plasmid_summary.tsv"), emit: genomad_plas
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -25,5 +27,10 @@ process GENOMAD {
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_virus_summary.tsv
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_plasmid_summary.tsv
     fi
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        genomad: \$(genomad --version | sed 's/geNomad, version //g')
+    END_VERSIONS
     """
 }

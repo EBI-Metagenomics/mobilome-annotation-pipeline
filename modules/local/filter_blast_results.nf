@@ -1,15 +1,14 @@
 process FILTER_BLAST_RESULTS {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
-    
-    conda "bioconda::python=3.9"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.9--1':
-        'biocontainers/python:3.9--1' }"
+
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/python:3.9--1'
+        : 'biocontainers/python:3.9--1'}"
 
     input:
     tuple val(meta), path(blast_results)
-    val(threshold)
+    val threshold
 
     output:
     tuple val(meta), path("*.filtered"), emit: filtered_results

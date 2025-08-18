@@ -3,27 +3,29 @@ include { MERGE_RESULTS  } from '../modules/local/merge_results'
 
 workflow COMPOSITIONAL_OUTLIER_DETECTION {
     take:
-        ch_assembly  // tuple(meta, 100kb_contigs)
+    ch_assembly // tuple(meta, 100kb_contigs)
 
     main:
-        // Split FASTA files into chunks with meta naming
-        ch_chunks = ch_assembly
-            .splitFasta( by:20, file:true )
+    ch_versions = Channel.empty()
+    // Split FASTA files into chunks with meta naming
+    ch_chunks = ch_assembly.splitFasta(by: 20, file: true)
 
-        // Run compositional outlier detection on each chunk
-        OUTLIER_FINDER (
-            ch_chunks
-        )
+    // Run compositional outlier detection on each chunk
+    OUTLIER_FINDER(
+        ch_chunks
+    )
+    ch_versions = ch_versions.mix(OUTLIER_FINDER.out.versions)
 
-        // Group results while preserving the full meta map
-        ch_grouped_results = OUTLIER_FINDER.out.bed.groupTuple(by: 0)
+    // Group results while preserving the full meta map
+    ch_grouped_results = OUTLIER_FINDER.out.bed.groupTuple(by: 0)
 
-        // Merge results from all chunks for each sample
-        MERGE_RESULTS (
-            ch_grouped_results
-        )
+    // Merge results from all chunks for each sample
+    MERGE_RESULTS(
+        ch_grouped_results
+    )
+    ch_versions = ch_versions.mix(MERGE_RESULTS.out.versions)
 
     emit:
-        bed = MERGE_RESULTS.out.bed
+    bed      = MERGE_RESULTS.out.bed
+    versions = ch_versions
 }
-

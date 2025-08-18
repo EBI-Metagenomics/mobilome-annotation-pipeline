@@ -1,17 +1,18 @@
 process DEFENSEFINDER {
-    conda "bioconda::defense-finder=2.0.1"
+
+    // TODO: either to nf-core or nf-modules
     container 'quay.io/biocontainers/defense-finder:2.0.1--pyhdfd78af_0'
-    
+
     input:
     tuple val(meta), path(input_file)
     path models_dir
-    
+
     output:
     tuple val(meta), path("${meta.id}_defense_finder_systems.tsv"), emit: systems
     tuple val(meta), path("${meta.id}_defense_finder_genes.tsv"), emit: genes
     tuple val(meta), path("${meta.id}_defense_finder_hmmer.tsv"), emit: hmmer
     path "versions.yml", emit: versions
-    
+
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -54,7 +55,7 @@ process DEFENSEFINDER {
         defense-finder: \$(defense-finder --version | grep -oP 'defense-finder \\K[0-9.]+')
     END_VERSIONS
     """
-    
+
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """

@@ -1,5 +1,5 @@
 process PROKKA {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     container "${workflow.containerEngine in ['singularity', 'apptainer']
@@ -14,6 +14,7 @@ process PROKKA {
     tuple val(meta), path("prokka_results/*.gff"), emit: prokka_gff
     tuple val(meta), path("prokka_results/*.faa"), emit: prokka_faa
     tuple val(meta), path("prokka_results/*.fna"), emit: prokka_fna
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -30,5 +31,10 @@ process PROKKA {
         --cpus ${task.cpus} \\
         --metagenome \\
         ${assembly_file}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        prokka: \$(prokka --version 2>&1 | sed 's/prokka //g')
+    END_VERSIONS
     """
 }

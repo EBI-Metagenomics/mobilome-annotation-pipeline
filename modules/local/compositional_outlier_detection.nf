@@ -9,6 +9,7 @@ process OUTLIER_FINDER {
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
+    path "versions.yml", emit: versions
 
     script:
     def args = task.ext.args ?: ''
@@ -18,5 +19,12 @@ process OUTLIER_FINDER {
         --input_fasta ${fasta} \\
         --output_bed ${prefix}.bed \\
         --threads ${task.cpus} ${args}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+        numpy: \$(python -c "import numpy; print(numpy.__version__)")
+        biopython: \$(python -c "import Bio; print(Bio.__version__)")
+    END_VERSIONS
     """
 }

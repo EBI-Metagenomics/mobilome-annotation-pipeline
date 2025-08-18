@@ -1,14 +1,14 @@
 process BLAST_BLASTP {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/52/5222a42b366a0468a4c795f5057c2b8cfe39489548f8bd807e8ac0f80069bad5/data':
-        'community.wave.seqera.io/library/blast:2.16.0--540f4b669b0a0ddd' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/52/5222a42b366a0468a4c795f5057c2b8cfe39489548f8bd807e8ac0f80069bad5/data'
+        : 'community.wave.seqera.io/library/blast:2.16.0--540f4b669b0a0ddd'}"
 
     input:
-    tuple val(meta) , path(fasta)
+    tuple val(meta), path(fasta)
     tuple val(meta2), path(db)
     val out_ext
 
@@ -16,7 +16,7 @@ process BLAST_BLASTP {
     tuple val(meta), path("*.xml"), optional: true, emit: xml
     tuple val(meta), path("*.tsv"), optional: true, emit: tsv
     tuple val(meta), path("*.csv"), optional: true, emit: csv
-    path "versions.yml"           , emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,11 +28,14 @@ process BLAST_BLASTP {
     def fasta_name = is_compressed ? fasta.getBaseName() : fasta
     if (out_ext == "xml") {
         outfmt = 5
-    } else if (out_ext == "tsv") {
+    }
+    else if (out_ext == "tsv") {
         outfmt = 6
-    } else if (out_ext == "csv") {
+    }
+    else if (out_ext == "csv") {
         outfmt = 10
-    } else {
+    }
+    else {
         outfmt = 6
         out_ext = 'tsv'
         log.warn("Unknown output file format provided (${out_ext}): selecting BLAST default of tabular BLAST output (tsv)")
@@ -63,11 +66,14 @@ process BLAST_BLASTP {
     def prefix = task.ext.prefix ?: "${meta.id}"
     if (out_ext == "xml") {
         outfmt = 5
-    } else if (out_ext == "tsv") {
+    }
+    else if (out_ext == "tsv") {
         outfmt = 6
-    } else if (out_ext == "csv") {
+    }
+    else if (out_ext == "csv") {
         outfmt = 10
-    } else {
+    }
+    else {
         outfmt = 6
         out_ext = 'tsv'
         log.warn("Unknown output file format provided (${out_ext}): selecting BLAST default of tabular BLAST output (tsv)")

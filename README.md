@@ -101,7 +101,7 @@ If you want to integrate VIRify results into the final output, provide the path 
 
 ## Outputs
 
-Results will be written by default in the `mobilome_results` directory unless the `--outdir` option is used. There, you will find the following outputs:
+Results will be written by default in the `results` directory unless the `--outdir` option is used. There, you will find the following outputs:
 
 ```bash
 sample/

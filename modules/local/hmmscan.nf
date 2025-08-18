@@ -1,8 +1,10 @@
 process HMMSCAN {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
-    container 'quay.io/biocontainers/hmmer:3.0--h503566f_5'
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/hmmer:3.4--hdbdd923_1'
+        : 'biocontainers/hmmer:3.4--hdbdd923_1'}"
 
     input:
     tuple val(meta), path(faa_file)
@@ -10,6 +12,7 @@ process HMMSCAN {
 
     output:
     tuple val(meta), path("*_prescan.tbl"), emit: hmmscan_tbl
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -18,5 +21,10 @@ process HMMSCAN {
         --tblout ${prefix}_prescan.tbl \\
         ${ice_hmm_models} \\
         ${faa_file}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        hmmer: \$(hmmscan -h | grep -o '^# HMMER [0-9.]*' | sed 's/^# HMMER *//')
+    END_VERSIONS
     """
 }

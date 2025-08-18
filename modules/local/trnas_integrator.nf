@@ -1,5 +1,5 @@
 process TRNAS_INTEGRATOR {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     container 'quay.io/biocontainers/biopython:1.81'
@@ -9,8 +9,8 @@ process TRNAS_INTEGRATOR {
 
     output:
     tuple val(meta), path("*_merged.gff"), emit: merged_gff
-    tuple val(meta), path("names.map") , emit: merged_map
-
+    tuple val(meta), path("names.map"), emit: merged_map
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -20,5 +20,11 @@ process TRNAS_INTEGRATOR {
         ${aragorn_file} \\
         --output-gff ${prefix}_merged.gff \\
         --locus-tag-prefix ${prefix}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+        biopython: \$(python -c "import importlib.metadata; print(importlib.metadata.version('biopython'))")
+    END_VERSIONS
     """
 }

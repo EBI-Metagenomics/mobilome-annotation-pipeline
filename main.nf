@@ -18,7 +18,7 @@ include { MOBILOMEANNOTATION } from './workflows/mobilomeannotation'
 // WORKFLOW: Run main ebi-metagenomics/mobilome-annotation-pipeline analysis pipeline
 //
 workflow MAP {
-    MOBILOMEANNOTATION ()
+    MOBILOMEANNOTATION()
 }
 
 /*
@@ -28,7 +28,7 @@ workflow MAP {
 */
 
 workflow {
-    MAP ()
+    MAP()
 }
 
 /*
