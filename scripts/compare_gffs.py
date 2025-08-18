@@ -31,7 +31,7 @@ def read_gff(file_name, feature, annot_type):
                     strand,
                     phase,
                     attr,
-                ) = line.rstrip().split("\t")
+                ) = line_l
 
                 if seq_source == feature and seq_type in annot_type:
                     info = ( int(start), int(end), seq_type )
