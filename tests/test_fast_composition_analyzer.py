@@ -7,19 +7,8 @@ Tests the compositional outlier detection functionality
 import pytest
 import tempfile
 import os
-import sys
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import numpy as np
-from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
-from Bio.Seq import Seq
-from collections import Counter
-
-# Add the bin directory to Python path for imports
-project_root = Path(__file__).parent.parent
-bin_dir = project_root / "bin"
-sys.path.insert(0, str(bin_dir))
 
 # Import the classes and functions from the script
 from fast_composition_analyzer import (

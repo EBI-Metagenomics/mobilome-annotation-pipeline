@@ -1,68 +1,202 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/ebi-metagenomics/mobilome-annotation-pipeline/master/nextflow_schema.json",
-    "title": "ebi-metagenomics/mobilome-annotation-pipeline pipeline parameters",
-    "description": "The Mobilome Annotation Pipeline",
-    "type": "object",
-    "$defs": {
-        "input_output_options": {
-            "title": "Input/output options",
-            "type": "object",
-            "fa_icon": "fas fa-terminal",
-            "description": "Define where the pipeline should find input data and save output data.",
-            "properties": {
-                "input": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/csv",
-                    "pattern": "^\\S+\\.csv$",
-                    "schema": "assets/schema_input.json",
-                    "description": "Path to comma-separated file containing information about the sample names and assemblies.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row.",
-                    "fa_icon": "fas fa-file-csv"
-                },
-                "icefinder_sif": {
-                    "type": "string",
-                    "format": "file-path",
-                    "description": "The path to the ICEfinder singularity image.",
-                    "exists": true
-                },
-                "outdir": {
-                    "type": "string",
-                    "format": "directory-path",
-                    "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-                    "fa_icon": "fas fa-folder-open",
-                    "default": "mobilome_results"
-                }
-            }
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ebi-metagenomics/mobilome-annotation-pipeline/master/nextflow_schema.json",
+  "title": "ebi-metagenomics/mobilome-annotation-pipeline pipeline parameters",
+  "description": "The Mobilome Annotation Pipeline",
+  "type": "object",
+  "$defs": {
+    "input_output_options": {
+      "title": "Input/output options",
+      "type": "object",
+      "fa_icon": "fas fa-terminal",
+      "description": "Define where the pipeline should find input data and save output data.",
+      "properties": {
+        "input": {
+          "type": "string",
+          "format": "file-path",
+          "exists": true,
+          "mimetype": "text/csv",
+          "pattern": "^\\S+\\.csv$",
+          "schema": "assets/schema_input.json",
+          "description": "Path to comma-separated file containing information about the sample names and assemblies.",
+          "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row.",
+          "fa_icon": "fas fa-file-csv"
+        },
+        "outdir": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+          "fa_icon": "fas fa-folder-open",
+          "default": "results"
         }
+      }
     },
-    "allOf": [
-        {
-            "$ref": "#/$defs/input_output_options"
-        }
-    ],
-    "properties": {
-        "gff_validation": {
-            "type": "boolean",
-            "default": true
-        },
-        "skip_amr": {
-            "type": "boolean"
-        },
-        "publish_all": {
-            "type": "boolean",
-            "default": true
-        },
-        "mobileog_db": {
-            "type": "string"
-        },
+    "reference_databases": {
+      "title": "Reference databases",
+      "type": "object",
+      "fa_icon": "fas fa-database",
+      "description": "Paths to the different reference databases needed for the pipeline.",
+      "help_text": "These databases are required for various annotation and prediction steps. Provide absolute paths to the database files or directories.",
+      "properties": {
         "amrfinder_plus_db": {
-            "type": "string"
+          "type": "string",
+          "description": "Path to AMRFinderPlus database directory.",
+          "help_text": "Directory containing the AMRFinderPlus database files for antimicrobial resistance gene prediction.",
+          "fa_icon": "fas fa-shield-alt"
         },
         "genomad_db": {
-            "type": "string"
+          "type": "string",
+          "description": "Path to geNomad database directory.",
+          "help_text": "Directory containing the geNomad database files for virus and plasmid detection.",
+          "fa_icon": "fas fa-virus"
+        },
+        "ice_hmm_models": {
+          "type": "string",
+          "description": "Path to ICEfinder2 HMM models.",
+          "help_text": "Path to HMM models used by ICEfinder2 for integrative and conjugative element detection.",
+          "fa_icon": "fas fa-dna"
+        },
+        "ice_macsy_models": {
+          "type": "string",
+          "description": "Path to ICEfinder2 MacSyFinder models.",
+          "help_text": "Directory containing MacSyFinder models for ICEfinder2 analysis.",
+          "fa_icon": "fas fa-project-diagram"
+        },
+        "prokka_uniprot_db": {
+          "type": "string",
+          "description": "Path to Prokka UniProt database.",
+          "help_text": "Path to UniProt database files used by Prokka for protein annotation.",
+          "fa_icon": "fas fa-database"
         }
+      }
+    },
+    "tools_settings": {
+      "title": "Tools settings",
+      "type": "object",
+      "fa_icon": "fas fa-cogs",
+      "description": "Settings meant to tweak some parameters of the tools used in the pipeline.",
+      "help_text": "These options control the behavior of specific tools and analysis steps in the pipeline.",
+      "properties": {
+        "gff_validation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable GFF3 validation using GenomeTools.",
+          "help_text": "Validates the output GFF3 files for format compliance. Disable if validation causes issues.",
+          "fa_icon": "fas fa-check-circle"
+        },
+        "skip_amr": {
+          "type": "boolean",
+          "default": false,
+          "description": "Skip antimicrobial resistance gene detection.",
+          "help_text": "Set to true to skip AMRFinderPlus analysis and AMR reporting steps.",
+          "fa_icon": "fas fa-forward"
+        },
+        "publish_all": {
+          "type": "boolean",
+          "default": true,
+          "description": "Publish all intermediate files.",
+          "help_text": "When enabled, publishes intermediate results from all analysis steps. Disable to save storage space.",
+          "fa_icon": "fas fa-save"
+        },
+        "prescan_evalue_threshold": {
+          "type": "number",
+          "default": 0.00001,
+          "description": "E-value threshold for filtering HMM hits.",
+          "help_text": "E-value threshold used during the prescanning step to filter HMM hits before candidate sequence extraction.",
+          "fa_icon": "fas fa-filter"
+        },
+        "outlier_score_threshold": {
+          "type": "number",
+          "default": 2.0,
+          "description": "Score threshold for compositional outlier detection.",
+          "help_text": "Minimum score threshold for identifying compositional outliers in genomic sequences. Higher values are more stringent.",
+          "fa_icon": "fas fa-chart-line"
+        }
+      }
+    },
+    "generic_options": {
+      "title": "Generic options",
+      "type": "object",
+      "fa_icon": "fas fa-file-import",
+      "description": "Less common options for the pipeline, typically set in a config file.",
+      "help_text": "These options are common that allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
+      "properties": {
+        "publish_dir_mode": {
+          "type": "string",
+          "default": "copy",
+          "description": "Method used to save pipeline results to output directory.",
+          "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+          "fa_icon": "fas fa-copy",
+          "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
+          "hidden": true
+        },
+        "multiqc_config": {
+          "type": "string",
+          "default": "./assets/multiqc_config.yml",
+          "description": "Config file for MultiQC.",
+          "fa_icon": "fas fa-chart-bar"
+        },
+        "trace_report_suffix": {
+          "type": "string",
+          "fa_icon": "far fa-calendar",
+          "description": "Suffix to add to the trace report filename.",
+          "help_text": "Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
+          "hidden": true
+        }
+      }
+    },
+    "max_job_request_options": {
+      "title": "Max job request options",
+      "type": "object",
+      "fa_icon": "fab fa-acquisitions-incorporated",
+      "description": "Set the top limit for requested resources for any single job.",
+      "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
+      "properties": {
+        "max_cpus": {
+          "type": "integer",
+          "description": "Maximum number of CPUs that can be requested for any single job.",
+          "default": 16,
+          "fa_icon": "fas fa-microchip",
+          "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`",
+          "hidden": true
+        },
+        "max_memory": {
+          "type": "string",
+          "description": "Maximum amount of memory that can be requested for any single job.",
+          "default": "128.GB",
+          "fa_icon": "fas fa-memory",
+          "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
+          "help_text": "Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`",
+          "hidden": true
+        },
+        "max_time": {
+          "type": "string",
+          "description": "Maximum amount of time that can be requested for any single job.",
+          "default": "240.h",
+          "fa_icon": "far fa-clock",
+          "pattern": "^(\\d+\\.?\\s*(s|m|h|d|day)\\s*)+$",
+          "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`",
+          "hidden": true
+        }
+      }
     }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/input_output_options"
+    },
+    {
+      "$ref": "#/$defs/reference_databases"
+    },
+    {
+      "$ref": "#/$defs/tools_settings"
+    },
+    {
+      "$ref": "#/$defs/generic_options"
+    },
+    {
+      "$ref": "#/$defs/max_job_request_options"
+    }
+  ],
+  "properties": {}
 }

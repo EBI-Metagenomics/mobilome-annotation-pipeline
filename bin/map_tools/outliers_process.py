@@ -26,8 +26,6 @@ def mge_data_parser(mge_data):
     ]
     for mge in mge_data:
         contig, description, coord = mge_data[mge]
-        composite_key = (contig, coord)
-        prefix = mge.split("_")[0]
         if "prophage" in description:
             if contig in integrated_dic:
                 integrated_dic[contig].append(coord)
@@ -43,11 +41,28 @@ def mge_data_parser(mge_data):
     return integrated_dic
 
 
+def calculate_intersection(range1, range2):
+    """
+    Calculate the intersection between two ranges.
+    
+    :param range1: First range object
+    :type range1: range
+    :param range2: Second range object  
+    :type range2: range
+    :return: Length of intersection between the two ranges
+    :rtype: int
+    """
+    return len(set(range1) & set(range2))
+
+
 def outliers_parser(
     comp_bed, mge_data, rnas_coord, rna_cov_threshold=1.0, co_cov_threshold=0.75
 ):
     mge_counter = 0
     co_repeats = {}
+
+    if len(comp_bed) == 0:
+        return (mge_data, co_repeats)
 
     # Saving integrated mges in the mge_data
     integrated_dic = mge_data_parser(mge_data)
@@ -104,6 +119,8 @@ def outliers_parser(
                     conf.replace(":", "="),
                 ]
             )
+
+
             new_co_id = (
                 co_contig
                 + "|compositional_outlier:"
@@ -121,7 +138,7 @@ def outliers_parser(
                     rna_end = rna_coord_pair[1]
                     rna_len = rna_end - rna_start
                     rna_range = range(rna_start, rna_end + 1)
-                    intersection = len(set(rna_range) & set(co_range))
+                    intersection = calculate_intersection(rna_range, co_range)
                     if intersection > 0:
                         rna_cov = float(intersection) / float(rna_len)
                         if rna_cov == rna_cov_threshold:
@@ -138,7 +155,7 @@ def outliers_parser(
                         mge_end = mge_coord_pair[1]
                         mge_len = mge_end - mge_start
                         mge_range = range(mge_start, mge_end + 1)
-                        intersection = len(set(mge_range) & set(co_range))
+                        intersection = calculate_intersection(mge_range, co_range)
                         if intersection > 0:
                             co_cov = float(intersection) / float(co_len)
                             if co_cov >= co_cov_threshold:
@@ -159,3 +176,4 @@ def outliers_parser(
                     co_repeats[mge_id] = (metainfo1, metainfo2)
 
     return (mge_data, co_repeats)
+

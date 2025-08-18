@@ -38,7 +38,6 @@ def gff_writer(
     co_repeats,
     mge_data,
     proteins_mge,
-    mog_annot,
     virify_prots,
     output_gff,
 ):
@@ -257,9 +256,11 @@ def gff_writer(
                 else:
                     attrib = attrib + ";location=chromosome"
 
-                if prot_id in mog_annot:
-                    function = mog_annot[prot_id].replace(" ", "_")
-                    attrib = attrib + ";mobileOG=" + function
+                # Keep this piece of code as a placeholder
+                # We will need it for the per gene annotation subworkflow
+                # if prot_id in mog_annot:
+                #    function = mog_annot[prot_id].replace(" ", "_")
+                #    attrib = attrib + ";mobileOG=" + function
 
                 start = int(l_line[3])
                 end = int(l_line[4])
