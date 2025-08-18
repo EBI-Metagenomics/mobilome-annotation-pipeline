@@ -19,7 +19,6 @@ workflow ICEFINDER2_LITE {
 
     main:
     ch_versions = Channel.empty()
-    final_ices_tsv = Channel.empty()
 
     // Prescanning for candidate contigs
     PRODIGAL(ch_assembly, 'gff')
@@ -35,52 +34,75 @@ workflow ICEFINDER2_LITE {
     PRESCAN_TO_FASTA(prescan_input_ch, params.prescan_evalue_threshold)
     ch_versions = ch_versions.mix(PRESCAN_TO_FASTA.out.versions)
 
-    // Evaluating if candidates were found
+    // Filter for samples with candidates (non-empty files)
     ch_candidates = PRESCAN_TO_FASTA.out.candidates_faa
         .join(PRESCAN_TO_FASTA.out.candidates_fna)
         .filter { _meta, faa, fna ->
-            faa.exists() && fna.exists()
+            faa != null && fna != null
         }
 
-    // Only run downstream processes if candidates exist
-    if (ch_candidates) {
+    // Extract just the meta information from candidates for filtering
+    ch_candidate_metas = ch_candidates.map { meta, _faa, _fna -> meta }
 
-        MACSYFINDER(ch_candidates.map { meta, faa, _fna -> tuple(meta, faa) }, ch_ice_macsy_models)
-        ch_versions = ch_versions.mix(MACSYFINDER.out.versions)
+    /*
+     * The cross operator explanation:
+     * 
+     * ch_assembly contains all input samples: [meta1, meta2, meta3]
+     * ch_candidate_metas contains only samples with candidates: [meta1, meta3]
+     * 
+     * ch_assembly.cross(ch_candidate_metas) matches samples by meta.id and produces:
+     * [[meta1, assembly1], meta1], [[meta3, assembly3], meta3]
+     * 
+     * .map { assembly_tuple, meta -> assembly_tuple } extracts just the assembly info:
+     * [meta1, assembly1], [meta3, assembly3]
+     * 
+     * This way only samples with candidates proceed to downstream analysis
+     */
+    ch_assembly_filtered = ch_assembly
+        .cross(ch_candidate_metas)
+        .map { assembly_tuple, _meta -> assembly_tuple }
 
-        BLASTP_PROKKA(ch_candidates.map { meta, faa, _fna -> tuple(meta, faa) }, ch_prokka_uniprot_db, 'tsv')
-        ch_versions = ch_versions.mix(BLASTP_PROKKA.out.versions)
+    // Run downstream processes only on samples with candidates
+    MACSYFINDER(
+        ch_candidates.map { meta, faa, _fna -> tuple(meta, faa) },
+        ch_ice_macsy_models,
+    )
+    ch_versions = ch_versions.mix(MACSYFINDER.out.versions)
 
-        PROCESS_BLASTP_PROKKA(BLASTP_PROKKA.out.tsv)
-        ch_versions = ch_versions.mix(PROCESS_BLASTP_PROKKA.out.versions)
+    BLASTP_PROKKA(
+        ch_candidates.map { meta, faa, _fna -> tuple(meta, faa) },
+        ch_prokka_uniprot_db,
+        'tsv',
+    )
+    ch_versions = ch_versions.mix(BLASTP_PROKKA.out.versions)
 
-        ARAGORN(ch_candidates.map { meta, _faa, fna -> tuple(meta, fna) })
-        ch_versions = ch_versions.mix(ARAGORN.out.versions)
+    PROCESS_BLASTP_PROKKA(BLASTP_PROKKA.out.tsv)
+    ch_versions = ch_versions.mix(PROCESS_BLASTP_PROKKA.out.versions)
 
-        TRNAS_INTEGRATOR(ARAGORN.out.rnas_tbl.join(PRODIGAL.out.gene_annotations))
-        ch_versions = ch_versions.mix(TRNAS_INTEGRATOR.out.versions)
+    ARAGORN(
+        ch_candidates.map { meta, _faa, fna -> tuple(meta, fna) }
+    )
+    ch_versions = ch_versions.mix(ARAGORN.out.versions)
 
-        VMATCH(ch_candidates.map { meta, _faa, fna -> tuple(meta, fna) })
-        ch_versions = ch_versions.mix(VMATCH.out.versions)
+    TRNAS_INTEGRATOR(
+        ARAGORN.out.rnas_tbl.join(PRODIGAL.out.gene_annotations)
+    )
+    ch_versions = ch_versions.mix(TRNAS_INTEGRATOR.out.versions)
 
-        // REFINE_BOUNDARIES - this will only emit results for samples with ICEs
-        REFINE_BOUNDARIES(
-            ch_assembly.join(
-                TRNAS_INTEGRATOR.out.merged_gff
-            ).join(
-                MACSYFINDER.out.macsyfinder_tsv
-            ).join(
-                PROCESS_BLASTP_PROKKA.out.uniprot_product_names
-            ).join(
-                VMATCH.out.vmatch_tsv
-            )
-        )
+    VMATCH(
+        ch_candidates.map { meta, _faa, fna -> tuple(meta, fna) }
+    )
+    ch_versions = ch_versions.mix(VMATCH.out.versions)
 
-        ch_versions = ch_versions.mix(REFINE_BOUNDARIES.out.versions)
-        final_ices_tsv = REFINE_BOUNDARIES.out.ices_tsv
-    }
+    // REFINE_BOUNDARIES - now only runs on samples that have candidates
+    // All channels will have matching samples since we filtered ch_assembly
+    REFINE_BOUNDARIES(
+        ch_assembly_filtered.join(TRNAS_INTEGRATOR.out.merged_gff).join(MACSYFINDER.out.macsyfinder_tsv).join(PROCESS_BLASTP_PROKKA.out.uniprot_product_names).join(VMATCH.out.vmatch_tsv)
+    )
+
+    ch_versions = ch_versions.mix(REFINE_BOUNDARIES.out.versions)
 
     emit:
-    ices_tsv = final_ices_tsv // This will be empty for samples without ICEs
+    ices_tsv = REFINE_BOUNDARIES.out.ices_tsv
     versions = ch_versions
 }
