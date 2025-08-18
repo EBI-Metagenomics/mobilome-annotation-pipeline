@@ -6,6 +6,7 @@ process PRESCAN_TO_FASTA {
 
     input:
     tuple val(meta), path(hmmscan_tbl), path(faa), path(assembly)
+    val evalue_threshold
 
     output:
     tuple val(meta), path("*_candidates.fasta"), emit: candidates_fna, optional: true
@@ -19,6 +20,7 @@ process PRESCAN_TO_FASTA {
         --hmm_out ${hmmscan_tbl} \\
         --proteins ${faa} \\
         --assembly ${assembly} \\
+        --evalue_threshold ${evalue_threshold} \\
         --output ${prefix}
 
     cat <<-END_VERSIONS > versions.yml

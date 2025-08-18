@@ -97,6 +97,13 @@
           "description": "Publish all intermediate files.",
           "help_text": "When enabled, publishes intermediate results from all analysis steps. Disable to save storage space.",
           "fa_icon": "fas fa-save"
+        },
+        "prescan_evalue_threshold": {
+          "type": "number",
+          "default": 0.00001,
+          "description": "E-value threshold for filtering HMM hits.",
+          "help_text": "E-value threshold used during the prescanning step to filter HMM hits before candidate sequence extraction.",
+          "fa_icon": "fas fa-filter"
         }
       }
     },

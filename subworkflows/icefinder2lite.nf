@@ -32,7 +32,7 @@ workflow ICEFINDER2_LITE {
         .join(PRODIGAL.out.amino_acid_fasta)
         .join(ch_assembly)
 
-    PRESCAN_TO_FASTA(prescan_input_ch)
+    PRESCAN_TO_FASTA(prescan_input_ch, params.prescan_evalue_threshold)
     ch_versions = ch_versions.mix(PRESCAN_TO_FASTA.out.versions)
 
     // Evaluating if candidates were found
