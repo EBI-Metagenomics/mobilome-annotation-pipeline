@@ -6,6 +6,7 @@ process OUTLIER_FINDER {
 
     input:
     tuple val(meta), path(fasta)
+    val score_threshold
 
     output:
     tuple val(meta), path("*.bed"), emit: bed
@@ -18,6 +19,7 @@ process OUTLIER_FINDER {
     fast_composition_analyzer.py \\
         --input_fasta ${fasta} \\
         --output_bed ${prefix}.bed \\
+        --score-threshold ${score_threshold} \\
         --threads ${task.cpus} ${args}
 
     cat <<-END_VERSIONS > versions.yml

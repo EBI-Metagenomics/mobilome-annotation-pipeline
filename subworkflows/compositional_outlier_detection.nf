@@ -4,6 +4,7 @@ include { MERGE_RESULTS  } from '../modules/local/merge_results'
 workflow COMPOSITIONAL_OUTLIER_DETECTION {
     take:
     ch_assembly // tuple(meta, 100kb_contigs)
+    score_threshold // val: score threshold for outlier detection
 
     main:
     ch_versions = Channel.empty()
@@ -12,7 +13,8 @@ workflow COMPOSITIONAL_OUTLIER_DETECTION {
 
     // Run compositional outlier detection on each chunk
     OUTLIER_FINDER(
-        ch_chunks
+        ch_chunks,
+        score_threshold
     )
     ch_versions = ch_versions.mix(OUTLIER_FINDER.out.versions)
 

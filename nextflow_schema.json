@@ -104,6 +104,13 @@
           "description": "E-value threshold for filtering HMM hits.",
           "help_text": "E-value threshold used during the prescanning step to filter HMM hits before candidate sequence extraction.",
           "fa_icon": "fas fa-filter"
+        },
+        "outlier_score_threshold": {
+          "type": "number",
+          "default": 2.0,
+          "description": "Score threshold for compositional outlier detection.",
+          "help_text": "Minimum score threshold for identifying compositional outliers in genomic sequences. Higher values are more stringent.",
+          "fa_icon": "fas fa-chart-line"
         }
       }
     },

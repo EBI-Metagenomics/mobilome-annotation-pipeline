@@ -127,7 +127,7 @@ workflow MOBILOMEANNOTATION {
     ISESCAN(RENAME.out.contigs_1kb)
     ch_versions = ch_versions.mix(ISESCAN.out.versions)
 
-    COMPOSITIONAL_OUTLIER_DETECTION(RENAME.out.contigs_100kb)
+    COMPOSITIONAL_OUTLIER_DETECTION(RENAME.out.contigs_100kb, params.outlier_score_threshold)
     ch_versions = ch_versions.mix(COMPOSITIONAL_OUTLIER_DETECTION.out.versions)
 
     /**********************************************************************************************
