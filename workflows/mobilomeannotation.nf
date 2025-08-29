@@ -98,23 +98,25 @@ workflow MOBILOMEANNOTATION {
 
     // PREDICTION
     // Collecting ICEfinder2 databases
-    db_ice_hmm_models = Channel.fromPath("${params.ice_hmm_models}.*", checkIfExists: true)
+    db_icefinder_hmm_models = Channel.fromPath("${params.icefinder_hmm_models}.*", checkIfExists: true)
         .collect()
         .map { ice_db_files ->
-            [[id: file(params.ice_hmm_models).name], ice_db_files]
-        }
-    db_prokka_uniprot = Channel.fromPath("${params.prokka_uniprot_db}.*", checkIfExists: true)
-        .collect()
-        .map { uniprot_db_files ->
-            [[id: file(params.prokka_uniprot_db).name], uniprot_db_files]
+            [[id: file(params.icefinder_hmm_models).name], ice_db_files]
         }
 
+    db_icefinder_macsyfinder_models = file(params.icefinder_macsyfinder_models, checkIfExists: true)
+
+    db_icefinder_prokka_uniprot = Channel.fromPath("${params.icefinder_prokka_uniprot_db}/*", checkIfExists: true)
+        .collect()
+        .map { uniprot_db_files ->
+            [[id: "prokka_uniprot"], uniprot_db_files]
+        }
 
     ICEFINDER2_LITE(
         RENAME.out.contigs_5kb,
-        db_ice_hmm_models,
-        params.ice_macsy_models,
-        db_prokka_uniprot,
+        db_icefinder_hmm_models,
+        db_icefinder_macsyfinder_models,
+        db_icefinder_prokka_uniprot,
     )
     ch_versions = ch_versions.mix(ICEFINDER2_LITE.out.versions)
 
@@ -230,7 +232,7 @@ workflow MOBILOMEANNOTATION {
         [],
         [],
         [],
-        []
+        [],
     )
 
     emit:

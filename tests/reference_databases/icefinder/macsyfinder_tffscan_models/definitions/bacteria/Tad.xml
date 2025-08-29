@@ -1,0 +1,32 @@
+<!--
+Authors: Remi Denise, Sophie Abby
+Copyright: 2018-2022 Institut Pasteur Paris, CNRS
+See the COPYRIGHT file for details
+
+This file is a part of TFFscan package.
+TFFscan is a package of models for macyfinder
+(https://github.com/gem-pasteur/macsyfinder)
+
+TFFscan is distributed under the terms of
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+see LICENCE file ship with the package or visit
+http://creativecommons.org/licenses/by-nc-sa/4.0/
+for more details.
+-->
+
+<model inter_gene_max_space="5" min_mandatory_genes_required="4" min_genes_required="6" multi_loci="True" vers="2.0">
+    <gene name="Tad_rcpA" presence="mandatory"/>    	
+    <gene name="Tad_tadA" presence="mandatory"/>
+    <gene name="Tad_tadB" presence="mandatory"/>
+    <gene name="Tad_tadC" presence="mandatory"/>
+    <gene name="Tad_tadV" presence="mandatory" loner="True"/>
+    <gene name="Tad_tadZ" presence="mandatory"/>
+    <gene name="Tad_flp" presence="mandatory"/>
+    <gene name="Tad_tadE" presence="accessory"/>
+    <gene name="Tad_tadF" presence="accessory"/>
+    <gene name="Tad_tadD" presence="accessory"/>
+    <gene name="Tad_rcpB" presence="accessory"/>
+    <gene name="Tad_rcpC" presence="accessory"/>
+
+    <gene name="Tad_tadG" presence="neutral"/>
+</model>

@@ -12,10 +12,10 @@ include { REFINE_BOUNDARIES             } from '../modules/local/ice_refine_boun
 
 workflow ICEFINDER2_LITE {
     take:
-    ch_assembly          // channel: tuple( val(meta), path(assembly_5kb) )
-    ch_ice_hmm_models    // channel: tuple( val(db_id), path(ice_hmm_models_files) )
-    ch_ice_macsy_models  // channel: path(ice_macsy_models)
-    ch_prokka_uniprot_db // channel: tuple( val(db_id), path(prokka_uniprot_db) )
+    ch_assembly                      // channel: tuple( val(meta), path(assembly_5kb) )
+    ch_icefinder_hmm_models         // channel: tuple( val(db_id), path(ice_hmm_models_files) )
+    ch_icefinder_macsyfinder_models // channel: file(ice_macsy_models)
+    ch_icefinder_prokka_uniprot_db  // channel: tuple( val(db_id), path(prokka_uniprot_db) )
 
     main:
     ch_versions = Channel.empty()
@@ -24,7 +24,7 @@ workflow ICEFINDER2_LITE {
     PRODIGAL(ch_assembly, 'gff')
     ch_versions = ch_versions.mix(PRODIGAL.out.versions)
 
-    HMMSCAN(PRODIGAL.out.amino_acid_fasta, ch_ice_hmm_models)
+    HMMSCAN(PRODIGAL.out.amino_acid_fasta, ch_icefinder_hmm_models)
     ch_versions = ch_versions.mix(HMMSCAN.out.versions)
 
     prescan_input_ch = HMMSCAN.out.hmmscan_tbl
@@ -65,13 +65,13 @@ workflow ICEFINDER2_LITE {
     // Run downstream processes only on samples with candidates
     MACSYFINDER(
         ch_candidates.map { meta, faa, _fna -> tuple(meta, faa) },
-        ch_ice_macsy_models,
+        ch_icefinder_macsyfinder_models,
     )
     ch_versions = ch_versions.mix(MACSYFINDER.out.versions)
 
     BLASTP_PROKKA(
         ch_candidates.map { meta, faa, _fna -> tuple(meta, faa) },
-        ch_prokka_uniprot_db,
+        ch_icefinder_prokka_uniprot_db,
         'tsv',
     )
     ch_versions = ch_versions.mix(BLASTP_PROKKA.out.versions)

@@ -11,7 +11,6 @@ process OUTLIER_FINDER {
     output:
     tuple val(meta), path("*.bed"), emit: bed
     path "versions.yml", emit: versions
-
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${fasta.baseName}"

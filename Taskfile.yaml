@@ -1,0 +1,48 @@
+version: "3"
+
+vars:
+ VENV_DIR: .venv
+
+tasks:
+ # Setup Python virtual environment using uv
+ setup-venv:
+  desc: "Bootstrap Python virtual environment with uv and install dependencies"
+  status:
+    - test -d {{.VENV_DIR}}
+  cmds:
+    - uv venv {{.VENV_DIR}}
+    - uv pip install -e .
+  silent: true
+
+ # Pytest tasks
+ test:
+   desc: "Run all tests with pytest"
+   deps: [setup-venv]
+   cmds:
+     - uv run pytest
+
+ test-verbose:
+   desc: "Run tests with verbose output"
+   deps: [setup-venv]
+   cmds:
+     - uv run pytest -v
+
+ test-coverage:
+   desc: "Run tests with coverage report"
+   deps: [setup-venv]
+   cmds:
+     - uv run pytest --cov --cov-report=html
+
+ test-specific:
+   desc: "Run specific test file or pattern, use: task test-specific -- <test_pattern>"
+   deps: [setup-venv]
+   cmds:
+     - uv run pytest {{.CLI_ARGS}}
+   interactive: true
+
+ # Utility tasks
+ clean:
+   desc: "Clean up virtual environment"
+   prompt: "This will destroy your virtual env, okay?"
+   cmds:
+     - rm -rf {{.VENV_DIR}}

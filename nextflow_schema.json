@@ -29,7 +29,8 @@
           "fa_icon": "fas fa-folder-open",
           "default": "results"
         }
-      }
+      },
+      "required": ["input", "outdir"]
     },
     "reference_databases": {
       "title": "Reference databases",
@@ -50,25 +51,39 @@
           "help_text": "Directory containing the geNomad database files for virus and plasmid detection.",
           "fa_icon": "fas fa-virus"
         },
-        "ice_hmm_models": {
+        "mobileog_db": {
+          "type": "string",
+          "description": "Path to the mobileog diamond db",
+          "help_text": "PENDING.",
+          "fa_icon": "fas fa-dna"
+        },
+        "icefinder_hmm_models": {
           "type": "string",
           "description": "Path to ICEfinder2 HMM models.",
           "help_text": "Path to HMM models used by ICEfinder2 for integrative and conjugative element detection.",
           "fa_icon": "fas fa-dna"
         },
-        "ice_macsy_models": {
+        "icefinder_macsyfinder_models": {
           "type": "string",
-          "description": "Path to ICEfinder2 MacSyFinder models.",
+          "description": "Path to the folder with the ICEfinder2 MacSyFinder models.",
           "help_text": "Directory containing MacSyFinder models for ICEfinder2 analysis.",
           "fa_icon": "fas fa-project-diagram"
         },
-        "prokka_uniprot_db": {
+        "icefinder_prokka_uniprot_db": {
           "type": "string",
           "description": "Path to Prokka UniProt database.",
           "help_text": "Path to UniProt database files used by Prokka for protein annotation.",
           "fa_icon": "fas fa-database"
         }
-      }
+      },
+      "required": [
+        "amrfinder_plus_db",
+        "genomad_db",
+        "mobileog_db",
+        "icefinder_hmm_models",
+        "icefinder_macsyfinder_models",
+        "icefinder_prokka_uniprot_db"
+      ]
     },
     "tools_settings": {
       "title": "Tools settings",
@@ -86,7 +101,6 @@
         },
         "skip_amr": {
           "type": "boolean",
-          "default": false,
           "description": "Skip antimicrobial resistance gene detection.",
           "help_text": "Set to true to skip AMRFinderPlus analysis and AMR reporting steps.",
           "fa_icon": "fas fa-forward"
@@ -197,6 +211,5 @@
     {
       "$ref": "#/$defs/max_job_request_options"
     }
-  ],
-  "properties": {}
+  ]
 }

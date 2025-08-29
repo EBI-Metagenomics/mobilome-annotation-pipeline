@@ -12,15 +12,15 @@ process database_format {
     container "quay.io/biocontainers/diamond:2.0.12--hdcc8f71_0"
 
     input:
-        path mobileog
+    path mobileog
 
     output:
-        path 'mobileOG_beatrix1.6.dmnd'
+    path 'mobileOG_beatrix1.6.dmnd'
 
     script:
-        """
-	diamond makedb --in ${mobileog} --db mobileOG_beatrix1.6.dmnd
-        """
+    """
+	diamond makedb --in ${mobileog} --db mobileOG_beatrix_1.6_tiny.dmnd
+    """
 }
 workflow {
     Channel.fromPath('mobileOG-db_beatrix-1.6.All.faa') | database_format

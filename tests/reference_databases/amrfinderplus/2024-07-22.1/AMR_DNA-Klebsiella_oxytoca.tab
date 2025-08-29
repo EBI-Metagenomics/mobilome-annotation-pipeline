@@ -1,0 +1,5 @@
+#accesion_version@gene_name@gene_symbol:start-stop	mutation_position	mutation_symbol	class	subclass	mutated_gene_name
+NZ_CP026715.1@blaOXY_promoter_region@blaOXY:3359801-3359903	34	blaOXY_T-67C	BETA-LACTAM	CEPHALOSPORIN	Klebsiella_oxytoca_cephalosporin_resistant_blaOXY
+NZ_CP026715.1@blaOXY_promoter_region@blaOXY:3359801-3359903	43	blaOXY_T-58A	BETA-LACTAM	CEPHALOSPORIN	Klebsiella_oxytoca_cephalosporin_resistant_blaOXY
+NZ_CP026715.1@blaOXY_promoter_region@blaOXY:3359801-3359903	63	blaOXY_G-38T	BETA-LACTAM	CEPHALOSPORIN	Klebsiella_oxytoca_cephalosporin_resistant_blaOXY
+NZ_CP026715.1@blaOXY_promoter_region@blaOXY:3359801-3359903	67	blaOXY_G-34A	BETA-LACTAM	CEPHALOSPORIN	Klebsiella_oxytoca_cephalosporin_resistant_blaOXY

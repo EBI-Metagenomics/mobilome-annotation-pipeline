@@ -19,7 +19,7 @@ process HMMSCAN {
     """
     hmmscan \\
         --tblout ${prefix}_prescan.tbl \\
-        ${ice_hmm_models} \\
+        ${meta2.id} \\
         ${faa_file}
 
     cat <<-END_VERSIONS > versions.yml
