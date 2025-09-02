@@ -21,3 +21,5 @@ databases/mobileOG_beatrix1.6.dmnd
 __pycache__/
 htmlcov/
 .coverage
+
+.DS_Store
