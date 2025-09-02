@@ -157,100 +157,95 @@ def process_prokka_blastp_tabular(input_file, output_file, raw_product=False):
         "stitle",
     ]
 
-    try:
-        # Read BLAST results
-        df = pd.read_csv(input_file, sep="\t", names=columns, comment="#")
-        print(f"Loaded {len(df)} BLAST hits (already filtered by BLAST)")
+    # Read BLAST results
+    df = pd.read_csv(input_file, sep="\t", names=columns, comment="#")
+    print(f"Loaded {len(df)} BLAST hits (already filtered by BLAST)")
 
-        # Since BLAST already applied -evalue 1E-9 and -qcov_hsp_perc 80,
-        # we don't need to filter again
+    # Since BLAST already applied -evalue 1E-9 and -qcov_hsp_perc 80,
+    # we don't need to filter again
 
-        # Group by query and take the best hit (should be only one due to -num_descriptions 1)
-        # But just in case, take the one with lowest e-value, highest bitscore
-        best_hits = df.loc[df.groupby("qseqid")["evalue"].idxmin()]
+    # Group by query and take the best hit (should be only one due to -num_descriptions 1)
+    # But just in case, take the one with lowest e-value, highest bitscore
+    best_hits = df.loc[df.groupby("qseqid")["evalue"].idxmin()]
 
-        annotations = []
-        num_cleaned = 0
+    annotations = []
+    num_cleaned = 0
 
-        for _, hit in best_hits.iterrows():
-            qseqid = hit["qseqid"]
-            sseqid = hit["sseqid"]
-            stitle = hit["stitle"]  # This contains the full description with ~~~ format
+    for _, hit in best_hits.iterrows():
+        qseqid = hit["qseqid"]
+        sseqid = hit["sseqid"]
+        stitle = hit["stitle"]  # This contains the full description with ~~~ format
 
-            # Parse the description using Prokka's format
-            gene, product, ec_number, cog = parse_uniprot_description(stitle)
+        # Parse the description using Prokka's format
+        gene, product, ec_number, cog = parse_uniprot_description(stitle)
 
-            # Clean product name unless raw_product is True
-            note = ""
-            if not raw_product:
-                original_product = product
-                clean_product = cleanup_product(product)
-                if clean_product != original_product:
-                    print(f"Modify product: {original_product} => {clean_product}")
+        # Clean product name unless raw_product is True
+        note = ""
+        if not raw_product:
+            original_product = product
+            clean_product = cleanup_product(product)
+            if clean_product != original_product:
+                print(f"Modify product: {original_product} => {clean_product}")
 
-                    # If product becomes hypothetical, clear other annotations and add note
-                    if clean_product == HYPOTHETICAL:
-                        note = original_product
-                        gene = ""
-                        ec_number = ""
-                        cog = ""
+                # If product becomes hypothetical, clear other annotations and add note
+                if clean_product == HYPOTHETICAL:
+                    note = original_product
+                    gene = ""
+                    ec_number = ""
+                    cog = ""
 
-                    num_cleaned += 1
-                product = clean_product
+                num_cleaned += 1
+            product = clean_product
 
-            # Calculate actual query coverage (like Prokka does)
-            query_coverage = ((hit["qend"] - hit["qstart"] + 1) / hit["qlen"]) * 100
+        # Calculate actual query coverage (like Prokka does)
+        query_coverage = ((hit["qend"] - hit["qstart"] + 1) / hit["qlen"]) * 100
 
-            # Create annotation record matching Prokka's output
-            annotation = {
-                "query_id": qseqid,
-                "subject_id": sseqid,
-                "product": product,
-                "gene": gene,
-                "ec_number": ec_number,
-                "cog": cog,
-                "note": note,
-                "evalue": hit["evalue"],
-                "identity": hit["pident"],
-                "coverage": round(query_coverage, 1),
-                "inference": f"similar to AA sequence:UniProtKB:{sseqid}",
-            }
-            annotations.append(annotation)
+        # Create annotation record matching Prokka's output
+        annotation = {
+            "query_id": qseqid,
+            "subject_id": sseqid,
+            "product": product,
+            "gene": gene,
+            "ec_number": ec_number,
+            "cog": cog,
+            "note": note,
+            "evalue": hit["evalue"],
+            "identity": hit["pident"],
+            "coverage": round(query_coverage, 1),
+            "inference": f"similar to AA sequence:UniProtKB:{sseqid}",
+        }
+        annotations.append(annotation)
 
-        # Create output DataFrame
-        result_df = pd.DataFrame(annotations)
+    # Create output DataFrame
+    result_df = pd.DataFrame(annotations)
 
-        # Remove empty columns for cleaner output
-        for col in ["gene", "ec_number", "cog", "note"]:
-            if result_df[col].eq("").all():
-                result_df = result_df.drop(columns=[col])
+    # Remove empty columns for cleaner output
+    for col in ["gene", "ec_number", "cog", "note"]:
+        if result_df[col].eq("").all():
+            result_df = result_df.drop(columns=[col])
 
-        # Write results
-        result_df.to_csv(output_file, sep="\t", index=False)
-        print(f"Wrote {len(result_df)} annotations to {output_file}")
-        print(f"Cleaned {num_cleaned} product names")
+    # Write results
+    result_df.to_csv(output_file, sep="\t", index=False)
+    print(f"Wrote {len(result_df)} annotations to {output_file}")
+    print(f"Cleaned {num_cleaned} product names")
 
-        # Print summary statistics
-        hypothetical_count = len(result_df[result_df["product"] == HYPOTHETICAL])
-        annotated_count = len(result_df) - hypothetical_count
+    # Print summary statistics
+    hypothetical_count = len(result_df[result_df["product"] == HYPOTHETICAL])
+    annotated_count = len(result_df) - hypothetical_count
 
-        print(f"\nSummary:")
-        print(f"  Total annotations: {len(result_df)}")
-        print(f"  Functional annotations: {annotated_count}")
-        print(f"  Hypothetical proteins: {hypothetical_count}")
+    print(f"\nSummary:")
+    print(f"  Total annotations: {len(result_df)}")
+    print(f"  Functional annotations: {annotated_count}")
+    print(f"  Hypothetical proteins: {hypothetical_count}")
 
-        if "ec_number" in result_df.columns:
-            print(f"  With EC numbers: {len(result_df[result_df['ec_number'] != ''])}")
-        if "gene" in result_df.columns:
-            print(f"  With gene names: {len(result_df[result_df['gene'] != ''])}")
-        if "cog" in result_df.columns:
-            print(f"  With COG assignments: {len(result_df[result_df['cog'] != ''])}")
+    if "ec_number" in result_df.columns:
+        print(f"  With EC numbers: {len(result_df[result_df['ec_number'] != ''])}")
+    if "gene" in result_df.columns:
+        print(f"  With gene names: {len(result_df[result_df['gene'] != ''])}")
+    if "cog" in result_df.columns:
+        print(f"  With COG assignments: {len(result_df[result_df['cog'] != ''])}")
 
-        return result_df
-
-    except Exception as e:
-        print(f"Error processing BLASTP results: {e}")
-        sys.exit(1)
+    return result_df
 
 
 def main():

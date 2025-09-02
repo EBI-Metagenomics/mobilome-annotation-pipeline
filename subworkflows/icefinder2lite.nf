@@ -45,22 +45,10 @@ workflow ICEFINDER2_LITE {
     ch_candidate_metas = ch_candidates.map { meta, _faa, _fna -> meta }
 
     /*
-     * The cross operator explanation:
-     * 
-     * ch_assembly contains all input samples: [meta1, meta2, meta3]
-     * ch_candidate_metas contains only samples with candidates: [meta1, meta3]
-     * 
-     * ch_assembly.cross(ch_candidate_metas) matches samples by meta.id and produces:
-     * [[meta1, assembly1], meta1], [[meta3, assembly3], meta3]
-     * 
-     * .map { assembly_tuple, meta -> assembly_tuple } extracts just the assembly info:
-     * [meta1, assembly1], [meta3, assembly3]
-     * 
-     * This way only samples with candidates proceed to downstream analysis
+     * Filter down only the samples with candidates proceed to downstream analysis
      */
     ch_assembly_filtered = ch_assembly
-        .cross(ch_candidate_metas)
-        .map { assembly_tuple, _meta -> assembly_tuple }
+        .join(ch_candidate_metas, failOnMismatch: false)
 
     // Run downstream processes only on samples with candidates
     MACSYFINDER(
@@ -97,7 +85,15 @@ workflow ICEFINDER2_LITE {
     // REFINE_BOUNDARIES - now only runs on samples that have candidates
     // All channels will have matching samples since we filtered ch_assembly
     REFINE_BOUNDARIES(
-        ch_assembly_filtered.join(TRNAS_INTEGRATOR.out.merged_gff).join(MACSYFINDER.out.macsyfinder_tsv).join(PROCESS_BLASTP_PROKKA.out.uniprot_product_names).join(VMATCH.out.vmatch_tsv)
+        ch_assembly_filtered.join(
+            TRNAS_INTEGRATOR.out.merged_gff
+        ).join(
+            MACSYFINDER.out.macsyfinder_tsv
+        ).join(
+            PROCESS_BLASTP_PROKKA.out.uniprot_product_names
+        ).join(
+            VMATCH.out.vmatch_tsv
+        )
     )
 
     ch_versions = ch_versions.mix(REFINE_BOUNDARIES.out.versions)

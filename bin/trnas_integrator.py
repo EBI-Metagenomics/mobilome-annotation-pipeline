@@ -13,6 +13,7 @@ This is compatible with Prokka
 
 import re
 import argparse
+import gzip
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
@@ -141,7 +142,7 @@ def parse_prodigal_output(file_path: str) -> Dict[str, List[Feature]]:
     """
     cds_per_contig = defaultdict(list)
 
-    with open(file_path, "r") as f:
+    with gzip.open(file_path, "rt") as f:
         for line_num, line in enumerate(f, 1):
             l_line = line.rstrip().split("\t")
             # Annotation lines have exactly 9 columns
