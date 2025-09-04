@@ -16,16 +16,16 @@
 
 
 import argparse
+import itertools as it
+import multiprocessing as mp
 import sys
-from collections import defaultdict, namedtuple, Counter
-from typing import List, Tuple, Dict, Optional
+from collections import Counter, namedtuple
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 from Bio import SeqIO
 from Bio.Seq import Seq
-import multiprocessing as mp
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from functools import partial
-import itertools as it
 
 # Data structures
 ContigInfo = namedtuple("ContigInfo", ["name", "sequence", "length"])
@@ -367,7 +367,7 @@ class FastRepeatFinder:
 
 
 def process_contig_fast(
-    contig_info: Tuple[ContigInfo, Dict]
+    contig_info: Tuple[ContigInfo, Dict],
 ) -> Tuple[List[Prediction], str]:
     contig, params = contig_info
 

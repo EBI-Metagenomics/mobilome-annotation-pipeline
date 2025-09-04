@@ -21,10 +21,11 @@
 # Modified and adapted for this pipeline by EMBL-EBI
 #
 
+import argparse
 import os
 import sys
-import argparse
 from collections import defaultdict
+
 import gzip
 
 from Bio import SeqIO
@@ -34,19 +35,19 @@ from Bio.SearchIO import parse
 def scanf(hmmlist):
     """
     Scan HMM list to determine if a contig contains essential ICE components.
-    
+
     This function analyzes a list of HMM hits to determine
     whether a contig contains the essential components of an Integrative and
     Conjugative Element (ICE), including mobilization proteins, Type IV coupling
     proteins, integrases, and Type IV secretion systems.
-    
+
     :param hmmlist: List of HMM hit names
     :type hmmlist: list
     :return: True if contig contains essential ICE components, False otherwise
     :rtype: bool
-    
+
     .. note::
-       The function requires at least: 1 MOB protein, 1 T4CP protein, 
+       The function requires at least: 1 MOB protein, 1 T4CP protein,
        1 integrase, and 5 T4SS proteins for a positive ICE classification.
     """
     ICEcount = []
@@ -84,20 +85,17 @@ def scanf(hmmlist):
 def hmm_parser(hmm_out, evalue_threshold=0.00001):
     """
     Parse HMM search output to identify candidate ICE-containing contigs.
-    
+
     This function processes HMM search results and groups hits by contig,
     filtering by E-value threshold. It then applies ICE component scanning
     to identify contigs that contain essential ICE components.
-    
+
     :param hmm_out: Path to HMM search output file
     :type hmm_out: str
     :param evalue_threshold: E-value threshold for filtering HMM hits
     :type evalue_threshold: float
     :return: List of contig identifiers that contain ICE candidates
     :rtype: list
-    :raises FileNotFoundError: If the HMM output file doesn't exist
-    :raises ValueError: If the file format is invalid or corrupted
-    
     .. note::
        The default E-value threshold of 0.00001 provides stringent filtering
        for high-quality HMM matches.
@@ -150,7 +148,7 @@ def hmm_parser(hmm_out, evalue_threshold=0.00001):
 def fasta_parser(assembly_file, candidates_list, output_prefix):
     """
     Extract candidate contig sequences from the assembly FASTA file.
-    
+
     :param assembly_file: Path to assembly FASTA file
     :type assembly_file: str
     :param candidates_list: List of candidate contig identifiers
@@ -179,7 +177,7 @@ def fasta_parser(assembly_file, candidates_list, output_prefix):
 def proteins_parser(proteins_fasta, candidates_list, output_prefix):
     """
     Extract protein sequences from candidate contigs.
-    
+
     :param proteins_fasta: Path to protein FASTA file
     :type proteins_fasta: str
     :param candidates_list: List of candidate contig identifiers
@@ -220,8 +218,10 @@ def main():
     parser.add_argument("--assembly", required=True, help="Path to assembly FASTA file")
     parser.add_argument("--output", required=True, help="Output prefix name")
     parser.add_argument(
-        "--evalue_threshold", type=float, default=0.00001, 
-        help="E-value threshold for filtering HMM hits (default: 0.00001)"
+        "--evalue_threshold",
+        type=float,
+        default=0.00001,
+        help="E-value threshold for filtering HMM hits (default: 0.00001)",
     )
     args = parser.parse_args()
 

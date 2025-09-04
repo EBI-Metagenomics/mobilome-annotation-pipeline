@@ -15,8 +15,8 @@
 # limitations under the License.
 
 import argparse
-import os.path
 import csv
+import os.path
 
 # Constants #
 AMR_GENE_THRES = 0.75

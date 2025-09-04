@@ -15,8 +15,8 @@
 # limitations under the License.
 
 import argparse
-import os.path
 import logging
+import os.path
 
 logging.basicConfig(level=logging.INFO)
 
@@ -85,13 +85,12 @@ def gff_updater(
     """Adding the mobilome predictions to the user file"""
     used_contigs = []
 
-    with open(user_gff, "r") as input_table, open(
-        f"{output_prefix}_user_mobilome_extra.gff", "w"
-    ) as output_extra, open(
-        f"{output_prefix}_user_mobilome_full.gff", "w"
-    ) as output_full, open(
-        f"{output_prefix}_user_mobilome_clean.gff", "w"
-    ) as output_clean:
+    with (
+        open(user_gff, "r") as input_table,
+        open(f"{output_prefix}_user_mobilome_extra.gff", "w") as output_extra,
+        open(f"{output_prefix}_user_mobilome_full.gff", "w") as output_full,
+        open(f"{output_prefix}_user_mobilome_clean.gff", "w") as output_clean,
+    ):
         for line in input_table:
             l_line = line.rstrip().split("\t")
             # Annotation lines have exactly 9 columns
