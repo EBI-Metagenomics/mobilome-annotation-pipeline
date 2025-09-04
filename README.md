@@ -237,6 +237,30 @@ $ cd mobilome-annotation-pipeline/
 $ nf-test test
 ```
 
+## Development Tasks
+
+This project uses [Task](https://taskfile.dev/) to manage common development tasks and [uv](https://docs.astral.sh/uv/) for Python virtual environment management. The available tasks are:
+
+```bash
+# Setup and dependencies
+$ task setup-venv          # Bootstrap Python virtual environment with uv and install dependencies
+
+# Testing
+$ task test                # Run all tests with pytest
+$ task test-verbose        # Run tests with verbose output
+$ task test-coverage       # Run tests with coverage report (generates HTML report)
+$ task test-specific -- <pattern>  # Run specific test file or pattern
+
+# Utilities
+$ task clean               # Clean up virtual environment
+```
+
+To see all available tasks, run:
+
+```bash
+$ task --list
+```
+
 <a name="license"></a>
 
 ## License and Attribution
