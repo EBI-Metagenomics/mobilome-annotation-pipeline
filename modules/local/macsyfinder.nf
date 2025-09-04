@@ -20,8 +20,7 @@ process MACSYFINDER {
         --sequence-db ${faa_file} \\
         --models-dir ${ice_models} \\
         --out-dir ${prefix}_macsyfinder_results \\
-        --worker ${task.cpus} \\
-        ${args}
+        --worker ${task.cpus} ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

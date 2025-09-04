@@ -226,10 +226,25 @@ workflow MOBILOMEANNOTATION {
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
 
+    //
+    // MODULE: MultiQC
+    //
+    ch_multiqc_config = Channel.fromPath(
+        "${projectDir}/assets/multiqc_config.yml",
+        checkIfExists: true
+    )
+    ch_multiqc_custom_config = params.multiqc_config
+        ? Channel.fromPath(params.multiqc_config, checkIfExists: true)
+        : Channel.empty()
+
+    // ch_multiqc_logo = params.multiqc_logo
+        // ? Channel.fromPath(params.multiqc_logo, checkIfExists: true)
+        // : Channel.fromPath("${projectDir}/assets/mgnify_wordmark_dark_on_light.png", checkIfExists: true)
+
     MULTIQC(
         CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.first(),
-        params.multiqc_config,
-        [],
+        ch_multiqc_config.toList(),
+        ch_multiqc_custom_config.toList(),
         [],
         [],
         [],
