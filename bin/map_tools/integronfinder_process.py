@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import os.path
+
 from Bio import SeqIO
 
 

@@ -4,10 +4,11 @@ Process BLASTP tabular output to be compliant with what Prokka does.
 This script replicates Prokka's cleanup_product and UniProt parsing of protein product names from BLAST results.
 """
 
-import sys
 import argparse
 import re
+import sys
 from pathlib import Path
+
 import pandas as pd
 
 # Prokka constants

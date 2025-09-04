@@ -11,8 +11,8 @@ This implementation uses common practices for feature integration in genome anno
 This is compatible with Prokka
 """
 
-import re
 import argparse
+import re
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
@@ -355,39 +355,30 @@ def main():
     parser = argparse.ArgumentParser(
         description="Integrate Prodigal CDS predictions with Aragorn tRNA predictions following prokka's integration rules"
     )
-    
-    parser.add_argument(
-        "prodigal_file",
-        help="Prodigal output GFF file"
-    )
-    parser.add_argument(
-        "aragorn_file", 
-        help="Aragorn output file"
-    )
+
+    parser.add_argument("prodigal_file", help="Prodigal output GFF file")
+    parser.add_argument("aragorn_file", help="Aragorn output file")
     parser.add_argument(
         "--output-gff",
         default="integrated.gff",
-        help="Output GFF3 file (default: integrated.gff)"
+        help="Output GFF3 file (default: integrated.gff)",
     )
     parser.add_argument(
         "--locus-tag-prefix",
         default="PROKKA",
-        help="Locus tag prefix (default: PROKKA)"
+        help="Locus tag prefix (default: PROKKA)",
     )
     parser.add_argument(
         "--allow-cds-rna-overlap",
         action="store_true",
-        help="Allow CDS to overlap with RNA features"
+        help="Allow CDS to overlap with RNA features",
     )
     parser.add_argument(
-        "--increment",
-        type=int,
-        default=1,
-        help="Locus tag increment (default: 1)"
+        "--increment", type=int, default=1, help="Locus tag increment (default: 1)"
     )
-    
+
     args = parser.parse_args()
-    
+
     prodigal_file = args.prodigal_file
     aragorn_file = args.aragorn_file
     output_gff = args.output_gff
@@ -422,9 +413,7 @@ def main():
         cds_features, trna_features, allow_overlap
     )
 
-    total_integrated = sum(
-        len(features) for features in integrated_features.values()
-    )
+    total_integrated = sum(len(features) for features in integrated_features.values())
     print(f"Integrated {total_integrated} features")
     print(f"Excluded {len(excluded_cds)} CDS due to RNA overlaps")
 

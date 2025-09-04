@@ -44,10 +44,10 @@ def mge_data_parser(mge_data):
 def calculate_intersection(range1, range2):
     """
     Calculate the intersection between two ranges.
-    
+
     :param range1: First range object
     :type range1: range
-    :param range2: Second range object  
+    :param range2: Second range object
     :type range2: range
     :return: Length of intersection between the two ranges
     :rtype: int
@@ -120,15 +120,6 @@ def outliers_parser(
                 ]
             )
 
-
-            new_co_id = (
-                co_contig
-                + "|compositional_outlier:"
-                + str(co_start)
-                + ":"
-                + str(co_end)
-            )
-
             # Removing CO overlapping rnas
             # RNA flag turn to 1 when one RNA is fully overlapping a CO
             rna_flag = 0
@@ -153,7 +144,6 @@ def outliers_parser(
                     for mge_coord_pair in integrated_dic[co_contig]:
                         mge_start = mge_coord_pair[0]
                         mge_end = mge_coord_pair[1]
-                        mge_len = mge_end - mge_start
                         mge_range = range(mge_start, mge_end + 1)
                         intersection = calculate_intersection(mge_range, co_range)
                         if intersection > 0:
@@ -176,4 +166,3 @@ def outliers_parser(
                     co_repeats[mge_id] = (metainfo1, metainfo2)
 
     return (mge_data, co_repeats)
-

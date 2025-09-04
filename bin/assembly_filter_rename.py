@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from Bio import SeqIO
 import argparse
+
+from Bio import SeqIO
 
 
 def rename(input_file, prefix):
@@ -24,9 +25,12 @@ def rename(input_file, prefix):
     output_100kb = prefix + "_100kb_contigs.fasta"
     output_map = prefix + "_contigID.map"
 
-    with open(output_1kb, "w") as to_1kb, open(output_5kb, "w") as to_5kb, open(
-        output_map, "w"
-    ) as to_map, open(output_100kb, "w") as to_100kb:
+    with (
+        open(output_1kb, "w") as to_1kb,
+        open(output_5kb, "w") as to_5kb,
+        open(output_map, "w") as to_map,
+        open(output_100kb, "w") as to_100kb,
+    ):
         for counter, record in enumerate(SeqIO.parse(input_file, "fasta"), 1):
             new_id = ">contig_" + str(counter)
             my_chain = str(record.seq).upper()
