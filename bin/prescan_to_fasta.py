@@ -22,11 +22,10 @@
 #
 
 import argparse
+import gzip
 import os
 import sys
 from collections import defaultdict
-
-import gzip
 
 from Bio import SeqIO
 from Bio.SearchIO import parse
@@ -103,7 +102,7 @@ def hmm_parser(hmm_out, evalue_threshold=0.00001):
     # Validate input file exists
     if not os.path.exists(hmm_out):
         raise FileNotFoundError(f"HMM output file not found: {hmm_out}")
-    
+
     icedict = defaultdict(list)
     processed_ids = set()
 
@@ -112,27 +111,29 @@ def hmm_parser(hmm_out, evalue_threshold=0.00001):
             # Skip comment lines
             if line.startswith("#") or not line.strip():
                 continue
-            
+
             # Parse line with error handling
             fields = line.strip().split()
             if len(fields) < 5:
-                raise ValueError(f"Invalid format at line {line_num}: insufficient fields")
-            
+                raise ValueError(
+                    f"Invalid format at line {line_num}: insufficient fields"
+                )
+
             query_name, _, target_id, _, evalue_str = fields[:5]
-            
+
             # Skip already processed targets
             if target_id in processed_ids:
                 continue
-            
+
             processed_ids.add(target_id)
-            
+
             # Extract contig identifier (first two underscore-separated parts)
             id_parts = target_id.split("_")
             if len(id_parts) < 2:
                 continue  # Skip malformed IDs
-            
+
             contig_key = "_".join(id_parts[:2])
-            
+
             # Filter by E-value threshold
             try:
                 evalue = float(evalue_str)
@@ -142,7 +143,9 @@ def hmm_parser(hmm_out, evalue_threshold=0.00001):
                 continue  # Skip lines with invalid E-values
 
     # Apply ICE component scanning and return candidates
-    return [contig_key for contig_key, components in icedict.items() if scanf(components)]
+    return [
+        contig_key for contig_key, components in icedict.items() if scanf(components)
+    ]
 
 
 def fasta_parser(assembly_file, candidates_list, output_prefix):
@@ -157,14 +160,14 @@ def fasta_parser(assembly_file, candidates_list, output_prefix):
     :type output_prefix: str
     """
     candidates_set = set(candidates_list)
-    
+
     # Determine if input file is gzip-compressed
     try:
-        if assembly_file.endswith('.gz'):
-            file_handle = gzip.open(assembly_file, 'rt')
+        if assembly_file.endswith(".gz"):
+            file_handle = gzip.open(assembly_file, "rt")
         else:
-            file_handle = open(assembly_file, 'r')
-    
+            file_handle = open(assembly_file, "r")
+
         with open(output_prefix + "_candidates.fasta", "w") as fasta_out:
             for record in SeqIO.parse(file_handle, "fasta"):
                 seq_id = str(record.id)
@@ -173,6 +176,7 @@ def fasta_parser(assembly_file, candidates_list, output_prefix):
                     fasta_out.write(f"{str(record.seq).upper()}\n")
     finally:
         file_handle.close()
+
 
 def proteins_parser(proteins_fasta, candidates_list, output_prefix):
     """
@@ -187,10 +191,10 @@ def proteins_parser(proteins_fasta, candidates_list, output_prefix):
     """
     # Determine if input file is gzip-compressed
     try:
-        if proteins_fasta.endswith('.gz'):
-            file_handle = gzip.open(proteins_fasta, 'rt')
+        if proteins_fasta.endswith(".gz"):
+            file_handle = gzip.open(proteins_fasta, "rt")
         else:
-            file_handle = open(proteins_fasta, 'r')
+            file_handle = open(proteins_fasta, "r")
 
         with open(output_prefix + "_candidates.faa", "w") as faa_out:
             for record in SeqIO.parse(file_handle, "fasta"):
@@ -204,6 +208,7 @@ def proteins_parser(proteins_fasta, candidates_list, output_prefix):
                     faa_out.write(seq + "\n")
     finally:
         file_handle.close()
+
 
 def main():
     parser = argparse.ArgumentParser(
