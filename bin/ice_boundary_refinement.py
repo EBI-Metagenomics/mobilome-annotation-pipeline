@@ -333,7 +333,10 @@ def merge_tRNA(ice_id, ICEdict, DR_dict, listgff, prots_contigs):
             ICEtagnum.append(getnum(key))
             trnalist.append(value)
 
-    DRlist = DR_dict[contig]
+    if contig in DR_dict:
+        DRlist = DR_dict[contig]
+    else:
+        DRlist = []
 
     ICEtagnum.sort()
     finalstart, finalend = find_max_distance(ICEtagnum)
