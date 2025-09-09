@@ -53,6 +53,7 @@ workflow MOBILOMEANNOTATION {
     def ch_inputs = Channel.fromList(samplesheetToList(params.input, "./assets/schema_input.json"))
     ch_versions = Channel.empty()
 
+
     /*
     ******************************************************************************************************
     * The code below is transforming the input channels to handle optional inputs, such as the
@@ -98,23 +99,25 @@ workflow MOBILOMEANNOTATION {
 
     // PREDICTION
     // Collecting ICEfinder2 databases
-    db_ice_hmm_models = Channel.fromPath("${params.ice_hmm_models}.*", checkIfExists: true)
+    db_icefinder_hmm_models = Channel.fromPath("${params.icefinder_hmm_models}.*", checkIfExists: true)
         .collect()
         .map { ice_db_files ->
-            [[id: file(params.ice_hmm_models).name], ice_db_files]
-        }
-    db_prokka_uniprot = Channel.fromPath("${params.prokka_uniprot_db}.*", checkIfExists: true)
-        .collect()
-        .map { uniprot_db_files ->
-            [[id: file(params.prokka_uniprot_db).name], uniprot_db_files]
+            [[id: file(params.icefinder_hmm_models).name], ice_db_files]
         }
 
+    db_icefinder_macsyfinder_models = file(params.icefinder_macsyfinder_models, checkIfExists: true)
+
+    db_icefinder_prokka_uniprot = Channel.fromPath("${params.icefinder_prokka_uniprot_db}/*", checkIfExists: true)
+        .collect()
+        .map { uniprot_db_files ->
+            [[id: "prokka_uniprot"], uniprot_db_files]
+        }
 
     ICEFINDER2_LITE(
         RENAME.out.contigs_5kb,
-        db_ice_hmm_models,
-        params.ice_macsy_models,
-        db_prokka_uniprot,
+        db_icefinder_hmm_models,
+        db_icefinder_macsyfinder_models,
+        db_icefinder_prokka_uniprot,
     )
     ch_versions = ch_versions.mix(ICEFINDER2_LITE.out.versions)
 
@@ -224,13 +227,28 @@ workflow MOBILOMEANNOTATION {
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
 
+    //
+    // MODULE: MultiQC
+    //
+    ch_multiqc_config = Channel.fromPath(
+        "${projectDir}/assets/multiqc_config.yml",
+        checkIfExists: true
+    )
+    ch_multiqc_custom_config = params.multiqc_config
+        ? Channel.fromPath(params.multiqc_config, checkIfExists: true)
+        : Channel.empty()
+
+    // ch_multiqc_logo = params.multiqc_logo
+        // ? Channel.fromPath(params.multiqc_logo, checkIfExists: true)
+        // : Channel.fromPath("${projectDir}/assets/mgnify_wordmark_dark_on_light.png", checkIfExists: true)
+
     MULTIQC(
         CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.first(),
-        params.multiqc_config,
+        ch_multiqc_config.toList(),
+        ch_multiqc_custom_config.toList(),
         [],
         [],
         [],
-        []
     )
 
     emit:

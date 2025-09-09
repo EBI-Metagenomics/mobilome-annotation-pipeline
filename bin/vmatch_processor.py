@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import sys
 import argparse
-import pandas as pd
 import re
+import sys
+
+import pandas as pd
 
 
 def process_vmatch_output(vmatch_file, result_file):

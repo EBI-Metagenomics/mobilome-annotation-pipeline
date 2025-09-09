@@ -16,18 +16,21 @@
 
 import argparse
 import os.path
-from map_tools import cds_locator
-from map_tools import genomad_parser
-from map_tools import icefinder_process
-from map_tools import integrator_process
-from map_tools import integronfinder_process
-from map_tools import isescan_process
-from map_tools import mapping_names
-from map_tools import mobileog_process
-from map_tools import outliers_process
-from map_tools import overlap_finder
-from map_tools import prokka_process
-from map_tools import virify_process
+
+from map_tools import (
+    cds_locator,
+    genomad_parser,
+    icefinder_process,
+    integrator_process,
+    integronfinder_process,
+    isescan_process,
+    mapping_names,
+    mobileog_process,
+    outliers_process,
+    overlap_finder,
+    prokka_process,
+    virify_process,
+)
 
 
 def main():
@@ -64,7 +67,7 @@ def main():
     parser.add_argument(
         "--icf_tsv",
         type=str,
-        nargs='?',
+        nargs="?",
         help="ICEfinder2-lite prediction file",
     )
     parser.add_argument(
@@ -80,7 +83,7 @@ def main():
     parser.add_argument(
         "--comp_bed",
         type=str,
-        nargs='?',
+        nargs="?",
         help="Compositional outliers prediction in bed format",
     )
     parser.add_argument(

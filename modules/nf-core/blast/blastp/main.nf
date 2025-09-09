@@ -52,7 +52,6 @@ process BLAST_BLASTP {
         -out ${prefix}.${out_ext} \\
         -db \$DB \\
         -num_threads ${task.cpus} \\
-        -outfmt ${outfmt} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml

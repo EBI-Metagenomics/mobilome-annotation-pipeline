@@ -21,7 +21,8 @@ process GFF_MAPPING {
     """
     gff_mapping.py \\
         --prefix ${prefix} \\
-        --mobilome_clean ${mobilome_clean} ${user_proteins_arg}
+        --mobilome_clean ${mobilome_clean} \\
+        ${user_proteins_arg}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

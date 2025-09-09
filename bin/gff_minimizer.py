@@ -15,8 +15,8 @@
 # limitations under the License.
 
 import argparse
-import os.path
 import logging
+import os.path
 
 logging.basicConfig(level=logging.INFO)
 
@@ -65,11 +65,12 @@ def gff_parser(mobilome_prokka_gff: str, prefix: str) -> None:
         logging.debug(f"{mobilome_prokka_gff} not found. Skipping")
         return
 
-    with open(mobilome_prokka_gff, "r") as input_file, open(
-        f"{prefix}_mobilome_clean.gff", "w"
-    ) as to_clean_gff, open(f"{prefix}_mobilome_extra.gff", "w") as to_extra_gff, open(
-        f"{prefix}_mobilome_nogenes.gff", "w"
-    ) as to_nogenes_gff:
+    with (
+        open(mobilome_prokka_gff, "r") as input_file,
+        open(f"{prefix}_mobilome_clean.gff", "w") as to_clean_gff,
+        open(f"{prefix}_mobilome_extra.gff", "w") as to_extra_gff,
+        open(f"{prefix}_mobilome_nogenes.gff", "w") as to_nogenes_gff,
+    ):
         for line in input_file:
             l_line = line.rstrip().split("\t")
             # Annotation lines have exactly 9 columns

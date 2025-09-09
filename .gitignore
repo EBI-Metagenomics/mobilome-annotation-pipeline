@@ -5,6 +5,7 @@ singularity/
 .nextflow/
 .nextflow*
 work/
+results/
 
 # python
 bin/python_modules/__pycache__/
@@ -18,3 +19,7 @@ bin/python_modules/__pycache__/
 databases/mobileOG_beatrix1.6.dmnd
 
 __pycache__/
+htmlcov/
+.coverage
+
+.DS_Store

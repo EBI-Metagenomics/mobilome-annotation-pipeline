@@ -21,24 +21,25 @@
 # Modified and adapted for this pipeline by EMBL-EBI
 #
 
-import re
 import argparse
+import re
+
 from Bio import SeqIO
 
 
 def parse_blast_uniprot(uniprot_annot):
     """
     Parse UniProt BLAST annotation file to create a query-to-product mapping dictionary.
-    
+
     This function reads a tab-separated BLAST annotation file and extracts the mapping
     between query IDs and their corresponding UniProt product descriptions. The file
     is expected to follow the BLAST settings and quality filtering that that Prokka applies.
-    
+
     :param uniprot_annot: Path to the UniProt annotation file
     :type uniprot_annot: str
     :return: Dictionary mapping query IDs to product descriptions
     :rtype: dict
-    
+
     .. note::
        Expects BLAST results with quality filters matching prokka settings:
        "-evalue 1E-9 -qcov_hsp_perc 80 -num_descriptions 1 -num_alignments 1 -seg no"
@@ -58,26 +59,33 @@ def parse_blast_uniprot(uniprot_annot):
 def parse_merged_gff(gff_file, uniprot_annot_dict):
     """
     Parse the merged GFF file and extract the feature information with UniProt annotations.
-    
+
     This function processes a GFF3 file containing genomic features and extracts
     information about tRNA/tmRNA features and coding sequences (CDS). It enriches CDS
     features with UniProt product annotations and organizes data for downstream analysis.
-    
+
     :param gff_file: Path to the merged GFF3 file
     :type gff_file: str
     :param uniprot_annot_dict: Dictionary mapping query IDs to UniProt product descriptions
     :type uniprot_annot_dict: dict
-    :return: Tuple containing multiple dictionaries for names mapping, tRNA data, 
+    :return: Tuple containing multiple dictionaries for names mapping, tRNA data,
              position data, total counts, locus mapping, and protein-contig associations
     :rtype: tuple
-    
+
     .. note::
        The function processes both tRNA/tmRNA and CDS features, creating separate
        data structures for each feature type based on the GFF3 format.
     """
-    names_map, trnadict, posdict, totalnum_dict, locusdict, prots_contigs = {}, {}, {}, {}, {}, {}
+    names_map, trnadict, posdict, totalnum_dict, locusdict, prots_contigs = (
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+    )
     valid_rnas = ["tRNA", "tmRNA"]
-    header = ''
+    header = ""
     with open(gff_file, "r") as input_gff:
         for line in input_gff:
             l_line = line.rstrip().split("\t")
@@ -304,15 +312,14 @@ def pos_tag(pos, posdict, ICE, final, totalnum, dirtag):
 
 
 def merge_tRNA(ice_id, ICEdict, DR_dict, listgff, prots_contigs):
-
     [trnadict, posdict, header, total_dict, locusdict] = listgff
 
-    contig = ''
+    contig = ""
     for key in ICEdict:
         if key in prots_contigs:
             contig = prots_contigs[key]
     totalnum = total_dict[contig]
-    
+
     fICE = getnum(next(iter(ICEdict)))
     eICE = getnum(list(ICEdict.keys())[-1])
     nfICEnum = max(1, fICE - 5)
@@ -325,7 +332,7 @@ def merge_tRNA(ice_id, ICEdict, DR_dict, listgff, prots_contigs):
             ICEtagnum.append(getnum(key))
             trnalist.append(value)
 
-    DRlist = DR_dict[contig]
+    DRlist = DR_dict.get(contig, [])
 
     ICEtagnum.sort()
     finalstart, finalend = find_max_distance(ICEtagnum)
@@ -509,7 +516,6 @@ def get_ICE(
 
 
 def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, prefix):
-
     ice_output_file = prefix + "_ices.tsv"
     genes_output_file = prefix + "_ice_genes.tsv"
 
@@ -781,8 +787,8 @@ def main():
 
     # Parsing gff annotation to save the protein names correspondance with per-protein annotation results: macsyfinder and uniprotkb
     print("Parsing merged gff file...")
-    names_map, trnadict, posdict, header, totalnum_dict, locusdict, prots_contigs = parse_merged_gff(
-        args.gff_file, uniprot_annot_dict
+    names_map, trnadict, posdict, header, totalnum_dict, locusdict, prots_contigs = (
+        parse_merged_gff(args.gff_file, uniprot_annot_dict)
     )
 
     # Parsing direct repeats prediction:

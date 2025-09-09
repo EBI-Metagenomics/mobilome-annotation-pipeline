@@ -4,8 +4,8 @@ process AMRFINDER_PLUS {
     label 'process_high'
 
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.4--h6e70893_0'
-        : 'biocontainers/ncbi-amrfinderplus:3.11.4--h6e70893_0'}"
+        ? 'https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.12.8--h283d18e_0'
+        : 'biocontainers/ncbi-amrfinderplus:3.12.8--h283d18e_0'}"
 
     input:
     tuple val(meta), path(fna), path(faa), path(gff)

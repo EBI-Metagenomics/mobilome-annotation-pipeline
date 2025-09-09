@@ -21,29 +21,32 @@
 # Modified and adapted for this pipeline by EMBL-EBI
 #
 
+import argparse
+import gzip
 import os
 import sys
-import argparse
 from collections import defaultdict
+
 from Bio import SeqIO
+from Bio.SearchIO import parse
 
 
 def scanf(hmmlist):
     """
     Scan HMM list to determine if a contig contains essential ICE components.
-    
+
     This function analyzes a list of HMM hits to determine
     whether a contig contains the essential components of an Integrative and
     Conjugative Element (ICE), including mobilization proteins, Type IV coupling
     proteins, integrases, and Type IV secretion systems.
-    
+
     :param hmmlist: List of HMM hit names
     :type hmmlist: list
     :return: True if contig contains essential ICE components, False otherwise
     :rtype: bool
-    
+
     .. note::
-       The function requires at least: 1 MOB protein, 1 T4CP protein, 
+       The function requires at least: 1 MOB protein, 1 T4CP protein,
        1 integrase, and 5 T4SS proteins for a positive ICE classification.
     """
     ICEcount = []
@@ -81,47 +84,74 @@ def scanf(hmmlist):
 def hmm_parser(hmm_out, evalue_threshold=0.00001):
     """
     Parse HMM search output to identify candidate ICE-containing contigs.
-    
+
     This function processes HMM search results and groups hits by contig,
     filtering by E-value threshold. It then applies ICE component scanning
     to identify contigs that contain essential ICE components.
-    
+
     :param hmm_out: Path to HMM search output file
     :type hmm_out: str
     :param evalue_threshold: E-value threshold for filtering HMM hits
     :type evalue_threshold: float
     :return: List of contig identifiers that contain ICE candidates
     :rtype: list
-    
     .. note::
        The default E-value threshold of 0.00001 provides stringent filtering
        for high-quality HMM matches.
     """
+    # Validate input file exists
+    if not os.path.exists(hmm_out):
+        raise FileNotFoundError(f"HMM output file not found: {hmm_out}")
+
     icedict = defaultdict(list)
     processed_ids = set()
-    chosen = []
-    with open(hmm_out, "r") as outfile:
-        for line in outfile.readlines():
-            if not line.startswith("#"):
-                lines = line.strip().split()
-                if lines[2] in processed_ids:
-                    continue
-                processed_ids.add(lines[2])
-                id_parts = lines[2].split("_")
-                key = "_".join(id_parts[0:2])
-                if float(lines[4]) < evalue_threshold:
-                    icedict[key].append(lines[0])
 
-    for k, v in icedict.items():
-        if scanf(v):
-            chosen.append(k)
-    return chosen
+    with open(hmm_out, "r") as outfile:
+        for line_num, line in enumerate(outfile, 1):
+            # Skip comment lines
+            if line.startswith("#") or not line.strip():
+                continue
+
+            # Parse line with error handling
+            fields = line.strip().split()
+            if len(fields) < 5:
+                raise ValueError(
+                    f"Invalid format at line {line_num}: insufficient fields"
+                )
+
+            query_name, _, target_id, _, evalue_str = fields[:5]
+
+            # Skip already processed targets
+            if target_id in processed_ids:
+                continue
+
+            processed_ids.add(target_id)
+
+            # Extract contig identifier (first two underscore-separated parts)
+            id_parts = target_id.split("_")
+            if len(id_parts) < 2:
+                continue  # Skip malformed IDs
+
+            contig_key = "_".join(id_parts[:2])
+
+            # Filter by E-value threshold
+            try:
+                evalue = float(evalue_str)
+                if evalue < evalue_threshold:
+                    icedict[contig_key].append(query_name)
+            except ValueError:
+                continue  # Skip lines with invalid E-values
+
+    # Apply ICE component scanning and return candidates
+    return [
+        contig_key for contig_key, components in icedict.items() if scanf(components)
+    ]
 
 
 def fasta_parser(assembly_file, candidates_list, output_prefix):
     """
     Extract candidate contig sequences from the assembly FASTA file.
-    
+
     :param assembly_file: Path to assembly FASTA file
     :type assembly_file: str
     :param candidates_list: List of candidate contig identifiers
@@ -129,19 +159,29 @@ def fasta_parser(assembly_file, candidates_list, output_prefix):
     :param output_prefix: Output file prefix for candidate sequences
     :type output_prefix: str
     """
-    with open(output_prefix + "_candidates.fasta", "w") as fasta_out:
-        for record in SeqIO.parse(assembly_file, "fasta"):
-            seq_id = str(record.id)
-            seq = str(record.seq).upper()
-            if seq_id in candidates_list:
-                fasta_out.write(">" + seq_id + "\n")
-                fasta_out.write(seq + "\n")
+    candidates_set = set(candidates_list)
+
+    # Determine if input file is gzip-compressed
+    try:
+        if assembly_file.endswith(".gz"):
+            file_handle = gzip.open(assembly_file, "rt")
+        else:
+            file_handle = open(assembly_file, "r")
+
+        with open(output_prefix + "_candidates.fasta", "w") as fasta_out:
+            for record in SeqIO.parse(file_handle, "fasta"):
+                seq_id = str(record.id)
+                if seq_id in candidates_set:
+                    fasta_out.write(f">{seq_id}\n")
+                    fasta_out.write(f"{str(record.seq).upper()}\n")
+    finally:
+        file_handle.close()
 
 
 def proteins_parser(proteins_fasta, candidates_list, output_prefix):
     """
     Extract protein sequences from candidate contigs.
-    
+
     :param proteins_fasta: Path to protein FASTA file
     :type proteins_fasta: str
     :param candidates_list: List of candidate contig identifiers
@@ -149,16 +189,25 @@ def proteins_parser(proteins_fasta, candidates_list, output_prefix):
     :param output_prefix: Output file prefix for candidate protein sequences
     :type output_prefix: str
     """
-    with open(output_prefix + "_candidates.faa", "w") as faa_out:
-        for record in SeqIO.parse(proteins_fasta, "fasta"):
-            prot_id = str(record.id)
-            seq = str(record.seq).upper().replace("*", "")
-            id_split = prot_id.split("_")
-            id_split.pop(-1)
-            contig_id = "_".join(id_split)
-            if contig_id in candidates_list:
-                faa_out.write(">" + prot_id + "\n")
-                faa_out.write(seq + "\n")
+    # Determine if input file is gzip-compressed
+    try:
+        if proteins_fasta.endswith(".gz"):
+            file_handle = gzip.open(proteins_fasta, "rt")
+        else:
+            file_handle = open(proteins_fasta, "r")
+
+        with open(output_prefix + "_candidates.faa", "w") as faa_out:
+            for record in SeqIO.parse(file_handle, "fasta"):
+                prot_id = str(record.id)
+                seq = str(record.seq).upper().replace("*", "")
+                id_split = prot_id.split("_")
+                id_split.pop(-1)
+                contig_id = "_".join(id_split)
+                if contig_id in candidates_list:
+                    faa_out.write(">" + prot_id + "\n")
+                    faa_out.write(seq + "\n")
+    finally:
+        file_handle.close()
 
 
 def main():
@@ -174,8 +223,10 @@ def main():
     parser.add_argument("--assembly", required=True, help="Path to assembly FASTA file")
     parser.add_argument("--output", required=True, help="Output prefix name")
     parser.add_argument(
-        "--evalue_threshold", type=float, default=0.00001, 
-        help="E-value threshold for filtering HMM hits (default: 0.00001)"
+        "--evalue_threshold",
+        type=float,
+        default=0.00001,
+        help="E-value threshold for filtering HMM hits (default: 0.00001)",
     )
     args = parser.parse_args()
 

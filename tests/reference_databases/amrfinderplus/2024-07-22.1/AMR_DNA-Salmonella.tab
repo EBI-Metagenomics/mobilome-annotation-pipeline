@@ -1,0 +1,3 @@
+#accesion_version@gene_name@gene_symbol:start-stop	mutation_position	mutation_symbol	class	subclass	mutated_gene_name
+NC_003197.2@16S_ribosomal_RNA@16S_rrsD:3570470-3572005	1065	16S_C1065T	AMINOGLYCOSIDE	SPECTINOMYCIN	Salmonella_spectinomycin_resistant_16S_rrsD
+NC_003197.2@16S_ribosomal_RNA@16S_rrsD:3570470-3572005	1192	16S_C1192T	AMINOGLYCOSIDE	SPECTINOMYCIN	Salmonella_spectinomycin_resistant_16S_rrsD

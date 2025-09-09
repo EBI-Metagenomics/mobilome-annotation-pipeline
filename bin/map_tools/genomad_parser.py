@@ -42,9 +42,7 @@ def genomad_viral(geno_out, mge_data):
                 else:
                     contig = line_l[0]
                     description = (
-                        "mobile_element_type=viral_sequence;"
-                        + "taxonomy="
-                        + taxonomy
+                        "mobile_element_type=viral_sequence;" + "taxonomy=" + taxonomy
                     )
                     start = 1
                     end = int(line_l[1])
