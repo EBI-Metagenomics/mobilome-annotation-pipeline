@@ -312,7 +312,6 @@ def pos_tag(pos, posdict, ICE, final, totalnum, dirtag):
 
 
 def merge_tRNA(ice_id, ICEdict, DR_dict, listgff, prots_contigs):
-
     [trnadict, posdict, header, total_dict, locusdict] = listgff
 
     contig = ""
@@ -333,10 +332,7 @@ def merge_tRNA(ice_id, ICEdict, DR_dict, listgff, prots_contigs):
             ICEtagnum.append(getnum(key))
             trnalist.append(value)
 
-    if contig in DR_dict:
-        DRlist = DR_dict[contig]
-    else:
-        DRlist = []
+    DRlist = DR_dict.get(contig, [])
 
     ICEtagnum.sort()
     finalstart, finalend = find_max_distance(ICEtagnum)
@@ -520,7 +516,6 @@ def get_ICE(
 
 
 def get_map(drs_ice_dict, genes_icedict, posdict, header, infodict, assembly, prefix):
-
     ice_output_file = prefix + "_ices.tsv"
     genes_output_file = prefix + "_ice_genes.tsv"
 
