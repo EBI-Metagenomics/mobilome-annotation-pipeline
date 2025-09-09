@@ -20,36 +20,15 @@
                 "errorMessage": "The assembly needs to be a fasta file"
             },
             "user_proteins_gff": {
-                "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file",
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "pattern": "^\\S+\\.gff$"
-                    },
-                    {
-                        "type": "string",
-                        "maxLength": 0
-                    }
-                ]
+                "type": "string",
+                "pattern": "^\\S+\\.gff$",
+		"errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file"
             },
             "virify_gff": {
+		"type": "string",
+		"pattern": "^\\S+\\.gff$",
                 "errorMessage": "The VIRify file generated for the assembly needs to be a gff3 file",
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "pattern": "^\\S+\\.gff$"
-                    },
-                    {
-                        "type": "string",
-                        "maxLength": 0
-                    }
-                ]
-            },
-            "skip_amrfinder_plus": {
-                "type": "boolean",
-                "default": false,
-                "meta": ["skip_amrfinder_plus"]
-            },
+            }
         },
         "required": ["sample", "assembly"]
     }

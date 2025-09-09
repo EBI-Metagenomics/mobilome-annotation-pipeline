@@ -53,6 +53,7 @@ workflow MOBILOMEANNOTATION {
     def ch_inputs = Channel.fromList(samplesheetToList(params.input, "./assets/schema_input.json"))
     ch_versions = Channel.empty()
 
+
     /*
     ******************************************************************************************************
     * The code below is transforming the input channels to handle optional inputs, such as the

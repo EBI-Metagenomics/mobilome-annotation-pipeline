@@ -120,12 +120,10 @@ def gff_updater(
     proteins_with_extra_annot = 0
     passenger_proteins = 0
 
-    with (
-        open(user_gff, "r") as input_table,
-        open(f"{output_prefix}_user_mobilome_extra.gff", "w") as output_extra,
-        open(f"{output_prefix}_user_mobilome_full.gff", "w") as output_full,
-        open(f"{output_prefix}_user_mobilome_clean.gff", "w") as output_clean,
-    ):
+    with open(user_gff, "r") as input_table, \
+            open(f"{output_prefix}_user_mobilome_extra.gff", "w") as output_extra, \
+            open(f"{output_prefix}_user_mobilome_full.gff", "w") as output_full, \
+            open(f"{output_prefix}_user_mobilome_clean.gff", "w") as output_clean:
         logger.info(f"Output files created with prefix: {output_prefix}")
 
         for line in input_table:
@@ -223,7 +221,12 @@ def main():
         help="User GFF file",
         required=False,
     )
-    parser.add_argument("--prefix", type=str, help="Output files prefix", required=True)
+    parser.add_argument(
+        "--prefix", 
+        type=str, 
+        help="Output files prefix", 
+        required=True
+    )
     args = parser.parse_args()
 
     ## Calling functions
