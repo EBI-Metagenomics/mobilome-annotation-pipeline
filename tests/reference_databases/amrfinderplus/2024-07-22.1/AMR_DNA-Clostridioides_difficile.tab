@@ -1,0 +1,3 @@
+#accesion_version@gene_name@gene_symbol:start-stop	mutation_position	mutation_symbol	class	subclass	mutated_gene_name
+NZ_CP019870.1@23S_ribosomal_RNA@23S:4042221-4045120	658	23S_C658T	LINCOSAMIDE/MACROLIDE	CLINDAMYCIN/ERYTHROMYCIN	Clostridioides_difficile_clindamycin/erythromycin_resistant_23S
+NZ_CP037853.1@nimB_promoter_region@nimB:2640793-2641193	204	nimB_T-35G	NITROIMIDAZOLE	METRONIDAZOLE	Clostridioides_difficile_metronidazole_resistant_nimB

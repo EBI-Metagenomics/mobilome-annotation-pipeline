@@ -1,0 +1,12 @@
+#accesion_version@gene_name@gene_symbol:start-stop	mutation_position	mutation_symbol	class	subclass	mutated_gene_name
+NC_002163.1@23S_ribosomal_RNA@23S:396449-399360	2074	23S_A2074C	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NC_002163.1@23S_ribosomal_RNA@23S:396449-399360	2074	23S_A2074G	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NC_002163.1@23S_ribosomal_RNA@23S:396449-399360	2074	23S_A2074T	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NC_002163.1@23S_ribosomal_RNA@23S:396449-399360	2075	23S_A2075G	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NC_002163.1@23S_ribosomal_RNA@23S:396449-399360	2627	23S_C2627A	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NC_022347.1@23S_ribosomal_RNA@23S:1040292-1037381	2233	23S_A2074C	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NC_022347.1@23S_ribosomal_RNA@23S:1040292-1037381	2233	23S_A2074G	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NC_022347.1@23S_ribosomal_RNA@23S:1040292-1037381	2233	23S_A2074T	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NC_022347.1@23S_ribosomal_RNA@23S:1040292-1037381	2234	23S_A2075G	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NC_022347.1@23S_ribosomal_RNA@23S:1040292-1037381	2786	23S_C2627A	MACROLIDE	MACROLIDE	Campylobacter_macrolide_resistant_23S
+NZ_CP022079.1@blaOXA-61_promoter_region@blaOXA-61:267177-268072	66	blaOXA-61_G-57T	BETA-LACTAM	CARBAPENEM	Campylobacter_carbapenem_resistant_blaOXA-61
