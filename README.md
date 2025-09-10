@@ -80,16 +80,6 @@ wget https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefind
 tar -xvf icf2_dbs.tar.gz
 ```
 
-4. Uniprotkb-sp download, decompress, formatting and indexing for blastp. This is also for ICEfinder2-lite
-```bash
-wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
-gzip -d uniprot.dat.gz
-singularity pull prokka-uniprot-1.14.5.sif docker://quay.io/microbiome-informatics/prokka-uniprot:1.14.5
-singularity exec -B $(pwd):/data prokka-uniprot-1.14.5.sif prokka-uniprot_to_fasta_db uniprot_sprot.dat > prokka_uniprot_sprot.fasta
-singularity exec -B $(pwd):/data prokka-uniprot-1.14.5.sif makeblastdb -dbtype prot -in prokka_uniprot_sprot.fasta
-rm uniprot_sprot.dat prokka_uniprot_sprot.fasta
-```
-
 Once donwloading is complete, you can move the files to any suitable location. We recomment to create a config file with the following paths and pass it to the pipeline during execution using `-c my_paths.config`
 
 `my_paths.config`
@@ -103,9 +93,9 @@ Once donwloading is complete, you can move the files to any suitable location. W
 params {
     amrfinder_plus_db            = "/FULL/PATH/TO/2023-02-23.1"
     genomad_db                   = "/FULL/PATH/TO/genomad_db_v1.9"
-    icefinder_macsyfinder_models = "/FULL/PATH/TO/icefinder2/macsydata/"
-    icefinder_hmm_models         = "/FULL/PATH/TO/icefinder2/icescan.hmm"
-    icefinder_prokka_uniprot_db  = "/FULL/PATH/TO/prokka_uniprot_sprot.fasta"
+    icefinder_macsyfinder_models = "/FULL/PATH/TO/icf2_dbs/macsydata/"
+    icefinder_hmm_models         = "/FULL/PATH/TO/icf2_dbs/icehmm/icescan.hmm"
+    icefinder_prokka_uniprot_db  = "/FULL/PATH/TO/icf2_dbs/icefinder_prokka_uniprot/prokka_uniprot_sprot.fasta"
 }
 
 profiles {
