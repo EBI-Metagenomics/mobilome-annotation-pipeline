@@ -80,7 +80,13 @@ wget https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefind
 tar -xvf icf2_dbs.tar.gz
 ```
 
-Once donwloading is complete, you can move the files to any suitable location. We recomment to create a config file with the following paths and pass it to the pipeline during execution using `-c my_paths.config`
+Once donwloading is complete, you can move the files to any suitable location. Then you should pass the paths to all your datbases to the pipeline as a parameter during execution using the corresponding flag. For instance:
+
+```bash
+nextflow run /PATH/mobilome-annotation-pipeline/main.nf --input samplesheet.csv --genomad_db /FULL/PATH/TO/genomad_db_v1.9
+```
+
+Alternatively, we recomment to create a config file with the following paths and pass it to the pipeline during execution using `-c my_paths.config`
 
 `my_paths.config`
 ```bash
