@@ -51,7 +51,7 @@ The only prerequisites for running it are [Nextflow](https://www.nextflow.io/) a
 
 <a name="install"></a>
 
-## Install and dependencies
+## Install and downloading dependencies
 
 To get a copy of the Mobilome Annotation Pipeline, clone this repo by:
 
@@ -62,33 +62,60 @@ $ git clone https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline.git
 The first time you run the pipeline you will need to set up the following databases:
 
 1. Download and index the database for amrfinder plus
+```bash
 wget -r -nH --cut-dirs=5 ftp://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/3.12/2024-01-31.1/
-
-amrfinder_index 2024-01-31.1
-
+singularity pull ncbi-amrfinderplus_3.12.8.sif docker://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.12.8--h283d18e_0
+singularity exec -B $(pwd):/data ncbi-amrfinderplus_3.12.8.sif amrfinder_index 2024-01-31.1
+```
 
 2. Download and extract the geNomad database
-
+```bash
 wget https://zenodo.org/records/14886553/files/genomad_db_v1.9.tar.gz?download=1
-
 tar -xvf genomad_db_v1.9.tar.gz
+```
 
-3. Download and extract the databases needed to run ICEfinder2-lite
-
+3. Download and extract the databases to run ICEfinder2-lite
+```bash
 wget https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
-
 tar -xvf icf2_dbs.tar.gz
+```
 
-3. Uniprotkb-sp download, decompress, formatting and indexing for blastp
-
+4. Uniprotkb-sp download, decompress, formatting and indexing for blastp. This is also for ICEfinder2-lite
+```bash
 wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
-
 gzip -d uniprot.dat.gz
+singularity pull prokka-uniprot-1.14.5.sif docker://quay.io/microbiome-informatics/prokka-uniprot:1.14.5
+singularity exec -B $(pwd):/data prokka-uniprot-1.14.5.sif prokka-uniprot_to_fasta_db uniprot_sprot.dat > prokka_uniprot_sprot.fasta
+singularity exec -B $(pwd):/data prokka-uniprot-1.14.5.sif makeblastdb -dbtype prot -in prokka_uniprot_sprot.fasta
+rm uniprot_sprot.dat prokka_uniprot_sprot.fasta
+```
 
+Once donwloading is complete, you can move the files to any suitable location. We recomment to create a config file with the following paths and pass it to the pipeline during execution using `-c my_paths.config`
 
-https://github.com/tseemann/prokka/blob/master/bin/prokka-uniprot_to_fasta_db uniprot.dat
+`my_paths.config`
+```bash
+/*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     Config to store my DB paths and names
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
-makeblastdb -dbtype prot -in uniprot.dat
+params {
+    amrfinder_plus_db            = "/FULL/PATH/TO/2023-02-23.1"
+    genomad_db                   = "/FULL/PATH/TO/genomad_db_v1.9"
+    icefinder_macsyfinder_models = "/FULL/PATH/TO/icefinder2/macsydata/"
+    icefinder_hmm_models         = "/FULL/PATH/TO/icefinder2/icescan.hmm"
+    icefinder_prokka_uniprot_db  = "/FULL/PATH/TO/prokka_uniprot_sprot.fasta"
+}
+
+profiles {
+    my_profile {
+        includeConfig "/FULL/PATH/TO/THIS_REPO/conf/base.config"
+    }
+}
+
+workDir = "/FULL/PATH/TO/WRITE_YOUR_WORKDIR"
+```
 
 <a name="usage"></a>
 
