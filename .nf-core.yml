@@ -1,0 +1,50 @@
+repository_type: pipeline
+nf_core_version: "3.2.0"
+
+org_path: ebi-metagenomics
+
+template:
+  name: mobilome_annotation_pipeline
+  author: mberacochea
+  description: "MGnify's mobilome annotation pipeline performs mobile genetic element prediction and annotation using ICEfinder2-lite, geNomad, IntegronFinder, and functional annotation tools."
+  force: false
+  is_nfcore: false
+  org: ebi-metagenomics
+  prefix: mobilome-annotation-pipeline
+  skip:
+    - igenomes
+    - gitpod
+    - fastqc
+    - changelog
+    - adaptivecard
+    - slackreport
+  version: 2.0.2
+
+lint:
+  files_exist:
+    - CODE_OF_CONDUCT.md
+    - assets/email_template.html
+    - assets/email_template.txt
+    - assets/sendmail_template.txt
+    - conf/igenomes.config
+    - docs/images/mqc_fastqc_adapter.png
+    - docs/images/mqc_fastqc_counts.png
+    - docs/images/mqc_fastqc_quality.png
+  files_unchanged: []
+  merge_markers: false
+  multiqc_config:
+    - report_comment
+  nextflow_config:
+    - manifest.name
+    - manifest.description
+    - manifest.version
+    - manifest.nextflowVersion
+    - manifest.homePage
+    - params.outdir
+    - params.input
+    - process.cpus
+    - process.memory
+    - process.time
+    - custom_config
+  readme:
+    - nextflow_badge

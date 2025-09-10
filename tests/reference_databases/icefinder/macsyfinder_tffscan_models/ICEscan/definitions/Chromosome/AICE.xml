@@ -1,0 +1,17 @@
+<model inter_gene_max_space="10" min_mandatory_genes_required="3" min_genes_required="3" vers="2.0">
+    <gene name="FtsK_SpoIIIE" presence="mandatory" >
+    </gene>
+
+    <gene name="RepSAv2" presence="mandatory">
+        <exchangeables>
+            <gene name="DUF3631"/>
+            <gene name="Prim-Pol"/>
+        </exchangeables>
+     </gene>
+
+     <gene name="Phage_integrase" presence="mandatory" loner="1" >
+        <exchangeables>
+            <gene name="Recombinase"/>
+        </exchangeables>
+              </gene>
+</model>

@@ -1,0 +1,6 @@
+#accesion_version@gene_name@gene_symbol:start-stop	mutation_position	mutation_symbol	class	subclass	mutated_gene_name
+NZ_CP018347.1@23S_ribosomal_RNA@23S:32347-35250	2114	23S_A2114G	MACROLIDE	MACROLIDE	Streptococcus_pneumoniae_macrolide_resistant_23S
+NZ_CP018347.1@23S_ribosomal_RNA@23S:32347-35250	2115	23S_A2115G	MACROLIDE	MACROLIDE	Streptococcus_pneumoniae_macrolide_resistant_23S
+NZ_CP018347.1@23S_ribosomal_RNA@23S:32347-35250	2118	23S_A2118G	MACROLIDE/STREPTOGRAMIN	MACROLIDE/STREPTOGRAMIN	Streptococcus_pneumoniae_macrolide/streptogramin_resistant_23S
+NZ_CP018347.1@23S_ribosomal_RNA@23S:32347-35250	2630	23S_C2630A	MACROLIDE	MACROLIDE	Streptococcus_pneumoniae_macrolide_resistant_23S
+NZ_CP018347.1@23S_ribosomal_RNA@23S:32347-35250	2630	23S_C2630G	MACROLIDE	MACROLIDE	Streptococcus_pneumoniae_macrolide_resistant_23S

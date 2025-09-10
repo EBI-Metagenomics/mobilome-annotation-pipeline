@@ -1,0 +1,22 @@
+{
+  "version": "1.2",
+  "dbname": "AMRProt",
+  "dbtype": "Protein",
+  "db-version": 5,
+  "description": "AMRProt",
+  "number-of-letters": 142,
+  "number-of-sequences": 1,
+  "last-updated": "2025-08-28T15:42:00",
+  "number-of-volumes": 1,
+  "bytes-total": 147923,
+  "bytes-to-cache": 240,
+  "files": [
+    "AMRProt.pdb",
+    "AMRProt.phr",
+    "AMRProt.pin",
+    "AMRProt.pot",
+    "AMRProt.psq",
+    "AMRProt.ptf",
+    "AMRProt.pto"
+  ]
+}
