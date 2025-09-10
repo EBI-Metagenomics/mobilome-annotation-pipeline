@@ -45,7 +45,7 @@ The output `mobilome.gff` is validated as part of the postprocesing.
 
 <a name="install"></a>
 
-## install dependencies and databases downloading
+## Install dependencies and databases downloading
 
 This workflow is built using [Nextflow](https://www.nextflow.io/). It uses docker/singularity containers making installation trivial and results highly reproducible.
 
