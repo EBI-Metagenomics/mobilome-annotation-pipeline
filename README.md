@@ -27,7 +27,7 @@ The Mobilome Annotation Pipeline is a wrapper that integrates the output of diff
 ## Workflow
 
 <p align="center" width="100%">
-   <img src="media/map_wf_co.png" width="90%"/>
+   <img src="media/map_icf2.png" width="90%"/>
 </p>
 
 This workflow has the following main subworkflows:
@@ -58,17 +58,6 @@ To get a copy of the Mobilome Annotation Pipeline, clone this repo by:
 ```bash
 $ git clone https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline.git
 ```
-
-The mobileOG-database is required to run an extra step of annotation on the mobilome coding sequences. The first time you run the Mobilome Annotation Pipeline, you will need to download the [Beatrix 1.6 v1](https://mobileogdb.flsi.cloud.vt.edu/entries/database_download) database, move the tarball to `mobilome-annotation-pipeline/databases`, decompress it, and run the script to format the db for diamond:
-
-```bash
-$ mv beatrix-1-6_v1_all.zip /PATH/mobilome-annotation-pipeline/databases
-$ cd /PATH/mobilome-annotation-pipeline/databases
-$ unzip beatrix-1-6_v1_all.zip
-$ nextflow run /PATH/mobilome-annotation-pipeline/format_mobileOG.nf
-```
-
->>>>>>> dev
 
 <a name="usage"></a>
 
