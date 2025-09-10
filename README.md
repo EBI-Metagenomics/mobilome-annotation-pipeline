@@ -59,6 +59,37 @@ To get a copy of the Mobilome Annotation Pipeline, clone this repo by:
 $ git clone https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline.git
 ```
 
+The first time you run the pipeline you will need to set up the following databases:
+
+1. Download and index the database for amrfinder plus
+wget -r -nH --cut-dirs=5 ftp://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/3.12/2024-01-31.1/
+
+amrfinder_index 2024-01-31.1
+
+
+2. Download and extract the geNomad database
+
+wget https://zenodo.org/records/14886553/files/genomad_db_v1.9.tar.gz?download=1
+
+tar -xvf genomad_db_v1.9.tar.gz
+
+3. Download and extract the databases needed to run ICEfinder2-lite
+
+wget https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
+
+tar -xvf icf2_dbs.tar.gz
+
+3. Uniprotkb-sp download, decompress, formatting and indexing for blastp
+
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.dat.gz
+
+gzip -d uniprot.dat.gz
+
+
+https://github.com/tseemann/prokka/blob/master/bin/prokka-uniprot_to_fasta_db uniprot.dat
+
+makeblastdb -dbtype prot -in uniprot.dat
+
 <a name="usage"></a>
 
 ## Inputs
