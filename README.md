@@ -104,7 +104,6 @@ profiles {
     }
 }
 
-workDir = "/FULL/PATH/TO/WRITE_YOUR_WORKDIR"
 ```
 
 <a name="usage"></a>
