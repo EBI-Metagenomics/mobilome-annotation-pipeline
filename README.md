@@ -69,7 +69,7 @@ amrfinder_index 2024-01-31.1
 
 2. Download and extract the geNomad database
 ```bash
-wget https://zenodo.org/records/14886553/files/genomad_db_v1.9.tar.gz?download=1
+wget https://zenodo.org/records/14886553/files/genomad_db_v1.9.tar.gz
 tar -xvf genomad_db_v1.9.tar.gz
 ```
 
