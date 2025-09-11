@@ -51,12 +51,59 @@ The only prerequisites for running it are [Nextflow](https://www.nextflow.io/) a
 
 <a name="install"></a>
 
-## Install and dependencies
+## Install and downloading dependencies
 
 To get a copy of the Mobilome Annotation Pipeline, clone this repo by:
 
 ```bash
 $ git clone https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline.git
+```
+
+The first time you run the pipeline you will need to set up the following databases:
+
+1. Download and index the database for AMRFinderPlus. To format the database you need to install the tool first following the instructions provided by the [AMRFinderPlus developers](https://github.com/ncbi/amr/wiki/Installing-AMRFinder#how-to-install)
+```bash
+wget -r -nH --cut-dirs=5 ftp://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/3.12/2024-01-31.1/
+amrfinder_index 2024-01-31.1
+```
+
+2. Download and extract the geNomad database
+```bash
+wget https://zenodo.org/records/14886553/files/genomad_db_v1.9.tar.gz?download=1
+tar -xvf genomad_db_v1.9.tar.gz
+```
+
+3. Download and extract the databases to run ICEfinder2-lite
+```bash
+wget https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
+tar -xvf icf2_dbs.tar.gz
+```
+
+Once donwloading is complete, you can move the files to any suitable location. Then you should pass the paths to all your datbases to the pipeline as a parameter during execution using the corresponding flag. For instance:
+
+```bash
+nextflow run /PATH/mobilome-annotation-pipeline/main.nf --input samplesheet.csv --genomad_db /FULL/PATH/TO/genomad_db_v1.9
+```
+
+Alternatively, we recomment to create a config file with the following paths and pass it to the pipeline during execution using `-c my_paths.config`
+
+`my_paths.config`
+```bash
+/*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     Config to store my DB paths and names
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+params {
+    amrfinder_plus_db            = "/FULL/PATH/TO/2023-02-23.1"
+    genomad_db                   = "/FULL/PATH/TO/genomad_db_v1.9"
+    icefinder_macsyfinder_models = "/FULL/PATH/TO/icf2_dbs/macsydata/"
+    icefinder_hmm_models         = "/FULL/PATH/TO/icf2_dbs/icehmm/icescan.hmm"
+    icefinder_prokka_uniprot_db  = "/FULL/PATH/TO/icf2_dbs/icefinder_prokka_uniprot/prokka_uniprot_sprot.fasta"
+}
+
+
 ```
 
 <a name="usage"></a>
