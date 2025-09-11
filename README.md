@@ -103,11 +103,6 @@ params {
     icefinder_prokka_uniprot_db  = "/FULL/PATH/TO/icf2_dbs/icefinder_prokka_uniprot/prokka_uniprot_sprot.fasta"
 }
 
-profiles {
-    my_profile {
-        includeConfig "/FULL/PATH/TO/THIS_REPO/conf/base.config"
-    }
-}
 
 ```
 
