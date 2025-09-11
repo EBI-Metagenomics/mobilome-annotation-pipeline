@@ -61,7 +61,7 @@ $ git clone https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline.git
 
 The first time you run the pipeline you will need to set up the following databases:
 
-1. Download and index the database for AMRFinderPlus. To format the database you need to install the tool first following the instructions provided by the [AMRFinderPlus developers](https://github.com/ncbi/amr/wiki/Installing-AMRFinder#how-to-install)
+1. Download and index the database for AMRFinderPlus v3.12.8. To format the database you need to install the tool first following the instructions provided by the [AMRFinderPlus developers](https://github.com/ncbi/amr/wiki/Installing-AMRFinder#how-to-install)
 ```bash
 wget -r -nH --cut-dirs=5 ftp://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/3.12/2024-01-31.1/
 amrfinder_index 2024-01-31.1
