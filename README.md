@@ -162,21 +162,15 @@ sample/
 │   └── sample_user_mobilome_full.gff
 ├── prediction
 │   ├── genomad
-│   │   └── 5kb_contigs_summary
-│   │       ├── 5kb_contigs_plasmid_summary.tsv
-│   │       └── 5kb_contigs_virus_summary.tsv
-│   ├── icefinder
-│   │   ├── input.list
-│   │   └── result
-│   │       ├── icf_concat.summary
-│   │       └── icf_dr.txt
+│   │   └── sample_5kb_contigs_summary
+│   │       ├── sample_5kb_contigs_plasmid_summary.tsv
+│   │       └── sample_5kb_contigs_virus_summary.tsv
+│   ├── icefinder2lite
+│   │   ├── sample_ice_genes.tsv
+│   │   └── sample_ices.tsv
 │   ├── integronfinder
-│   │   └── Results_Integron_Finder_sample_5kb_contigs
-│   │       ├── 5kb_contigs.summary
-│   │       ├── contig_1.gbk
-│   │       ├── contig_5.gbk
-│   │       ├── contig_6.gbk
-│   │       └── contig_7.gbk
+│   │   ├── sample_5kb_contigs.summary
+│   │   └── contig_1.gbk
 │   ├── isescan
 │   │   └── sample_1kb_contigs.fasta.tsv
 │   ├── virify_filter
@@ -186,6 +180,7 @@ sample/
 └── preprocessing
     ├── sample_1kb_contigs.fasta
     ├── sample_5kb_contigs.fasta
+    ├── sample_100kb_contigs.fasta
     └── sample_contigID.map
 ```
 
