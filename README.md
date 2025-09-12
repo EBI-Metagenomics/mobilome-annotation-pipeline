@@ -102,6 +102,7 @@ params {
     icefinder_hmm_models         = "/FULL/PATH/TO/icf2_dbs/icehmm/icescan.hmm"
     icefinder_prokka_uniprot_db  = "/FULL/PATH/TO/icf2_dbs/icefinder_prokka_uniprot/prokka_uniprot_sprot.fasta"
 }
+
 ```
 
 <a name="usage"></a>
@@ -256,7 +257,7 @@ The labels used in the Type column of the GFF file correspond to the following n
 | viral_sequence          | [SO:0001041](http://www.sequenceontology.org/browser/current_svn/term/SO:0001041) | Viral genome fragment                                                       | geNomad, VIRify           |
 | plasmid                 | [SO:0000155](http://www.sequenceontology.org/browser/current_svn/term/SO:0000155) | Plasmid                                                                     | geNomad                   |
 
-Label `compositional_outlier` corresponds to non-autonomous elements detected by MAP in contigs > 100 kb long.
+The label `compositional_outlier` corresponds to non-autonomous elements detected by MAP in contigs > 100 kb long.
 
 <a name="test"></a>
 
