@@ -22,11 +22,11 @@
             "user_proteins_gff": {
                 "type": "string",
                 "pattern": "^\\S+\\.gff$",
-		        "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file"
+		            "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file"
             },
             "virify_gff": {
-		        "type": "string",
-		        "pattern": "^\\S+\\.gff$",
+		            "type": "string",
+		            "pattern": "^\\S+\\.gff$",
                 "errorMessage": "The VIRify file generated for the assembly needs to be a gff3 file",
             }
         },
