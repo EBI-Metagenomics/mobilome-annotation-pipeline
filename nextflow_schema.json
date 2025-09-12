@@ -51,12 +51,6 @@
           "help_text": "Directory containing the geNomad database files for virus and plasmid detection.",
           "fa_icon": "fas fa-virus"
         },
-        "mobileog_db": {
-          "type": "string",
-          "description": "Path to the mobileog diamond db",
-          "help_text": "PENDING.",
-          "fa_icon": "fas fa-dna"
-        },
         "icefinder_hmm_models": {
           "type": "string",
           "description": "Path to ICEfinder2 HMM models.",
@@ -79,7 +73,6 @@
       "required": [
         "amrfinder_plus_db",
         "genomad_db",
-        "mobileog_db",
         "icefinder_hmm_models",
         "icefinder_macsyfinder_models",
         "icefinder_prokka_uniprot_db"
