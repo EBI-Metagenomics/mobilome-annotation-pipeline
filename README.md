@@ -100,7 +100,7 @@ params {
     genomad_db                   = "/FULL/PATH/TO/genomad_db_v1.9"
     icefinder_macsyfinder_models = "/FULL/PATH/TO/icf2_dbs/macsydata/"
     icefinder_hmm_models         = "/FULL/PATH/TO/icf2_dbs/icehmm/icescan.hmm"
-    icefinder_prokka_uniprot_db  = "/FULL/PATH/TO/icf2_dbs/icefinder_prokka_uniprot/prokka_uniprot_sprot.fasta"
+    icefinder_prokka_uniprot_db  = "/FULL/PATH/TO/icf2_dbs/icefinder_prokka_uniprot/"
 }
 
 ```
