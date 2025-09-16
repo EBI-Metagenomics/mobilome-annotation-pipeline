@@ -96,7 +96,7 @@ Alternatively, we recomment to create a config file with the following paths and
 */
 
 params {
-    amrfinder_plus_db            = "/FULL/PATH/TO/2023-02-23.1"
+    amrfinder_plus_db            = "/FULL/PATH/TO/2024-01-31.1"
     genomad_db                   = "/FULL/PATH/TO/genomad_db_v1.9"
     icefinder_macsyfinder_models = "/FULL/PATH/TO/icf2_dbs/macsydata/"
     icefinder_hmm_models         = "/FULL/PATH/TO/icf2_dbs/icehmm/icescan.hmm"
