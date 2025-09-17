@@ -5,9 +5,6 @@ include { validateParameters ; paramsHelp ; samplesheetToList } from 'plugin/nf-
     IMPORT MODULES
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
-
-
 // Inputs preparing modules
 include { RENAME           } from '../modules/local/rename_contigs'
 
@@ -16,7 +13,6 @@ include { PRODIGAL         } from '../modules/nf-core/prodigal'
 include { ARAGORN          } from '../modules/local/aragorn'
 include { TRNAS_INTEGRATOR } from '../modules/local/trnas_integrator'
 include { PROKKA           } from '../modules/local/prokka'
-include { AMRFINDER_PLUS   } from '../modules/local/amrfinder_plus'
 
 // Mobile genetic elements prediction modules
 include { INTEGRONFINDER   } from '../modules/local/integronfinder'
@@ -25,7 +21,6 @@ include { GENOMAD          } from '../modules/local/genomad'
 include { VIRIFY_QC        } from '../modules/local/virify_qc'
 
 // Results integration and writing modules
-include { AMRFINDER_REPORT } from '../modules/local/amrfinder_report'
 include { FASTA_WRITER     } from '../modules/local/fasta_writer'
 include { GFF_MAPPING      } from '../modules/local/gff_mapping'
 include { GT_GFF3VALIDATOR } from '../modules/nf-core/gt/gff3validator/main'
@@ -72,7 +67,6 @@ workflow MOBILOMEANNOTATION {
     * the file path. If the file is missing, we emit a tuple with the metadata and an empty array ([]).
     *
     *** Considerations with PROKKA optional
-    * When PROKKA runs, AMRFinderPlus is executed.
     * CDS and tRNA predictions are required for MGE quality control.
     * The GFF output from PROKKA is suitable for this purpose.
     * If the user provides their own GFF or PROKKA is disabled,
@@ -93,25 +87,57 @@ workflow MOBILOMEANNOTATION {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     // PREPROCESSING
     RENAME(ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] })
     ch_versions = ch_versions.mix(RENAME.out.versions)
 
-    PROKKA(RENAME.out.contigs_1kb)
-    ch_versions = ch_versions.mix(PROKKA.out.versions)
+    // Handle prokka, prodigal and user_gff logic
+    def assembly_faa_gff_ch = Channel.empty()
+    def assembly_gff_ch = Channel.empty()
+    def to_append_gff_ch = Channel.empty()
+
+    if ( params.run_prokka ) {
+        PROKKA( RENAME.out.contigs_1kb )
+        ch_versions = ch_versions.mix(PROKKA.out.versions)
+        
+        // Populate channels from PROKKA outputs
+        assembly_faa_gff_ch = PROKKA.out.prokka_faa.join( PROKKA.out.prokka_gff )
+        assembly_gff_ch = PROKKA.out.prokka_gff
+
+        // Create to_append_gff_ch from prokka output
+        to_append_gff_ch = PROKKA.out.prokka_gff.map { meta, gff_file ->
+            tuple(meta, gff_file, 'prokka')
+        }
+    } else {
+        // Run PRODIGAL + ARAGORN pipeline
+        PRODIGAL( RENAME.out.contigs_1kb, 'gff' )
+        ch_versions = ch_versions.mix(PRODIGAL.out.versions)        
+
+        ARAGORN( RENAME.out.contigs_1kb )
+        ch_versions = ch_versions.mix(ARAGORN.out.versions)
+
+        TRNAS_INTEGRATOR(ARAGORN.out.rnas_tbl
+            .join(PRODIGAL.out.gene_annotations)
+            .join(PRODIGAL.out.amino_acid_fasta)
+        )
+        ch_versions = ch_versions.mix(TRNAS_INTEGRATOR.out.versions)
+        
+        // Populate channels from PRODIGAL/ARAGORN outputs
+        assembly_faa_gff_ch = TRNAS_INTEGRATOR.out.merged_faa.join(TRNAS_INTEGRATOR.out.merged_gff)
+        assembly_gff_ch = TRNAS_INTEGRATOR.out.merged_gff
+        
+        // Handle user-provided GFF files
+        to_append_gff_ch = ch_inputs
+            .map { meta, _fasta, user_gff, _virify_gff -> 
+                if ( user_gff && user_gff != [] ) {
+                    tuple(meta, user_gff, 'user')
+                } else {
+                    null  // Will be filtered out
+                }
+            }
+            .filter { it != null }  // Remove null entries
+    }
+
 
     // Parsing VIRify gff file when an input is provided
     def user_virify_gff_ch = ch_inputs
@@ -170,81 +196,86 @@ workflow MOBILOMEANNOTATION {
     * join with user-provided GFF with the remainder, try to get an empty element, and then we use map
     * to transform the null to [].
     ***********************************************************************************************/
-    def integrator_ch = PROKKA.out.prokka_gff
-        .join(
-            RENAME.out.map_file
-        )
-        .join(
-            ISESCAN.out.iss_tsv
-        )
-        .join(
-            INTEGRONFINDER.out.contigs_summary
-        )
-        .join(
-            INTEGRONFINDER.out.contigs_gbks
-        )
-        .join(
-            ICEFINDER2_LITE.out.ices_tsv,
-            remainder: true
-        )
-        .join(
-            GENOMAD.out.genomad_vir
-        )
-        .join(
-            GENOMAD.out.genomad_plas
-        )
-        .join(
-            COMPOSITIONAL_OUTLIER_DETECTION.out.bed,
-            remainder: true
-        )
-        .join(
-            VIRIFY_QC.out.virify_hq,
-            remainder: true
-        )
+    def integrator_ch = 
+        assembly_gff_ch
+    .join(
+        RENAME.out.map_file
+    ).join(
+        ISESCAN.out.iss_tsv
+    ).join(
+        INTEGRONFINDER.out.contigs_summary
+    ).join(
+        INTEGRONFINDER.out.contigs_gbks
+    ).join(
+        ICEFINDER2_LITE.out.ices_tsv, remainder: true
+    ).join(
+        GENOMAD.out.genomad_vir
+    ).join(
+        GENOMAD.out.genomad_plas
+    ).join(
+        COMPOSITIONAL_OUTLIER_DETECTION.out.bed, remainder: true
+    ).join(
+        VIRIFY_QC.out.virify_hq, remainder: true
+    )
 
     INTEGRATOR(
-        integrator_ch.map { meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv, genomad_vir, genomad_plas, compos_bed, virify_hq ->
-            [meta, prokka_gff, map_file, iss_tsv, contigs_summary, gbks, ices_tsv ? ices_tsv : [], genomad_vir, genomad_plas, compos_bed ? compos_bed : [], virify_hq ? virify_hq : []]
+        integrator_ch.map {
+            meta,
+            assem_gff, 
+            map_file, 
+            iss_tsv, 
+            contigs_summary, 
+            gbks, 
+            ices_tsv, 
+            genomad_vir, 
+            genomad_plas, 
+            compos_bed, 
+            virify_hq 
+                -> {[
+                meta, 
+                assem_gff,
+                map_file, 
+                iss_tsv, 
+                contigs_summary, 
+                gbks, 
+                ices_tsv ? ices_tsv : [], 
+                genomad_vir, 
+                genomad_plas, 
+                compos_bed ? compos_bed : [], 
+                virify_hq ? virify_hq : [] 
+            ]}
         }
     )
     ch_versions = ch_versions.mix(INTEGRATOR.out.versions)
 
 
     // POSTPROCESSING
-    GFF_REDUCE(INTEGRATOR.out.mobilome_prokka_gff)
-    ch_versions = ch_versions.mix(GFF_REDUCE.out.versions)
-
+    // Writing fasta file
     FASTA_WRITER(
-        ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] }.join(GFF_REDUCE.out.mobilome_nogenes)
+        ch_inputs.map { meta, fasta, _user_proteins_gff, _virify_gff -> [meta, fasta] }
+        .join(
+            INTEGRATOR.out.mobilome_gff 
+        )
     )
     ch_versions = ch_versions.mix(FASTA_WRITER.out.versions)
 
-    GFF_MAPPING(
-        GFF_REDUCE.out.mobilome_clean.join(user_proteins_ch)
-    )
-    ch_versions = ch_versions.mix(GFF_MAPPING.out.versions)
-
+    // Validating the mobilome gff file
     if (params.gff_validation) {
-        GT_GFF3VALIDATOR(GFF_REDUCE.out.mobilome_nogenes)
+        GT_GFF3VALIDATOR(INTEGRATOR.out.mobilome_gff)
         ch_versions = ch_versions.mix(GT_GFF3VALIDATOR.out.versions)
     }
 
-    // AMRFinder is optional. default skip_amr = FALSE
-    def amr_finder_ch = PROKKA.out.prokka_fna.join(PROKKA.out.prokka_faa).join(PROKKA.out.prokka_gff).filter { it -> !it[0].skip_amrfinder_plus }
+    // Merging genes annotation on user gff or prokka, when available
+    def valid_to_append_gff_ch = to_append_gff_ch
+        .filter { meta, gff_file, label ->
+            gff_file && gff_file != [] && label != null
+        }
 
-    AMRFINDER_PLUS(amr_finder_ch)
-    ch_versions = ch_versions.mix(AMRFINDER_PLUS.out.versions)
-
-    AMRFINDER_REPORT(
-        AMRFINDER_PLUS.out.amrfinder_tsv.join(
-            INTEGRATOR.out.mobilome_prokka_gff
-        ).join(
-            RENAME.out.map_file
-        ).join(
-            user_proteins_ch
-        )
+    GFF_MAPPING(
+        INTEGRATOR.out.mobilome_gff.join( RENAME.out.map_file ).join( valid_to_append_gff_ch )
     )
-    ch_versions = ch_versions.mix(AMRFINDER_REPORT.out.versions)
+    ch_versions = ch_versions.mix(GFF_MAPPING.out.versions)
+
 
     //
     // Collate and save software versions
