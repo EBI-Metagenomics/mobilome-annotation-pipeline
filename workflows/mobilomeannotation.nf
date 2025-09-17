@@ -204,7 +204,9 @@ workflow MOBILOMEANNOTATION {
     // AMRFinder is optional. default skip_amr = FALSE
     def amr_finder_ch = PROKKA.out.prokka_fna.join(PROKKA.out.prokka_faa).join(PROKKA.out.prokka_gff).filter { it -> !it[0].skip_amrfinder_plus }
 
-    AMRFINDER_PLUS(amr_finder_ch)
+    amrfinder_plus_db = file(params.amrfinder_plus_db, checkIfExists: true)
+
+    AMRFINDER_PLUS(amr_finder_ch, amrfinder_plus_db)
     ch_versions = ch_versions.mix(AMRFINDER_PLUS.out.versions)
 
     AMRFINDER_REPORT(
