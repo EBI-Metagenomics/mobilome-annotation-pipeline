@@ -92,6 +92,13 @@
           "help_text": "Validates the output GFF3 files for format compliance. Disable if validation causes issues.",
           "fa_icon": "fas fa-check-circle"
         },
+	      "run_prokka": {
+          "type": "boolean",
+	        "default": false
+          "description": "Enable to run PROKKA.",
+          "help_text": "PROKKA outputs can be used instead of Prodigal. Disable if user already have prokka gff as input and for faster runs. Incompatible with `user_proteins_gff` input.",
+          "fa_icon": "fas fa-forward"
+        },
         "skip_amr": {
           "type": "boolean",
           "description": "Skip antimicrobial resistance gene detection.",
