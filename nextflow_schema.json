@@ -39,12 +39,6 @@
       "description": "Paths to the different reference databases needed for the pipeline.",
       "help_text": "These databases are required for various annotation and prediction steps. Provide absolute paths to the database files or directories.",
       "properties": {
-        "amrfinder_plus_db": {
-          "type": "string",
-          "description": "Path to AMRFinderPlus database directory.",
-          "help_text": "Directory containing the AMRFinderPlus database files for antimicrobial resistance gene prediction.",
-          "fa_icon": "fas fa-shield-alt"
-        },
         "genomad_db": {
           "type": "string",
           "description": "Path to geNomad database directory.",
@@ -71,7 +65,6 @@
         }
       },
       "required": [
-        "amrfinder_plus_db",
         "genomad_db",
         "icefinder_hmm_models",
         "icefinder_macsyfinder_models",
