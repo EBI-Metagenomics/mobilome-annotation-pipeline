@@ -81,7 +81,7 @@ def scanf(hmmlist):
         return False
 
 
-def hmm_parser(hmm_out, evalue_threshold=0.00001):
+def hmm_parser(hmm_out, evalue_threshold=0.00001, protein_contig):
     """
     Parse HMM search output to identify candidate ICE-containing contigs.
 
@@ -99,10 +99,6 @@ def hmm_parser(hmm_out, evalue_threshold=0.00001):
        The default E-value threshold of 0.00001 provides stringent filtering
        for high-quality HMM matches.
     """
-    # Validate input file exists
-    if not os.path.exists(hmm_out):
-        raise FileNotFoundError(f"HMM output file not found: {hmm_out}")
-
     icedict = defaultdict(list)
     processed_ids = set()
 
@@ -127,13 +123,11 @@ def hmm_parser(hmm_out, evalue_threshold=0.00001):
 
             processed_ids.add(target_id)
 
-            # Extract contig identifier (first two underscore-separated parts)
-            id_parts = target_id.split("_")
-            if len(id_parts) < 2:
-                continue  # Skip malformed IDs
-
-            contig_key = "_".join(id_parts[:2])
-
+            # Extract contig identifier using the protein id
+            if not protein_contig[target_id]:
+                contig_key = protein_contig[target_id]
+                continue # protein do no exists in the gff file
+                        
             # Filter by E-value threshold
             try:
                 evalue = float(evalue_str)
@@ -146,6 +140,39 @@ def hmm_parser(hmm_out, evalue_threshold=0.00001):
     return [
         contig_key for contig_key, components in icedict.items() if scanf(components)
     ]
+
+
+def gff_parser( gff_file ):
+    """
+    Extract the correspondance between protein id and contig
+
+    :param gff_file: Path to assembly GFF file
+    :type gff_file: str
+    """
+    protein_contig = {}
+    with open(gff_file, "r") as input_table:
+        for line in input_table:
+            line = line.rstrip()
+            line_l = line.split("\t")
+            # Annotation lines have exactly 9 columns
+            if len(line_l) == 9:
+                (
+                    contig,
+                    seq_source,
+                    seq_type,
+                    start,
+                    end,
+                    score,
+                    strand,
+                    phase,
+                    attr,
+                ) = line.rstrip().split("\t")
+                for attributes in attr.split(';'):
+                    key, value = attributes.split('=')
+                    if key == 'ID':
+                        protein_contig[value] = contig
+
+    return protein_contig
 
 
 def fasta_parser(assembly_file, candidates_list, output_prefix):
@@ -178,7 +205,7 @@ def fasta_parser(assembly_file, candidates_list, output_prefix):
         file_handle.close()
 
 
-def proteins_parser(proteins_fasta, candidates_list, output_prefix):
+def proteins_parser(proteins_fasta, candidates_list, protein_contig, output_prefix):
     """
     Extract protein sequences from candidate contigs.
 
@@ -189,6 +216,13 @@ def proteins_parser(proteins_fasta, candidates_list, output_prefix):
     :param output_prefix: Output file prefix for candidate protein sequences
     :type output_prefix: str
     """
+
+    proteins_list = []
+    for protein in protein_contig:
+        contig = protein_contig[protein]
+        if contig in candidates_list:
+            proteins_list.append(protein)
+
     # Determine if input file is gzip-compressed
     try:
         if proteins_fasta.endswith(".gz"):
@@ -200,12 +234,11 @@ def proteins_parser(proteins_fasta, candidates_list, output_prefix):
             for record in SeqIO.parse(file_handle, "fasta"):
                 prot_id = str(record.id)
                 seq = str(record.seq).upper().replace("*", "")
-                id_split = prot_id.split("_")
-                id_split.pop(-1)
-                contig_id = "_".join(id_split)
-                if contig_id in candidates_list:
+
+                if prot_id in proteins_list:
                     faa_out.write(">" + prot_id + "\n")
                     faa_out.write(seq + "\n")
+
     finally:
         file_handle.close()
 
@@ -214,20 +247,12 @@ def main():
     parser = argparse.ArgumentParser(
         description="Process hmmscan output vs ICEs models for prescaning of contigs"
     )
-    parser.add_argument(
-        "--hmm_out", required=True, help="Path to all_systems.tsv file from macsyfinder"
-    )
-    parser.add_argument(
-        "--proteins", required=True, help="Path to aminoacids FASTA file"
-    )
+    parser.add_argument("--hmm_out", required=True, help="Path to all_systems.tsv file from macsyfinder")
+    parser.add_argument("--proteins", required=True, help="Path to aminoacids FASTA file")
     parser.add_argument("--assembly", required=True, help="Path to assembly FASTA file")
+    parser.add_argument("--gff_file", required=True, help="Path to GFF file") 
     parser.add_argument("--output", required=True, help="Output prefix name")
-    parser.add_argument(
-        "--evalue_threshold",
-        type=float,
-        default=0.00001,
-        help="E-value threshold for filtering HMM hits (default: 0.00001)",
-    )
+    parser.add_argument("--evalue_threshold", type=float, default=0.00001, help="E-value threshold for filtering HMM hits (default: 0.00001)")
     args = parser.parse_args()
 
     # Validate input files
@@ -244,12 +269,15 @@ def main():
         sys.exit(1)
 
     # Running functions
-    candidates_list = hmm_parser(args.hmm_out, args.evalue_threshold)
+    protein_contig = gff_parser( args.gff_file )
+    candidates_list = hmm_parser(args.hmm_out, args.evalue_threshold, protein_contig)
+
+    print('candidates list ->>>> ',candidates_list)
 
     if len(candidates_list) > 0:
         fasta_parser(args.assembly, candidates_list, args.output)
-        proteins_parser(args.proteins, candidates_list, args.output)
-
+        proteins_parser(args.proteins, candidates_list, protein_contig, args.output)
+    
 
 if __name__ == "__main__":
     main()
