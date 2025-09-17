@@ -19,7 +19,8 @@ process TRNAS_INTEGRATOR {
         --prodigal_gff ${prodigal_gff} \\
         --aragorn ${aragorn_file} \\
         --prodigal_faa ${prodigal_faa} \\
-        --prefix ${prefix}
+        --prefix ${prefix} \\
+        --locus-tag-prefix ${prefix}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
