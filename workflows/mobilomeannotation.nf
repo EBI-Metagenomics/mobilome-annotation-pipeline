@@ -121,7 +121,9 @@ workflow MOBILOMEANNOTATION {
     )
     ch_versions = ch_versions.mix(ICEFINDER2_LITE.out.versions)
 
-    GENOMAD(RENAME.out.contigs_5kb)
+    genomad_db = file(params.genomad_db, checkIfExists: true)
+
+    GENOMAD(RENAME.out.contigs_5kb, genomad_db)
     ch_versions = ch_versions.mix(GENOMAD.out.versions)
 
     INTEGRONFINDER(RENAME.out.contigs_5kb)
@@ -204,7 +206,7 @@ workflow MOBILOMEANNOTATION {
     // AMRFinder is optional. default skip_amr = FALSE
     def amr_finder_ch = PROKKA.out.prokka_fna.join(PROKKA.out.prokka_faa).join(PROKKA.out.prokka_gff).filter { it -> !it[0].skip_amrfinder_plus }
 
-    amrfinder_plus_db = Channel.of(file(params.amrfinder_plus_db, checkIfExists: true))
+    amrfinder_plus_db = file(params.amrfinder_plus_db, checkIfExists: true)
 
     AMRFINDER_PLUS(amr_finder_ch, amrfinder_plus_db)
     ch_versions = ch_versions.mix(AMRFINDER_PLUS.out.versions)
