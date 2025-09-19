@@ -140,8 +140,8 @@ workflow MOBILOMEANNOTATION {
     )
     ch_versions = ch_versions.mix(ICEFINDER2_LITE.out.versions)
 
-    genomad_db = file(params.genomad_db, checkIfExists: true)
-    GENOMAD(RENAME.out.contigs_5kb, genomad_db)
+    genomad_db = Channel.of(file(params.genomad_db, checkIfExists: true))
+    GENOMAD(RENAME.out.contigs_5kb, genomad_db.first())
     ch_versions = ch_versions.mix(GENOMAD.out.versions)
 
     INTEGRONFINDER(RENAME.out.contigs_5kb)
