@@ -81,7 +81,7 @@ def scanf(hmmlist):
         return False
 
 
-def hmm_parser(hmm_out, evalue_threshold=0.00001, protein_contig):
+def hmm_parser(hmm_out, protein_contig, evalue_threshold=0.00001):
     """
     Parse HMM search output to identify candidate ICE-containing contigs.
 
@@ -269,8 +269,8 @@ def main():
         sys.exit(1)
 
     # Running functions
-    protein_contig = gff_parser( args.gff_file )
-    candidates_list = hmm_parser(args.hmm_out, args.evalue_threshold, protein_contig)
+    protein_contig = gff_parser(args.gff_file)
+    candidates_list = hmm_parser(args.hmm_out, protein_contig, args.evalue_threshold)
 
     print('candidates list ->>>> ',candidates_list)
 
