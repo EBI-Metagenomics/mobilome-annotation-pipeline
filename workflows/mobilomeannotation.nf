@@ -121,7 +121,9 @@ workflow MOBILOMEANNOTATION {
     )
     ch_versions = ch_versions.mix(ICEFINDER2_LITE.out.versions)
 
-    GENOMAD(RENAME.out.contigs_5kb)
+    genomad_db = Channel.of(file(params.genomad_db, checkIfExists: true))
+
+    GENOMAD(RENAME.out.contigs_5kb, genomad_db.first())
     ch_versions = ch_versions.mix(GENOMAD.out.versions)
 
     INTEGRONFINDER(RENAME.out.contigs_5kb)
@@ -206,7 +208,7 @@ workflow MOBILOMEANNOTATION {
 
     amrfinder_plus_db = Channel.of(file(params.amrfinder_plus_db, checkIfExists: true))
 
-    AMRFINDER_PLUS(amr_finder_ch, amrfinder_plus_db)
+    AMRFINDER_PLUS(amr_finder_ch, amrfinder_plus_db.first())
     ch_versions = ch_versions.mix(AMRFINDER_PLUS.out.versions)
 
     AMRFINDER_REPORT(
