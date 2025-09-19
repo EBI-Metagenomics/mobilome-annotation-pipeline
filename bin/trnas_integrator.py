@@ -12,8 +12,8 @@ This is compatible with Prokka
 """
 
 import re
+import gzip
 import sys
-import json
 import argparse
 from Bio import SeqIO
 from collections import defaultdict
@@ -144,7 +144,7 @@ def parse_prodigal_output(file_path: str) -> Dict[str, List[Feature]]:
     """
     cds_per_contig = defaultdict(list)
 
-    with open(file_path, "r") as f:
+    with gzip.open(file_path, "rt") as f:
         for line_num, line in enumerate(f, 1):
             l_line = line.rstrip().split("\t")
             # Annotation lines have exactly 9 columns
@@ -341,29 +341,30 @@ def write_faa(prodigal_faa, id_mapping, prefix):
     reversed_mapping = {v: k for k, v in id_mapping.items()}
     output_file = prefix + '_renamed.faa'
     with open(output_file, "w") as output:
-        for record in SeqIO.parse(prodigal_faa, "fasta"):
-            # Removing '*' from stop codon
-            clean_seq = str(record.seq).upper().replace('*','') 
+        with gzip.open(prodigal_faa, "rt") as handle:
+            for record in SeqIO.parse(handle, "fasta"):
+                # Removing '*' from stop codon
+                clean_seq = str(record.seq).upper().replace('*','') 
 
-            # Example of prodigal header: 
-            #contig_1_5111 # 5328136 # 5328669 # -1 # ID=1_5111;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.515
-            faa_desc_list = (str(record.description)).split(' # ')
-            protein_id = faa_desc_list[0]
-            start = faa_desc_list[1]
-            end = faa_desc_list[2]
-            strand_char = faa_desc_list[3]
-            strand = "-" if strand_char == "-1" else "+"
+                # Example of prodigal header: 
+                #contig_1_5111 # 5328136 # 5328669 # -1 # ID=1_5111;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.515
+                faa_desc_list = (str(record.description)).split(' # ')
+                protein_id = faa_desc_list[0]
+                start = faa_desc_list[1]
+                end = faa_desc_list[2]
+                strand_char = faa_desc_list[3]
+                strand = "-" if strand_char == "-1" else "+"
 
-            long_id = '_'.join([
-                protein_id,
-                start,
-                end,
-                strand
-            ])
+                long_id = '_'.join([
+                    protein_id,
+                    start,
+                    end,
+                    strand
+                ])
 
-            if long_id in reversed_mapping:
-                output.write('>' + reversed_mapping[long_id] + "\n")
-                output.write(clean_seq + "\n" )
+                if long_id in reversed_mapping:
+                    output.write('>' + reversed_mapping[long_id] + "\n")
+                    output.write(clean_seq + "\n" )
 
 
 def write_mapping_file(id_mapping: Dict[str, str], excluded_cds: List[Dict]):
@@ -427,6 +428,7 @@ def main():
 
     print("=== PROKKA-STYLE INTEGRATION ===")
     print(f"Prodigal gff file: {args.prodigal_gff}")
+    print(f"Prodigal faa file: {args.prodigal_faa}")
     print(f"Aragorn tbl file: {args.aragorn}")
     print(f"Locus tag and outputs prefix: {args.prefix}")
     print(f"Allow CDS-RNA overlap: {allow_overlap}")

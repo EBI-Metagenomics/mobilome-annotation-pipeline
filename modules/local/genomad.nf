@@ -9,6 +9,7 @@ process GENOMAD {
 
     input:
     tuple val(meta), path(assembly_file)
+    path(genomad_db)
 
     output:
     tuple val(meta), path("*_5kb_contigs_summary/*_5kb_contigs_virus_summary.tsv"), emit: genomad_vir
@@ -21,7 +22,7 @@ process GENOMAD {
     if [ -s ${assembly_file} ]; then
         genomad end-to-end ${assembly_file} \\
             --threads ${task.cpus} \\
-            . ${params.genomad_db}
+            . ${genomad_db}
     else
         mkdir -p ${prefix}_5kb_contigs_summary
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_virus_summary.tsv

@@ -21,7 +21,7 @@ workflow ICEFINDER2_LITE {
     ch_gff = ch_icf2_inputs.map{ meta, _contigs, _faa, gff -> tuple(meta, gff) }
 
     // Prescanning for candidate contigs
-    HMMSCAN( ch_faa, ch_ice_hmm_models)
+    HMMSCAN( ch_faa, ch_icefinder_hmm_models)
     ch_versions = ch_versions.mix(HMMSCAN.out.versions)
 
     prescan_input_ch = HMMSCAN.out.hmmscan_tbl
