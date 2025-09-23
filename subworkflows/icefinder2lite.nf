@@ -34,12 +34,23 @@ workflow ICEFINDER2_LITE {
     PRESCAN_TO_FASTA(prescan_input_ch, params.prescan_evalue_threshold)
     ch_versions = ch_versions.mix(PRESCAN_TO_FASTA.out.versions)
 
-    // Filter for samples with candidates (non-empty files)
-    ch_candidates = PRESCAN_TO_FASTA.out.candidates_faa
-        .join(PRESCAN_TO_FASTA.out.candidates_fna)
-        .filter { _meta, faa, fna ->
-            faa != null && fna != null
+    // Handle all samples - those with and without candidates
+    ch_prescan_results = prescan_input_ch
+        .join(PRESCAN_TO_FASTA.out.candidates_faa, remainder: true)
+        .join(PRESCAN_TO_FASTA.out.candidates_fna, remainder: true)
+        .map { meta, hmmscan_tbl, amino_acid_fasta, assembly, candidates_faa, candidates_fna ->
+            def has_candidates = (candidates_faa != null && candidates_fna != null)
+            [meta, assembly, amino_acid_fasta, candidates_faa, candidates_fna, has_candidates]
         }
+
+    // Split into samples with and without candidates
+    ch_candidates = ch_prescan_results
+        .filter { meta, assembly, amino_acid_fasta, candidates_faa, candidates_fna, has_candidates -> has_candidates }
+        .map { meta, assembly, amino_acid_fasta, candidates_faa, candidates_fna, has_candidates -> [meta, candidates_faa, candidates_fna] }
+
+    ch_samples_without_candidates = ch_prescan_results
+        .filter { meta, assembly, amino_acid_fasta, candidates_faa, candidates_fna, has_candidates -> !has_candidates }
+        .map { meta, assembly, amino_acid_fasta, candidates_faa, candidates_fna, has_candidates -> meta }
 
     // Extract just the meta information from candidates for filtering
     ch_candidate_metas = ch_candidates.map { meta, _faa, _fna -> meta }
@@ -105,15 +116,10 @@ workflow ICEFINDER2_LITE {
 
     // Ensure all samples are represented in ices_tsv output, even when no candidates found
     // Create empty entries for samples that had no candidates
-    ch_all_samples = ch_assembly.map { meta, _assembly -> meta }
-    ch_samples_with_candidates = ch_candidates.map { meta, _faa, _fna -> meta }
+    ch_empty_ices_for_samples_without_candidates = ch_samples_without_candidates
+        .map { meta -> [meta, []] }
 
-    ch_samples_without_candidates = ch_all_samples
-        .join(ch_samples_with_candidates, remainder: true)
-        .filter { meta, candidate_meta -> candidate_meta == null }
-        .map { meta, _candidate_meta -> [meta, []] }
-
-    ch_complete_ices_tsv = REFINE_BOUNDARIES.out.ices_tsv.mix(ch_samples_without_candidates)
+    ch_complete_ices_tsv = REFINE_BOUNDARIES.out.ices_tsv.mix(ch_empty_ices_for_samples_without_candidates)
 
     emit:
     ices_tsv = ch_complete_ices_tsv
