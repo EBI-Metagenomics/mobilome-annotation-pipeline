@@ -98,7 +98,19 @@ workflow ICEFINDER2_LITE {
 
     ch_versions = ch_versions.mix(REFINE_BOUNDARIES.out.versions)
 
+    // Ensure all samples are represented in ices_tsv output, even when no candidates found
+    // Create empty entries for samples that had no candidates
+    ch_all_samples = ch_assembly.map { meta, _assembly -> meta }
+    ch_samples_with_ices = REFINE_BOUNDARIES.out.ices_tsv.map { meta, _ices_tsv -> meta }
+
+    ch_samples_without_ices = ch_all_samples
+        .join(ch_samples_with_ices, remainder: true)
+        .filter { meta, ices_meta -> ices_meta == null }
+        .map { meta, _ices_meta -> [meta, []] }
+
+    ch_complete_ices_tsv = REFINE_BOUNDARIES.out.ices_tsv.mix(ch_samples_without_ices)
+
     emit:
-    ices_tsv = REFINE_BOUNDARIES.out.ices_tsv
+    ices_tsv = ch_complete_ices_tsv
     versions = ch_versions
 }
