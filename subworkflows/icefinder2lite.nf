@@ -72,8 +72,13 @@ workflow ICEFINDER2_LITE {
     )
     ch_versions = ch_versions.mix(ARAGORN.out.versions)
 
+    // Filter PRODIGAL outputs to only samples with candidates
+    ch_prodigal_filtered = PRODIGAL.out.gene_annotations
+        .join(ch_candidate_metas, failOnMismatch: false)
+        .map { meta, gene_annotations, _candidate_meta -> [meta, gene_annotations] }
+
     TRNAS_INTEGRATOR(
-        ARAGORN.out.rnas_tbl.join(PRODIGAL.out.gene_annotations)
+        ARAGORN.out.rnas_tbl.join(ch_prodigal_filtered)
     )
     ch_versions = ch_versions.mix(TRNAS_INTEGRATOR.out.versions)
 
