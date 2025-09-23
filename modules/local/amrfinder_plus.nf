@@ -9,6 +9,7 @@ process AMRFINDER_PLUS {
 
     input:
     tuple val(meta), path(fna), path(faa), path(gff)
+    path(amrfinder_plus_db)
 
     output:
     tuple val(meta), path("*_amrfinderplus.tsv"), emit: amrfinder_tsv
@@ -21,7 +22,7 @@ process AMRFINDER_PLUS {
         -n ${fna} \\
         -p ${faa} \\
         -g ${gff} \\
-        -d ${params.amrfinder_plus_db} \\
+        -d ${amrfinder_plus_db} \\
         -a prokka \\
         --output ${prefix}_amrfinderplus.tsv \\
         --threads ${task.cpus}
