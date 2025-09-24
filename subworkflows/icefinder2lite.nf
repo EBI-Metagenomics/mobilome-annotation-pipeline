@@ -40,15 +40,21 @@ workflow ICEFINDER2_LITE {
         }
 
     // Extract just the meta information from candidates for filtering
-    ch_candidate_metas = ch_candidates.map { meta, _faa, _fna -> meta }
+    ch_candidate_metas = ch_candidates.map { meta, _faa, _fna -> [meta, true] }
 
     /*
      * Filter down only the samples with candidates proceed to downstream analysis
      */
-    ch_assembly_filtered = ch_assem
-        .join(ch_candidate_metas, failOnMismatch: false)
-    ch_gff_filtered = ch_gff
-        .join(ch_candidate_metas, failOnMismatch: false)
+    ch_assembly_filtered = ch_assembly
+        .join(ch_candidate_metas, remainder: true)
+        .filter { _meta, _assembly, candidate_flag -> {
+                candidate_flag == true
+            }
+        }
+        .map { meta, assembly, _candidate_flag -> {
+                [meta, assembly]
+            }
+        }
 
     // Run downstream processes only on samples with candidates
     MACSYFINDER(
