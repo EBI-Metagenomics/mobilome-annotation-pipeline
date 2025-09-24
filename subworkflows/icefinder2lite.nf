@@ -42,13 +42,21 @@ workflow ICEFINDER2_LITE {
         }
 
     // Extract just the meta information from candidates for filtering
-    ch_candidate_metas = ch_candidates.map { meta, _faa, _fna -> meta }
+    ch_candidate_metas = ch_candidates.map { meta, _faa, _fna -> [meta, true] }
 
     /*
      * Filter down only the samples with candidates proceed to downstream analysis
      */
     ch_assembly_filtered = ch_assembly
-        .join(ch_candidate_metas, failOnMismatch: false)
+        .join(ch_candidate_metas, remainder: true)
+        .filter { _meta, _assembly, candidate_flag -> {
+                candidate_flag == true
+            }
+        }
+        .map { meta, assembly, _candidate_flag -> {
+                [meta, assembly]
+            }
+        }
 
     // Run downstream processes only on samples with candidates
     MACSYFINDER(
@@ -72,8 +80,22 @@ workflow ICEFINDER2_LITE {
     )
     ch_versions = ch_versions.mix(ARAGORN.out.versions)
 
+    /*
+    * Filter down the PROKKA samples with those thare are relevant
+    */
+    ch_prokka_filtered = PRODIGAL.out.gene_annotations
+        .join(ch_candidate_metas, remainder: true)
+        .filter { _meta, _prokka, candidate_flag -> {
+                candidate_flag == true
+            }
+        }
+        .map { meta, prokka, _candidate_flag -> {
+                [meta, prokka]
+            }
+        }
+
     TRNAS_INTEGRATOR(
-        ARAGORN.out.rnas_tbl.join(PRODIGAL.out.gene_annotations)
+        ARAGORN.out.rnas_tbl.join( ch_prokka_filtered )
     )
     ch_versions = ch_versions.mix(TRNAS_INTEGRATOR.out.versions)
 
