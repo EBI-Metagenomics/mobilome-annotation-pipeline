@@ -138,7 +138,7 @@ def outliers_parser(
             # If not multiple RNAs in CO then evaluate overlapping with integrated MGEs
             # MGE flag turn to 1 when an MGE overlaps >= 75% of CO length
             if rna_flag > 2:
-                to_discard.write("CO\t"+co_id+"\tRNAs_in_window")
+                to_discard.write("CO\t"+co_id+"\tRNAs_in_window\n")
             else:
                 mge_flag = False
 
@@ -152,7 +152,7 @@ def outliers_parser(
                             co_cov = float(intersection) / float(co_len)
                             if co_cov >= co_cov_threshold:
                                 mge_flag = True
-                                to_discard.write("CO\t"+co_id+"\tCO_overlap_with_MGE")
+                                to_discard.write("CO\t"+co_id+"\tCO_overlap_with_MGE\n")
 
                 # Add the CO to mge_data dict if it is not redundant with MGE annotations and not contain RNAs
                 if not mge_flag:

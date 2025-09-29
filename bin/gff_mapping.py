@@ -15,29 +15,30 @@
 # limitations under the License.
 
 import argparse
-import os.path
 import logging
+import sys
+import os.path
 
 logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 COV_THRESHOLD = 0.75
 
 
-def names_map(map_file):
-    names_equiv = {}
-    with open(map_file, "r") as input_map:
-        for line in input_map:
-            new_name, old_name = line.rstrip().split("\t")
-            names_equiv[new_name.replace(">", "")] = old_name
-
-    return names_equiv
-
-
 def mobilome_parser(mobilome_clean):
+    # Check if file exists
+    if not os.path.exists(mobilome_clean):
+        logger.error(f"Mobilome file not found: {mobilome_clean}")
+        sys.exit(1)
+
     # Parsing the mobilome prediction
     proteins_annot, mobilome_annot, mges_dict, mob_types = {}, {}, {}, {}
+
     if os.stat(mobilome_clean).st_size == 0:
+        logger.warning(f"Mobilome file is empty: {mobilome_clean}")
         return (proteins_annot, mobilome_annot, mges_dict, mob_types)
+
     source_tools = [
         "ICEfinder",
         "IntegronFinder",
@@ -51,9 +52,11 @@ def mobilome_parser(mobilome_clean):
     extra_annot = [
         "viphog",
         "viphog_taxonomy",
-        "mobileOG",
     ]
+
     with open(mobilome_clean, "r") as input_table:
+        logger.info(f"Successfully opened mobilome file: {mobilome_clean}")
+
         for line in input_table:
             l_line = line.rstrip().split("\t")
             # Annotation lines have exactly 9 columns
@@ -80,40 +83,61 @@ def mobilome_parser(mobilome_clean):
                     extra_list = []
                     for attr in attrib.split(";"):
                         att_key = attr.split("=")[0]
-                        att_val = attr.split("=")[1]
                         if att_key in extra_annot:
                             extra_list.append(attr)
                     if len(extra_list) > 0:
                         extra_val = ";".join(extra_list)
                         proteins_annot[str_composite_key] = extra_val
+            else:
+                logger.debug(
+                    f"Skipping line: incorrect number of columns ({len(l_line)})"
+                )
+
+    # Log parsing statistics
+    logger.info("Mobilome parsing completed:")
+    logger.info(f"  - Unique contigs with mobilome annotations: {len(mobilome_annot)}")
+    logger.info(f"  - Total protein annotations: {len(proteins_annot)}")
+
     return (proteins_annot, mobilome_annot, mges_dict, mob_types)
 
 
 def gff_updater(
-    names_equiv, user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types, mode
+    user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types
 ):
     """Adding the mobilome predictions to the user file"""
-    used_contigs = []
 
-    with open(user_gff, "r") as input_table, open(
-        f"{output_prefix}_user_mobilome_extra.gff", "w"
-    ) as output_extra, open(
-        f"{output_prefix}_user_mobilome_full.gff", "w"
-    ) as output_full, open(
-        f"{output_prefix}_user_mobilome_clean.gff", "w"
-    ) as output_clean:
+    # Check if input file exists
+    if not os.path.exists(user_gff):
+        logger.error(f"User GFF file not found: {user_gff}")
+        sys.exit(1)
+
+    logger.info(f"Starting GFF update process with file: {user_gff}")
+
+    used_contigs = []
+    processed_lines = 0
+    annotation_lines = 0
+    proteins_with_extra_annot = 0
+    passenger_proteins = 0
+
+    with open(user_gff, "r") as input_table, \
+            open(f"{output_prefix}_user_mobilome_extra.gff", "w") as output_extra, \
+            open(f"{output_prefix}_user_mobilome_full.gff", "w") as output_full, \
+            open(f"{output_prefix}_user_mobilome_clean.gff", "w") as output_clean:
+        logger.info(f"Output files created with prefix: {output_prefix}")
+
         for line in input_table:
+            processed_lines += 1
             l_line = line.rstrip().split("\t")
+
             # Annotation lines have exactly 9 columns
             if len(l_line) == 9:
-                if mode == 'prokka':
-                    contig = names_equiv[l_line[0]]
-                else:
-                    contig = l_line[0]
+                annotation_lines += 1
+                contig = l_line[0]
                 start = l_line[3]
                 end = l_line[4]
                 strand = l_line[6]
                 composite_val = (contig, start, end, strand)
+
                 if contig not in used_contigs:
                     used_contigs.append(contig)
                     # Writing the mobilome entries in every output
@@ -125,15 +149,13 @@ def gff_updater(
 
                 # Writing to extra and full outputs
                 if composite_val in proteins_annot:
+                    proteins_with_extra_annot += 1
                     extra_annot = proteins_annot[composite_val]
                     output_extra.write(line.rstrip() + ";" + extra_annot + "\n")
                     output_full.write(line.rstrip() + ";" + extra_annot + "\n")
                 else:
-                    current_line = line.rstrip().split("\t")
-                    current_line.pop(0)
-                    current_line.insert(0, contig)
-                    line = '\t'.join(current_line)
                     output_full.write(line.rstrip() + "\n")
+
                 # Finding mobilome proteins in the user file and writing to clean output
                 u_prot_start = int(start)
                 u_prot_end = int(end)
@@ -141,6 +163,7 @@ def gff_updater(
                 u_prot_len = u_prot_end - u_prot_start
                 passenger_flag = 0
                 mge_loc = []
+
                 if contig in mobilome_annot:
                     for coordinates in mges_dict[contig]:
                         mge_start = coordinates[0]
@@ -153,7 +176,9 @@ def gff_updater(
                             if u_prot_cov > COV_THRESHOLD:
                                 passenger_flag = 1
                                 mge_loc.append(mge_label)
+
                     if passenger_flag == 1:
+                        passenger_proteins += 1
                         mge_loc = "mge_location=" + ",".join(mge_loc)
                         if composite_val in proteins_annot:
                             extra_annot = proteins_annot[composite_val]
@@ -167,6 +192,17 @@ def gff_updater(
                 output_extra.write(line.rstrip() + "\n")
                 output_full.write(line.rstrip() + "\n")
 
+    # Log processing statistics
+    logger.info("GFF update completed:")
+    logger.info(f"  - Total lines processed: {processed_lines}")
+    logger.info(f"  - Annotation lines (9 columns): {annotation_lines}")
+    logger.info(f"  - Unique contigs processed: {len(used_contigs)}")
+    logger.info(f"  - Proteins with extra annotations: {proteins_with_extra_annot}")
+    logger.info(f"  - Passenger proteins identified: {passenger_proteins}")
+    logger.info(
+        f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff"
+    )
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -179,16 +215,9 @@ def main():
         required=True,
     )
     parser.add_argument(
-        "--cds_gff",
+        "--user_gff",
         type=str,
         help="User GFF file",
-        required=False,
-    )
-
-    parser.add_argument(
-        "--map_file",
-        type=str,
-        help="Contigs rename map file",
         required=False,
     )
     parser.add_argument(
@@ -197,34 +226,24 @@ def main():
         help="Output files prefix", 
         required=True
     )
-    parser.add_argument(
-        "--mode",
-        type=str,
-        help="Either user or prokka",
-        required=True
-    )
     args = parser.parse_args()
 
     ## Calling functions
-    # Mapping names
-    names_equiv = names_map(args.map_file)
-
     # Storing the mobilome predictions
     (proteins_annot, mobilome_annot, mges_dict, mob_types) = mobilome_parser(
         args.mobilome_gff
     )
 
     # Adding the mobilome predictions to the user file
-    gff_updater(
-        names_equiv,
-        args.cds_gff,
-        args.prefix,
-        proteins_annot,
-        mobilome_annot,
-        mges_dict,
-        mob_types,
-        args.mode,
-    )
+    if args.user_gff:
+        gff_updater(
+            args.user_gff,
+            args.prefix,
+            proteins_annot,
+            mobilome_annot,
+            mges_dict,
+            mob_types,
+        )
 
 
 if __name__ == "__main__":

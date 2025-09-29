@@ -70,7 +70,7 @@ workflow MOBILOMEANNOTATION {
     */
 
 
-    def user_proteins_ch = ch_inputs.map { meta, _assembly, user_proteins_gff, _virify_gff ->
+    def user_proteins_ch = ch_inputs.map { meta, _fasta, user_proteins_gff, _virify_gff ->
         {
             if (user_proteins_gff) {
                 [meta, user_proteins_gff]
@@ -81,12 +81,14 @@ workflow MOBILOMEANNOTATION {
         }
     }
 
+
     def user_virify_gff_ch = ch_inputs.map { meta, _assembly, _user_proteins_gff, virify_gff ->
             {
                 [meta, virify_gff]
             }
         }
         .filter { _meta, virify_gff -> virify_gff != [] }
+
 
     def assembly_ch = ch_inputs.map { meta, assembly, _user_proteins_gff, _virify_gff -> [meta, assembly] }
 
@@ -231,7 +233,7 @@ workflow MOBILOMEANNOTATION {
 
     // Appending the mobilome annotation to the user gff when provided
     GFF_MAPPING(
-        INTEGRATOR.out.mobilome_gff.join( RENAME.out.map_file ).join( user_proteins_ch )
+        INTEGRATOR.out.mobilome_gff.join( user_proteins_ch )
     )
     ch_versions = ch_versions.mix(GFF_MAPPING.out.versions)
 
