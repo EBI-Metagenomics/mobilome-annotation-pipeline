@@ -20,6 +20,7 @@ import os.path
 from map_tools import (
     cds_locator,
     genomad_parser,
+    gff_parser,
     icefinder_process,
     integrator_process,
     integronfinder_process,
@@ -28,7 +29,6 @@ from map_tools import (
     mobileog_process,
     outliers_process,
     overlap_finder,
-    prokka_process,
     virify_process,
 )
 
@@ -133,7 +133,7 @@ def main():
         virify_prots = {}
 
     # Parsing rrnas and genes location on gff file
-    contig_prots, prots_coord, rnas_coord = gff_process.gff_parser(args.gff_file)
+    contig_prots, prots_coord, rnas_coord = gff_parser.features_parser(args.gff_file)
 
     # Parsing compositional outliers and removing redundancy with other MGEs
     if args.comp_bed and os.path.exists(args.comp_bed):
