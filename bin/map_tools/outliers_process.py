@@ -56,7 +56,7 @@ def calculate_intersection(range1, range2):
 
 
 def outliers_parser(
-    comp_bed, mge_data, rnas_coord, rna_cov_threshold=1.0, co_cov_threshold=0.75
+    comp_bed, output_file, mge_data, rnas_coord, rna_cov_threshold=1.0, co_cov_threshold=0.75,
 ):
     mge_counter = 0
     co_repeats = {}
@@ -72,7 +72,7 @@ def outliers_parser(
     # contig_1	62056	62067	contig_1_001:62056-67629|direct_1|GGCGCGCGGCC|gc:3.67|kmer:2.63|combined:3.67|conf:1.000
     # contig_1	67618	67629	contig_1_001:62056-67629|direct_2|GGCGCGCGGCC|gc:3.67|kmer:2.63|combined:3.67|conf:1.000
 
-    with open(comp_bed, "r") as input_table:
+    with open(comp_bed, "r") as input_table, open(output_file, "a") as to_discard:
         lines = (
             line.rstrip().split("\t")
             for line in input_table
@@ -134,12 +134,14 @@ def outliers_parser(
                         rna_cov = float(intersection) / float(rna_len)
                         if rna_cov == rna_cov_threshold:
                             rna_flag += 1
-                            print(co_id + " removed due to RNAs genes")
 
             # If not multiple RNAs in CO then evaluate overlapping with integrated MGEs
             # MGE flag turn to 1 when an MGE overlaps >= 75% of CO length
-            if rna_flag <= 2:
+            if rna_flag > 2:
+                to_discard.write("CO\t"+co_id+"\tRNAs_in_window")
+            else:
                 mge_flag = False
+
                 if co_contig in integrated_dic:
                     for mge_coord_pair in integrated_dic[co_contig]:
                         mge_start = mge_coord_pair[0]
@@ -150,11 +152,7 @@ def outliers_parser(
                             co_cov = float(intersection) / float(co_len)
                             if co_cov >= co_cov_threshold:
                                 mge_flag = True
-                                print(
-                                    co_id
-                                    + " removed due to overlapping with MGE with coverage "
-                                    + str(co_cov)
-                                )
+                                to_discard.write("CO\t"+co_id+"\tCO_overlap_with_MGE")
 
                 # Add the CO to mge_data dict if it is not redundant with MGE annotations and not contain RNAs
                 if not mge_flag:

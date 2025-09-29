@@ -138,7 +138,7 @@ def main():
     # Parsing compositional outliers and removing redundancy with other MGEs
     if args.comp_bed and os.path.exists(args.comp_bed):
         mge_data, co_repeats = outliers_process.outliers_parser(
-            args.comp_bed, mge_data, rnas_coord
+            args.comp_bed, f"{args.prefix}_discarded_mge.txt", mge_data, rnas_coord
         )
     else:
         co_repeats = {}
