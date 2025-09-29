@@ -117,20 +117,17 @@ def hmm_parser(hmm_out, protein_contig, evalue_threshold=0.00001):
 
             query_name, _, target_id, _, evalue_str = fields[:5]
 
+
             # Skip already processed targets
             if target_id in processed_ids:
                 continue
 
             processed_ids.add(target_id)
 
-            # Extract contig identifier using the protein id
-            if not protein_contig[target_id]:
-                contig_key = protein_contig[target_id]
-                continue # protein do no exists in the gff file
-                        
             # Filter by E-value threshold
             try:
                 evalue = float(evalue_str)
+                contig_key = protein_contig[target_id]
                 if evalue < evalue_threshold:
                     icedict[contig_key].append(query_name)
             except ValueError:
