@@ -8,7 +8,7 @@ include { REFINE_BOUNDARIES             } from '../modules/local/ice_refine_boun
 
 workflow ICEFINDER2_LITE {
     take:
-    ch_icf2_inputs                  // channel: tuple( val(meta), path(assembly_5kb), path(proteins_faa), path(proteins_gff) )
+    ch_icf2_inputs                  // channel: tuple( val(meta), path(assembly_5kb), path(proteins_faa), path(proteins_gff))
     ch_icefinder_hmm_models         // channel: tuple( val(db_id), path(ice_hmm_models_files) )
     ch_icefinder_macsyfinder_models // channel: file(ice_macsy_models)
     ch_icefinder_prokka_uniprot_db  // channel: tuple( val(db_id), path(prokka_uniprot_db) )
@@ -32,9 +32,11 @@ workflow ICEFINDER2_LITE {
     PRESCAN_TO_FASTA(prescan_input_ch, params.prescan_evalue_threshold)
     ch_versions = ch_versions.mix(PRESCAN_TO_FASTA.out.versions)
 
+    PRESCAN_TO_FASTA.out.candidates_faa.view()
+
     // Filter for samples with candidates (non-empty files)
     ch_candidates = PRESCAN_TO_FASTA.out.candidates_faa
-        .join(PRESCAN_TO_FASTA.out.candidates_fna)
+       .join(PRESCAN_TO_FASTA.out.candidates_fna)
         .filter { _meta, faa, fna ->
             faa != null && fna != null
         }
@@ -53,6 +55,17 @@ workflow ICEFINDER2_LITE {
         }
         .map { meta, assembly, _candidate_flag -> {
                 [meta, assembly]
+            }
+        }
+
+    ch_gff_filtered = ch_gff
+        .join(ch_candidate_metas, remainder: true)
+        .filter { _meta, _gff, candidate_flag -> {
+                candidate_flag == true
+            }
+        }
+        .map { meta, gff, _candidate_flag -> {
+                [meta, gff]
             }
         }
 
@@ -80,9 +93,10 @@ workflow ICEFINDER2_LITE {
 
     // REFINE_BOUNDARIES - now only runs on samples that have candidates
     // All channels will have matching samples since we filtered ch_assembly
-    REFINE_BOUNDARIES(ch_assembly_filtered
+    REFINE_BOUNDARIES(
+            ch_assembly_filtered
         .join(
-            ch_gff
+            ch_gff_filtered
         ).join(
             MACSYFINDER.out.macsyfinder_tsv
         ).join(
