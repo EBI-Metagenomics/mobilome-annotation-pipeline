@@ -32,7 +32,6 @@ process GENOMAD {
 
     mv ${prefix}_5kb_contigs_summary/* .
 
-
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         genomad: \$(genomad --version | sed 's/geNomad, version //g')
