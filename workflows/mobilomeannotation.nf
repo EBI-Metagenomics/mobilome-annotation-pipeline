@@ -273,5 +273,4 @@ workflow MOBILOMEANNOTATION {
     emit:
     versions = ch_versions
 
-
 }
