@@ -32,7 +32,6 @@ workflow ICEFINDER2_LITE {
     PRESCAN_TO_FASTA(prescan_input_ch, params.prescan_evalue_threshold)
     ch_versions = ch_versions.mix(PRESCAN_TO_FASTA.out.versions)
 
-    PRESCAN_TO_FASTA.out.candidates_faa.view()
 
     // Filter for samples with candidates (non-empty files)
     ch_candidates = PRESCAN_TO_FASTA.out.candidates_faa
