@@ -46,7 +46,7 @@ workflow ICEFINDER2_LITE {
     /*
      * Filter down only the samples with candidates proceed to downstream analysis
      */
-    ch_assembly_filtered = ch_assembly
+    ch_assembly_filtered = ch_assem
         .join(ch_candidate_metas, remainder: true)
         .filter { _meta, _assembly, candidate_flag -> {
                 candidate_flag == true
