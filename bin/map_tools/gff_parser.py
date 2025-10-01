@@ -18,16 +18,16 @@ import os.path
 from collections import defaultdict
 
 
-def prokka_parser(prokka_gff: str):
+def features_parser(gff_input: str):
     prots_coord = {}
 
     contig_prots = defaultdict(list)
     rnas_coord = defaultdict(list)
 
-    if os.stat(prokka_gff).st_size == 0:
+    if os.stat(gff_input).st_size == 0:
         return
 
-    with open(prokka_gff, "r") as input_table:
+    with open(gff_input, "r") as input_table:
         for line in input_table:
             l_line = line.rstrip().split("\t")
             # Annotation lines have exactly 9 columns

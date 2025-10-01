@@ -52,7 +52,6 @@ def mobilome_parser(mobilome_clean):
     extra_annot = [
         "viphog",
         "viphog_taxonomy",
-        "mobileOG",
     ]
 
     with open(mobilome_clean, "r") as input_table:
@@ -210,7 +209,7 @@ def main():
         description="This script add the extra annotations to the user GFF file"
     )
     parser.add_argument(
-        "--mobilome_clean",
+        "--mobilome_gff",
         type=str,
         help="Mobilome prediction on prokka gff file containing the mobilome proteins",
         required=True,
@@ -232,7 +231,7 @@ def main():
     ## Calling functions
     # Storing the mobilome predictions
     (proteins_annot, mobilome_annot, mges_dict, mob_types) = mobilome_parser(
-        args.mobilome_clean
+        args.mobilome_gff
     )
 
     # Adding the mobilome predictions to the user file
