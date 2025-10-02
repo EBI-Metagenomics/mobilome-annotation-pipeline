@@ -99,6 +99,7 @@ workflow MOBILOMEANNOTATION {
     // Combine decompressed and already uncompressed gff files
     user_proteins_gff_decompressed = user_proteins_gff_branched.uncompressed
         .mix(GUNZIP_GFF.out.gunzip)
+        .mix(user_proteins_gff_branched.empty)
 
     
     // Handling virify optional input
