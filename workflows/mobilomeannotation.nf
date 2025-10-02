@@ -6,6 +6,7 @@ include { validateParameters ; paramsHelp ; samplesheetToList } from 'plugin/nf-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // Inputs preparing modules
+include { GUNZIP           } from '../modules/nf-core/gunzip'
 include { RENAME           } from '../modules/local/rename_contigs'
 
 // Annotation modules
@@ -92,8 +93,24 @@ workflow MOBILOMEANNOTATION {
 
     def assembly_ch = ch_inputs.map { meta, assembly, _user_proteins_gff, _virify_gff -> [meta, assembly] }
 
+    assembly_ch
+        .branch { meta, assembly ->
+            compressed: file(assembly).name.endsWith('.gz')
+            uncompressed: !file(assembly).name.endsWith('.gz')
+        }
+        .set { assembly_branched }
+
+    // Decompress the compressed files
+    GUNZIP(assembly_branched.compressed)
+    ch_versions = ch_versions.mix(GUNZIP.out.versions)
+
+    // Combine decompressed and already uncompressed files
+    assembly_decompressed = assembly_branched.uncompressed
+        .mix(GUNZIP.out.gunzip)
+
+
     // PREPROCESSING
-    RENAME(assembly_ch)
+    RENAME(assembly_decompressed)
     ch_versions = ch_versions.mix(RENAME.out.versions)
 
     // Run PRODIGAL + ARAGORN to generate integrated gff file
@@ -220,7 +237,7 @@ workflow MOBILOMEANNOTATION {
     // POSTPROCESSING
     // Writing fasta file
     FASTA_WRITER(
-        assembly_ch
+        assembly_decompressed
         .join(INTEGRATOR.out.mobilome_gff)
     )
     ch_versions = ch_versions.mix(FASTA_WRITER.out.versions)
