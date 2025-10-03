@@ -14,7 +14,7 @@ The Mobilome Annotation Pipeline is a wrapper that integrates the output of diff
 > This is an intermediate release of the MAP, positioned between two major development milestones.  
 > We are currently developing a new subworkflow for gene-level annotation that will integrate multiple tools for antimicrobial resistance detection, virulence factor identification, and other ecologically relevant functions.  
 >  
-> In the meantime, this version does **not**:  
+> In the meantime, this version do **not**:  
 > 1. Run PROKKA  
 > 2. Run AMRFinderPlus  
 >  
@@ -121,7 +121,7 @@ assembly_proteins,/PATH/assembly.fasta,/PATH/proteins.gff,
 assembly_proteins_virify,/PATH/assembly.fasta,/PATH/proteins.gff,/PATH/virify_out.gff
 ```
 
-Each row represents a sample. Note that sample names have to be unique. The minimal input is the (meta)genome assembly in fasta format.
+Each row represents a sample. Note that sample names have to be unique. The minimal input is the (meta)genome assembly in FASTA format that can be compressed (.gz). User proteins GFF file also can be compressed (.gz).
 
 Basic run:
 
