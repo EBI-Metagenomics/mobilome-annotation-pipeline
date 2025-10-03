@@ -245,13 +245,13 @@ The label `compositional_outlier` corresponds to non-autonomous elements detecte
 
 ## Tests
 
-Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test). It takes around 3 min to execute.
+Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test)
 
 Run:
 
 ```bash
 $ cd mobilome-annotation-pipeline/
-$ nf-test test
+$ nf-test test --profile test,singularity
 ```
 
 ## Development Tasks
