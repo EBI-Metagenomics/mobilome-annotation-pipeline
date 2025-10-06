@@ -14,12 +14,23 @@ process FASTA_WRITER {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
+    // Assembly could be compressed (.gz)
+    def assembly_cmd = assembly.name.endsWith('.gz') ? "gzip -dc ${assembly}" : "cat ${assembly}"
     """
-    awk -F '\t' '{ if (NF == 9 ) print \$1 "\t" \$4 "\t" \$5 "\t" \$9}' ${mobilome_nogenes} | cut -d';' -f1 > mobilome_nogenes.bed
+    # GFF file is always compressed
+    gzip -dc ${mobilome_nogenes} > ${prefix}_nogenes.gff
 
-    bedtools getfasta -fi ${assembly} -bed mobilome_nogenes.bed -name -fo ${prefix}_mobilome.fasta
+    awk -F '\t' '{ if (NF == 9 ) print \$1 "\t" \$4 "\t" \$5 "\t" \$9}' ${prefix}_nogenes.gff | cut -d';' -f1 > mobilome_nogenes.bed
+
+    # Handle assembly file (compressed or uncompressed)
+    ${assembly_cmd} > ${prefix}_decomp.fasta
+
+    bedtools getfasta -fi ${prefix}_decomp.fasta -bed mobilome_nogenes.bed -name -fo ${prefix}_mobilome.fasta
 
     sed -i 's/ID=//;s/::.*//' ${prefix}_mobilome.fasta
+
+    # Clean up temporary files
+    rm ${prefix}_decomp.fasta ${prefix}_nogenes.gff
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

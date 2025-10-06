@@ -6,8 +6,6 @@ include { validateParameters ; paramsHelp ; samplesheetToList } from 'plugin/nf-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // Inputs preparing modules
-include { GUNZIP as GUNZIP_ASSEM } from '../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_GFF   } from '../modules/nf-core/gunzip'
 include { RENAME                 } from '../modules/local/rename_contigs'
 
 // Annotation modules
@@ -72,7 +70,6 @@ workflow MOBILOMEANNOTATION {
     */
 
     // Handling user proteins GFF file optional input
-    // It could be compressed (*.gz)
     def user_proteins_ch = ch_inputs.map { meta, _fasta, user_proteins_gff, _virify_gff ->
         {
             if (user_proteins_gff) {
@@ -83,24 +80,6 @@ workflow MOBILOMEANNOTATION {
             }
         }
     }
-
-    user_proteins_ch
-        .branch { meta, user_proteins_gff ->
-            compressed: user_proteins_gff && file(user_proteins_gff).name.endsWith('.gz')
-            uncompressed: user_proteins_gff && !file(user_proteins_gff).name.endsWith('.gz')
-            empty: !user_proteins_gff  // Handle empty case
-        }
-        .set { user_proteins_gff_branched }
-
-    // Decompress the compressed gff files
-    GUNZIP_GFF(user_proteins_gff_branched.compressed)
-    ch_versions = ch_versions.mix(GUNZIP_GFF.out.versions)
-
-    // Combine decompressed and already uncompressed gff files
-    user_proteins_gff_decompressed = user_proteins_gff_branched.uncompressed
-        .mix(GUNZIP_GFF.out.gunzip)
-        .mix(user_proteins_gff_branched.empty)
-
     
     // Handling virify optional input
     def user_virify_gff_ch = ch_inputs.map { meta, _assembly, _user_proteins_gff, virify_gff ->
@@ -112,27 +91,10 @@ workflow MOBILOMEANNOTATION {
 
 
     // Handling assembly mandatory input
-    // It could be compressed (*.gz)
     def assembly_ch = ch_inputs.map { meta, assembly, _user_proteins_gff, _virify_gff -> [meta, assembly] }
 
-    assembly_ch
-        .branch { meta, assembly ->
-            compressed: file(assembly).name.endsWith('.gz')
-            uncompressed: !file(assembly).name.endsWith('.gz')
-        }
-        .set { assembly_branched }
-
-    // Decompress the compressed fasta files
-    GUNZIP_ASSEM(assembly_branched.compressed)
-    ch_versions = ch_versions.mix(GUNZIP_ASSEM.out.versions)
-
-    // Combine decompressed and already uncompressed fasta files
-    assembly_decompressed = assembly_branched.uncompressed
-        .mix(GUNZIP_ASSEM.out.gunzip)
-
-
     // PREPROCESSING
-    RENAME(assembly_decompressed)
+    RENAME(assembly_ch)
     ch_versions = ch_versions.mix(RENAME.out.versions)
 
     // Run PRODIGAL + ARAGORN to generate integrated gff file
@@ -147,7 +109,6 @@ workflow MOBILOMEANNOTATION {
         .join(PRODIGAL.out.amino_acid_fasta)
     )
     ch_versions = ch_versions.mix(TRNAS_INTEGRATOR.out.versions)
-    
     
     // Parsing VIRify gff file when an input is provided
     VIRIFY_QC(user_virify_gff_ch)
@@ -259,7 +220,7 @@ workflow MOBILOMEANNOTATION {
     // POSTPROCESSING
     // Writing fasta file
     FASTA_WRITER(
-        assembly_decompressed
+        assembly_ch
         .join(INTEGRATOR.out.mobilome_gff)
     )
     ch_versions = ch_versions.mix(FASTA_WRITER.out.versions)
@@ -272,7 +233,7 @@ workflow MOBILOMEANNOTATION {
 
     // Appending the mobilome annotation to the user gff when provided
     GFF_MAPPING(
-        INTEGRATOR.out.mobilome_gff.join( user_proteins_gff_decompressed )
+        INTEGRATOR.out.mobilome_gff.join( user_proteins_ch )
     )
     ch_versions = ch_versions.mix(GFF_MAPPING.out.versions)
 

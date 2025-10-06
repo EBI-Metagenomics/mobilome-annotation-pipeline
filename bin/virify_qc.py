@@ -13,15 +13,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import argparse
+import gzip
 import os.path
+
+
+def open_file(filename):
+    """
+    Open a file, handling both compressed (.gz) and uncompressed files.
+    Returns a file handle that can be used for reading.
+    """
+    if filename.endswith('.gz'):
+        return gzip.open(filename, 'rt')  # 'rt' for text mode
+    else:
+        return open(filename, 'r')
 
 
 def virify_parser(virify_gff, output_prefix):
     qc_passed = []
     all_proteins = {}
     with (
-        open(virify_gff, "r") as input_table,
+        open_file(virify_gff) as input_table,
         open(f"{output_prefix}_virify_hq.gff", "w") as output_gff,
     ):
         output_gff.write("##gff-version 3\n")

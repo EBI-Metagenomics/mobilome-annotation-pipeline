@@ -1,0 +1,29 @@
+Changes in component 'nf-core/gt/gff3validator'
+'modules/nf-core/gt/gff3validator/environment.yml' is unchanged
+Changes in 'gt/gff3validator/main.nf':
+--- modules/nf-core/gt/gff3validator/main.nf
++++ modules/nf-core/gt/gff3validator/main.nf
+@@ -21,12 +21,16 @@
+     script:
+     def prefix = task.ext.prefix ?: "${meta.id}"
+     """
++    gzip -dc ${gff3} > ${prefix}.gff
++
+     gt \\
+         gff3validator \\
+-        "$gff3" \\
++        "${prefix}.gff" \\
+         > "${prefix}.stdout" \\
+         2>| >(tee "${prefix}.stderr" >&2) \\
+         || echo "Errors from gt-gff3validator printed to ${prefix}.error.log"
++
++    rm ${prefix}.gff
+ 
+     if grep -q "input is valid GFF3" "${prefix}.stdout"; then
+         echo "Validation successful..."
+
+'modules/nf-core/gt/gff3validator/meta.yml' is unchanged
+'modules/nf-core/gt/gff3validator/tests/main.nf.test' is unchanged
+'modules/nf-core/gt/gff3validator/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/gt/gff3validator/tests/nextflow.config' is unchanged
+************************************************************
