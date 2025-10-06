@@ -1,2 +1,2 @@
 sample,assembly,user_proteins_gff,virify_gff
-neg_test,https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/raw/refs/heads/nftest/tests/data/neg_test.fasta.gz,,
+neg_test,https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/raw/refs/heads/dev/tests/data/neg_test.fasta.gz,,

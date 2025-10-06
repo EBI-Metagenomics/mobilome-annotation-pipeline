@@ -245,7 +245,7 @@ The label `compositional_outlier` corresponds to non-autonomous elements detecte
 
 ## Tests
 
-Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test)
+Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test). It takes around 9 minutes to run.
 
 Run:
 

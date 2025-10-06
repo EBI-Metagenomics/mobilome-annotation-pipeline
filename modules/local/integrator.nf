@@ -8,9 +8,9 @@ process INTEGRATOR {
     tuple val(meta), path(gff_file), path(map_file), path(iss_tsv), path(inf_summ), path(inf_gbks), path(icf_tsv), path(genomad_vir), path(genomad_plas), path(compos_bed), path(vir_results)
 
     output:
-    tuple val(meta), path("${meta.id}_mobilome.gff")       , emit: mobilome_gff
-    tuple val(meta), path("${meta.id}_overlap_report.txt") , emit: overlapping_integrons_txt
-    tuple val(meta), path("${meta.id}_discarded_mge.txt")  , emit: discarded_mge_txt
+    tuple val(meta), path("*_mobilome.gff.gz")    , emit: mobilome_gff
+    tuple val(meta), path("*_overlap_report.txt") , emit: overlapping_integrons_txt
+    tuple val(meta), path("*_discarded_mge.txt")  , emit: discarded_mge_txt
     path "versions.yml", emit: versions
 
     script:

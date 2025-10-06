@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import gzip
 
 def line_builder(id_to_print, source, seq_type, start, end, feat_id, description):
     attributes = feat_id + ";" + description
@@ -50,7 +51,7 @@ def gff_writer(
         "co": "MAP",
     }
 
-    with open(output_gff, "w") as to_gff:
+    with gzip.open(output_gff + ".gz", "wt") as to_gff:
         # Writing header
         to_gff.write('##gff-version 3' + '\n')
 

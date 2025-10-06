@@ -21,12 +21,16 @@ process GT_GFF3VALIDATOR {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
+    gzip -dc ${gff3} > ${prefix}.gff
+
     gt \\
         gff3validator \\
-        "$gff3" \\
+        "${prefix}.gff" \\
         > "${prefix}.stdout" \\
         2>| >(tee "${prefix}.stderr" >&2) \\
         || echo "Errors from gt-gff3validator printed to ${prefix}.error.log"
+
+    rm ${prefix}.gff
 
     if grep -q "input is valid GFF3" "${prefix}.stdout"; then
         echo "Validation successful..."
