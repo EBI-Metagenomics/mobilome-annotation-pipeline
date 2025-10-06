@@ -1,0 +1,2 @@
+sample,assembly,user_proteins_gff,virify_gff
+pos_test,https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/raw/refs/heads/nftest/tests/data/pos_test.fasta.gz,https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/raw/refs/heads/nftest/tests/data/pos_test.gff.gz,https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/raw/refs/heads/nftest/tests/data/pos_test_virify.gff

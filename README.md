@@ -121,7 +121,7 @@ assembly_proteins,/PATH/assembly.fasta,/PATH/proteins.gff,
 assembly_proteins_virify,/PATH/assembly.fasta,/PATH/proteins.gff,/PATH/virify_out.gff
 ```
 
-Each row represents a sample. Note that sample names have to be unique. The minimal input is the (meta)genome assembly in fasta format.
+Each row represents a sample. Note that sample names have to be unique. The minimal input is the (meta)genome assembly in FASTA format that can be compressed (.gz). User proteins GFF file also can be compressed (.gz).
 
 Basic run:
 
@@ -245,13 +245,13 @@ The label `compositional_outlier` corresponds to non-autonomous elements detecte
 
 ## Tests
 
-Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test). It takes around 3 min to execute.
+Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test)
 
 Run:
 
 ```bash
 $ cd mobilome-annotation-pipeline/
-$ nf-test test
+$ nf-test test --profile test,singularity
 ```
 
 ## Development Tasks

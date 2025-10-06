@@ -6,24 +6,26 @@ include { validateParameters ; paramsHelp ; samplesheetToList } from 'plugin/nf-
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // Inputs preparing modules
-include { RENAME           } from '../modules/local/rename_contigs'
+include { GUNZIP as GUNZIP_ASSEM } from '../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_GFF   } from '../modules/nf-core/gunzip'
+include { RENAME                 } from '../modules/local/rename_contigs'
 
 // Annotation modules
-include { PRODIGAL         } from '../modules/nf-core/prodigal'
-include { ARAGORN          } from '../modules/local/aragorn'
-include { TRNAS_INTEGRATOR } from '../modules/local/trnas_integrator'
+include { PRODIGAL               } from '../modules/nf-core/prodigal'
+include { ARAGORN                } from '../modules/local/aragorn'
+include { TRNAS_INTEGRATOR       } from '../modules/local/trnas_integrator'
 
 // Mobile genetic elements prediction modules
-include { INTEGRONFINDER   } from '../modules/local/integronfinder'
-include { ISESCAN          } from '../modules/local/isescan'
-include { GENOMAD          } from '../modules/local/genomad'
-include { VIRIFY_QC        } from '../modules/local/virify_qc'
+include { INTEGRONFINDER         } from '../modules/local/integronfinder'
+include { ISESCAN                } from '../modules/local/isescan'
+include { GENOMAD                } from '../modules/local/genomad'
+include { VIRIFY_QC              } from '../modules/local/virify_qc'
 
 // Results integration and writing modules
-include { FASTA_WRITER     } from '../modules/local/fasta_writer'
-include { GFF_MAPPING      } from '../modules/local/gff_mapping'
-include { GT_GFF3VALIDATOR } from '../modules/nf-core/gt/gff3validator/main'
-include { INTEGRATOR       } from '../modules/local/integrator'
+include { FASTA_WRITER           } from '../modules/local/fasta_writer'
+include { GFF_MAPPING            } from '../modules/local/gff_mapping'
+include { GT_GFF3VALIDATOR       } from '../modules/nf-core/gt/gff3validator/main'
+include { INTEGRATOR             } from '../modules/local/integrator'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,7 +71,8 @@ workflow MOBILOMEANNOTATION {
     ******************************************************************************************************
     */
 
-
+    // Handling user proteins GFF file optional input
+    // It could be compressed (*.gz)
     def user_proteins_ch = ch_inputs.map { meta, _fasta, user_proteins_gff, _virify_gff ->
         {
             if (user_proteins_gff) {
@@ -81,7 +84,25 @@ workflow MOBILOMEANNOTATION {
         }
     }
 
+    user_proteins_ch
+        .branch { meta, user_proteins_gff ->
+            compressed: user_proteins_gff && file(user_proteins_gff).name.endsWith('.gz')
+            uncompressed: user_proteins_gff && !file(user_proteins_gff).name.endsWith('.gz')
+            empty: !user_proteins_gff  // Handle empty case
+        }
+        .set { user_proteins_gff_branched }
 
+    // Decompress the compressed gff files
+    GUNZIP_GFF(user_proteins_gff_branched.compressed)
+    ch_versions = ch_versions.mix(GUNZIP_GFF.out.versions)
+
+    // Combine decompressed and already uncompressed gff files
+    user_proteins_gff_decompressed = user_proteins_gff_branched.uncompressed
+        .mix(GUNZIP_GFF.out.gunzip)
+        .mix(user_proteins_gff_branched.empty)
+
+    
+    // Handling virify optional input
     def user_virify_gff_ch = ch_inputs.map { meta, _assembly, _user_proteins_gff, virify_gff ->
             {
                 [meta, virify_gff]
@@ -90,10 +111,28 @@ workflow MOBILOMEANNOTATION {
         .filter { _meta, virify_gff -> virify_gff != [] }
 
 
+    // Handling assembly mandatory input
+    // It could be compressed (*.gz)
     def assembly_ch = ch_inputs.map { meta, assembly, _user_proteins_gff, _virify_gff -> [meta, assembly] }
 
+    assembly_ch
+        .branch { meta, assembly ->
+            compressed: file(assembly).name.endsWith('.gz')
+            uncompressed: !file(assembly).name.endsWith('.gz')
+        }
+        .set { assembly_branched }
+
+    // Decompress the compressed fasta files
+    GUNZIP_ASSEM(assembly_branched.compressed)
+    ch_versions = ch_versions.mix(GUNZIP_ASSEM.out.versions)
+
+    // Combine decompressed and already uncompressed fasta files
+    assembly_decompressed = assembly_branched.uncompressed
+        .mix(GUNZIP_ASSEM.out.gunzip)
+
+
     // PREPROCESSING
-    RENAME(assembly_ch)
+    RENAME(assembly_decompressed)
     ch_versions = ch_versions.mix(RENAME.out.versions)
 
     // Run PRODIGAL + ARAGORN to generate integrated gff file
@@ -220,7 +259,7 @@ workflow MOBILOMEANNOTATION {
     // POSTPROCESSING
     // Writing fasta file
     FASTA_WRITER(
-        assembly_ch
+        assembly_decompressed
         .join(INTEGRATOR.out.mobilome_gff)
     )
     ch_versions = ch_versions.mix(FASTA_WRITER.out.versions)
@@ -233,7 +272,7 @@ workflow MOBILOMEANNOTATION {
 
     // Appending the mobilome annotation to the user gff when provided
     GFF_MAPPING(
-        INTEGRATOR.out.mobilome_gff.join( user_proteins_ch )
+        INTEGRATOR.out.mobilome_gff.join( user_proteins_gff_decompressed )
     )
     ch_versions = ch_versions.mix(GFF_MAPPING.out.versions)
 
