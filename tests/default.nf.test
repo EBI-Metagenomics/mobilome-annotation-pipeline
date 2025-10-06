@@ -2,7 +2,6 @@ nextflow_pipeline {
 
     name "Test mobilome annotation pipeline main.nf"
     script "../main.nf"
-    config "./nextflow.config"
     tag "pipeline"
 
     test("Positive test of the Mobilome annotation pipeline with user proteins and virify input") {
