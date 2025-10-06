@@ -23,7 +23,6 @@ process GENOMAD {
         genomad end-to-end ${assembly_file} \\
             --threads ${task.cpus} \\
             . ${genomad_db}
-
     else
         mkdir -p ${prefix}_5kb_contigs_summary
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_virus_summary.tsv
