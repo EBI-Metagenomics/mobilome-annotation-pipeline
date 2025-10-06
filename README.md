@@ -14,7 +14,7 @@ The Mobilome Annotation Pipeline is a wrapper that integrates the output of diff
 > This is an intermediate release of the MAP, positioned between two major development milestones.  
 > We are currently developing a new subworkflow for gene-level annotation that will integrate multiple tools for antimicrobial resistance detection, virulence factor identification, and other ecologically relevant functions.  
 >  
-> In the meantime, this version do **not**:  
+> In the meantime, this version does **not**:  
 > 1. Run PROKKA  
 > 2. Run AMRFinderPlus  
 >  
