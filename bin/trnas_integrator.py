@@ -283,7 +283,6 @@ def assign_locus_tags(
                 if feature.original_id:
                     id_mapping[locus_tag] = feature.original_id
 
-                    #print(locus_tag,feature.original_id)
 
 
     return integrated_features, id_mapping
