@@ -269,8 +269,6 @@ def main():
     protein_contig = gff_parser(args.gff_file)
     candidates_list = hmm_parser(args.hmm_out, protein_contig, args.evalue_threshold)
 
-    print('candidates list ->>>> ',candidates_list)
-
     if len(candidates_list) > 0:
         fasta_parser(args.assembly, candidates_list, args.output)
         proteins_parser(args.proteins, candidates_list, protein_contig, args.output)
