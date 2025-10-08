@@ -5,7 +5,7 @@ process PRESCAN_TO_FASTA {
     container 'quay.io/biocontainers/biopython:1.81'
 
     input:
-    tuple val(meta), path(hmmscan_tbl), path(faa), path(assembly)
+    tuple val(meta), path(hmmscan_tbl), path(faa), path(assembly), path(gff)
     val evalue_threshold
 
     output:
@@ -20,6 +20,7 @@ process PRESCAN_TO_FASTA {
         --hmm_out ${hmmscan_tbl} \\
         --proteins ${faa} \\
         --assembly ${assembly} \\
+        --gff_file ${gff} \\
         --evalue_threshold ${evalue_threshold} \\
         --output ${prefix}
 

@@ -15,9 +15,19 @@
 # limitations under the License.
 
 import argparse
-
+import gzip
 from Bio import SeqIO
 
+
+def open_file(filename):
+    """
+    Open a file, handling both compressed (.gz) and uncompressed files.
+    Returns a file handle that can be used with SeqIO.parse.
+    """
+    if filename.endswith('.gz'):
+        return gzip.open(filename, 'rt')  # 'rt' for text mode
+    else:
+        return open(filename, 'r')
 
 def rename(input_file, prefix):
     output_1kb = prefix + "_1kb_contigs.fasta"
@@ -25,25 +35,26 @@ def rename(input_file, prefix):
     output_100kb = prefix + "_100kb_contigs.fasta"
     output_map = prefix + "_contigID.map"
 
-    with (
-        open(output_1kb, "w") as to_1kb,
-        open(output_5kb, "w") as to_5kb,
-        open(output_map, "w") as to_map,
-        open(output_100kb, "w") as to_100kb,
-    ):
-        for counter, record in enumerate(SeqIO.parse(input_file, "fasta"), 1):
-            new_id = ">contig_" + str(counter)
-            my_chain = str(record.seq).upper()
-            to_map.write(new_id + "\t" + str(record.id) + "\n")
-            if len(my_chain) > 1000:
-                to_1kb.write(new_id + "\n")
-                to_1kb.write(my_chain + "\n")
-            if len(my_chain) > 5000:
-                to_5kb.write(new_id + "\n")
-                to_5kb.write(my_chain + "\n")
-            if len(my_chain) >= 100000:
-                to_100kb.write(new_id + "\n")
-                to_100kb.write(my_chain + "\n")
+    with open_file(input_file) as input_handle:
+        with (
+            open(output_1kb, "w") as to_1kb,
+            open(output_5kb, "w") as to_5kb,
+            open(output_map, "w") as to_map,
+            open(output_100kb, "w") as to_100kb,
+        ):
+            for counter, record in enumerate(SeqIO.parse(input_handle, "fasta"), 1):
+                new_id = ">contig_" + str(counter)
+                my_chain = str(record.seq).upper()
+                to_map.write(new_id + "\t" + str(record.id) + "\n")
+                if len(my_chain) > 1000:
+                    to_1kb.write(new_id + "\n")
+                    to_1kb.write(my_chain + "\n")
+                if len(my_chain) > 5000:
+                    to_5kb.write(new_id + "\n")
+                    to_5kb.write(my_chain + "\n")
+                if len(my_chain) >= 100000:
+                    to_100kb.write(new_id + "\n")
+                    to_100kb.write(my_chain + "\n")
 
 
 def main():
@@ -53,7 +64,7 @@ def main():
     parser.add_argument(
         "--assembly",
         type=str,
-        help="Input fasta file",
+        help="Input fasta file (can be compressed with .gz extension)",
         required=True,
     )
     parser.add_argument(

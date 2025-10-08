@@ -20,6 +20,7 @@ import os.path
 from map_tools import (
     cds_locator,
     genomad_parser,
+    gff_parser,
     icefinder_process,
     integrator_process,
     integronfinder_process,
@@ -28,7 +29,6 @@ from map_tools import (
     mobileog_process,
     outliers_process,
     overlap_finder,
-    prokka_process,
     virify_process,
 )
 
@@ -38,9 +38,9 @@ def main():
         description="This script integrates the results for the Mobilome Annotation Pipeline"
     )
     parser.add_argument(
-        "--pkka_gff",
+        "--gff_file",
         type=str,
-        help="Prokka output GFF file",
+        help="Prokka or prodigal + aragorn merged output GFF file",
         required=True,
     )
     parser.add_argument(
@@ -67,7 +67,7 @@ def main():
     parser.add_argument(
         "--icf_tsv",
         type=str,
-        nargs="?",
+        nargs='?',
         help="ICEfinder2-lite prediction file",
     )
     parser.add_argument(
@@ -83,7 +83,7 @@ def main():
     parser.add_argument(
         "--comp_bed",
         type=str,
-        nargs="?",
+        nargs='?',
         help="Compositional outliers prediction in bed format",
     )
     parser.add_argument(
@@ -132,13 +132,13 @@ def main():
     else:
         virify_prots = {}
 
-    # Parsing prokka rrnas and genes location
-    contig_prots, prots_coord, rnas_coord = prokka_process.prokka_parser(args.pkka_gff)
+    # Parsing rrnas and genes location on gff file
+    contig_prots, prots_coord, rnas_coord = gff_parser.features_parser(args.gff_file)
 
     # Parsing compositional outliers and removing redundancy with other MGEs
     if args.comp_bed and os.path.exists(args.comp_bed):
         mge_data, co_repeats = outliers_process.outliers_parser(
-            args.comp_bed, mge_data, rnas_coord
+            args.comp_bed, f"{args.prefix}_discarded_mge.txt", mge_data, rnas_coord
         )
     else:
         co_repeats = {}
@@ -157,10 +157,8 @@ def main():
         output_file=f"{args.prefix}_discarded_mge.txt",
     )
 
-    ## Storing extra annotation results
-    # Adding the mobilome annotation to the GFF file
+    # Writing simple mobilome file
     integrator_process.gff_writer(
-        args.pkka_gff,
         names_equiv,
         contigs_elements,
         itr_sites,
@@ -168,9 +166,7 @@ def main():
         attC_site,
         co_repeats,
         mge_data,
-        proteins_mge,
-        virify_prots,
-        f"{args.prefix}_mobilome_prokka.gff",
+        f"{args.prefix}_mobilome.gff",
     )
 
 

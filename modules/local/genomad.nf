@@ -12,8 +12,8 @@ process GENOMAD {
     path(genomad_db)
 
     output:
-    tuple val(meta), path("*_5kb_contigs_summary/*_5kb_contigs_virus_summary.tsv"), emit: genomad_vir
-    tuple val(meta), path("*_5kb_contigs_summary/*_5kb_contigs_plasmid_summary.tsv"), emit: genomad_plas
+    tuple val(meta), path("*_5kb_contigs_virus_summary.tsv"), emit: genomad_vir
+    tuple val(meta), path("*_5kb_contigs_plasmid_summary.tsv"), emit: genomad_plas
     path "versions.yml", emit: versions
 
     script:
@@ -28,6 +28,8 @@ process GENOMAD {
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_virus_summary.tsv
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_plasmid_summary.tsv
     fi
+
+    mv ${prefix}_5kb_contigs_summary/* .
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

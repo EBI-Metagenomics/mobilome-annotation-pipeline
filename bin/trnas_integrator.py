@@ -11,9 +11,11 @@ This implementation uses common practices for feature integration in genome anno
 This is compatible with Prokka
 """
 
-import argparse
-import gzip
 import re
+import gzip
+import sys
+import argparse
+from Bio import SeqIO
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
@@ -254,7 +256,7 @@ def integrate_features(
 
 def assign_locus_tags(
     integrated_features: Dict[str, List[Feature]],
-    locus_tag_prefix: str = "PROKKA",
+    locus_tag_prefix,
     increment: int = 1,
 ) -> Tuple[Dict[str, List[Feature]], Dict[str, str]]:
     """
@@ -281,17 +283,20 @@ def assign_locus_tags(
                 if feature.original_id:
                     id_mapping[locus_tag] = feature.original_id
 
+
+
     return integrated_features, id_mapping
 
 
 def write_gff3(
     integrated_features: Dict[str, List[Feature]],
-    output_file: str,
+    prefix: str,
     contig_lengths: Optional[Dict[str, int]] = None,
 ):
     """
     Write integrated features to GFF3 format following prokka style.
     """
+    output_file = prefix + '_merged.gff'
     with open(output_file, "w") as f:
         f.write("##gff-version 3\n")
 
@@ -315,7 +320,7 @@ def write_gff3(
 
                 # Add all other attributes (excluding ID to avoid duplication)
                 for key, value in feature.attributes.items():
-                    if key != "ID":  # Skip ID since we already added it first
+                    if key != "ID" and key != "ori_id":  # Skip ID since we already added it first
                         attr_strings.append(f"{key}={value}")
 
                 attributes_str = ";".join(attr_strings)
@@ -325,6 +330,40 @@ def write_gff3(
                     f"{feature.contig_id}\t{feature.source}\t{feature.feature_type}\t"
                     f"{feature.start}\t{feature.end}\t.\t{feature.strand}\t0\t{attributes_str}\n"
                 )
+
+
+
+def write_faa(prodigal_faa, id_mapping, prefix):
+    """
+    Renaming proteins fasta file to be in line with merged GFF file
+    """
+    reversed_mapping = {v: k for k, v in id_mapping.items()}
+    output_file = prefix + '_renamed.faa'
+    with open(output_file, "w") as output:
+        with gzip.open(prodigal_faa, "rt") as handle:
+            for record in SeqIO.parse(handle, "fasta"):
+                # Removing '*' from stop codon
+                clean_seq = str(record.seq).upper().replace('*','') 
+
+                # Example of prodigal header: 
+                #contig_1_5111 # 5328136 # 5328669 # -1 # ID=1_5111;partial=00;start_type=ATG;rbs_motif=GGAGG;rbs_spacer=5-10bp;gc_cont=0.515
+                faa_desc_list = (str(record.description)).split(' # ')
+                protein_id = faa_desc_list[0]
+                start = faa_desc_list[1]
+                end = faa_desc_list[2]
+                strand_char = faa_desc_list[3]
+                strand = "-" if strand_char == "-1" else "+"
+
+                long_id = '_'.join([
+                    protein_id,
+                    start,
+                    end,
+                    strand
+                ])
+
+                if long_id in reversed_mapping:
+                    output.write('>' + reversed_mapping[long_id] + "\n")
+                    output.write(clean_seq + "\n" )
 
 
 def write_mapping_file(id_mapping: Dict[str, str], excluded_cds: List[Dict]):
@@ -354,57 +393,56 @@ def write_mapping_file(id_mapping: Dict[str, str], excluded_cds: List[Dict]):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Integrate Prodigal CDS predictions with Aragorn tRNA predictions following prokka's integration rules"
-    )
-
-    parser.add_argument("prodigal_file", help="Prodigal output GFF file")
-    parser.add_argument("aragorn_file", help="Aragorn output file")
-    parser.add_argument(
-        "--output-gff",
-        default="integrated.gff",
-        help="Output GFF3 file (default: integrated.gff)",
+        description="A merger that itegrates prodigal CDSs prediction and tRNAs predicted by aragorn. Merging and QC follows PROKKA rules"
     )
     parser.add_argument(
-        "--locus-tag-prefix",
-        default="PROKKA",
-        help="Locus tag prefix (default: PROKKA)",
+        "--prodigal_gff",
+        type=str,
+        help="Result of Prodigal in gff format",
+        required=True,
     )
     parser.add_argument(
-        "--allow-cds-rna-overlap",
-        action="store_true",
-        help="Allow CDS to overlap with RNA features",
+        "--aragorn",
+        type=str,
+        help="Result of Aragorn in tabular format",
+        required=True,
     )
     parser.add_argument(
-        "--increment", type=int, default=1, help="Locus tag increment (default: 1)"
+        "--prodigal_faa",
+        type=str,
+        help="Result of Prodigal proteins in fasta format (faa file)",
+        required=True,
     )
-
+    parser.add_argument(
+        "--prefix",
+        type=str,
+        help="Output and proteins prefix to be used",
+        required=True,
+    )
     args = parser.parse_args()
 
-    prodigal_file = args.prodigal_file
-    aragorn_file = args.aragorn_file
-    output_gff = args.output_gff
-    locus_tag_prefix = args.locus_tag_prefix
-    allow_overlap = args.allow_cds_rna_overlap
-    increment = args.increment
+    # Parse hardcoded PROKKA options
+    allow_overlap = False
+    increment = 1
 
-    # try:
     print("=== PROKKA-STYLE INTEGRATION ===")
-    print(f"Prodigal file: {prodigal_file}")
-    print(f"Aragorn file: {aragorn_file}")
-    print(f"Locus tag prefix: {locus_tag_prefix}")
+    print(f"Prodigal gff file: {args.prodigal_gff}")
+    print(f"Prodigal faa file: {args.prodigal_faa}")
+    print(f"Aragorn tbl file: {args.aragorn}")
+    print(f"Locus tag and outputs prefix: {args.prefix}")
     print(f"Allow CDS-RNA overlap: {allow_overlap}")
     print()
 
     # Parse input files
     print("Parsing Aragorn output...")
-    trna_features = parse_aragorn_output(aragorn_file)
+    trna_features = parse_aragorn_output(args.aragorn)
     total_trnas = sum(len(features) for features in trna_features.values())
     print(
         f"Found {total_trnas} tRNA/tmRNA features across {len(trna_features)} contigs"
     )
 
     print("\nParsing Prodigal output...")
-    cds_features = parse_prodigal_output(prodigal_file)
+    cds_features = parse_prodigal_output(args.prodigal_gff)
     total_cds = sum(len(features) for features in cds_features.values())
     print(f"Found {total_cds} CDS features across {len(cds_features)} contigs")
 
@@ -414,19 +452,24 @@ def main():
         cds_features, trna_features, allow_overlap
     )
 
-    total_integrated = sum(len(features) for features in integrated_features.values())
+    total_integrated = sum(
+        len(features) for features in integrated_features.values()
+    )
     print(f"Integrated {total_integrated} features")
     print(f"Excluded {len(excluded_cds)} CDS due to RNA overlaps")
 
     # Assign locus tags
-    print(f"\nAssigning locus tags with prefix '{locus_tag_prefix}'...")
+    print(f"\nAssigning locus tags with prefix '{args.prefix}'...")
     integrated_features, id_mapping = assign_locus_tags(
-        integrated_features, locus_tag_prefix, increment
+        integrated_features, args.prefix, increment
     )
 
     # Write outputs
-    print(f"\nWriting GFF3 output to: {output_gff}")
-    write_gff3(integrated_features, output_gff)
+    print(f"\nWriting GFF3 output to: {args.prefix}_merged.gff")
+    write_gff3(integrated_features, args.prefix)
+
+    print(f"\nWriting renamed faa output to: {args.prefix}_renamed.faa")
+    write_faa(args.prodigal_faa, id_mapping, args.prefix)
 
     print(f"Reporting ID mapping:")
     write_mapping_file(id_mapping, excluded_cds)
