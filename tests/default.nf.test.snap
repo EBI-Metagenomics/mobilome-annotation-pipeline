@@ -49,15 +49,17 @@
     },
     "Positive test of the Mobilome annotation pipeline with user proteins and virify input": {
         "content": [
-            23,
+            26,
             [
                 "pipeline_info",
                 "pos_test",
                 "pos_test/gff",
+                "pos_test/gff/pos_test.gff.gz",
+                "pos_test/gff/pos_test.gff.gz.tbi",
                 "pos_test/gff/pos_test_mobilome.gff.gz",
-                "pos_test/gff/pos_test_user_mobilome_clean.gff.gz",
-                "pos_test/gff/pos_test_user_mobilome_extra.gff.gz",
-                "pos_test/gff/pos_test_user_mobilome_full.gff.gz",
+                "pos_test/gff/pos_test_user_mobilome_clean.gff",
+                "pos_test/gff/pos_test_user_mobilome_extra.gff",
+                "pos_test/gff/pos_test_user_mobilome_full.gff",
                 "pos_test/pos_test_discarded_mge.txt",
                 "pos_test/pos_test_mobilome.fasta.gz",
                 "pos_test/pos_test_overlap_report.txt",
@@ -85,10 +87,12 @@
                 "pos_test/preprocessing/pos_test_contigID.map"
             ],
             [
+                "pos_test.gff.gz:md5,d3b28208f6b792040e8ad51555de1c81",
+                "pos_test.gff.gz.tbi:md5,c3574c3dcc7a3c5d6bb02b7b5b66dbd3",
                 "pos_test_mobilome.gff.gz:md5,4dafb2b081c7fd9f88ac42019f9623fb",
-                "pos_test_user_mobilome_clean.gff.gz:md5,d5d503db12beb94bc937f483805e22da",
-                "pos_test_user_mobilome_extra.gff.gz:md5,8c1977dc7964ed08ee7597bd48e8db4d",
-                "pos_test_user_mobilome_full.gff.gz:md5,2e57e2d2221d8d0be5bd9a7bcf238bac",
+                "pos_test_user_mobilome_clean.gff:md5,ce8598c38077a68a73386a6bea9ebb01",
+                "pos_test_user_mobilome_extra.gff:md5,d3b28208f6b792040e8ad51555de1c81",
+                "pos_test_user_mobilome_full.gff:md5,15d68d8e29e45902d418ca449a9238ce",
                 "pos_test_discarded_mge.txt:md5,a5cf4cfdab4cf37b5dbe71453f3371f8",
                 "pos_test_mobilome.fasta.gz:md5,fd71220c3ccaa195b0d5816987ed5425",
                 "pos_test_overlap_report.txt:md5,656234fc2ec2f7dfe07eb640cb701d15",
@@ -109,9 +113,9 @@
             ]
         ],
         "meta": {
-            "nf-test": "0.9.3",
+            "nf-test": "0.9.2",
             "nextflow": "25.04.7"
         },
-        "timestamp": "2025-10-08T10:58:49.120411"
+        "timestamp": "2025-11-14T23:01:00.128874"
     }
 }

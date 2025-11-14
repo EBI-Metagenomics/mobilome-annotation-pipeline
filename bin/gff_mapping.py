@@ -45,25 +45,52 @@ def open_file(filename, mode='r'):
 def is_file_empty(filepath):
     """
     Check if a file (compressed or uncompressed) has content.
-    
-    Args:
-        filepath: Path to the file to check
-    
-    Returns:
-        True if file is empty or doesn't exist, False if it has content
+
+    :param filepath: Path to the file to check
+    :return: True if file is empty or doesn't exist, False if it has content
     """
     if not os.path.exists(filepath):
         logger.error(f"File not found: {filepath}")
         return True
-    
+
     # Check file size first for uncompressed files
     if not filepath.endswith('.gz') and os.stat(filepath).st_size == 0:
         return True
-    
+
     # For compressed files or to double-check content
     with open_file(filepath) as f:
         first_char = f.read(1)
         return len(first_char) == 0
+
+def sort_gff_file(filepath):
+    """
+    Sort GFF file in-place by contig and start position.
+    Headers (lines starting with #) are preserved at the top.
+
+    :param filepath: Path to GFF file to sort
+    """
+    if not os.path.exists(filepath):
+        return
+
+    headers = []
+    entries = []
+
+    with open_file(filepath) as f:
+        for line in f:
+            line = line.rstrip()
+            if line.startswith('#'):
+                headers.append(line)
+            elif line:
+                entries.append(line)
+
+    # Sort by contig, then start position
+    entries.sort(key=lambda x: (x.split('\t')[0], int(x.split('\t')[3])))
+
+    with open_file(filepath, 'w') as f:
+        for header in headers:
+            f.write(header + '\n')
+        for entry in entries:
+            f.write(entry + '\n')
 
 def mobilome_parser(mobilome_clean):
     """Parse mobilome predictions from GFF file (handles compressed files)."""
@@ -270,6 +297,12 @@ def gff_updater(
     logger.info(
         f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff"
     )
+
+    # Sort output files
+    sort_gff_file(f"{output_prefix}_user_mobilome_extra.gff")
+    sort_gff_file(f"{output_prefix}_user_mobilome_full.gff")
+    sort_gff_file(f"{output_prefix}_user_mobilome_clean.gff")
+    logger.info("Output files sorted by contig and position")
 
 def main():
     parser = argparse.ArgumentParser(
