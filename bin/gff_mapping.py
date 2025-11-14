@@ -164,9 +164,9 @@ def gff_updater(
         logger.warning(f"User GFF file is empty: {user_gff}")
         # Still create empty output files
         output_files = [
-            f"{output_prefix}_user_mobilome_extra.gff.gz",
-            f"{output_prefix}_user_mobilome_full.gff.gz", 
-            f"{output_prefix}_user_mobilome_clean.gff.gz"
+            f"{output_prefix}_user_mobilome_extra.gff",
+            f"{output_prefix}_user_mobilome_full.gff",
+            f"{output_prefix}_user_mobilome_clean.gff"
         ]
         for output_file in output_files:
             with open_file(output_file, 'w') as f:
@@ -183,11 +183,11 @@ def gff_updater(
     passenger_proteins = 0
     
     with open_file(user_gff) as input_table, \
-         open_file(f"{output_prefix}_user_mobilome_extra.gff.gz", "w") as output_extra, \
-         open_file(f"{output_prefix}_user_mobilome_full.gff.gz", "w") as output_full, \
-         open_file(f"{output_prefix}_user_mobilome_clean.gff.gz", "w") as output_clean:
-        
-        logger.info(f"Output files created with prefix: {output_prefix} (compressed)")
+         open_file(f"{output_prefix}_user_mobilome_extra.gff", "w") as output_extra, \
+         open_file(f"{output_prefix}_user_mobilome_full.gff", "w") as output_full, \
+         open_file(f"{output_prefix}_user_mobilome_clean.gff", "w") as output_clean:
+
+        logger.info(f"Output files created with prefix: {output_prefix}")
         
         for line in input_table:
             processed_lines += 1
@@ -268,13 +268,13 @@ def gff_updater(
     logger.info(f"  - Proteins with extra annotations: {proteins_with_extra_annot}")
     logger.info(f"  - Passenger proteins identified: {passenger_proteins}")
     logger.info(
-        f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff.gz"
+        f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff"
     )
 
 def main():
     parser = argparse.ArgumentParser(
         description="This script adds extra annotations to the user GFF file. "
-                   "Supports compressed (.gz) input files and generates compressed output files."
+                   "Supports compressed (.gz) input files and generates uncompressed output files."
     )
     parser.add_argument(
         "--mobilome_gff",
@@ -291,7 +291,7 @@ def main():
     parser.add_argument(
         "--prefix",
         type=str,
-        help="Output files prefix (outputs will be compressed with .gz extension)",
+        help="Output files prefix (outputs will be uncompressed .gff files)",
         required=True
     )
     args = parser.parse_args()

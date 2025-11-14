@@ -21,7 +21,6 @@ include { VIRIFY_QC              } from '../modules/local/virify_qc'
 
 // Results integration and writing modules
 include { FASTA_WRITER           } from '../modules/local/fasta_writer'
-include { GFF_MAPPING            } from '../modules/local/gff_mapping'
 include { GT_GFF3VALIDATOR       } from '../modules/nf-core/gt/gff3validator/main'
 include { INTEGRATOR             } from '../modules/local/integrator'
 
@@ -30,10 +29,11 @@ include { INTEGRATOR             } from '../modules/local/integrator'
     IMPORT SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { COMPOSITIONAL_OUTLIER_DETECTION } from '../subworkflows/compositional_outlier_detection'
-include { ICEFINDER2_LITE                 } from '../subworkflows/icefinder2lite'
-include { CUSTOM_DUMPSOFTWAREVERSIONS     } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { MULTIQC                         } from '../modules/nf-core/multiqc/main'
+include { COMPOSITIONAL_OUTLIER_DETECTION      } from '../subworkflows/compositional_outlier_detection'
+include { ICEFINDER2_LITE                      } from '../subworkflows/icefinder2lite'
+include { GFF_MAPPING_COMPRESSION_AND_INDEXING } from '../subworkflows/gff_mapping_compression_and_indexing'
+include { CUSTOM_DUMPSOFTWAREVERSIONS          } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { MULTIQC                              } from '../modules/nf-core/multiqc/main'
 
 // TODO: add gene annotation subworkflow
 
@@ -232,11 +232,11 @@ workflow MOBILOMEANNOTATION {
         ch_versions = ch_versions.mix(GT_GFF3VALIDATOR.out.versions)
     }
 
-    // Appending the mobilome annotation to the user gff when provided
-    GFF_MAPPING(
+    // Appending the mobilome annotation to the user gff when provided, then compress and index (.gzi and .csi)
+    GFF_MAPPING_COMPRESSION_AND_INDEXING(
         INTEGRATOR.out.mobilome_gff.join( user_proteins_ch )
     )
-    ch_versions = ch_versions.mix(GFF_MAPPING.out.versions)
+    ch_versions = ch_versions.mix(GFF_MAPPING_COMPRESSION_AND_INDEXING.out.versions)
 
     //
     // Collate and save software versions
