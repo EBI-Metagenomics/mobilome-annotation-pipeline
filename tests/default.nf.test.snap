@@ -87,8 +87,8 @@
                 "pos_test/preprocessing/pos_test_contigID.map"
             ],
             [
-                "pos_test.gff.gz:md5,d3b28208f6b792040e8ad51555de1c81",
-                "pos_test.gff.gz.tbi:md5,c3574c3dcc7a3c5d6bb02b7b5b66dbd3",
+                "pos_test.gff.gz:md5,15d68d8e29e45902d418ca449a9238ce",
+                "pos_test.gff.gz.tbi:md5,11df1fb34fc01f86f44cfe8e8964bf59",
                 "pos_test_mobilome.gff.gz:md5,4dafb2b081c7fd9f88ac42019f9623fb",
                 "pos_test_user_mobilome_clean.gff:md5,ce8598c38077a68a73386a6bea9ebb01",
                 "pos_test_user_mobilome_extra.gff:md5,d3b28208f6b792040e8ad51555de1c81",
@@ -116,6 +116,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.7"
         },
-        "timestamp": "2025-11-14T23:01:00.128874"
+        "timestamp": "2025-11-17T11:26:03.660407"
     }
 }

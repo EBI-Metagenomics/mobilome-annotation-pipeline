@@ -4,7 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
 
-    test("Positive test of the Mobilome annotation pipeline with user proteins and virify input") {
+    test("Positive test of the Mobilome annotation pipeline with user proteins and VIRify input") {
         when {
             params {
                 input = "${projectDir}/tests/pos_test_samplesheet.csv"
@@ -15,15 +15,33 @@ nextflow_pipeline {
         then {
             // stable_name: All files + folders in ${params.outdir}/ with a stable name
             def stable_name = getAllFilesFromDir(
-                params.outdir, 
-                relative: true, 
-                includeDir: true, 
+                params.outdir,
+                relative: true,
+                includeDir: true,
                 ignore: [
                     'pipeline_info/*'
                 ]
             )
             // stable_path: All files in ${params.outdir}/ with stable content
             def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            // {tbi,gzi}_files: Check .tbi and .gzi index files exist with stable names
+            def index_files = getAllFilesFromDir(
+                params.outdir,
+                relative: true,
+                include: ['*.tbi', '*.gzi']
+            )
+            // gff_content: Check specific lines in the full GFF file
+            def full_gff = "${params.outdir}/pos_test/gff/pos_test_user_mobilome_full.gff"
+            def gff_lines = file(full_gff).readLines()
+            def expected_gff_line = [
+                "pos_contig_1",
+                "geNomad",
+                "viral_sequence",
+                "1",
+                "6203",
+                ".", ".", ".",
+                "ID=pos_contig_1|viral_sequence-1:6203;mobile_element_type=viral_sequence;taxonomy=Viruses%3BDuplodnaviria%3BHeunggongvirae%3BUroviricota%3BCaudoviricetes%3B%3B"
+            ].join("\t")
             assertAll(
                 { assert workflow.success},
                 { assert snapshot(
@@ -33,6 +51,10 @@ nextflow_pipeline {
                     stable_name,
                     // All files with stable contents
                     stable_path,
+                    // .tbi index files (stable names only)
+                    index_files,
+                    // Assert the content
+                    gff_lines.findAll { it.contains(expected_gff_line) }
                 ).match() }
             )
         }

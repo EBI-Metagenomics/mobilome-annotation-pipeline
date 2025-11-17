@@ -1,10 +1,13 @@
 /* NF-CORE */
+include { TABIX_BGZIP as TABIX_BGZIP_CLEAN           } from '../modules/nf-core/tabix/bgzip/main'
+include { TABIX_BGZIP as TABIX_BGZIP_EXTRA           } from '../modules/nf-core/tabix/bgzip/main'
+include { TABIX_BGZIP as TABIX_BGZIP_FULL            } from '../modules/nf-core/tabix/bgzip/main'
 include { TABIX_BGZIPTABIX as TABIX_BGZIPTABIX_CLEAN } from '../modules/nf-core/tabix/bgziptabix/main'
 include { TABIX_BGZIPTABIX as TABIX_BGZIPTABIX_EXTRA } from '../modules/nf-core/tabix/bgziptabix/main'
 include { TABIX_BGZIPTABIX as TABIX_BGZIPTABIX_FULL  } from '../modules/nf-core/tabix/bgziptabix/main'
 
 /* LOCAL */
-include { GFF_MAPPING                                } from '../modules/local/gff_mapping.nf'
+include { GFF_MAPPING } from '../modules/local/gff_mapping.nf'
 
 
 workflow GFF_MAPPING_COMPRESSION_AND_INDEXING {
@@ -18,8 +21,8 @@ workflow GFF_MAPPING_COMPRESSION_AND_INDEXING {
      * in genome browsers such as JBrowse 2.
      * 
      * The workflow applies bgzip compression and tabix indexing:
-     * - .csi index: genomic region index optimized for large contigs and metagenomes
      * - .gz.gzi index: enables efficient random access to bgzipped GFF files
+     * - .gz.csi index: genomic region index optimized for large contigs and metagenomes
     */
 
     ch_versions = Channel.empty()
@@ -28,18 +31,37 @@ workflow GFF_MAPPING_COMPRESSION_AND_INDEXING {
     GFF_MAPPING(ch_gff_inputs)
     ch_versions = ch_versions.mix(GFF_MAPPING.out.versions)
 
+    /**************/
+    /* GZI index */
+    /*************/
+    TABIX_BGZIP_CLEAN(
+        GFF_MAPPING.out.mobilome_clean_gff
+    )
+    ch_versions = ch_versions.mix(TABIX_BGZIP_CLEAN.out.versions)
+
+    TABIX_BGZIP_EXTRA(
+        GFF_MAPPING.out.mobilome_extra_gff
+    )
+    ch_versions = ch_versions.mix(TABIX_BGZIP_EXTRA.out.versions)
+
+    TABIX_BGZIP_FULL(
+        GFF_MAPPING.out.mobilome_full_gff
+    )
+    ch_versions = ch_versions.mix(TABIX_BGZIP_FULL.out.versions)
+
+    /**************/
+    /* CSI index */
+    /*************/
     TABIX_BGZIPTABIX_CLEAN(
         GFF_MAPPING.out.mobilome_clean_gff
     )
     ch_versions = ch_versions.mix(TABIX_BGZIPTABIX_CLEAN.out.versions)
 
-    // Process mobilome_extra.gff (when present)
     TABIX_BGZIPTABIX_EXTRA(
         GFF_MAPPING.out.mobilome_extra_gff
     )
     ch_versions = ch_versions.mix(TABIX_BGZIPTABIX_EXTRA.out.versions)
 
-    // Process mobilome_full.gff (when present)
     TABIX_BGZIPTABIX_FULL(
         GFF_MAPPING.out.mobilome_full_gff
     )

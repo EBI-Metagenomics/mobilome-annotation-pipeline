@@ -66,6 +66,7 @@ def sort_gff_file(filepath):
     """
     Sort GFF file in-place by contig and start position.
     Headers (lines starting with #) are preserved at the top.
+    FASTA sequences (after ##FASTA) are preserved at the end.
 
     :param filepath: Path to GFF file to sort
     """
@@ -73,12 +74,20 @@ def sort_gff_file(filepath):
         return
 
     headers = []
+    sequences = []
     entries = []
+    in_fasta_section = False
 
     with open_file(filepath) as f:
         for line in f:
             line = line.rstrip()
-            if line.startswith('#'):
+            if line.startswith('##FASTA'):
+                in_fasta_section = True
+                sequences.append(line)
+            elif in_fasta_section:
+                # Everything after ##FASTA is sequence data
+                sequences.append(line)
+            elif line.startswith('#'):
                 headers.append(line)
             elif line:
                 entries.append(line)
@@ -91,6 +100,8 @@ def sort_gff_file(filepath):
             f.write(header + '\n')
         for entry in entries:
             f.write(entry + '\n')
+        for sequence in sequences:
+            f.write(sequence + '\n')
 
 def mobilome_parser(mobilome_clean):
     """Parse mobilome predictions from GFF file (handles compressed files)."""
