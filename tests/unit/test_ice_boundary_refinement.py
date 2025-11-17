@@ -20,7 +20,6 @@ import os
 from unittest.mock import patch, mock_open, MagicMock
 from Bio.Seq import Seq
 
-# Import the functions from the script
 from ice_boundary_refinement import (
     parse_blast_uniprot,
     parse_merged_gff,

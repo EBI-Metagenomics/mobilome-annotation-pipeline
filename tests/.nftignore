@@ -1,2 +1,3 @@
 pipeline_info/*
-*.tbi
+**/*.tbi
+**/*.gzi

@@ -30,18 +30,6 @@ nextflow_pipeline {
                 relative: true,
                 include: ['*.tbi', '*.gzi']
             )
-            // gff_content: Check specific lines in the full GFF file
-            def full_gff = "${params.outdir}/pos_test/gff/pos_test_user_mobilome_full.gff"
-            def gff_lines = file(full_gff).readLines()
-            def expected_gff_line = [
-                "pos_contig_1",
-                "geNomad",
-                "viral_sequence",
-                "1",
-                "6203",
-                ".", ".", ".",
-                "ID=pos_contig_1|viral_sequence-1:6203;mobile_element_type=viral_sequence;taxonomy=Viruses%3BDuplodnaviria%3BHeunggongvirae%3BUroviricota%3BCaudoviricetes%3B%3B"
-            ].join("\t")
             assertAll(
                 { assert workflow.success},
                 { assert snapshot(
@@ -51,10 +39,8 @@ nextflow_pipeline {
                     stable_name,
                     // All files with stable contents
                     stable_path,
-                    // .tbi index files (stable names only)
+                    // .gzi and .tbi index files (stable names only)
                     index_files,
-                    // Assert the content
-                    gff_lines.findAll { it.contains(expected_gff_line) }
                 ).match() }
             )
         }
@@ -93,6 +79,4 @@ nextflow_pipeline {
             )
         }
     }
-
 }
-

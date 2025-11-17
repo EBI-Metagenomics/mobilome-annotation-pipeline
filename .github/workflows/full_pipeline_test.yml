@@ -31,7 +31,7 @@ jobs:
           install-pdiff: true
 
       - name: Run Tests
-        run: nf-test test --verbose --ci tests/main.nf.test
+        run: nf-test test --verbose --ci tests/default.nf.test
      
       - name: Move .nf-test output to non-hidden folder for artifact upload
         if: always()
