@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Copyright 2025 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 
 import pytest
 import tempfile
@@ -7,7 +20,6 @@ import os
 from unittest.mock import patch, mock_open, MagicMock
 from Bio.Seq import Seq
 
-# Import the functions from the script
 from ice_boundary_refinement import (
     parse_blast_uniprot,
     parse_merged_gff,
@@ -77,7 +89,6 @@ contig_1\tprodigal\tCDS\t600\t900\t.\t-\t.\tID=CP003200_00019;ori_id=contig_1_18
 
         with patch("builtins.open", mock_open(read_data=test_gff)):
             (
-                names_map,
                 trnadict,
                 posdict,
                 header,
@@ -86,7 +97,8 @@ contig_1\tprodigal\tCDS\t600\t900\t.\t-\t.\tID=CP003200_00019;ori_id=contig_1_18
                 prots_contigs,
             ) = parse_merged_gff("test.gff", uniprot_dict)
 
-        assert "contig_1_17" in names_map
+        assert "CP003200_00018" in prots_contigs
+        assert prots_contigs["CP003200_00018"] == "contig_1"
         assert "CP003200_00017" in trnadict
         assert "CP003200_00018" in posdict
         assert totalnum_dict["contig_1"] == 3
@@ -98,7 +110,6 @@ contig_1\tprodigal\tCDS\t600\t900\t.\t-\t.\tID=CP003200_00019;ori_id=contig_1_18
             result = parse_merged_gff("empty.gff", {})
 
         (
-            names_map,
             trnadict,
             posdict,
             header,
@@ -106,10 +117,10 @@ contig_1\tprodigal\tCDS\t600\t900\t.\t-\t.\tID=CP003200_00019;ori_id=contig_1_18
             locusdict,
             prots_contigs,
         ) = result
-        assert names_map == {}
         assert trnadict == {}
         assert posdict == {}
         assert totalnum_dict == {}
+        assert prots_contigs == {}
         assert locusdict == {}
         assert prots_contigs == {}
 
@@ -334,7 +345,7 @@ class TestMainFunction:
 
         # Mock return values
         mock_parse_blast.return_value = {}
-        mock_parse_gff.return_value = ({}, {}, {}, "header", {}, {}, {})
+        mock_parse_gff.return_value = ({}, {}, "header", {}, {}, {})
         mock_get_dr.return_value = {}
         mock_get_ice.return_value = ({}, {}, {}, "header", {})
 

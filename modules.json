@@ -54,6 +54,20 @@
                         "installed_by": [
                             "modules"
                         ]
+                    },
+                    "tabix/bgzip": {
+                        "branch": "master",
+                        "git_sha": "f2cfcf9d3f6a2d123e6c44aefa788aa232204a7a",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "tabix/bgziptabix": {
+                        "branch": "master",
+                        "git_sha": "f2cfcf9d3f6a2d123e6c44aefa788aa232204a7a",
+                        "installed_by": [
+                            "modules"
+                        ]
                     }
                 }
             }

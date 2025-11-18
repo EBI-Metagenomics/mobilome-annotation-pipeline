@@ -45,25 +45,63 @@ def open_file(filename, mode='r'):
 def is_file_empty(filepath):
     """
     Check if a file (compressed or uncompressed) has content.
-    
-    Args:
-        filepath: Path to the file to check
-    
-    Returns:
-        True if file is empty or doesn't exist, False if it has content
+
+    :param filepath: Path to the file to check
+    :return: True if file is empty or doesn't exist, False if it has content
     """
     if not os.path.exists(filepath):
         logger.error(f"File not found: {filepath}")
         return True
-    
+
     # Check file size first for uncompressed files
     if not filepath.endswith('.gz') and os.stat(filepath).st_size == 0:
         return True
-    
+
     # For compressed files or to double-check content
     with open_file(filepath) as f:
         first_char = f.read(1)
         return len(first_char) == 0
+
+def sort_gff_file(filepath):
+    """
+    Sort GFF file in-place by contig and start position.
+    Headers (lines starting with #) are preserved at the top.
+    FASTA sequences (after ##FASTA) are preserved at the end.
+
+    :param filepath: Path to GFF file to sort
+    """
+    if not os.path.exists(filepath):
+        return
+
+    headers = []
+    sequences = []
+    entries = []
+    in_fasta_section = False
+
+    with open_file(filepath) as f:
+        for line in f:
+            line = line.rstrip()
+            if line.startswith('##FASTA'):
+                in_fasta_section = True
+                sequences.append(line)
+            elif in_fasta_section:
+                # Everything after ##FASTA is sequence data
+                sequences.append(line)
+            elif line.startswith('#'):
+                headers.append(line)
+            elif line:
+                entries.append(line)
+
+    # Sort by contig, then start position
+    entries.sort(key=lambda x: (x.split('\t')[0], int(x.split('\t')[3])))
+
+    with open_file(filepath, 'w') as f:
+        for header in headers:
+            f.write(header + '\n')
+        for entry in entries:
+            f.write(entry + '\n')
+        for sequence in sequences:
+            f.write(sequence + '\n')
 
 def mobilome_parser(mobilome_clean):
     """Parse mobilome predictions from GFF file (handles compressed files)."""
@@ -164,9 +202,9 @@ def gff_updater(
         logger.warning(f"User GFF file is empty: {user_gff}")
         # Still create empty output files
         output_files = [
-            f"{output_prefix}_user_mobilome_extra.gff.gz",
-            f"{output_prefix}_user_mobilome_full.gff.gz", 
-            f"{output_prefix}_user_mobilome_clean.gff.gz"
+            f"{output_prefix}_user_mobilome_extra.gff",
+            f"{output_prefix}_user_mobilome_full.gff",
+            f"{output_prefix}_user_mobilome_clean.gff"
         ]
         for output_file in output_files:
             with open_file(output_file, 'w') as f:
@@ -183,11 +221,11 @@ def gff_updater(
     passenger_proteins = 0
     
     with open_file(user_gff) as input_table, \
-         open_file(f"{output_prefix}_user_mobilome_extra.gff.gz", "w") as output_extra, \
-         open_file(f"{output_prefix}_user_mobilome_full.gff.gz", "w") as output_full, \
-         open_file(f"{output_prefix}_user_mobilome_clean.gff.gz", "w") as output_clean:
-        
-        logger.info(f"Output files created with prefix: {output_prefix} (compressed)")
+         open_file(f"{output_prefix}_user_mobilome_extra.gff", "w") as output_extra, \
+         open_file(f"{output_prefix}_user_mobilome_full.gff", "w") as output_full, \
+         open_file(f"{output_prefix}_user_mobilome_clean.gff", "w") as output_clean:
+
+        logger.info(f"Output files created with prefix: {output_prefix}")
         
         for line in input_table:
             processed_lines += 1
@@ -268,13 +306,19 @@ def gff_updater(
     logger.info(f"  - Proteins with extra annotations: {proteins_with_extra_annot}")
     logger.info(f"  - Passenger proteins identified: {passenger_proteins}")
     logger.info(
-        f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff.gz"
+        f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff"
     )
+
+    # Sort output files
+    sort_gff_file(f"{output_prefix}_user_mobilome_extra.gff")
+    sort_gff_file(f"{output_prefix}_user_mobilome_full.gff")
+    sort_gff_file(f"{output_prefix}_user_mobilome_clean.gff")
+    logger.info("Output files sorted by contig and position")
 
 def main():
     parser = argparse.ArgumentParser(
         description="This script adds extra annotations to the user GFF file. "
-                   "Supports compressed (.gz) input files and generates compressed output files."
+                   "Supports compressed (.gz) input files and generates uncompressed output files."
     )
     parser.add_argument(
         "--mobilome_gff",
@@ -291,7 +335,7 @@ def main():
     parser.add_argument(
         "--prefix",
         type=str,
-        help="Output files prefix (outputs will be compressed with .gz extension)",
+        help="Output files prefix (outputs will be uncompressed .gff files)",
         required=True
     )
     args = parser.parse_args()
