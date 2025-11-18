@@ -4,7 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
 
-    test("Positive test of the Mobilome annotation pipeline with user proteins and virify input") {
+    test("Positive test of the Mobilome annotation pipeline with user proteins and VIRify input") {
         when {
             params {
                 input = "${projectDir}/tests/pos_test_samplesheet.csv"
@@ -15,15 +15,21 @@ nextflow_pipeline {
         then {
             // stable_name: All files + folders in ${params.outdir}/ with a stable name
             def stable_name = getAllFilesFromDir(
-                params.outdir, 
-                relative: true, 
-                includeDir: true, 
+                params.outdir,
+                relative: true,
+                includeDir: true,
                 ignore: [
                     'pipeline_info/*'
                 ]
             )
             // stable_path: All files in ${params.outdir}/ with stable content
             def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            // {tbi,gzi}_files: Check .tbi and .gzi index files exist with stable names
+            def index_files = getAllFilesFromDir(
+                params.outdir,
+                relative: true,
+                include: ['*.tbi', '*.gzi']
+            )
             assertAll(
                 { assert workflow.success},
                 { assert snapshot(
@@ -33,6 +39,8 @@ nextflow_pipeline {
                     stable_name,
                     // All files with stable contents
                     stable_path,
+                    // .gzi and .tbi index files (stable names only)
+                    index_files,
                 ).match() }
             )
         }
@@ -71,6 +79,4 @@ nextflow_pipeline {
             )
         }
     }
-
 }
-
