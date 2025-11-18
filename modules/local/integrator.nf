@@ -5,12 +5,12 @@ process INTEGRATOR {
     container 'quay.io/biocontainers/biopython:1.81'
 
     input:
-    tuple val(meta), path(prokka_gff), path(map_file), path(iss_tsv), path(inf_summ), path(inf_gbks), path(icf_tsv), path(genomad_vir), path(genomad_plas), path(compos_bed), path(vir_results)
+    tuple val(meta), path(gff_file), path(map_file), path(iss_tsv), path(inf_summ), path(inf_gbks), path(icf_tsv), path(genomad_vir), path(genomad_plas), path(compos_bed), path(vir_results)
 
     output:
-    tuple val(meta), path("${meta.id}_mobilome_prokka.gff"), emit: mobilome_prokka_gff
-    tuple val(meta), path("${meta.id}_overlap_report.txt"), emit: overlapping_integrons_txt
-    tuple val(meta), path("${meta.id}_discarded_mge.txt"), emit: discarded_mge_txt
+    tuple val(meta), path("*_mobilome.gff.gz")    , emit: mobilome_gff
+    tuple val(meta), path("*_overlap_report.txt") , emit: overlapping_integrons_txt
+    tuple val(meta), path("*_discarded_mge.txt")  , emit: discarded_mge_txt
     path "versions.yml", emit: versions
 
     script:
@@ -18,7 +18,7 @@ process INTEGRATOR {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     mge_integrator.py \\
-        --pkka_gff ${prokka_gff} \\
+        --gff_file ${gff_file} \\
         --map ${map_file} \\
         --iss_tsv ${iss_tsv} \\
         --inf_tsv ${inf_summ} \\

@@ -1,0 +1,4 @@
+##gff-version 3
+##sequence-region	pos_contig_9	1	436985
+##sequence-region	pos_contig_10	1	1501440
+pos_contig_9	VIRify	prophage	382340	417845	.	.	.	ID=pos_contig_9|prophage-382340:417845;virify_quality=PP;gbkey=mobile_element;mobile_element_type=prophage;checkv_provirus=Yes;checkv_quality=Low-quality;checkv_miuvig_quality=Genome-fragment;checkv_kmer_freq=1.0;checkv_viral_genes=10;taxonomy=unclassified

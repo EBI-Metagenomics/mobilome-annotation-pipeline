@@ -12,22 +12,22 @@
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"],
-		"uniqueItems": true
+                "uniqueItems": true
             },
             "assembly": {
                 "type": "string",
-                "pattern": "^\\S+\\.(fa|fna|fasta)$",
-                "errorMessage": "The assembly needs to be a fasta file"
+                "pattern": "^\\S+\\.(fa|fna|fasta)(\\.gz)?$",
+                "errorMessage": "The assembly needs to be a fasta file (optionally compressed with .gz)"
             },
             "user_proteins_gff": {
                 "type": "string",
-                "pattern": "^\\S+\\.gff$",
-		            "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file"
+                "pattern": "^\\S+\\.(gff)(\\.gz)?$",
+                "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file (optionally compressed with .gz)"
             },
             "virify_gff": {
-		            "type": "string",
-		            "pattern": "^\\S+\\.gff$",
-                "errorMessage": "The VIRify file generated for the assembly needs to be a gff3 file",
+                "type": "string",
+                "pattern": "^\\S+\\.(gff)(\\.gz)?$",
+                "errorMessage": "The VIRify file generated for the assembly needs to be a gff3 file (optionally compressed with .gz)"
             }
         },
         "required": ["sample", "assembly"]

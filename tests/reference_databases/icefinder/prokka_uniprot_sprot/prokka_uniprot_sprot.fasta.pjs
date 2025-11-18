@@ -1,0 +1,22 @@
+{
+  "version": "1.2",
+  "dbname": "prokka_uniprot_sprot.fasta",
+  "dbtype": "Protein",
+  "db-version": 5,
+  "description": "prokka_uniprot_sprot.fasta",
+  "number-of-letters": 968,
+  "number-of-sequences": 2,
+  "last-updated": "2025-10-02T15:21:00",
+  "number-of-volumes": 1,
+  "bytes-total": 38307,
+  "bytes-to-cache": 1115,
+  "files": [
+    "prokka_uniprot_sprot.fasta.pdb",
+    "prokka_uniprot_sprot.fasta.phr",
+    "prokka_uniprot_sprot.fasta.pin",
+    "prokka_uniprot_sprot.fasta.pot",
+    "prokka_uniprot_sprot.fasta.psq",
+    "prokka_uniprot_sprot.fasta.ptf",
+    "prokka_uniprot_sprot.fasta.pto"
+  ]
+}
