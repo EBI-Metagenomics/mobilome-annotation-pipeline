@@ -152,10 +152,10 @@ sample/
 ├── sample_mobilome.fasta
 ├── sample_overlap_report.txt
 ├── gff
-│   ├── sample_mobilome.gff
-│   ├── sample_[user]_mobilome_clean.gff
-│   ├── sample_[user]_mobilome_extra.gff
-│   └── sample_[user]_mobilome_full.gff
+│   ├── sample_mobilome.gff.gz
+│   ├── sample_[user]_mobilome_clean.gff.gz
+│   ├── sample_[user]_mobilome_extra.gff.gz
+│   └── sample_[user]_mobilome_full.gff.gz
 ├── prediction
 │   ├── genomad_results
 │   │   ├── 5kb_contigs_plasmid_summary.tsv
@@ -186,10 +186,10 @@ sample/
 ├── sample_mobilome.fasta
 ├── sample_overlap_report.txt
 └── gff
-    ├── sample_mobilome.gff
-    ├── sample_[user]_mobilome_clean.gff
-    ├── sample_[user]_mobilome_extra.gff
-    └── sample_[user]_mobilome_full.gff
+    ├── sample_mobilome.gff.gz
+    ├── sample_[user]_mobilome_clean.gff.gz
+    ├── sample_[user]_mobilome_extra.gff.gz
+    └── sample_[user]_mobilome_full.gff.gz
 ```
 
 The file `discarded_mge.txt` contains a list of predictions that were discarded, along with the reason for their exclusion. Possible reasons include:
