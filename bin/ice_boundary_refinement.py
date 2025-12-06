@@ -756,7 +756,7 @@ def main():
         "--uniprot_annot",
         type=str,
         help="Result of blastp vs uniprotkb-sp in prokka style",
-        required=True,
+        required=False,
     )
     parser.add_argument(
         "--drs_tsv",
@@ -778,7 +778,9 @@ def main():
 
     # Parsing uniprotkb blast result
     print("Parsing uniprotkb blast result...")
-    uniprot_annot_dict = parse_blast_uniprot(args.uniprot_annot)
+    uniprot_annot_dict = {}
+    if args.uniprot_annot:
+        uniprot_annot_dict = parse_blast_uniprot(args.uniprot_annot)
 
     # Parsing gff annotation to save the protein names correspondance with per-protein annotation results: macsyfinder and uniprotkb
     print("Parsing merged gff file...")

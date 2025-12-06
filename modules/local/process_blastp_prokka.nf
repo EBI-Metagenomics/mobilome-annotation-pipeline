@@ -8,7 +8,7 @@ process PROCESS_BLASTP_PROKKA {
     tuple val(meta), path(uniprot_tsv)
 
     output:
-    tuple val(meta), path("*_uniprot_names.tsv"), emit: uniprot_product_names
+    tuple val(meta), path("*_uniprot_names.tsv"), optional: true, emit: uniprot_product_names
     path "versions.yml", emit: versions
 
     script:
