@@ -306,7 +306,7 @@ def gff_updater(
     logger.info(f"  - Proteins with extra annotations: {proteins_with_extra_annot}")
     logger.info(f"  - Passenger proteins identified: {passenger_proteins}")
     logger.info(
-        f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff"
+        f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff.gz"
     )
 
     # Sort output files

@@ -92,17 +92,30 @@ workflow ICEFINDER2_LITE {
 
     // REFINE_BOUNDARIES - now only runs on samples that have candidates
     // All channels will have matching samples since we filtered ch_assembly
-    REFINE_BOUNDARIES(
-            ch_assembly_filtered
+    def input_for_refine = ch_assembly_filtered
         .join(
             ch_gff_filtered
         ).join(
             MACSYFINDER.out.macsyfinder_tsv
         ).join(
-            PROCESS_BLASTP_PROKKA.out.uniprot_product_names
-        ).join(
             VMATCH.out.vmatch_tsv
+        ).join(
+            PROCESS_BLASTP_PROKKA.out.uniprot_product_names, remainder: true
         )
+
+    REFINE_BOUNDARIES(
+        // This shenanigans is to account for optional uniprot_product_names, moving to types in 25.10 should clean this
+        input_for_refine.map {
+            meta, assembly, gff_filtered, macsyfinder_tsv, vmatch_tsv, uniprot_product_names ->
+            return [
+                meta,
+                assembly,
+                gff_filtered,
+                macsyfinder_tsv,
+                vmatch_tsv,
+                uniprot_product_names ?: []
+            ]
+        }
     )
     ch_versions = ch_versions.mix(REFINE_BOUNDARIES.out.versions)
 
