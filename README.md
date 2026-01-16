@@ -238,8 +238,7 @@ The labels used in the Type column of the GFF file correspond to the following n
 | prophage                | [SO:0001006](http://www.sequenceontology.org/browser/current_svn/term/SO:0001006) | Temperate phage                                                             | geNomad, VIRify           |
 | viral_sequence          | [SO:0001041](http://www.sequenceontology.org/browser/current_svn/term/SO:0001041) | Viral genome fragment                                                       | geNomad, VIRify           |
 | plasmid                 | [SO:0000155](http://www.sequenceontology.org/browser/current_svn/term/SO:0000155) | Plasmid                                                                     | geNomad                   |
-
-The label `compositional_outlier` corresponds to non-autonomous elements detected by MAP in contigs > 100 kb long.
+| compositional_outlier   |                                                                                   | Non-autonomous elements detected in contigs > 100 kb long                   | MAP                       |
 
 <a name="test"></a>
 
