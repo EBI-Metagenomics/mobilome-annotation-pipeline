@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/EBI-Metagenomics/nf-modules/main/subworkflows/yaml-schema.json
+name: "pathofact2"
+description: Pipeline for predicting virulence Factors and toxins in protein sequences
+keywords:
+  - pathofact2
+  - virulence
+  - toxin
+  - vfdb
+  - cdc
+  - gff3
+components:
+  - localcdsearch/annotate:
+      git_remote: https://github.com/nf-core/modules.git
+  - localcdsearch/download:
+      git_remote: https://github.com/nf-core/modules.git
+  - diamond/blastp:
+      git_remote: https://github.com/nf-core/modules.git
+  - diamond/makedb:
+      git_remote: https://github.com/nf-core/modules.git
+  - wget:
+      git_remote: https://github.com/nf-core/modules.git
+  - pathofact2/downloaddata
+  - pathofact2/toxins
+  - pathofact2/virulence
+  - pathofact2/integrator
+  - pathofact2/extractfasta
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1' ]`
+    ch_inputs:
+      type: file
+      description: |
+        The input channel containing the protein fasta file, the gff file and the interproscan tsv file
+        e.g. `[ [meta], aminoacids, cds_gff, ips_tsv ]`
+  - ch_models:
+      type: directory
+      description: |
+        The input channel containing the path to the Pathofact2 models database directory
+  - ch_vfdb:
+      type: directory
+      description: |
+        The input channel containing the path to the Virulence Factors Database (VFDB) directory
+  - ch_cdd:
+      type: directory
+      description: |
+        The input channel containing the path to Conserved Domains Database (CDD) directory
+  - ch_zenodo_id:
+      type: string
+      description: |
+        The id of the pathofact database in zenodo
+  - meta2:
+      type: map
+      description: |
+        Groovy Map containing the VFDB databse id
+        e.g. `[ id:'VFDB_setB_pro' ]`
+    ch_vfdb_url:
+      type: string
+      description: |
+        The url to download VFDB using wget
+        e.g. `[[id:'VFDB_setB_pro'], 'https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz']`
+output:
+  - gff:
+      description: |
+        Channel containing a gff file with Pathofact2 annotation
+        Structure: [ val(meta), path("*.gff") ]
+      meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+      "*.gff":
+        type: file
+        description: gff file with Pathofact2 annotation
+        pattern: "*.gff"
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+
+authors:
+  - "@Ales-ibt"
+maintainers:
+  - "@Ales-ibt"

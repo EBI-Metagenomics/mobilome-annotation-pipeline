@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "pathofact2_integrator"
+description: Module to integrate Pathofact2 results with CDD annotations into a single GFF file
+keywords:
+  - pathofact2
+  - toxins
+  - virulence
+  - annotation
+  - gff
+tools:
+  - "pathofact2":
+      description: "PathoFact 2.0, an enhanced pipeline for improved ARG, VF, and toxin prediction in prokaryotic protein sequences"
+      homepage: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      documentation: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      tool_dev_url: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      doi: "10.1101/2024.12.09.627531"
+      licence: ["GNU v3.0"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: Groovy Map containing sample information e.g. `[ id:'sample1' ]`
+    - gff:
+        type: file
+        description: The GFF3 file corresponding to the annotated genes
+        pattern: "*.{gff,gff.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1975" # GFF
+    - prot_annot:
+        type: file
+        description: |
+          Tab-delimited file of functional annotation.
+          It can be the interproscan result for all the proteins provided by the user or
+          the CDD annotation for relevant proteins generated as part of the pathofact subworkflow
+        pattern: "*.{tsv,tsv.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+    - pathofact_support:
+        type: file
+        description: Tab-delimited file corresponding to the Pathofact2 result
+        pattern: "*.{tsv}"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+    - annot_type:
+        type: string
+        description: |
+          Annotation type to be parsed.
+          Valid strings are 'cdd' for results generated in the subworkflow by local-cd-search module
+          or 'ips' for user provided interproscan annotation
+        pattern: "cdd|ips"
+output:
+  gff:
+    - - meta:
+          type: map
+          description: Groovy Map containing sample information e.g. `[ id:'sample1' ]`
+      - "*_pathofact2.gff":
+          type: file
+          description: The GFF3 file containing the Pathofact2 annotation
+          pattern: "*.gff"
+          ontologies:
+            - edam: "http://edamontology.org/format_1975" # GFF
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - "python --version | sed 's/Python //g'":
+          type: string
+          description: Command used to obtain the tool version
+  versions_pathofact2:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - pathofact2:
+          type: string
+          description: The name of the tool
+      - "echo ${VERSION}":
+          type: string
+          description: Command used to obtain the tool version
+
+authors:
+  - "@Ales-ibt"
+maintainers:
+  - "@Ales-ibt"

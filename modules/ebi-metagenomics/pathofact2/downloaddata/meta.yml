@@ -1,0 +1,44 @@
+name: "pathofact2_downloaddata"
+description: Database downloader from zenodo. Returns the pathofact models database
+keywords:
+  - pathofact
+  - zenodo
+  - download
+tools:
+  - "pathofact2":
+      description: "PathoFact 2.0, an enhanced pipeline for improved ARG, VF, and toxin prediction in prokaryotic protein sequences"
+      homepage: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      documentation: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      tool_dev_url: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      doi: "10.1101/2024.12.09.627531"
+      licence: ["GNU v3.0"]
+      identifier: ""
+
+input:
+  - db_zenodo_id:
+      type: string
+      description: Zenodo record ID to download
+      pattern: "^[0-9]+$"
+output:
+  zenodo_file:
+    - "*.tar.gz":
+        type: file
+        description: Compressed archive containing the PathoFact2 models
+        pattern: "*.tar.gz"
+        ontologies:
+          - edam: http://edamontology.org/format_3989
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - "python --version | sed 's/Python //g'":
+          type: string
+          description: Command used to obtain the tool version
+
+authors:
+  - "@Ales-ibt"
+maintainers:
+  - "@Ales-ibt"

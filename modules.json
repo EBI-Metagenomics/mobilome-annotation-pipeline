@@ -1,76 +1,118 @@
 {
-    "name": "ebi-metagenomics/mobilome-annotation-pipeline",
-    "homePage": "https://github.com/ebi-metagenomics/mobilome-annotation-pipeline",
-    "repos": {
-        "https://github.com/nf-core/modules.git": {
-            "modules": {
-                "nf-core": {
-                    "blast/blastn": {
-                        "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "blast/blastp": {
-                        "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "custom/dumpsoftwareversions": {
-                        "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "diamond/blastp": {
-                        "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "gt/gff3validator": {
-                        "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-                        "installed_by": [
-                            "modules"
-                        ],
-                        "patch": "modules/nf-core/gt/gff3validator/gt-gff3validator.diff"
-                    },
-                    "multiqc": {
-                        "branch": "master",
-                        "git_sha": "a4488d3d09244f29fb4606ba4eef85d59dcc6ad8",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "prodigal": {
-                        "branch": "master",
-                        "git_sha": "ddb0d667cf6cdee3bab9497241de4bbf6b88d8cc",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "tabix/bgzip": {
-                        "branch": "master",
-                        "git_sha": "f2cfcf9d3f6a2d123e6c44aefa788aa232204a7a",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "tabix/bgziptabix": {
-                        "branch": "master",
-                        "git_sha": "f2cfcf9d3f6a2d123e6c44aefa788aa232204a7a",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    }
-                }
-            }
+  "name": "ebi-metagenomics/mobilome-annotation-pipeline",
+  "homePage": "https://github.com/ebi-metagenomics/mobilome-annotation-pipeline",
+  "repos": {
+    "https://github.com/EBI-Metagenomics/nf-modules": {
+      "modules": {
+        "ebi-metagenomics": {
+          "pathofact2/downloaddata": {
+            "branch": "main",
+            "git_sha": "93b165a2e3c0d9704535b4781112497444e3ab44",
+            "installed_by": ["pathofact2"]
+          },
+          "pathofact2/extractfasta": {
+            "branch": "main",
+            "git_sha": "e63a4c7269057c73f0520797c1430ab568197ec6",
+            "installed_by": ["pathofact2"]
+          },
+          "pathofact2/integrator": {
+            "branch": "main",
+            "git_sha": "105b22bca301123b053559b30840b1cc8cd519ec",
+            "installed_by": ["pathofact2"]
+          },
+          "pathofact2/toxins": {
+            "branch": "main",
+            "git_sha": "6f5e348bfee05621ef1d0423fbc96a09102dd825",
+            "installed_by": ["pathofact2"]
+          },
+          "pathofact2/virulence": {
+            "branch": "main",
+            "git_sha": "be4014b61ce2e776e0bd7afe7033ef2d6e4541bd",
+            "installed_by": ["pathofact2"]
+          }
         }
+      },
+      "subworkflows": {
+        "ebi-metagenomics": {
+          "pathofact2": {
+            "branch": "main",
+            "git_sha": "b3e8397401a6dae903d4290d913a7d34e8cf770b",
+            "installed_by": ["subworkflows"]
+          }
+        }
+      }
+    },
+    "https://github.com/nf-core/modules.git": {
+      "modules": {
+        "nf-core": {
+          "blast/blastn": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["modules"]
+          },
+          "blast/blastp": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["modules"]
+          },
+          "custom/dumpsoftwareversions": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["modules"]
+          },
+          "diamond/blastp": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["modules", "pathofact2"]
+          },
+          "diamond/makedb": {
+            "branch": "master",
+            "git_sha": "96595d56273108853c872fb90bbefc675af7911a",
+            "installed_by": ["pathofact2"]
+          },
+          "gt/gff3validator": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["modules"],
+            "patch": "modules/nf-core/gt/gff3validator/gt-gff3validator.diff"
+          },
+          "localcdsearch/annotate": {
+            "branch": "master",
+            "git_sha": "c7b8a51247112b76b89dd87b9dbe081085113590",
+            "installed_by": ["pathofact2"]
+          },
+          "localcdsearch/download": {
+            "branch": "master",
+            "git_sha": "c7b8a51247112b76b89dd87b9dbe081085113590",
+            "installed_by": ["pathofact2"]
+          },
+          "multiqc": {
+            "branch": "master",
+            "git_sha": "a4488d3d09244f29fb4606ba4eef85d59dcc6ad8",
+            "installed_by": ["modules"]
+          },
+          "prodigal": {
+            "branch": "master",
+            "git_sha": "ddb0d667cf6cdee3bab9497241de4bbf6b88d8cc",
+            "installed_by": ["modules"]
+          },
+          "tabix/bgzip": {
+            "branch": "master",
+            "git_sha": "f2cfcf9d3f6a2d123e6c44aefa788aa232204a7a",
+            "installed_by": ["modules"]
+          },
+          "tabix/bgziptabix": {
+            "branch": "master",
+            "git_sha": "f2cfcf9d3f6a2d123e6c44aefa788aa232204a7a",
+            "installed_by": ["modules"]
+          },
+          "wget": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["pathofact2"]
+          }
+        }
+      }
     }
+  }
 }

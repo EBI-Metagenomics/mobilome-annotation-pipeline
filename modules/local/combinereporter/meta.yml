@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/EBI-Metagenomics/nf-modules/main/modules/meta-schema.json
+name: "combinereporter"
+description: Generates the combined report tsv files mimicking Pathofact2-style
+keywords:
+  - virulence
+  - arg
+  - bgc
+  - mge
+tools:
+  - "combinereporter":
+      description: ""Generates the combined report tsv files mimicking Pathofact2-style
+      homepage: "https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline"
+      documentation: "https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline"
+      tool_dev_url: "https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline"
+      licence: ["Apache-2.0"]
+      identifier: null
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - mobilome_gff:
+        type: file
+        description: Mobilome prediction in GFF format containing proteins
+        pattern: "*.gff"
+        ontologies:
+          - edam: "http://edamontology.org/format_1975" # GFF
+    - pathofact_gff:
+        type: file
+        description: Result of pathofact2 annotation in GFF format
+        pattern: "*.{bam,cram,sam}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1975" # GFF
+
+output:
+  tsv:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_combined_report.tsv":
+          type: file
+          description: Combined report Pathofact2-style
+          pattern: "*.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # BAM
+  versions_combinereporter:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - "python":
+          type: string
+          description: The name of the tool
+      - "python --version":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - combinereporter:
+          type: string
+          description: The name of the tool
+      - combinereporter --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@Ales-ibt"
+maintainers:
+  - "@Ales-ibt"

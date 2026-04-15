@@ -1,0 +1,58 @@
+{
+    "zenodo_file": {
+        "content": [
+            [
+                "Models.tar.gz:md5,52c93b16ca66cc07716c66a04bf9ea37"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-22T11:55:11.838803"
+    },
+    "zenodo_file_stub": {
+        "content": [
+            [
+                "Models.tar.gz:md5,f50b84b1db4b83ba62ec1deacc69c260"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-22T11:55:19.18089"
+    },
+    "versions_stub": {
+        "content": [
+            [
+                [
+                    "PATHOFACT2_DOWNLOADDATA",
+                    "python",
+                    "3.12.2"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-22T11:55:21.257426"
+    },
+    "versions": {
+        "content": [
+            [
+                [
+                    "PATHOFACT2_DOWNLOADDATA",
+                    "python",
+                    "3.12.2"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-22T11:55:13.921452"
+    }
+}

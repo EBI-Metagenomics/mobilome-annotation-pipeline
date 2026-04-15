@@ -1,0 +1,148 @@
+nextflow_workflow {
+
+    name "Test Subworkflow PATHOFACT2"
+    script "../main.nf"
+    workflow "PATHOFACT2"
+    config "./nextflow.config"
+
+    tag "subworkflows"
+    tag "subworkflows_ebimetagenomics"
+    tag "subworkflows/pathofact2"
+    tag "pathofact2/toxins"
+    tag "pathofact2/downloaddata"
+    tag "pathofact2/virulence"
+    tag "pathofact2/integrator"
+    tag "pathofact2/extractfasta"
+    tag "nf-core/localcdsearch/annotate"
+    tag "nf-core/localcdsearch/download"
+    tag "nf-core/diamond/blastp"
+    tag "nf-core/diamond/makedb"
+    tag "nf-core/wget"
+
+    setup {
+        nfcoreInitialise("${launchDir}/library/")
+        nfcoreInstall(
+            "${launchDir}/library/",
+            [
+                "localcdsearch/annotate",
+                "localcdsearch/download",
+                "diamond/blastp",
+                "diamond/makedb",
+                "wget",
+            ]
+        )
+        nfcoreLink("${launchDir}/library/", "${baseDir}/modules/")
+    }
+
+    test("proteins_test - positive prediction - ips") {
+
+        tag "positive_ips"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of([
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.faa.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_ips.tsv.gz", checkIfExists: true)
+                ])
+                input[1] = null
+                input[2] = null
+                input[3] = null
+                input[4] = '18223764'
+                input[5] = channel.of([
+                    [id:'VFDB_setB_pro'],
+                    'https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz'
+                ])
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            assert workflow.trace.tasks().size() > 0
+
+            assertAll(
+                { assert snapshot(
+                    workflow.out.gff,
+                    workflow.out.versions
+                ).match() }
+            )
+        }
+    }
+
+    test("proteins_test - positive prediction - no ips, run cdd") {
+
+        tag "positive_cdd"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of([
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.faa.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    null
+                ])
+                input[1] = null
+                input[2] = null
+                input[3] = null
+                input[4] = '18223764'
+                input[5] = channel.of([
+                    [id:'VFDB_setB_pro'],
+                    'https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz'
+                ])
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            assert workflow.trace.tasks().size() > 0
+
+            assertAll(
+                { assert snapshot(
+                    workflow.out.gff,
+                    workflow.out.versions
+                ).match() }
+            )
+        }
+    }
+
+    test("proteins_test - negative prediction - ips") {
+
+        tag "negative_ips"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of([
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/negative_test.faa.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_ips.tsv.gz", checkIfExists: true)
+                ])
+                input[1] = null
+                input[2] = null
+                input[3] = null
+                input[4] = '18223764'
+                input[5] = channel.of([
+                    [id:'VFDB_setB_pro'],
+                    'https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz'
+                ])
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            assert workflow.trace.tasks().size() > 0
+
+            assertAll(
+                { assert snapshot(
+                    workflow.out.gff,
+                    workflow.out.versions
+                ).match() }
+            )
+        }
+    }
+
+}

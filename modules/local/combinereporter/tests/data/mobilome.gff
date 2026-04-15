@@ -1,0 +1,55 @@
+##gff-version 3
+Contig001	geNomad	plasmid	1	100000	.	.	.	ID= Contig001|plasmid-1: 100000;mobile_element_type=plasmid
+Contig001	Prodigal	CDS	1000	1246	.	+	0	ID=AM229678.1_15;Name=AM229678.1_15;product=hypothetical protein;protein_length=82
+Contig001	Prodigal	CDS	2000	2864	.	+	0	ID=AM229678.1_16;Name=AM229678.1_16;product=hypothetical protein;protein_length=288
+Contig001	Prodigal	CDS	3000	5598	.	+	0	ID=AM229678.1_17;Name=AM229678.1_17;product=hypothetical protein;protein_length=866
+Contig001	Prodigal	CDS	6000	15618	.	+	0	ID=AM229678.1_18;Name=AM229678.1_18;product=hypothetical protein;protein_length=3206
+Contig001	Prodigal	CDS	16000	16210	.	+	0	ID=AM229678.1_19;Name=AM229678.1_19;product=hypothetical protein;protein_length=70
+Contig001	Prodigal	CDS	17000	17732	.	+	0	ID=AM229678.1_20;Name=AM229678.1_20;product=hypothetical protein;protein_length=244
+Contig001	Prodigal	CDS	18000	18396	.	+	0	ID=AM229678.1_23;Name=AM229678.1_23;product=hypothetical protein;protein_length=132
+Contig001	Prodigal	CDS	19000	20674	.	+	0	ID=WP_000546253.1;Name=WP_000546253.1;product=putative virulence factor;protein_length=558
+Contig001	Prodigal	CDS	21000	22746	.	+	0	ID=WP_000551259.1;Name=WP_000551259.1;product=putative virulence factor;protein_length=582
+Contig001	Prodigal	CDS	23000	23321	.	+	0	ID=WP_000019358.1;Name=WP_000019358.1;product=putative toxin;protein_length=107
+Contig001	Prodigal	CDS	24000	27111	.	+	0	ID=WP_000024846.1;Name=WP_000024846.1;product=putative virulence factor;protein_length=1037
+Contig001	Prodigal	CDS	28000	28720	.	-	0	ID=WP_001154255.1;Name=WP_001154255.1;product=hypothetical protein;protein_length=240
+Contig001	Prodigal	CDS	29000	30371	.	-	0	ID=WP_001174940.1;Name=WP_001174940.1;product=hypothetical protein;protein_length=457
+Contig001	Prodigal	CDS	31000	32230	.	-	0	ID=WP_001180089.1;Name=WP_001180089.1;product=hypothetical protein;protein_length=410
+Contig001	Prodigal	CDS	33000	33822	.	-	0	ID=WP_001182738.1;Name=WP_001182738.1;product=hypothetical protein;protein_length=274
+Contig001	Prodigal	CDS	34000	37105	.	-	0	ID=WP_000492807.1;Name=WP_000492807.1;product=putative virulence factor;protein_length=1035
+Contig001	Prodigal	CDS	38000	39338	.	-	0	ID=WP_000973666.1;Name=WP_000973666.1;product=hypothetical protein;protein_length=446
+Contig001	Prodigal	CDS	40000	41086	.	+	0	ID=WP_000977927.1;Name=WP_000977927.1;product=hypothetical protein;protein_length=362
+Contig001	Prodigal	CDS	42000	42612	.	+	0	ID=WP_000991370.1;Name=WP_000991370.1;product=hypothetical protein;protein_length=204
+Contig001	Prodigal	CDS	43000	44899	.	+	0	ID=WP_000776191.1;Name=WP_000776191.1;product=hypothetical protein;protein_length=633
+Contig001	Prodigal	CDS	45000	46173	.	+	0	ID=WP_000085966.1;Name=WP_000085966.1;product=hypothetical protein;protein_length=391
+Contig001	Prodigal	CDS	47000	47381	.	+	0	ID=WP_000091198.1;Name=WP_000091198.1;product=hypothetical protein;protein_length=127
+Contig001	Prodigal	CDS	48000	49206	.	+	0	ID=WP_000092206.1;Name=WP_000092206.1;product=hypothetical protein;protein_length=402
+Contig001	Prodigal	CDS	50000	50645	.	+	0	ID=WP_000101737.1;Name=WP_000101737.1;product=hypothetical protein;protein_length=215
+Contig001	Prodigal	CDS	51000	51837	.	+	0	ID=WP_000259031.1;Name=WP_000259031.1;product=hypothetical protein;protein_length=279
+Contig001	Prodigal	CDS	52000	52363	.	+	0	ID=WP_000276149.1;Name=WP_000276149.1;product=hypothetical protein;protein_length=121
+Contig001	Prodigal	CDS	53000	53654	.	+	0	ID=WP_000113282.1;Name=WP_000113282.1;product=hypothetical protein;protein_length=218
+Contig001	Prodigal	CDS	54000	54402	.	+	0	ID=WP_000115381.1;Name=WP_000115381.1;product=hypothetical protein;protein_length=134
+Contig001	Prodigal	CDS	55000	56536	.	+	0	ID=WP_001018723.1;Name=WP_001018723.1;product=hypothetical protein;protein_length=512
+Contig001	Prodigal	CDS	57000	57696	.	+	0	ID=WP_001033720.1;Name=WP_001033720.1;product=hypothetical protein;protein_length=232
+Contig001	Prodigal	CDS	58000	59182	.	+	0	ID=WP_001039466.1;Name=WP_001039466.1;product=hypothetical protein;protein_length=394
+Contig001	Prodigal	CDS	60000	60819	.	-	0	ID=WP_001065363.1;Name=WP_001065363.1;product=hypothetical protein;protein_length=273
+Contig001	Prodigal	CDS	61000	61330	.	-	0	ID=WP_001070440.1;Name=WP_001070440.1;product=hypothetical protein;protein_length=110
+Contig001	Prodigal	CDS	62000	62330	.	-	0	ID=WP_001070442.1;Name=WP_001070442.1;product=hypothetical protein;protein_length=110
+Contig001	Prodigal	CDS	63000	64356	.	-	0	ID=WP_000948732.1;Name=WP_000948732.1;product=hypothetical protein;protein_length=452
+Contig001	Prodigal	CDS	65000	65726	.	-	0	ID=WP_000951551.1;Name=WP_000951551.1;product=hypothetical protein;protein_length=242
+Contig001	Prodigal	CDS	66000	66528	.	-	0	ID=WP_000378442.1;Name=WP_000378442.1;product=hypothetical protein;protein_length=176
+Contig001	Prodigal	CDS	67000	67462	.	-	0	ID=WP_000412431.1;Name=WP_000412431.1;product=hypothetical protein;protein_length=154
+Contig001	Prodigal	CDS	68000	69092	.	-	0	ID=WP_000413685.1;Name=WP_000413685.1;product=hypothetical protein;protein_length=364
+Contig001	Prodigal	CDS	70000	71641	.	+	0	ID=WP_000422211.1;Name=WP_000422211.1;product=hypothetical protein;protein_length=547
+Contig001	Prodigal	CDS	72000	74550	.	+	0	ID=WP_001298208.1;Name=WP_001298208.1;product=hypothetical protein;protein_length=850
+Contig001	Prodigal	CDS	75000	76131	.	+	0	ID=WP_001298522.1;Name=WP_001298522.1;product=hypothetical protein;protein_length=377
+Contig001	Prodigal	CDS	77000	78485	.	+	0	ID=WP_001304260.1;Name=WP_001304260.1;product=hypothetical protein;protein_length=495
+Contig001	Prodigal	CDS	79000	80125	.	+	0	ID=WP_000865543.1;Name=WP_000865543.1;product=hypothetical protein;protein_length=375
+Contig001	Prodigal	CDS	81000	82119	.	+	0	ID=WP_000873806.1;Name=WP_000873806.1;product=hypothetical protein;protein_length=373
+Contig001	Prodigal	CDS	83000	84377	.	+	0	ID=WP_001297164.1;Name=WP_001297164.1;product=hypothetical protein;protein_length=459
+Contig001	Prodigal	CDS	85000	86188	.	+	0	ID=WP_000213368.1;Name=WP_000213368.1;product=hypothetical protein;protein_length=396
+Contig001	Prodigal	CDS	87000	87630	.	+	0	ID=WP_000242755.1;Name=WP_000242755.1;product=hypothetical protein;protein_length=210
+Contig001	Prodigal	CDS	88000	91075	.	+	0	ID=WP_000667507.1;Name=WP_000667507.1;product=hypothetical protein;protein_length=1025
+Contig001	Prodigal	CDS	92000	93401	.	+	0	ID=WP_000675178.1;Name=WP_000675178.1;product=hypothetical protein;protein_length=467
+Contig001	Prodigal	CDS	94000	95245	.	-	0	ID=WP_000678938.1;Name=WP_000678938.1;product=hypothetical protein;protein_length=415
+Contig001	Prodigal	CDS	96000	96345	.	-	0	ID=WP_000679427.1;Name=WP_000679427.1;product=hypothetical protein;protein_length=115
+Contig001	Prodigal	CDS	97000	97858	.	-	0	ID=WP_001620095.1;Name=WP_001620095.1;product=hypothetical protein;protein_length=286
