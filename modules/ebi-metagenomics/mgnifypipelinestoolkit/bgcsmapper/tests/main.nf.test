@@ -1,0 +1,186 @@
+nextflow_process {
+
+    name "Test Process BGCSMAPPER"
+    script "../main.nf"
+    process "BGCSMAPPER"
+
+    tag "modules"
+    tag "modules_ebimetagenomics"
+    tag "mgnifypipelinestoolkit"
+    tag "mgnifypipelinestoolkit/bgcsmapper"
+
+    test("bgcs - all inputs - positive output") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file("${moduleDir}/tests/data/test.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_sanntis.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_gecco.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_antismash.gff.gz", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+
+                {
+                    // process.out.json is emitted as tuple(meta, path)
+                    def tup = process.out.json.find { it[0].id == 'test' }
+                    assert tup != null : "No JSON output tuple found for meta.id=test"
+
+                    def jsonFile = new File(tup[1].toString())
+                    assert jsonFile.exists() : "JSON output file not found: ${jsonFile}"
+
+                    def obj = new groovy.json.JsonSlurper().parse(jsonFile)
+
+                    assert obj.tool.name == "MGnify BGC mapper"
+                    assert obj.tool.version == "mgnify_pipelines_toolkit_v1.4.18"
+                    assert obj.records.size() == 1
+                    assert obj.records[0].name == "b1_04_2.circ"
+                    assert obj.records[0].subregions.size() == 4
+
+                    def labels = (obj.records[0].subregions.collect { it.label } as Set)
+                    assert labels == ["Other", "NRP", "MergedBGC"] as Set
+
+                    // Ensure the two merged regions are present
+                    assert obj.records[0].subregions.count { it.label == "MergedBGC" } == 2
+
+                    // Timestamp exists but is not stable, so only check it is present
+                    assert obj.timestamp != null
+                },
+
+                {
+                    assert snapshot(
+                        process.out.gff,
+                        process.out.findAll { key, val -> key.startsWith("versions") }
+                    ).match()
+                }
+            )
+        }
+
+    }
+
+
+    test("bgcs - all inputs - positive output - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file("${moduleDir}/tests/data/test.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_sanntis.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_gecco.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_antismash.gff.gz", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gff,
+                    process.out.json,
+                    process.out.findAll { key, val -> key.startsWith("versions") }
+                ).match() }
+            )
+        }
+
+    }
+
+
+    test("bgcs - sanntis only - positive output") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file("${moduleDir}/tests/data/test.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_sanntis.gff.gz", checkIfExists: true),
+                    [],
+                    [],
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+
+                {
+                    def tup = process.out.json.find { it[0].id == 'test' }
+                    assert tup != null : "No JSON output tuple found for meta.id=test"
+
+                    def jsonFile = new File(tup[1].toString())
+                    assert jsonFile.exists() : "JSON output file not found: ${jsonFile}"
+
+                    def obj = new groovy.json.JsonSlurper().parse(jsonFile)
+
+                    assert obj.tool.name == "MGnify BGC mapper"
+                    assert obj.tool.version == "mgnify_pipelines_toolkit_v1.4.18"
+                    assert obj.records.size() == 1
+                    assert obj.records[0].name == "b1_04_2.circ"
+                    assert obj.records[0].subregions.size() == 4
+
+                    // All subregions should be SanntiS-only in this test
+                    assert obj.records[0].subregions.every { it.details.bgc_tools == ["sanntis"] }
+
+                    // Timestamp exists but is not stable, so only check it is present
+                    assert obj.timestamp != null
+                },
+
+                {
+                    assert snapshot(
+                        process.out.gff,
+                        process.out.findAll { key, val -> key.startsWith("versions") }
+                    ).match()
+                }
+            )
+        }
+
+    }
+
+    test("bgcs - sanntis only - positive output - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file("${moduleDir}/tests/data/test.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_sanntis.gff.gz", checkIfExists: true),
+                    [],
+                    [],
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gff,
+                    process.out.json,
+                    process.out.findAll { key, val -> key.startsWith("versions") }
+                ).match() }
+            )
+        }
+
+    }
+
+}

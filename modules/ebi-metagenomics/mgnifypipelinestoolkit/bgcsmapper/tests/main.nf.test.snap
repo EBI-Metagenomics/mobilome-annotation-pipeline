@@ -1,0 +1,122 @@
+{
+    "bgcs - sanntis only - positive output - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_bgcs.gff:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_bgcs.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            {
+                "versions_mgnifypipelinestoolkit": [
+                    [
+                        "BGCSMAPPER",
+                        "mgnify-pipelines-toolkit",
+                        "1.4.20"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-20T14:17:29.462593"
+    },
+    "bgcs - all inputs - positive output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_bgcs.gff:md5,73e2fb49eaa487e8d50877eb36f50c8b"
+                ]
+            ],
+            {
+                "versions_mgnifypipelinestoolkit": [
+                    [
+                        "BGCSMAPPER",
+                        "mgnify-pipelines-toolkit",
+                        "1.4.20"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-20T14:17:16.102128"
+    },
+    "bgcs - all inputs - positive output - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_bgcs.gff:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_bgcs.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            {
+                "versions_mgnifypipelinestoolkit": [
+                    [
+                        "BGCSMAPPER",
+                        "mgnify-pipelines-toolkit",
+                        "1.4.20"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-20T14:17:20.126939"
+    },
+    "bgcs - sanntis only - positive output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_bgcs.gff:md5,12e0213e9c24aae7a5d7b4e17cb9586d"
+                ]
+            ],
+            {
+                "versions_mgnifypipelinestoolkit": [
+                    [
+                        "BGCSMAPPER",
+                        "mgnify-pipelines-toolkit",
+                        "1.4.20"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-20T14:17:25.444553"
+    }
+}

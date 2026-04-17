@@ -64,12 +64,7 @@
           "fa_icon": "fas fa-database"
         }
       },
-      "required": [
-        "genomad_db",
-        "icefinder_hmm_models",
-        "icefinder_macsyfinder_models",
-        "icefinder_prokka_uniprot_db"
-      ]
+      "required": ["genomad_db", "icefinder_hmm_models", "icefinder_macsyfinder_models", "icefinder_prokka_uniprot_db"]
     },
     "tools_settings": {
       "title": "Tools settings",
@@ -94,14 +89,14 @@
         },
         "prescan_evalue_threshold": {
           "type": "number",
-          "default": 0.00001,
+          "default": 1e-5,
           "description": "E-value threshold for filtering HMM hits.",
           "help_text": "E-value threshold used during the prescanning step to filter HMM hits before candidate sequence extraction.",
           "fa_icon": "fas fa-filter"
         },
         "outlier_score_threshold": {
           "type": "number",
-          "default": 2.0,
+          "default": 2,
           "description": "Score threshold for compositional outlier detection.",
           "help_text": "Minimum score threshold for identifying compositional outliers in genomic sequences. Higher values are more stringent.",
           "fa_icon": "fas fa-chart-line"
@@ -126,7 +121,6 @@
         },
         "multiqc_config": {
           "type": "string",
-          "default": "./assets/multiqc_config.yml",
           "description": "Config file for MultiQC.",
           "fa_icon": "fas fa-chart-bar"
         },
@@ -134,8 +128,7 @@
           "type": "string",
           "fa_icon": "far fa-calendar",
           "description": "Suffix to add to the trace report filename.",
-          "help_text": "Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
-          "hidden": true
+          "help_text": "Default is the date and time in the format yyyy-MM-dd_HH-mm-ss."
         }
       }
     },
@@ -191,5 +184,83 @@
     {
       "$ref": "#/$defs/max_job_request_options"
     }
-  ]
+  ],
+  "properties": {
+    "pathofact_models": {
+      "type": "string",
+      "description": "Path to Pathofact2 machine learning models"
+    },
+    "virulecefactors_db": {
+      "type": "string",
+      "description": "Path to the Virulence Factors Database (VFDB) directory"
+    },
+    "ncbi_cdd": {
+      "type": "string",
+      "description": "Path to Conserved Domains Database (CDD) directory"
+    },
+    "amrfinderplus_db": {
+      "type": "string",
+      "description": "Path to the  AMRFinderplus database"
+    },
+    "deeparg_db": {
+      "type": "string",
+      "description": "Path to deeparg database"
+    },
+    "rgi_db": {
+      "type": "string",
+      "description": "Path to the CARD database properly formatted for RGI"
+    },
+    "zenodo_id": {
+      "type": "string",
+      "description": "The id of the pathofact database in zenodo"
+    },
+    "vfdb_url": {
+      "type": "string",
+      "description": "Tuple containng the VFDB id (VFDB_setB_pro) and the url to download VFDB using wget (https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz)"
+    },
+    "deeparg_db_version": {
+      "type": "number",
+      "description": "Database version of deeparg"
+    },
+    "deeparg_model": {
+      "type": "string",
+      "description": "Deeparg model: SS for reads or LS for genes/proteins"
+    },
+    "deeparg_tool_version": {
+      "type": "string",
+      "description": "Deeparg tool version"
+    },
+    "antismash_db": {
+      "type": "string",
+      "description": "Path to AntiSMASH databases"
+    },
+    "ips_db": {
+      "type": "string",
+      "description": "Path to Interproscan (IPS) databases"
+    },
+    "skip_amrfinderplus": {
+      "type": "boolean",
+      "description": "skip AMRFinderplus (true) or run it (false)"
+    },
+    "skip_deeparg": {
+      "type": "boolean",
+      "description": "skip Deeparg (true) or run it (false)"
+    },
+    "skip_rgi": {
+      "type": "boolean",
+      "description": "skip RGI (true) or run it (false)"
+    },
+    "skip_sanntis": {
+      "type": "boolean",
+      "description": "skip sanntis (true) or run it (false)"
+    },
+    "skip_gecco": {
+      "type": "boolean",
+      "description": "skip gecco (true) or run it (false)"
+    },
+    "skip_antismash": {
+      "type": "boolean",
+      "description": "skip antismash (true) or run it (false)"
+    }
+  }
 }

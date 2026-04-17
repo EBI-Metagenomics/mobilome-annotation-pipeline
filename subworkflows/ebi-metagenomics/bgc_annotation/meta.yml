@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ebi-metagenomics/nf-modules/master/subworkflows/yaml-schema.json
+name: "bgc_annotation"
+description: Integrates antismash, sanntis and gecco results
+keywords:
+  - sanntis
+  - gecco
+  - antismash
+  - bgc
+  - gff
+components:
+  - antismash/antismash:
+      git_remote: https://github.com/nf-core/modules.git
+  - antismash/antismashdownloaddatabases:
+      git_remote: https://github.com/nf-core/modules.git
+  - gecco/run:
+      git_remote: https://github.com/nf-core/modules.git
+  - gecco/convert:
+      git_remote: https://github.com/nf-core/modules.git
+  - antismash/json2gff
+  - mgnifypipelinestoolkit/gff2gbk
+  - mgnifypipelinestoolkit/bgcsmapper
+  - sanntis
+  - interproscan
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1' ]`
+    ch_inputs:
+      type: file
+      description: |
+        The input channel containing the protein fasta file, the gff file and the interproscan tsv file
+        e.g. `[ [meta], contigs, gff, proteins, ips_annot ]`
+  - ch_antismash_db:
+      type: directory
+      description: |
+        Downloaded AntiSMASH databases (e.g. in the AntiSMASH installation directory
+        "data/databases")
+  - ch_ips_db:
+      type: directory
+      description: Directory containing interproscan database
+  - skip_sanntis:
+      type: boolean
+      description: skip sanntis (true) or run it (false)
+      pattern: "true or false"
+  - skip_gecco:
+      type: boolean
+      description: skip gecco (true) or run it (false)
+      pattern: "true or false"
+  - skip_antismash:
+      type: boolean
+      description: skip antismash (true) or run it (false)
+      pattern: "true or false"
+output:
+  - gff:
+      description: |
+        Channel containing a gff file with BGCs annotation
+        Structure: [ val(meta), path("*.gff") ]
+      meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+      "*.gff":
+        type: file
+        description: gff file with BGCs annotation
+        pattern: "*.gff"
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+authors:
+  - "@Ales-ibt"
+maintainers:
+  - "@Ales-ibt"

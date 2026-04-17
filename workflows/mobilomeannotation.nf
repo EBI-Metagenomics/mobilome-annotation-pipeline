@@ -30,10 +30,12 @@ include { COMBINEREPORTER        } from '../modules/local/combinereporter/main'
     IMPORT SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { COMPOSITIONAL_OUTLIER_DETECTION      } from '../subworkflows/compositional_outlier_detection'
-include { ICEFINDER2_LITE                      } from '../subworkflows/icefinder2lite'
-include { GFF_MAPPING_COMPRESSION_AND_INDEXING } from '../subworkflows/gff_mapping_compression_and_indexing'
+include { COMPOSITIONAL_OUTLIER_DETECTION      } from '../subworkflows/local/compositional_outlier_detection'
+include { ICEFINDER2_LITE                      } from '../subworkflows/local/icefinder2lite'
+include { GFF_MAPPING_COMPRESSION_AND_INDEXING } from '../subworkflows/local/gff_mapping_compression_and_indexing'
 include { PATHOFACT2                           } from '../subworkflows/ebi-metagenomics/pathofact2/main'
+include { AMR_ANNOTATION                       } from '../subworkflows/ebi-metagenomics/amr_annotation/main'
+include { BGC_ANNOTATION                       } from '../subworkflows/ebi-metagenomics/bgc_annotation/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS          } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { MULTIQC                              } from '../modules/nf-core/multiqc/main'
 
@@ -214,7 +216,7 @@ workflow MOBILOMEANNOTATION {
     // POSTPROCESSING
     // Writing fasta file
     FASTA_WRITER(
-        assembly_ch
+        ch_assembly
         .join(INTEGRATOR.out.mobilome_gff)
     )
     ch_versions = ch_versions.mix(FASTA_WRITER.out.versions)
@@ -232,7 +234,7 @@ workflow MOBILOMEANNOTATION {
     ch_versions = ch_versions.mix(GFF_MAPPING_COMPRESSION_AND_INDEXING.out.versions)
 
 
-    // GENERATING PROTEIN-LEVEL ANNOTATION PATHOFACT2 STYLE
+    // GENERATING PATHOFACT2-STYLE ANNOTATION
     // Get Prodigal outputs
     ch_prodigal_proteins = TRNAS_INTEGRATOR.out.merged_faa
         .join(TRNAS_INTEGRATOR.out.merged_gff)
@@ -256,29 +258,75 @@ workflow MOBILOMEANNOTATION {
     // Build PATHOFACT2 ch_inputs: tuple(meta, aminoacids, cds_gff, ips_tsv)
     ch_pathofact_inputs = ch_proteins_source
         .join(ch_user_ips, remainder: true)
-        .map { meta, fasta, gff, ips_tsv ->
-            tuple(meta, fasta, gff, ips_tsv ?: [])
+        .map { meta, proteins, gff, ips_tsv ->
+            tuple(meta, proteins, gff, ips_tsv ?: [])
         }
 
     // Calling pathofact2 databases
-    ch_models = channel.of(file(params.ch_models, type="dir", checkIfExists: true))
-    ch_vfdb =   channel.of(file(params.ch_vfdb, type="dir", checkIfExists: true))
-    ch_cdd =    channel.of(file(params.ch_cdd, type="dir", checkIfExists: true))
-    ch_zenodo_id = ''
-    ch_vfdb_url =  ''
+    ch_models = channel.fromPath(file(params.pathofact_models, type="dir", checkIfExists: true))
+    ch_vfdb   = channel.fromPath(file(params.virulecefactors_db, type="dir", checkIfExists: true))
+    ch_cdd    = channel.fromPath(file(params.ncbi_cdd, type="dir", checkIfExists: true))
 
-    // Call PATHOFACT2
     PATHOFACT2(
         ch_pathofact_inputs,
         ch_models,
         ch_vfdb,
         ch_cdd,
-        ch_zenodo_id,
-        ch_vfdb_url
+        params.zenodo_id,
+        params.vfdb_url
     )
+    ch_versions = ch_versions.mix(PATHOFACT2.out.versions)
 
-    // Ingesting proteins annotation into report generator
-    COMBINEREPORTER
+    // AMR_ANNOTATION ch_inputs: tuple(meta, aminoacids, cds_gff) ready in ch_proteins_source
+    // Calling amr annotation databases
+    ch_amrfinderplus_db     = channel.fromPath(file(params.amrfinderplus_db, type="dir", checkIfExists: true))
+    ch_deeparg_db           = channel.fromPathfile(params.deeparg_db, type="dir", checkIfExists: true))
+    ch_rgi_db               = channel.fromPath(file(params.rgi_db, type="dir", checkIfExists: true))
+
+    AMR_ANNOTATION(
+        ch_proteins_source,
+        ch_amrfinderplus_db,
+        ch_deeparg_db,
+        params.deeparg_db_version,
+        params.deeparg_model,
+        params.deeparg_tool_version,
+        ch_rgi_db,
+        params.skip_amrfinderplus,
+        params.skip_deeparg,
+        params.skip_rgi
+    )
+    ch_versions = ch_versions.mix(AMR_ANNOTATION.out.versions)
+
+    // build BGC_ANNOTATION ch_inputs: tuple( val(meta), path(contigs), path(gff), path(proteins), path(ips_annot) ) 
+    ch_bgc_inputs = ch_proteins_source
+        .join( RENAME.out.contigs_5kb )
+        .join(ch_user_ips, remainder: true)
+        .map { meta, proteins, gff, contigs, ips_tsv ->
+            tuple(meta, contigs, gff, proteins, ips_tsv ?: [])
+        }
+  
+    // Calling bgc annotation databases
+    ch_antismash_db = channel.fromPath(file(params.antismash_db, type="dir", checkIfExists: true))
+    ch_ips_db       = channel.fromPath(file(params.ips_db, type="dir", checkIfExists: true))
+
+    BGC_ANNOTATION(
+        ch_bgc_inputs,
+        ch_antismash_db,
+        ch_ips_db,
+        params.skip_sanntis,
+        params.skip_gecco,
+        params.skip_antismash
+    )
+    ch_versions = ch_versions.mix(BGC_ANNOTATION.out.versions)
+    def ch_bgc_gff = BGC_ANNOTATION.bgc_output.mapparams.deeparg_tool_version { meta, gff, _json -> tuple(meta, gff) }
+
+    // Generating the Pathofatc2-style combined report
+    ch_combinereporter_input = INTEGRATOR.out.mobilome_gff
+        .join(PATHOFACT2.out.gff)
+        .join(AMR_ANNOTATION.out.gff)
+        .join(ch_bgc_gff)
+
+    COMBINEREPORTER( ch_combinereporter_input )
 
     //
     // Collate and save software versions

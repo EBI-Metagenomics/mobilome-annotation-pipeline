@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "sanntis"
+description: Runs SanntiS to identify biosynthetic gene clusters.
+keywords:
+  - sanntis
+  - biosynthetic gene clusters
+  - BGCs
+tools:
+  - "sanntis":
+      description: "SMBGC Annotation using Neural Networks Trained on Interpro Signatures"
+      homepage: "https://github.com/Finn-Lab/SanntiS"
+      documentation: "https://github.com/Finn-Lab/SanntiS/blob/master/README.md"
+      tool_dev_url: "https://github.com/Finn-Lab/SanntiS"
+      doi: "10.1101/2023.05.23.540769"
+      licence: ["Apache-2.0"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing genome information - genome accession or ID to use.
+    - interproscan:
+        type: file
+        description: The InteproScan TSV or GFF output
+        pattern: "*.{tsv.gz,tsv,gff,gff.gz,gff3,gff3.gz}"
+    - gbk:
+        type: file
+        description: A file in .gbk format specifying the coding sequences.
+        pattern: "*.{gbk,gbk.gz}"
+    - faa:
+        type: file
+        description: The prodigal of combined gene caller proteins in fasta format
+        pattern: "*.{fasta,fasta.gz,faa,faa.gz}"
+output:
+  - gff:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing genome information - genome accession or ID to use.
+      - "*_sanntis.gff.gz":
+          type: file
+          description: The compresssed GFF3 clusters
+          pattern: "*.gff.gz"
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+authors:
+  - "@tgurbich"
+  - "@mberacochea"
+
+maintainers:
+  - "@tgurbich"
+  - "@mberacochea"
+  - "@SantiagoSanchezF"

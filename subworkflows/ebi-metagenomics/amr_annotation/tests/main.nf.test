@@ -1,0 +1,211 @@
+nextflow_workflow {
+
+    name "Test Subworkflow AMR_ANNOTATION"
+    script "../main.nf"
+    workflow "AMR_ANNOTATION"
+    config "./nextflow.config"
+
+    tag "subworkflows"
+    tag "subworkflows_ebimetagenomics"
+    tag "subworkflows/amr_annotation"
+    tag "amrintegrator"
+    tag "rgi/downloaddata"
+    tag "nf-core/amrfinderplus"
+    tag "nf-core/amrfinderplus/update"
+    tag "nf-core/amrfinderplus/run"
+    tag "nf-core/deeparg"
+    tag "nf-core/deeparg/predict"
+    tag "nf-core/deeparg/downloaddata"
+    tag "nf-core/rgi"
+    tag "nf-core/rgi/cardannotation"
+    tag "nf-core/rgi/main"
+    tag "nf-core/hamronization"
+    tag "nf-core/hamronization/rgi"
+    tag "nf-core/hamronization/deeparg"
+
+    setup {
+        nfcoreInitialise("${launchDir}/library/")
+        nfcoreInstall(
+            "${launchDir}/library/",
+            [
+                "amrfinderplus/update",
+                "amrfinderplus/run",
+                "deeparg/downloaddata",
+                "deeparg/predict",
+                "rgi/cardannotation",
+                "rgi/main",
+                "hamronization/rgi",
+                "hamronization/deeparg"
+            ]
+        )
+        nfcoreLink("${launchDir}/library/", "${baseDir}/modules/")
+    }
+
+    test("detect_amr - amrfinderplus") {
+        when {
+            workflow {
+                """
+                input[0] = channel.of( [ [ id:'test' ], // meta map
+                    file('${moduleDir}/tests/data/pos_minitest.faa', checkIfExists: true),
+                    file('${moduleDir}/tests/data/minitest.gff', checkIfExists: true)
+                ])
+                input[1] = null        // channel: path( amrfinderplus_db )
+                input[2] = null        // channel: path( deeparg )
+                input[3] = null        // channel: val( deeparg_db_version )
+                input[4] = null        // channel: val( deeparg_model )
+                input[5] = null        // channel: val( deeparg_tool_version )
+                input[6] = null        // channel: path( rgi_db )
+                input[7] = false       // boolean skip_amrfinderplus
+                input[8] = true        // boolean skip_deeparg
+                input[9] = true        // boolean skip_rgi
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+
+        cleanup {
+            nfcoreUnlink("${launchDir}/library/", "${baseDir}/modules/nf-core")
+        }
+    }
+
+    test("detect_amr - rgi") {
+        when {
+            workflow {
+                """
+                input[0] = channel.of( [ [ id:'test' ], // meta map
+                    file('${moduleDir}/tests/data/pos_minitest.faa', checkIfExists: true),
+                    file('${moduleDir}/tests/data/minitest.gff', checkIfExists: true)
+                ])
+                input[1] = null        // channel: path( amrfinderplus_db )
+                input[2] = null        // channel: path( deeparg )
+                input[3] = null        // channel: val( deeparg_db_version )
+                input[4] = null        // channel: val( deeparg_model )
+                input[5] = null        // channel: val( deeparg_tool_version )
+                input[6] = null        // channel: path( rgi_db )
+                input[7] = true        // boolean skip_amrfinderplus
+                input[8] = true        // boolean skip_deeparg
+                input[9] = false       // boolean skip_rgi
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+
+        cleanup {
+            nfcoreUnlink("${launchDir}/library/", "${baseDir}/modules/nf-core")
+        }
+    }
+
+    test("detect_amr - deeparg") {
+        when {
+            workflow {
+                """
+                input[0] = channel.of( [ [ id:'test' ], // meta map
+                    file('${moduleDir}/tests/data/pos_minitest.faa', checkIfExists: true),
+                    file('${moduleDir}/tests/data/minitest.gff', checkIfExists: true)
+                ])
+                input[1] = null        // channel: path( amrfinderplus_db )
+                input[2] = channel.of( file('${moduleDir}/tests/databases/minideeparg/db', checkIfExists: true) )       // channel: path( deeparg )
+                input[3] = "2"         // channel: val( deeparg_db_version )
+                input[4] = "LS"        // channel: val( deeparg_model )
+                input[5] = "1.0.4"     // channel: val( deeparg_tool_version )
+                input[6] = null        // channel: path( rgi_db )
+                input[7] = true        // boolean skip_amrfinderplus
+                input[8] = false       // boolean skip_deeparg
+                input[9] = true        // boolean skip_rgi
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+
+        cleanup {
+            nfcoreUnlink("${launchDir}/library/", "${baseDir}/modules/nf-core")
+        }
+    }
+
+    test("detect_amr - no prediction") {
+        when {
+            workflow {
+                """
+                input[0] = channel.of( [ [ id:'test' ], // meta map
+                    file('${moduleDir}/tests/data/pos_minitest.faa', checkIfExists: true),
+                    file('${moduleDir}/tests/data/minitest.gff', checkIfExists: true)
+                ])
+                input[1] = null        // channel: path( amrfinderplus_db )
+                input[2] = null        // channel: path( deeparg )
+                input[3] = null        // channel: val( deeparg_db_version )
+                input[4] = null        // channel: val( deeparg_model )
+                input[5] = null        // channel: val( deeparg_tool_version )
+                input[6] = null        // channel: path( rgi_db )
+                input[7] = true        // boolean skip_amrfinderplus
+                input[8] = true        // boolean skip_deeparg
+                input[9] = true        // boolean skip_rgi
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(workflow.out).match()}
+            )
+        }
+
+        cleanup {
+            nfcoreUnlink("${launchDir}/library/", "${baseDir}/modules/nf-core")
+        }
+    }
+
+    test("detect_amr - all tools - no matches") {
+        when {
+            workflow {
+                """
+                input[0] = channel.of( [ [ id:'test' ], // meta map
+                    file('${moduleDir}/tests/data/neg_minitest.faa', checkIfExists: true),
+                    file('${moduleDir}/tests/data/minitest.gff', checkIfExists: true)
+                ])
+                input[1] = null        // channel: path( amrfinderplus_db )
+                input[2] = channel.of( file('${moduleDir}/tests/databases/minideeparg/db', checkIfExists: true) )       // channel: path( deeparg )
+                input[3] = "2"         // channel: val( deeparg_db_version )
+                input[4] = "LS"        // channel: val( deeparg_model )
+                input[5] = "1.0.4"     // channel: val( deeparg_tool_version )
+                input[6] = null        // channel: path( rgi_db )
+                input[7] = false       // boolean skip_amrfinderplus
+                input[8] = false       // boolean skip_deeparg
+                input[9] = false       // boolean skip_rgi
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success},
+               { assert snapshot(
+                    workflow.out,
+                    workflow.out.versions.collect{ path(it).yaml }.unique()
+                ).match() }
+            )
+        }
+
+        cleanup {
+            nfcoreUnlink("${launchDir}/library/", "${baseDir}/modules/nf-core")
+        }
+    }
+}

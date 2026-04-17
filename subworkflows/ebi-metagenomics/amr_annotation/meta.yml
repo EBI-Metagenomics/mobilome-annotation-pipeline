@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ebi-metagenomics/nf-modules/master/subworkflows/yaml-schema.json
+name: "amr_annotation"
+description: AMR annotation, harmonisation and integration
+keywords:
+  - amr
+  - deeparg
+  - rgi
+  - amrfinderplus
+  - hamronization
+  - gff
+components:
+  - deeparg/downloaddata:
+      git_remote: https://github.com/nf-core/modules.git
+  - deeparg/predict:
+      git_remote: https://github.com/nf-core/modules.git
+  - hamronization/deeparg:
+      git_remote: https://github.com/nf-core/modules.git
+  - rgi/cardannotation:
+      git_remote: https://github.com/nf-core/modules.git
+  - rgi/main:
+      git_remote: https://github.com/nf-core/modules.git
+  - hamronization/rgi:
+      git_remote: https://github.com/nf-core/modules.git
+  - amrfinderplus/update:
+      git_remote: https://github.com/nf-core/modules.git
+  - amrfinderplus/run:
+      git_remote: https://github.com/nf-core/modules.git
+  - amrintegrator
+  - rgi/downloaddb
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. `[ id:'sample1', single_end:false ]`
+    ch_inputs:
+      type: file
+      description: |
+        The input channel containing the protein fasta file and gff file
+        e.g. `[ [meta], aminoacids, cds_gff ]`
+  - ch_amrfinderplus_db:
+      type: file
+      description: |
+        The input channel containing the path to the compressed amrfinderplus database
+      pattern: "*.tar.gz"
+  - ch_deeparg_db:
+      type: file
+      description: |
+        The input channel containing the path to deeparg database
+  - ch_deeparg_db_version:
+      type: value
+      description: |
+        The input channel containing the database version of deeparg
+      pattern: "[0-9]"
+  - ch_deeparg_model:
+      type: value
+      description: |
+        The input channel containing the deeparg model
+        SS for reads or LS for genes/proteins
+      pattern: "SS or LS"
+  - ch_deeparg_tool_version:
+      type: value
+      description: |
+        The input channel containing the deeparg tool version
+      pattern: "[0-9].[0-9].[0-9]"
+  - ch_rgi_db:
+      type: file
+      description: |
+        The input channel containing the path to the CARD database
+        properly formatted for RGI
+  - skip_amrfinderplus:
+      type: boolean
+      description: skip amrfinderplus (true) or run it (false)
+      pattern: "true or false"
+  - skip_deeparg:
+      type: boolean
+      description: skip deeparg (true) or run it (false)
+      pattern: "true or false"
+  - skip_rgi:
+      type: boolean
+      description: skip rgi (true) or run it (false)
+      pattern: "true or false"
+output:
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+  - gff:
+      description: |
+        Channel containing a gff file with ARG annotation
+        Structure: [ val(meta), path("*.gff") ]
+      meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+      "*.gff":
+        type: file
+        description: gff file with ARG annotation
+        pattern: "*.gff"
+authors:
+  - "@Ales-ibt"

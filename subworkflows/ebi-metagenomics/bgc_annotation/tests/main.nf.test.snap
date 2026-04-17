@@ -1,0 +1,190 @@
+{
+    "negative test - no BGCs expected - gecco": {
+        "content": [
+            [
+                
+            ],
+            {
+                "versions": [
+                    
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-26T15:14:47.95106"
+    },
+    "positive test - contigs, gff, proteins, ips - gecco": {
+        "content": [
+            {
+                "file": "test_bgcs.gff",
+                "n_lines": 39,
+                "n_bgc_regions": 2,
+                "bgc_regions": [
+                    "b1_04_2.circ\tGECCO v0.10.1\tbgc_region\t241259\t308608\t.\t.\t.\tID=b1_04_2.circ|bgc:241259-308608;bgc_tools=gecco;gecco_bgc_type=NRP,Polyketide",
+                    "b1_04_2.circ\tGECCO v0.10.1\tbgc_region\t315331\t326252\t.\t.\t.\tID=b1_04_2.circ|bgc:315331-326252;bgc_tools=gecco;gecco_bgc_type=NRP"
+                ],
+                "n_cds": 36,
+                "first_cds": "b1_04_2.circ\tProdigal:002006\tCDS\t241259\t242098\t.\t-\t0\tID=b1_04_06058;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:ISfinder:ISBce14;locus_tag=b1_04_06058;product=IS3 family transposase ISBce14;bgc_tools=gecco;gecco_bgc_type=NRP,Polyketide;bgc_support=1.00"
+            },
+            {
+                "file": "test_bgcs.json",
+                "tool_name": "MGnify BGC mapper",
+                "tool_version": "mgnify_pipelines_toolkit_v1.4.18",
+                "n_records": 1,
+                "record_name": "b1_04_2.circ",
+                "n_subregions": 2,
+                "subregions": [
+                    {
+                        "start": 241258,
+                        "end": 308608,
+                        "label": "NRP_Polyketide"
+                    },
+                    {
+                        "start": 315330,
+                        "end": 326252,
+                        "label": "NRP"
+                    }
+                ],
+                "bgc_tools": [
+                    [
+                        "gecco"
+                    ],
+                    [
+                        "gecco"
+                    ]
+                ]
+            },
+            [
+                "versions.yml:md5,712035f0fab0d81992eb5e05486d8a68"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-26T15:14:19.49424"
+    },
+    "positive test - contigs, gff, proteins, ips - sanntis": {
+        "content": [
+            {
+                "file": "test_bgcs.gff",
+                "n_lines": 87,
+                "n_bgc_regions": 4,
+                "bgc_regions": [
+                    "b1_04_2.circ\tSanntiSv0.9.4.1\tbgc_region\t142110\t148437\t.\t.\t.\tID=b1_04_2.circ|bgc:142110-148437;bgc_tools=sanntis;nearest_MiBIG=BGC0000849;nearest_MiBIG_class=Other",
+                    "b1_04_2.circ\tSanntiSv0.9.4.1\tbgc_region\t177406\t188436\t.\t.\t.\tID=b1_04_2.circ|bgc:177406-188436;bgc_tools=sanntis;nearest_MiBIG=BGC0001844;nearest_MiBIG_class=NRP",
+                    "b1_04_2.circ\tSanntiSv0.9.4.1\tbgc_region\t217314\t226605\t.\t.\t.\tID=b1_04_2.circ|bgc:217314-226605;bgc_tools=sanntis;nearest_MiBIG=BGC0000600;nearest_MiBIG_class=RiPP",
+                    "b1_04_2.circ\tSanntiSv0.9.4.1\tbgc_region\t234258\t330050\t.\t.\t.\tID=b1_04_2.circ|bgc:234258-330050;bgc_tools=sanntis;nearest_MiBIG=BGC0001059;nearest_MiBIG_class=NRP Polyketide"
+                ],
+                "n_cds": 82,
+                "first_cds": "b1_04_2.circ\tProdigal:002006\tCDS\t142110\t142544\t.\t+\t0\tID=b1_04_05961;inference=ab initio prediction:Prodigal:002006;locus_tag=b1_04_05961;product=hypothetical protein;bgc_tools=sanntis;nearest_MiBIG=BGC0000849;nearest_MiBIG_class=Other;bgc_support=1.00"
+            },
+            {
+                "file": "test_bgcs.json",
+                "tool_name": "MGnify BGC mapper",
+                "tool_version": "mgnify_pipelines_toolkit_v1.4.18",
+                "n_records": 1,
+                "record_name": "b1_04_2.circ",
+                "n_subregions": 4,
+                "subregions": [
+                    {
+                        "start": 142109,
+                        "end": 148437,
+                        "label": "Other"
+                    },
+                    {
+                        "start": 177405,
+                        "end": 188436,
+                        "label": "NRP"
+                    },
+                    {
+                        "start": 217313,
+                        "end": 226605,
+                        "label": "RiPP"
+                    },
+                    {
+                        "start": 234257,
+                        "end": 330050,
+                        "label": "NRP_Polyketide"
+                    }
+                ],
+                "bgc_tools": [
+                    [
+                        "sanntis"
+                    ],
+                    [
+                        "sanntis"
+                    ],
+                    [
+                        "sanntis"
+                    ],
+                    [
+                        "sanntis"
+                    ]
+                ]
+            },
+            [
+                "versions.yml:md5,918e0437f73ae0527d0f8e7d32b3d430"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-26T15:10:20.91029"
+    },
+    "positive test - contigs, gff, proteins, ips - antismash": {
+        "content": [
+            {
+                "file": "test_bgcs.gff",
+                "n_lines": 88,
+                "n_bgc_regions": 2,
+                "bgc_regions": [
+                    "b1_04_2.circ\tantiSMASH:8.0.1\tbgc_region\t210661\t232040\t.\t.\t.\tID=b1_04_2.circ|bgc:210661-232040;antismash_product=sactipeptide;antismash_region_id=b1_04_2.circ_region1;bgc_tools=antismash",
+                    "b1_04_2.circ\tantiSMASH:8.0.1\tbgc_region\t237180\t342929\t.\t.\t.\tID=b1_04_2.circ|bgc:237180-342929;antismash_product=NRPS,lanthipeptide-class-ii,T1PKS;antismash_region_id=b1_04_2.circ_region2;bgc_tools=antismash"
+                ],
+                "n_cds": 85,
+                "first_cds": "b1_04_2.circ\tProdigal:002006\tCDS\t211322\t211720\t.\t-\t0\tID=b1_04_06024;inference=ab initio prediction:Prodigal:002006;locus_tag=b1_04_06024;product=hypothetical protein;bgc_tools=antismash;antismash_product=sactipeptide;antismash_as_type=other;bgc_support=1.00"
+            },
+            {
+                "file": "test_bgcs.json",
+                "tool_name": "MGnify BGC mapper",
+                "tool_version": "mgnify_pipelines_toolkit_v1.4.18",
+                "n_records": 1,
+                "record_name": "b1_04_2.circ",
+                "n_subregions": 2,
+                "subregions": [
+                    {
+                        "start": 210660,
+                        "end": 232040,
+                        "label": "sactipeptide"
+                    },
+                    {
+                        "start": 237179,
+                        "end": 342929,
+                        "label": "NRPS_lanthipeptide-c"
+                    }
+                ],
+                "bgc_tools": [
+                    [
+                        "antismash"
+                    ],
+                    [
+                        "antismash"
+                    ]
+                ]
+            },
+            [
+                "versions.yml:md5,8539dcbd24dc6d320292783e89fad325"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-26T15:13:42.155677"
+    }
+}

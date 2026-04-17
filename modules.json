@@ -2,9 +2,34 @@
   "name": "ebi-metagenomics/mobilome-annotation-pipeline",
   "homePage": "https://github.com/ebi-metagenomics/mobilome-annotation-pipeline",
   "repos": {
-    "https://github.com/EBI-Metagenomics/nf-modules": {
+    "https://github.com/EBI-Metagenomics/nf-modules.git": {
       "modules": {
         "ebi-metagenomics": {
+          "amrintegrator": {
+            "branch": "main",
+            "git_sha": "0cc2e0c357a04995f8b181d2385aacc89b547b77",
+            "installed_by": ["amr_annotation"]
+          },
+          "antismash/json2gff": {
+            "branch": "main",
+            "git_sha": "7f59c3e19f4180d6892c189e4cbfcf9e4365eda8",
+            "installed_by": ["modules"]
+          },
+          "interproscan": {
+            "branch": "main",
+            "git_sha": "f4d61e3e3614e4d3baeccc84ddf4a7c094366d44",
+            "installed_by": ["modules"]
+          },
+          "mgnifypipelinestoolkit/bgcsmapper": {
+            "branch": "main",
+            "git_sha": "9b2c4d062dc809d0ad704a92235c0b9ae699d133",
+            "installed_by": ["modules"]
+          },
+          "mgnifypipelinestoolkit/gff2gbk": {
+            "branch": "main",
+            "git_sha": "53e5bdcfcd2c42af770d97d926002ef5d0273dea",
+            "installed_by": ["modules"]
+          },
           "pathofact2/downloaddata": {
             "branch": "main",
             "git_sha": "93b165a2e3c0d9704535b4781112497444e3ab44",
@@ -29,11 +54,31 @@
             "branch": "main",
             "git_sha": "be4014b61ce2e776e0bd7afe7033ef2d6e4541bd",
             "installed_by": ["pathofact2"]
+          },
+          "rgi/downloaddb": {
+            "branch": "main",
+            "git_sha": "0cc2e0c357a04995f8b181d2385aacc89b547b77",
+            "installed_by": ["amr_annotation"]
+          },
+          "sanntis": {
+            "branch": "main",
+            "git_sha": "0d489b1617f2015cd99eea7f9369491723eb9260",
+            "installed_by": ["modules"]
           }
         }
       },
       "subworkflows": {
         "ebi-metagenomics": {
+          "amr_annotation": {
+            "branch": "main",
+            "git_sha": "794a1496b50fb634b933a71bfd5e3aaf4ad6f7d9",
+            "installed_by": ["subworkflows"]
+          },
+          "bgc_annotation": {
+            "branch": "main",
+            "git_sha": "2201fb349d3be8d600ea98c73c269f4834f34818",
+            "installed_by": ["subworkflows"]
+          },
           "pathofact2": {
             "branch": "main",
             "git_sha": "b3e8397401a6dae903d4290d913a7d34e8cf770b",
@@ -45,20 +90,50 @@
     "https://github.com/nf-core/modules.git": {
       "modules": {
         "nf-core": {
+          "amrfinderplus/run": {
+            "branch": "master",
+            "git_sha": "9e87466af165c7fa800d7805a227249829d911c2",
+            "installed_by": ["amr_annotation"]
+          },
+          "amrfinderplus/update": {
+            "branch": "master",
+            "git_sha": "9e87466af165c7fa800d7805a227249829d911c2",
+            "installed_by": ["amr_annotation"]
+          },
+          "antismash/antismash": {
+            "branch": "master",
+            "git_sha": "438c0df9743ab74933411ee894db176ec05ad07d",
+            "installed_by": ["modules"]
+          },
+          "antismash/antismashdownloaddatabases": {
+            "branch": "master",
+            "git_sha": "438c0df9743ab74933411ee894db176ec05ad07d",
+            "installed_by": ["modules"]
+          },
           "blast/blastn": {
             "branch": "master",
-            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d",
             "installed_by": ["modules"]
           },
           "blast/blastp": {
             "branch": "master",
-            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "git_sha": "3a9acfe9865ac6f63bc48667657bfb8293613f56",
             "installed_by": ["modules"]
           },
           "custom/dumpsoftwareversions": {
             "branch": "master",
-            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "git_sha": "e753770db613ce014b3c4bc94f6cba443427b726",
             "installed_by": ["modules"]
+          },
+          "deeparg/downloaddata": {
+            "branch": "master",
+            "git_sha": "5ee27138b6d2fc0f9a0d13c33bfda17dcd8cb3c8",
+            "installed_by": ["amr_annotation"]
+          },
+          "deeparg/predict": {
+            "branch": "master",
+            "git_sha": "5ee27138b6d2fc0f9a0d13c33bfda17dcd8cb3c8",
+            "installed_by": ["amr_annotation"]
           },
           "diamond/blastp": {
             "branch": "master",
@@ -68,23 +143,42 @@
           "diamond/makedb": {
             "branch": "master",
             "git_sha": "96595d56273108853c872fb90bbefc675af7911a",
-            "installed_by": ["pathofact2"]
+            "installed_by": ["modules", "pathofact2"]
+          },
+          "gecco/convert": {
+            "branch": "master",
+            "git_sha": "0d75d9a1f328368e06ccc5474cd5553a51672979",
+            "installed_by": ["modules"]
+          },
+          "gecco/run": {
+            "branch": "master",
+            "git_sha": "d55ff2efcf02419f2df246427d3646f2baee9e2e",
+            "installed_by": ["modules"]
           },
           "gt/gff3validator": {
             "branch": "master",
             "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-            "installed_by": ["modules"],
-            "patch": "modules/nf-core/gt/gff3validator/gt-gff3validator.diff"
+            "installed_by": ["modules"]
+          },
+          "hamronization/deeparg": {
+            "branch": "master",
+            "git_sha": "e753770db613ce014b3c4bc94f6cba443427b726",
+            "installed_by": ["amr_annotation"]
+          },
+          "hamronization/rgi": {
+            "branch": "master",
+            "git_sha": "5e748ff2b0f990949081c9e49792622eb3fe9ee9",
+            "installed_by": ["amr_annotation"]
           },
           "localcdsearch/annotate": {
             "branch": "master",
             "git_sha": "c7b8a51247112b76b89dd87b9dbe081085113590",
-            "installed_by": ["pathofact2"]
+            "installed_by": ["modules", "pathofact2"]
           },
           "localcdsearch/download": {
             "branch": "master",
             "git_sha": "c7b8a51247112b76b89dd87b9dbe081085113590",
-            "installed_by": ["pathofact2"]
+            "installed_by": ["modules", "pathofact2"]
           },
           "multiqc": {
             "branch": "master",
@@ -93,8 +187,18 @@
           },
           "prodigal": {
             "branch": "master",
-            "git_sha": "ddb0d667cf6cdee3bab9497241de4bbf6b88d8cc",
+            "git_sha": "90aef30f432332bdf0ce9f4b9004aa5d5c4960bb",
             "installed_by": ["modules"]
+          },
+          "rgi/cardannotation": {
+            "branch": "master",
+            "git_sha": "70c072e30155e7671be828762be16576bd4afca7",
+            "installed_by": ["amr_annotation"]
+          },
+          "rgi/main": {
+            "branch": "master",
+            "git_sha": "5e748ff2b0f990949081c9e49792622eb3fe9ee9",
+            "installed_by": ["amr_annotation"]
           },
           "tabix/bgzip": {
             "branch": "master",
@@ -109,9 +213,12 @@
           "wget": {
             "branch": "master",
             "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-            "installed_by": ["pathofact2"]
+            "installed_by": ["modules", "pathofact2"]
           }
         }
+      },
+      "subworkflows": {
+        "nf-core": {}
       }
     }
   }

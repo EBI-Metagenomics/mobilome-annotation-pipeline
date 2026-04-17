@@ -1,0 +1,230 @@
+{
+    "detect_amr - rgi": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "integrated_test.gff:md5,119d0f37cc4cdbea5fbcd3e031404aa6"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,021a31bcc2128ed0ed1bcf43349b1d9c",
+                    "versions.yml:md5,bd214ce938c1f167a3f05698a34ec733",
+                    "versions.yml:md5,c02852d022ae517dd60f0bd3e2e01bad",
+                    "versions.yml:md5,ccaacabd7a38001068410e8a20c5a578",
+                    "versions.yml:md5,ea4f401ef6963b677962d9d5cf0d3ca9"
+                ],
+                "gff": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "integrated_test.gff:md5,119d0f37cc4cdbea5fbcd3e031404aa6"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,021a31bcc2128ed0ed1bcf43349b1d9c",
+                    "versions.yml:md5,bd214ce938c1f167a3f05698a34ec733",
+                    "versions.yml:md5,c02852d022ae517dd60f0bd3e2e01bad",
+                    "versions.yml:md5,ccaacabd7a38001068410e8a20c5a578",
+                    "versions.yml:md5,ea4f401ef6963b677962d9d5cf0d3ca9"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2025-12-04T14:21:18.198127"
+    },
+    "detect_amr - amrfinderplus": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "integrated_test.gff:md5,cf8e9ed4ecef0ef6dc2955727b1ef74a"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,6204b5287c28ef11d7a431e8b0546b4e",
+                    "versions.yml:md5,bd214ce938c1f167a3f05698a34ec733",
+                    "versions.yml:md5,c71602c91ecc6e41baa992a59300567b"
+                ],
+                "gff": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "integrated_test.gff:md5,cf8e9ed4ecef0ef6dc2955727b1ef74a"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,6204b5287c28ef11d7a431e8b0546b4e",
+                    "versions.yml:md5,bd214ce938c1f167a3f05698a34ec733",
+                    "versions.yml:md5,c71602c91ecc6e41baa992a59300567b"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2025-12-04T14:20:22.806938"
+    },
+    "detect_amr - no prediction": {
+        "content": [
+            {
+                "0": [
+                    
+                ],
+                "1": [
+                    
+                ],
+                "gff": [
+                    
+                ],
+                "versions": [
+                    
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2025-12-04T14:22:34.544903"
+    },
+    "detect_amr - all tools - no matches": {
+        "content": [
+            {
+                "0": [
+                    
+                ],
+                "1": [
+                    "versions.yml:md5,021a31bcc2128ed0ed1bcf43349b1d9c",
+                    "versions.yml:md5,4a507eebbdf506fc8fba262ca489aa56",
+                    "versions.yml:md5,61162bd89527a3be2d089648e2fec975",
+                    "versions.yml:md5,6204b5287c28ef11d7a431e8b0546b4e",
+                    "versions.yml:md5,bd214ce938c1f167a3f05698a34ec733",
+                    "versions.yml:md5,c02852d022ae517dd60f0bd3e2e01bad",
+                    "versions.yml:md5,c71602c91ecc6e41baa992a59300567b",
+                    "versions.yml:md5,ccaacabd7a38001068410e8a20c5a578",
+                    "versions.yml:md5,ea4f401ef6963b677962d9d5cf0d3ca9"
+                ],
+                "gff": [
+                    
+                ],
+                "versions": [
+                    "versions.yml:md5,021a31bcc2128ed0ed1bcf43349b1d9c",
+                    "versions.yml:md5,4a507eebbdf506fc8fba262ca489aa56",
+                    "versions.yml:md5,61162bd89527a3be2d089648e2fec975",
+                    "versions.yml:md5,6204b5287c28ef11d7a431e8b0546b4e",
+                    "versions.yml:md5,bd214ce938c1f167a3f05698a34ec733",
+                    "versions.yml:md5,c02852d022ae517dd60f0bd3e2e01bad",
+                    "versions.yml:md5,c71602c91ecc6e41baa992a59300567b",
+                    "versions.yml:md5,ccaacabd7a38001068410e8a20c5a578",
+                    "versions.yml:md5,ea4f401ef6963b677962d9d5cf0d3ca9"
+                ]
+            },
+            [
+                {
+                    "AMR_ANNOTATION:RGI_MAIN": {
+                        "rgi": "6.0.5",
+                        "rgi-database": "4.0.1"
+                    }
+                },
+                {
+                    "AMR_ANNOTATION:DEEPARG_PREDICT": {
+                        "deeparg": "1.0.4"
+                    }
+                },
+                {
+                    "AMR_ANNOTATION:HAMRONIZATION_DEEPARG": {
+                        "hamronization": "1.1.9"
+                    }
+                },
+                {
+                    "AMR_ANNOTATION:AMRFINDERPLUS_RUN": {
+                        "amrfinderplus": "4.0.23",
+                        "amrfinderplus-database": "2025-07-16.1"
+                    }
+                },
+                {
+                    "AMR_ANNOTATION:AMRINTEGRATOR": {
+                        "mgnify-pipelines-toolkit": "1.4.6"
+                    }
+                },
+                {
+                    "AMR_ANNOTATION:RGI_DOWNLOADDB": {
+                        "wget": 1.18,
+                        "untar": "tar (busybox) 1.32.1"
+                    }
+                },
+                {
+                    "AMR_ANNOTATION:AMRFINDERPLUS_UPDATE": {
+                        "amrfinderplus": "4.0.23"
+                    }
+                },
+                {
+                    "AMR_ANNOTATION:HAMRONIZATION_RGI": {
+                        "hamronization": "1.1.9"
+                    }
+                },
+                {
+                    "AMR_ANNOTATION:RGI_CARDANNOTATION": {
+                        "rgi": "6.0.5",
+                        "rgi-database": "4.0.1"
+                    }
+                }
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2025-12-04T14:25:47.135902"
+    },
+    "detect_amr - deeparg": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "integrated_test.gff:md5,5560d26083835eb03e9d7b4828056d78"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,4a507eebbdf506fc8fba262ca489aa56",
+                    "versions.yml:md5,61162bd89527a3be2d089648e2fec975",
+                    "versions.yml:md5,bd214ce938c1f167a3f05698a34ec733"
+                ],
+                "gff": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "integrated_test.gff:md5,5560d26083835eb03e9d7b4828056d78"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,4a507eebbdf506fc8fba262ca489aa56",
+                    "versions.yml:md5,61162bd89527a3be2d089648e2fec975",
+                    "versions.yml:md5,bd214ce938c1f167a3f05698a34ec733"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2025-12-04T14:21:59.634976"
+    }
+}

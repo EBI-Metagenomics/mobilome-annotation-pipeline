@@ -1,0 +1,66 @@
+nextflow_process {
+
+    name "Test Process GFF2GBK"
+    script "../main.nf"
+    process "GFF2GBK"
+
+    tag "modules"
+    tag "modules_ebimetagenomics"
+    tag "mgnifypipelinestoolkit"
+    tag "mgnifypipelinestoolkit/gff2gbk"
+
+    test("Transform - gff - proteins") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file("${moduleDir}/tests/data/test.fasta.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test.faa.gz", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gbk,
+                    process.out.findAll { key, val -> key.startsWith("versions")}
+                ).match() }
+            )
+        }
+    }
+
+    test("Transform - gff - proteins - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file("${moduleDir}/tests/data/test.fasta.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test.faa.gz", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gbk,
+                    process.out.findAll { key, val -> key.startsWith("versions")}
+                ).match() }
+            )
+        }
+    }
+
+}
