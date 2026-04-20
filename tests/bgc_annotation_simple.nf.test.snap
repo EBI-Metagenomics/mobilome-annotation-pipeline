@@ -1,0 +1,19 @@
+{
+    "simple import test": {
+        "content": [
+            {
+                "bgc_output": [
+                    
+                ],
+                "versions": [
+                    
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-04-15T16:19:34.644038"
+    }
+}

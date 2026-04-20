@@ -1,0 +1,30 @@
+// tests/bgc_annotation_simple.nf.test
+nextflow_workflow {
+    name "Test BGC_ANNOTATION Simple"
+    script "subworkflows/ebi-metagenomics/bgc_annotation/main.nf"
+    workflow "BGC_ANNOTATION"
+
+    test("simple import test") {
+        when {
+            workflow {
+                """
+                // Simple test inputs
+                input[0] = Channel.empty() // inputs
+                input[1] = Channel.empty() // antismash_db
+                input[2] = Channel.empty() // ips_db
+                input[3] = true  // skip_sanntis
+                input[4] = true  // skip_gecco  
+                input[5] = true  // skip_antismash
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            // Use nft-utils functions if needed
+            assert snapshot(
+                sanitizeOutput(workflow.out)
+            ).match()
+        }
+    }
+}
