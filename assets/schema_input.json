@@ -19,15 +19,25 @@
                 "pattern": "^\\S+\\.(fa|fna|fasta)(\\.gz)?$",
                 "errorMessage": "The assembly needs to be a fasta file (optionally compressed with .gz)"
             },
-            "user_proteins_gff": {
+            "proteins_gff": {
                 "type": "string",
                 "pattern": "^\\S+\\.(gff)(\\.gz)?$",
                 "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file (optionally compressed with .gz)"
+            },
+            "proteins_faa": {
+                "type": "string",
+                "pattern": "^\\S+\\.(faa|fasta)(\\.gz)?$",
+                "errorMessage": "The file with proteins detected for the assembly in fasta format (optionally compressed with .gz)"
             },
             "virify_gff": {
                 "type": "string",
                 "pattern": "^\\S+\\.(gff)(\\.gz)?$",
                 "errorMessage": "The VIRify file generated for the assembly needs to be a gff3 file (optionally compressed with .gz)"
+            },
+            "interproscan_tsv": {
+                "type": "string",
+                "pattern": "^\\S+\\.(tsv)(\\.gz)?$",
+                "errorMessage": "The Interpsocan annotation for the proteins provided. SignalP annotation is recommended (optionally compressed with .gz)"
             }
         },
         "required": ["sample", "assembly"]

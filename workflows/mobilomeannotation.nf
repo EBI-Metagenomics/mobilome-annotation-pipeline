@@ -23,7 +23,7 @@ include { VIRIFY_QC              } from '../modules/local/virify_qc'
 include { FASTA_WRITER           } from '../modules/local/fasta_writer'
 include { GT_GFF3VALIDATOR       } from '../modules/nf-core/gt/gff3validator/main'
 include { INTEGRATOR             } from '../modules/local/integrator'
-include { COMBINEREPORTER        } from '../modules/local/combinereporter/main'
+include { COMBINEREPORTER        } from '../modules/local/combinereporter'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,6 +78,7 @@ workflow MOBILOMEANNOTATION {
         .map { meta, _assembly, _user_proteins_gff, _user_proteins_fasta, virify_gff, _ips_tsv ->
             tuple(meta, virify_gff ?: [])
         }
+        .filter { meta, virify_gff -> virify_gff != [] }
 
     // Handling interproscan ips_tsv file optional input
     def ch_user_ips = ch_inputs
@@ -257,15 +258,15 @@ workflow MOBILOMEANNOTATION {
 
     // Build PATHOFACT2 ch_inputs: tuple(meta, aminoacids, cds_gff, ips_tsv)
     ch_pathofact_inputs = ch_proteins_source
-        .join(ch_user_ips, remainder: true)
+        .join(ch_user_ips)
         .map { meta, proteins, gff, ips_tsv ->
             tuple(meta, proteins, gff, ips_tsv ?: [])
         }
 
     // Calling pathofact2 databases
-    ch_models = channel.fromPath(file(params.pathofact_models, type="dir", checkIfExists: true))
-    ch_vfdb   = channel.fromPath(file(params.virulecefactors_db, type="dir", checkIfExists: true))
-    ch_cdd    = channel.fromPath(file(params.ncbi_cdd, type="dir", checkIfExists: true))
+    ch_models = channel.fromPath(file(params.pathofact_models, checkIfExists: true))
+    ch_vfdb   = channel.fromPath(file(params.virulecefactors_db, checkIfExists: true))
+    ch_cdd    = params.ncbi_cdd ? Channel.fromPath(file(params.ncbi_cdd, checkIfExists: true)) : Channel.empty()
 
     PATHOFACT2(
         ch_pathofact_inputs,
@@ -279,9 +280,9 @@ workflow MOBILOMEANNOTATION {
 
     // AMR_ANNOTATION ch_inputs: tuple(meta, aminoacids, cds_gff) ready in ch_proteins_source
     // Calling amr annotation databases
-    ch_amrfinderplus_db     = channel.fromPath(file(params.amrfinderplus_db, type="dir", checkIfExists: true))
-    ch_deeparg_db           = channel.fromPathfile(params.deeparg_db, type="dir", checkIfExists: true))
-    ch_rgi_db               = channel.fromPath(file(params.rgi_db, type="dir", checkIfExists: true))
+    ch_amrfinderplus_db     = channel.fromPath(file(params.amrfinderplus_db, checkIfExists: true))
+    ch_deeparg_db           = channel.fromPath(file(params.deeparg_db, checkIfExists: true))
+    ch_rgi_db               = channel.fromPath(file(params.rgi_db, checkIfExists: true))
 
     AMR_ANNOTATION(
         ch_proteins_source,
@@ -300,14 +301,14 @@ workflow MOBILOMEANNOTATION {
     // build BGC_ANNOTATION ch_inputs: tuple( val(meta), path(contigs), path(gff), path(proteins), path(ips_annot) ) 
     ch_bgc_inputs = ch_proteins_source
         .join( RENAME.out.contigs_5kb )
-        .join(ch_user_ips, remainder: true)
+        .join(ch_user_ips)
         .map { meta, proteins, gff, contigs, ips_tsv ->
             tuple(meta, contigs, gff, proteins, ips_tsv ?: [])
         }
   
     // Calling bgc annotation databases
-    ch_antismash_db = channel.fromPath(file(params.antismash_db, type="dir", checkIfExists: true))
-    ch_ips_db       = channel.fromPath(file(params.ips_db, type="dir", checkIfExists: true))
+    ch_antismash_db = channel.fromPath(file(params.antismash_db, checkIfExists: true))
+    ch_ips_db       = channel.fromPath(file(params.ips_db, checkIfExists: true))
 
     BGC_ANNOTATION(
         ch_bgc_inputs,
@@ -318,13 +319,14 @@ workflow MOBILOMEANNOTATION {
         params.skip_antismash
     )
     ch_versions = ch_versions.mix(BGC_ANNOTATION.out.versions)
-    def ch_bgc_gff = BGC_ANNOTATION.bgc_output.mapparams.deeparg_tool_version { meta, gff, _json -> tuple(meta, gff) }
+    def ch_bgc_gff = BGC_ANNOTATION.out.bgc_output.map { meta, gff, _json -> tuple(meta, gff) }
 
     // Generating the Pathofatc2-style combined report
     ch_combinereporter_input = INTEGRATOR.out.mobilome_gff
-        .join(PATHOFACT2.out.gff)
-        .join(AMR_ANNOTATION.out.gff)
-        .join(ch_bgc_gff)
+        .join(PATHOFACT2.out.gff, remainder: true)
+        .join(AMR_ANNOTATION.out.gff, remainder: true)
+        .join(ch_bgc_gff, remainder: true)
+        .join(ch_user_ips, remainder: true)
 
     COMBINEREPORTER( ch_combinereporter_input )
 

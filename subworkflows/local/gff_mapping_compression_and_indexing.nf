@@ -1,13 +1,13 @@
 /* NF-CORE */
-include { TABIX_BGZIP as TABIX_BGZIP_CLEAN           } from '../modules/nf-core/tabix/bgzip/main'
-include { TABIX_BGZIP as TABIX_BGZIP_EXTRA           } from '../modules/nf-core/tabix/bgzip/main'
-include { TABIX_BGZIP as TABIX_BGZIP_FULL            } from '../modules/nf-core/tabix/bgzip/main'
-include { TABIX_BGZIPTABIX as TABIX_BGZIPTABIX_CLEAN } from '../modules/nf-core/tabix/bgziptabix/main'
-include { TABIX_BGZIPTABIX as TABIX_BGZIPTABIX_EXTRA } from '../modules/nf-core/tabix/bgziptabix/main'
-include { TABIX_BGZIPTABIX as TABIX_BGZIPTABIX_FULL  } from '../modules/nf-core/tabix/bgziptabix/main'
+include { TABIX_BGZIP as TABIX_BGZIP_CLEAN           } from '../../modules/nf-core/tabix/bgzip/main'
+include { TABIX_BGZIP as TABIX_BGZIP_EXTRA           } from '../../modules/nf-core/tabix/bgzip/main'
+include { TABIX_BGZIP as TABIX_BGZIP_FULL            } from '../../modules/nf-core/tabix/bgzip/main'
+include { TABIX_BGZIPTABIX as TABIX_BGZIPTABIX_CLEAN } from '../../modules/nf-core/tabix/bgziptabix/main'
+include { TABIX_BGZIPTABIX as TABIX_BGZIPTABIX_EXTRA } from '../../modules/nf-core/tabix/bgziptabix/main'
+include { TABIX_BGZIPTABIX as TABIX_BGZIPTABIX_FULL  } from '../../modules/nf-core/tabix/bgziptabix/main'
 
 /* LOCAL */
-include { GFF_MAPPING } from '../modules/local/gff_mapping.nf'
+include { GFF_MAPPING } from '../../modules/local/gff_mapping.nf'
 
 
 workflow GFF_MAPPING_COMPRESSION_AND_INDEXING {

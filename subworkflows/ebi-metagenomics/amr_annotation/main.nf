@@ -50,7 +50,6 @@ workflow AMR_ANNOTATION {
 
     if (!skip_amrfinderplus) {
         AMRFINDERPLUS_RUN(ch_faa, ch_amrfinderplus_db)
-        ch_versions = ch_versions.mix(AMRFINDERPLUS_RUN.out.versions.first())
         ch_amrfinderplus_results = AMRFINDERPLUS_RUN.out.report
     }
 
@@ -66,15 +65,15 @@ workflow AMR_ANNOTATION {
         }
         else {
             // Use user-supplied database
-            rgi_db = ch_rgi_db
-            if (!rgi_db.contains("card_database_processed")) {
-                RGI_CARDANNOTATION(rgi_db)
-                card = RGI_CARDANNOTATION.out.db
-                ch_versions = ch_versions.mix(RGI_CARDANNOTATION.out.versions.first())
-            }
-            else {
-                card = rgi_db
-            }
+            //rgi_db = ch_rgi_db
+            //if (!rgi_db.contains("card_database_processed")) {
+            //    RGI_CARDANNOTATION(rgi_db)
+            //    card = RGI_CARDANNOTATION.out.db
+            //    ch_versions = ch_versions.mix(RGI_CARDANNOTATION.out.versions.first())
+            //}
+            //else {
+            card = ch_rgi_db
+            //}
         }
 
         RGI_MAIN(ch_faa, card, [])
@@ -101,13 +100,12 @@ workflow AMR_ANNOTATION {
     if (!skip_deeparg) {
         ch_faa
            .map { meta, annotations ->
-                def model = params.ch_deeparg_model
+                def model = ch_deeparg_model
                 [meta, annotations, model]
             }
             .set { ch_input_for_deeparg }
 
         DEEPARG_PREDICT(ch_input_for_deeparg, deeparg_db)
-        ch_versions = ch_versions.mix(DEEPARG_PREDICT.out.versions.first())
 
         HAMRONIZATION_DEEPARG(DEEPARG_PREDICT.out.arg, 'tsv', ch_deeparg_tool_version, ch_deeparg_db_version)
         ch_versions = ch_versions.mix(HAMRONIZATION_DEEPARG.out.versions.first())

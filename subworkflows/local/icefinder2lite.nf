@@ -1,10 +1,10 @@
-include { HMMSCAN                       } from '../modules/local/hmmscan'
-include { PRESCAN_TO_FASTA              } from '../modules/local/prescan_to_fasta'
-include { BLAST_BLASTP as BLASTP_PROKKA } from '../modules/nf-core/blast/blastp'
-include { PROCESS_BLASTP_PROKKA         } from '../modules/local/process_blastp_prokka'
-include { MACSYFINDER                   } from '../modules/local/macsyfinder'
-include { VMATCH                        } from '../modules/local/vmatch'
-include { REFINE_BOUNDARIES             } from '../modules/local/ice_refine_boundaries'
+include { HMMSCAN                       } from '../../modules/local/hmmscan'
+include { PRESCAN_TO_FASTA              } from '../../modules/local/prescan_to_fasta'
+include { BLAST_BLASTP as BLASTP_PROKKA } from '../../modules/nf-core/blast/blastp'
+include { PROCESS_BLASTP_PROKKA         } from '../../modules/local/process_blastp_prokka'
+include { MACSYFINDER                   } from '../../modules/local/macsyfinder'
+include { VMATCH                        } from '../../modules/local/vmatch'
+include { REFINE_BOUNDARIES             } from '../../modules/local/ice_refine_boundaries'
 
 workflow ICEFINDER2_LITE {
     take:

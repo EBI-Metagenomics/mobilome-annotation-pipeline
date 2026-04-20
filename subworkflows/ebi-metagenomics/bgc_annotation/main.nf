@@ -100,7 +100,6 @@ workflow BGC_ANNOTATION {
 
     if (!skip_antismash) {
         ANTISMASH_ANTISMASH(GFF2GBK.out.gbk, antismash_db, [])
-        ch_versions = ch_versions.mix(ANTISMASH_ANTISMASH.out.versions)
 
         ANTISMASH_JSON2GFF(ANTISMASH_ANTISMASH.out.json_results)
         ch_antismash_results = ANTISMASH_JSON2GFF.out.gff
