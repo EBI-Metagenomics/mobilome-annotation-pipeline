@@ -21,12 +21,12 @@
             },
             "user_proteins_gff": {
                 "type": "string",
-                "pattern": "^\\S+\\.(gff)(\\.gz)?$",
+                "pattern": "^\\S+\\.(gff3?)(\\.gz)?$",
                 "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file (optionally compressed with .gz)"
             },
             "virify_gff": {
                 "type": "string",
-                "pattern": "^\\S+\\.(gff)(\\.gz)?$",
+                "pattern": "^\\S+\\.(gff3?)(\\.gz)?$",
                 "errorMessage": "The VIRify file generated for the assembly needs to be a gff3 file (optionally compressed with .gz)"
             }
         },
