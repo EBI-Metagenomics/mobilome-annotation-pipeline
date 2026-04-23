@@ -147,7 +147,7 @@ workflow MOBILOMEANNOTATION {
     GENOMAD(RENAME.out.contigs_5kb, genomad_db.first())
     ch_versions = ch_versions.mix(GENOMAD.out.versions)
 
-    INTEGRONFINDER(RENAME.out.contigs_5kb)
+    INTEGRONFINDER(RENAME.out.contigs_100kb)
     ch_versions = ch_versions.mix(INTEGRONFINDER.out.versions)
 
     ISESCAN(RENAME.out.contigs_1kb)

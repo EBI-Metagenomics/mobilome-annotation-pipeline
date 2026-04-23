@@ -1,8 +1,23 @@
 #!/usr/bin/env python3
-"""
-Process BLASTP tabular output to be compliant with what Prokka does.
-This script replicates Prokka's cleanup_product and UniProt parsing of protein product names from BLAST results.
-"""
+# Copyright 2025 EMBL - European Bioinformatics Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+# This script contains algorithms and methods derived from or inspired by ICEfinder2
+# Original ICEfinder2 work licensed under CC BY-NC-SA 4.0
+# (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+# Modified and adapted for this pipeline by EMBL-EBI
+#
 
 import argparse
 import re
@@ -129,7 +144,7 @@ def parse_uniprot_description(description):
     return gene, product, ec_number, cog
 
 
-def process_prokka_blastp_tabular(input_file, output_file, raw_product=False):
+def process_prokka_blastp_tabular(blast_tsv, output_file, raw_product=False):
     """
     Process BLASTP tabular results exactly like Prokka does.
 
@@ -159,8 +174,12 @@ def process_prokka_blastp_tabular(input_file, output_file, raw_product=False):
     ]
 
     # Read BLAST results
-    df = pd.read_csv(input_file, sep="\t", names=columns, comment="#")
+    df = pd.read_csv(blast_tsv, sep="\t", names=columns, comment="#")
     print(f"Loaded {len(df)} BLAST hits (already filtered by BLAST)")
+
+    if df.empty:
+        print("There are not BLAST hits, skipping.")
+        return
 
     # Since BLAST already applied -evalue 1E-9 and -qcov_hsp_perc 80,
     # we don't need to filter again
@@ -254,6 +273,7 @@ def main():
         description="Process BLASTP tabular output exactly like Prokka does",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
+This script replicates Prokka's cleanup_product and UniProt parsing of protein product names from BLAST results.
 Example usage:
   python prokka_blastp_tabular.py -i blastp_results.tsv -o annotations.tsv
   python prokka_blastp_tabular.py -i results.tsv -o anno.tsv --raw-product
@@ -287,7 +307,7 @@ Note: Input must be BLAST tabular format with stitle field:
 
     # Process the results
     process_prokka_blastp_tabular(
-        input_file=args.input, output_file=args.output, raw_product=args.raw_product
+        blast_tsv=args.input, output_file=args.output, raw_product=args.raw_product
     )
 
 
