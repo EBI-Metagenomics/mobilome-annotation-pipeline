@@ -258,7 +258,7 @@ workflow MOBILOMEANNOTATION {
 
     // Build PATHOFACT2 ch_inputs: tuple(meta, aminoacids, cds_gff, ips_tsv)
     ch_pathofact_inputs = ch_proteins_source
-        .join(ch_user_ips)
+        .join(ch_user_ips, remainder: true)
         .map { meta, proteins, gff, ips_tsv ->
             tuple(meta, proteins, gff, ips_tsv ?: [])
         }
@@ -301,7 +301,7 @@ workflow MOBILOMEANNOTATION {
     // build BGC_ANNOTATION ch_inputs: tuple( val(meta), path(contigs), path(gff), path(proteins), path(ips_annot) ) 
     ch_bgc_inputs = ch_proteins_source
         .join( RENAME.out.contigs_5kb )
-        .join(ch_user_ips)
+        .join(ch_user_ips, remainder: true)
         .map { meta, proteins, gff, contigs, ips_tsv ->
             tuple(meta, contigs, gff, proteins, ips_tsv ?: [])
         }
