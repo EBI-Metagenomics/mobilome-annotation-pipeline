@@ -265,7 +265,7 @@ workflow MOBILOMEANNOTATION {
 
     // Calling pathofact2 databases
     ch_models = channel.fromPath(file(params.pathofact_models, checkIfExists: true))
-    ch_vfdb   = channel.fromPath(file(params.virulecefactors_db, checkIfExists: true))
+    ch_vfdb   = channel.fromPath(file(params.virulecefactors_db, checkIfExists: true)).map { db -> [ [id: 'vfdb'], db ] }
     ch_cdd    = params.ncbi_cdd ? Channel.fromPath(file(params.ncbi_cdd, checkIfExists: true)) : Channel.empty()
 
     PATHOFACT2(
