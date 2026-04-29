@@ -230,7 +230,9 @@ workflow MOBILOMEANNOTATION {
 
     // Appending the mobilome annotation to the user gff when provided, then compress and index (.gzi and .csi)
     GFF_MAPPING_COMPRESSION_AND_INDEXING(
-        INTEGRATOR.out.mobilome_gff.join( ch_user_proteins )
+        INTEGRATOR.out.mobilome_gff
+            .join(ch_user_proteins)
+            .map { meta, mobilome_gff, user_gff, _user_faa -> tuple(meta, mobilome_gff, user_gff) }
     )
     ch_versions = ch_versions.mix(GFF_MAPPING_COMPRESSION_AND_INDEXING.out.versions)
 

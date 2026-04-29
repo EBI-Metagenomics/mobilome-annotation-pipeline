@@ -44,10 +44,16 @@ workflow BGC_ANNOTATION {
             missing:  ips_annot == null
         }
 
-        // Samples missing IPS: join with proteins to feed InterProScan
+        // Samples missing IPS: filter proteins to only those that need InterProScan.
+        // Use remainder:true + filter to avoid a strict-mode join mismatch when all
+        // samples already have IPS (missing branch is empty, inputs.prots is not).
         ch_prots_missing = inputs.prots
-            .join(ch_ips_branched.missing, by: 0)
-            .map { meta, prots, _ips_missing -> tuple(meta, prots) }
+            .join(
+                ch_ips_branched.missing.map { meta, _ips -> tuple(meta, true) },
+                remainder: true
+            )
+            .filter { meta, _prots, needs_ips -> needs_ips == true }
+            .map { meta, prots, _flag -> tuple(meta, prots) }
 
         /*
          * No automatic DB download anymore.

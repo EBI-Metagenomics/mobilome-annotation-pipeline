@@ -2,7 +2,7 @@ process GFF_MAPPING {
     tag "${meta.id}"
     label 'process_single'
 
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
         ? 'https://depot.galaxyproject.org/singularity/python:3.9--1'
         : 'biocontainers/python:3.9--1'}"
 

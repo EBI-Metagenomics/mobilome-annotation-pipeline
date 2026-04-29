@@ -32,9 +32,7 @@ workflow PATHOFACT2 {
     ch_ips
         .branch { meta, ips_tsv ->
             with_ips: ips_tsv
-                return tuple(meta, ips_tsv)
             without_ips: !ips_tsv
-                return meta
         }
         .set { ch_ips_branched }
 
@@ -83,9 +81,16 @@ workflow PATHOFACT2 {
         .join(PATHOFACT2_VIRULENCE.out.tsv)
     PATHOFACT2_EXTRACTFASTA(ch_extractfasta_input)
 
-    // Running annotation using local-cd-search when ips_tsv is not provided
+    // Running annotation using local-cd-search when ips_tsv is not provided.
+    // Use remainder:true + filter to avoid a strict-mode join mismatch when all
+    // samples have IPS (ch_without_ips is empty but extractfasta has output).
     ch_fasta_for_cdd = PATHOFACT2_EXTRACTFASTA.out.fasta
-        .join(ch_without_ips)
+        .join(
+            ch_without_ips.map { meta, _ips -> tuple(meta, true) },
+            remainder: true
+        )
+        .filter { meta, _fasta, needs_cdd -> needs_cdd == true }
+        .map { meta, fasta, _flag -> tuple(meta, fasta) }
     LOCALCDSEARCH_ANNOTATE(ch_fasta_for_cdd, cdd_database, false)
 
     // Combine IPS annotations with CDD annotations
