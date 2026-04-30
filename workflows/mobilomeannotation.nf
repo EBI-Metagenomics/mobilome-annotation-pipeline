@@ -302,7 +302,7 @@ workflow MOBILOMEANNOTATION {
 
     // build BGC_ANNOTATION ch_inputs: tuple( val(meta), path(contigs), path(gff), path(proteins), path(ips_annot) ) 
     ch_bgc_inputs = ch_proteins_source
-        .join( RENAME.out.contigs_5kb )
+        .join( ch_assembly )  // TODO: If the proteins source is the internal prodigal, the assembly should be the renamed file
         .join(ch_user_ips, remainder: true)
         .map { meta, proteins, gff, contigs, ips_tsv ->
             tuple(meta, contigs, gff, proteins, ips_tsv ?: [])

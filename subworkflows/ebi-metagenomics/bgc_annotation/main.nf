@@ -191,8 +191,8 @@ workflow BGC_ANNOTATION {
     BGCSMAPPER(ch_for_bgcsmapper)
 
     ch_bgc_output = BGCSMAPPER.out.gff
-        .join(BGCSMAPPER.out.json, by: 0)
-        .map { meta, gff, json -> tuple(meta, gff, json) }
+        .join(BGCSMAPPER.out.json, by: 0, remainder: true)
+        .map { meta, gff, json -> tuple(meta, gff, json ?: []) }
 
     emit:
     bgc_output = ch_bgc_output   // channel: [ val(meta), gff, json ]
