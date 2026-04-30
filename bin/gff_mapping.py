@@ -263,7 +263,7 @@ def gff_updater(
                 u_prot_start = int(start)
                 u_prot_end = int(end)
                 u_prot_range = range(u_prot_start, u_prot_end + 1)
-                u_prot_len = u_prot_end - u_prot_start
+                u_prot_len = u_prot_end - u_prot_start + 1
                 passenger_flag = 0
                 mge_loc = []
                 
