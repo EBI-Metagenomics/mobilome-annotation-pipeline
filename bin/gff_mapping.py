@@ -263,7 +263,7 @@ def gff_updater(
                 u_prot_start = int(start)
                 u_prot_end = int(end)
                 u_prot_range = range(u_prot_start, u_prot_end + 1)
-                u_prot_len = u_prot_end - u_prot_start
+                u_prot_len = u_prot_end - u_prot_start + 1
                 passenger_flag = 0
                 mge_loc = []
                 
@@ -275,7 +275,7 @@ def gff_updater(
                         mge_label = mob_types[(contig, mge_start, mge_end)]
                         intersection = len(list(set(mge_range) & set(u_prot_range)))
                         
-                        if intersection > 0 and u_prot_len > 0:
+                        if intersection > 0:
                             u_prot_cov = float(intersection) / float(u_prot_len)
                             if u_prot_cov > COV_THRESHOLD:
                                 passenger_flag = 1
