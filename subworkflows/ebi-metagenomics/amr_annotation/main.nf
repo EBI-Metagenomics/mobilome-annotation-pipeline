@@ -30,13 +30,16 @@ workflow AMR_ANNOTATION {
     // Extract individual components from input channel.
     // multiMap is required here to broadcast all samples to all outputs;
     // multiple .map{} calls on the same queue channel would split items between operators.
+    // ch_faa is consumed 3 times (amrfinder, rgi, deeparg), so each consumer gets its
+    // own named multiMap output to avoid queue splitting.
     def ch_inputs_split = ch_inputs.multiMap { meta, aminoacids, cds_gff ->
         // Add is_proteins flag to meta for amrfinderplus nf-core module:
         // https://github.com/nf-core/modules/blob/e3da0d1bd481776ac3ddbd652e1cd72c4d7426d5/modules/nf-core/amrfinderplus/run/main.nf#L33
-        faa: tuple(meta + [is_proteins: true], aminoacids)
+        faa_amrfinder: tuple(meta + [is_proteins: true], aminoacids)
+        faa_rgi:       tuple(meta + [is_proteins: true], aminoacids)
+        faa_deeparg:   tuple(meta + [is_proteins: true], aminoacids)
         gff: tuple(meta, cds_gff)
     }
-    ch_faa = ch_inputs_split.faa
     ch_gff = ch_inputs_split.gff
 
     // RUNNING ANNOTATION TOOLS
@@ -52,7 +55,7 @@ workflow AMR_ANNOTATION {
     }
 
     if (!skip_amrfinderplus) {
-        AMRFINDERPLUS_RUN(ch_faa, ch_amrfinderplus_db)
+        AMRFINDERPLUS_RUN(ch_inputs_split.faa_amrfinder, ch_amrfinderplus_db)
         ch_amrfinderplus_results = AMRFINDERPLUS_RUN.out.report
     }
 
@@ -79,7 +82,7 @@ workflow AMR_ANNOTATION {
             //}
         }
 
-        RGI_MAIN(ch_faa, card, [])
+        RGI_MAIN(ch_inputs_split.faa_rgi, card, [])
         ch_versions = ch_versions.mix(RGI_MAIN.out.versions.first())
 
         // Reporting
@@ -101,7 +104,7 @@ workflow AMR_ANNOTATION {
 
     // DeepARG run
     if (!skip_deeparg) {
-        ch_faa
+        ch_inputs_split.faa_deeparg
            .map { meta, annotations ->
                 def model = ch_deeparg_model
                 [meta, annotations, model]

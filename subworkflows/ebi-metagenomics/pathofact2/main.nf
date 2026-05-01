@@ -23,15 +23,19 @@ workflow PATHOFACT2 {
     main:
     ch_versions = channel.empty()
 
-    // Extract individual components from input channel
+    // Extract individual components from input channel.
     // multiMap is required here to broadcast all samples to all outputs;
     // multiple .map{} calls on the same queue channel would split items between operators.
+    // ch_faa is consumed 4 times (toxins, virulence, diamond, extractfasta), so each
+    // consumer gets its own named multiMap output to avoid queue splitting.
     def ch_inputs_split = ch_inputs.multiMap { meta, aminoacids, cds_gff, ips_tsv ->
-        faa: tuple(meta, aminoacids)
+        faa_toxins:    tuple(meta, aminoacids)
+        faa_virulence: tuple(meta, aminoacids)
+        faa_diamond:   tuple(meta, aminoacids)
+        faa_extract:   tuple(meta, aminoacids)
         gff: tuple(meta, cds_gff)
         ips: tuple(meta, ips_tsv)
     }
-    ch_faa = ch_inputs_split.faa
     ch_gff = ch_inputs_split.gff
     ch_ips = ch_inputs_split.ips
 
@@ -73,16 +77,16 @@ workflow PATHOFACT2 {
     }
 
     // Running prediction
-    PATHOFACT2_TOXINS( ch_faa, pathofact_models )
+    PATHOFACT2_TOXINS( ch_inputs_split.faa_toxins, pathofact_models )
 
-    PATHOFACT2_VIRULENCE( ch_faa, pathofact_models )
+    PATHOFACT2_VIRULENCE( ch_inputs_split.faa_virulence, pathofact_models )
 
     // Searching for hits in VFDB
-    DIAMOND_BLASTP( ch_faa, vfdb_diamond_db, 6, 'qseqid sseqid pident length qlen slen evalue bitscore')
+    DIAMOND_BLASTP( ch_inputs_split.faa_diamond, vfdb_diamond_db, 6, 'qseqid sseqid pident length qlen slen evalue bitscore')
     ch_versions = ch_versions.mix(DIAMOND_BLASTP.out.versions.first())
 
     // Extracting positive matches
-    ch_extractfasta_input = ch_faa
+    ch_extractfasta_input = ch_inputs_split.faa_extract
         .join(DIAMOND_BLASTP.out.txt)
         .join(PATHOFACT2_TOXINS.out.tsv)
         .join(PATHOFACT2_VIRULENCE.out.tsv)

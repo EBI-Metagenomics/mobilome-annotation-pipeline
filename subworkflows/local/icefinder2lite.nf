@@ -16,18 +16,25 @@ workflow ICEFINDER2_LITE {
     main:
     ch_versions = Channel.empty()
 
-    ch_assem = ch_icf2_inputs.map{ meta, contigs, _faa, _gff -> tuple(meta, contigs) }
-    ch_faa = ch_icf2_inputs.map{ meta, _contigs, faa, _gff -> tuple(meta, faa) }
-    ch_gff = ch_icf2_inputs.map{ meta, _contigs, _faa, gff -> tuple(meta, gff) }
+    // multiMap is required here to broadcast all samples to all outputs;
+    // multiple .map{} calls on the same queue channel would split items between operators.
+    def ch_icf2_split = ch_icf2_inputs.multiMap { meta, contigs, faa, gff ->
+        faa:         tuple(meta, faa)                   // for HMMSCAN
+        for_prescan: tuple(meta, contigs, faa, gff)     // for prescan join (all fields at once)
+        assem:       tuple(meta, contigs)               // for candidate filtering
+        gff:         tuple(meta, gff)                   // for candidate filtering
+    }
 
     // Prescanning for candidate contigs
-    HMMSCAN( ch_faa, ch_icefinder_hmm_models)
+    HMMSCAN(ch_icf2_split.faa, ch_icefinder_hmm_models)
     ch_versions = ch_versions.mix(HMMSCAN.out.versions)
 
+    // Join HMMSCAN output with all input fields in one step to avoid reusing ch_faa
     prescan_input_ch = HMMSCAN.out.hmmscan_tbl
-        .join(ch_faa)
-        .join(ch_assem)
-        .join(ch_gff)
+        .join(ch_icf2_split.for_prescan)
+        .map { meta, hmmscan_tbl, contigs, faa, gff ->
+            tuple(meta, hmmscan_tbl, faa, contigs, gff)
+        }
 
     PRESCAN_TO_FASTA(prescan_input_ch, params.prescan_evalue_threshold)
     ch_versions = ch_versions.mix(PRESCAN_TO_FASTA.out.versions)
@@ -40,14 +47,21 @@ workflow ICEFINDER2_LITE {
             faa != null && fna != null
         }
 
-    // Extract just the meta information from candidates for filtering
-    ch_candidate_metas = ch_candidates.map { meta, _faa, _fna -> [meta, true] }
+    // Split candidates once for all downstream uses;
+    // multiple .map{} calls on the same queue channel would split items between operators.
+    def ch_cand_split = ch_candidates.multiMap { meta, faa, fna ->
+        for_metas_assem:  tuple(meta, true)  // for assembly_filtered join
+        for_metas_gff:    tuple(meta, true)  // for gff_filtered join
+        for_macsyfinder:  tuple(meta, faa)
+        for_blastp:       tuple(meta, faa)
+        for_vmatch:       tuple(meta, fna)
+    }
 
     /*
      * Filter down only the samples with candidates proceed to downstream analysis
      */
-    ch_assembly_filtered = ch_assem
-        .join(ch_candidate_metas, remainder: true)
+    ch_assembly_filtered = ch_icf2_split.assem
+        .join(ch_cand_split.for_metas_assem, remainder: true)
         .filter { _meta, _assembly, candidate_flag -> {
                 candidate_flag == true
             }
@@ -57,8 +71,8 @@ workflow ICEFINDER2_LITE {
             }
         }
 
-    ch_gff_filtered = ch_gff
-        .join(ch_candidate_metas, remainder: true)
+    ch_gff_filtered = ch_icf2_split.gff
+        .join(ch_cand_split.for_metas_gff, remainder: true)
         .filter { _meta, _gff, candidate_flag -> {
                 candidate_flag == true
             }
@@ -70,13 +84,13 @@ workflow ICEFINDER2_LITE {
 
     // Run downstream processes only on samples with candidates
     MACSYFINDER(
-        ch_candidates.map { meta, faa, _fna -> tuple(meta, faa) },
+        ch_cand_split.for_macsyfinder,
         ch_icefinder_macsyfinder_models,
     )
     ch_versions = ch_versions.mix(MACSYFINDER.out.versions)
 
     BLASTP_PROKKA(
-        ch_candidates.map { meta, faa, _fna -> tuple(meta, faa) },
+        ch_cand_split.for_blastp,
         ch_icefinder_prokka_uniprot_db,
         'tsv',
     )
@@ -85,9 +99,7 @@ workflow ICEFINDER2_LITE {
     PROCESS_BLASTP_PROKKA(BLASTP_PROKKA.out.tsv)
     ch_versions = ch_versions.mix(PROCESS_BLASTP_PROKKA.out.versions)
 
-    VMATCH(
-        ch_candidates.map { meta, _faa, fna -> tuple(meta, fna) }
-    )
+    VMATCH(ch_cand_split.for_vmatch)
     ch_versions = ch_versions.mix(VMATCH.out.versions)
 
     // REFINE_BOUNDARIES - now only runs on samples that have candidates
