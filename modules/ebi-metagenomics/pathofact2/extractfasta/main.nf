@@ -12,7 +12,7 @@ process PATHOFACT2_EXTRACTFASTA {
 
     output:
     tuple val(meta), path("*_pathofact2.fasta"), optional: true, emit: fasta
-    tuple val(meta), path("*_support.tsv")     , optional: true, emit: tsv
+    tuple val(meta), path("*_support.tsv")                     , emit: tsv
     tuple val("${task.process}"), val('python'), eval("python --version | sed 's/Python //g'"), topic: versions, emit: versions_python
     tuple val("${task.process}"), val('pathofact2'), eval("echo ${VERSION}"), topic: versions, emit: versions_pathofact2
 
@@ -31,6 +31,7 @@ process PATHOFACT2_EXTRACTFASTA {
         -t ${pathofact2_tox} \\
         -v ${pathofact2_vf} \\
         -o ${prefix}
+    [[ -f ${prefix}_support.tsv ]] || touch ${prefix}_support.tsv
     """
 
     stub:

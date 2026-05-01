@@ -27,14 +27,17 @@ workflow AMR_ANNOTATION {
     main:
     ch_versions = channel.empty()
 
-    // Extract individual components from input channel
-    ch_faa = ch_inputs.map{ meta, aminoacids, _cds_gff ->
+    // Extract individual components from input channel.
+    // multiMap is required here to broadcast all samples to all outputs;
+    // multiple .map{} calls on the same queue channel would split items between operators.
+    def ch_inputs_split = ch_inputs.multiMap { meta, aminoacids, cds_gff ->
         // Add is_proteins flag to meta for amrfinderplus nf-core module:
         // https://github.com/nf-core/modules/blob/e3da0d1bd481776ac3ddbd652e1cd72c4d7426d5/modules/nf-core/amrfinderplus/run/main.nf#L33
-        def meta_with_protein_flag = meta + [is_proteins: true]
-        tuple(meta_with_protein_flag, aminoacids)
+        faa: tuple(meta + [is_proteins: true], aminoacids)
+        gff: tuple(meta, cds_gff)
     }
-    ch_gff = ch_inputs.map{ meta, _aminoacids, cds_gff -> tuple(meta, cds_gff) }
+    ch_faa = ch_inputs_split.faa
+    ch_gff = ch_inputs_split.gff
 
     // RUNNING ANNOTATION TOOLS
     // AMRfinderplus run

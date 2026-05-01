@@ -24,9 +24,16 @@ workflow PATHOFACT2 {
     ch_versions = channel.empty()
 
     // Extract individual components from input channel
-    ch_faa = ch_inputs.map{ meta, aminoacids, _cds_gff, _ips_tsv -> tuple(meta, aminoacids) }
-    ch_gff = ch_inputs.map{ meta, _aminoacids, cds_gff, _ips_tsv -> tuple(meta, cds_gff) }
-    ch_ips = ch_inputs.map{ meta, _aminoacids, _cds_gff, ips_tsv -> tuple(meta, ips_tsv) }
+    // multiMap is required here to broadcast all samples to all outputs;
+    // multiple .map{} calls on the same queue channel would split items between operators.
+    def ch_inputs_split = ch_inputs.multiMap { meta, aminoacids, cds_gff, ips_tsv ->
+        faa: tuple(meta, aminoacids)
+        gff: tuple(meta, cds_gff)
+        ips: tuple(meta, ips_tsv)
+    }
+    ch_faa = ch_inputs_split.faa
+    ch_gff = ch_inputs_split.gff
+    ch_ips = ch_inputs_split.ips
 
     // Split inputs based on whether IPS annotation is provided
     ch_ips
@@ -93,15 +100,20 @@ workflow PATHOFACT2 {
         .map { meta, fasta, _flag -> tuple(meta, fasta) }
     LOCALCDSEARCH_ANNOTATE(ch_fasta_for_cdd, cdd_database, false)
 
-    // Combine IPS annotations with CDD annotations
-    prot_annot = ch_with_ips.mix(LOCALCDSEARCH_ANNOTATE.out.result)
-
-    // Set annotation type based on source
-    annot_type = ch_with_ips
-        .map { meta, _ips_tsv -> tuple(meta, 'ips') }
+    // Combine IPS and CDD annotations with their type tag, then split via multiMap
+    // so that both prot_annot and annot_type receive all samples without item-splitting.
+    def ch_combined_annot = ch_with_ips
+        .map { meta, annot -> tuple(meta, annot, 'ips') }
         .mix(
-            LOCALCDSEARCH_ANNOTATE.out.result.map { meta, _annot -> tuple(meta, 'cdd') }
+            LOCALCDSEARCH_ANNOTATE.out.result
+                .map { meta, annot -> tuple(meta, annot, 'cdd') }
         )
+    def ch_combined_split = ch_combined_annot.multiMap { meta, annot, type ->
+        prot_annot: tuple(meta, annot)
+        annot_type:  tuple(meta, type)
+    }
+    prot_annot = ch_combined_split.prot_annot
+    annot_type  = ch_combined_split.annot_type
 
     // Integrating results in a single gff file
     ch_for_integrator = ch_gff
@@ -110,8 +122,8 @@ workflow PATHOFACT2 {
         .join(annot_type)
     PATHOFACT2_INTEGRATOR(ch_for_integrator)
 
-    // Handle cases where no predictions are made (integrator produces no output)
-    ch_gff_output = PATHOFACT2_INTEGRATOR.out.gff.ifEmpty([])
+    // Pass through as-is; empty channel is handled by remainder:true joins downstream
+    ch_gff_output = PATHOFACT2_INTEGRATOR.out.gff
 
     emit:
     gff  =  ch_gff_output            // channel: tuple( val(meta), path(gff) )

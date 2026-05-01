@@ -300,9 +300,18 @@ workflow MOBILOMEANNOTATION {
     )
     ch_versions = ch_versions.mix(AMR_ANNOTATION.out.versions)
 
-    // build BGC_ANNOTATION ch_inputs: tuple( val(meta), path(contigs), path(gff), path(proteins), path(ips_annot) ) 
+    // build BGC_ANNOTATION ch_inputs: tuple( val(meta), path(contigs), path(gff), path(proteins), path(ips_annot) )
+    // Use 1kb-filtered renamed contigs when proteins come from Prodigal (contig IDs must match),
+    // or the original assembly when the user provides their own proteins.
+    ch_bgc_assembly = ch_assembly
+        .join(RENAME.out.contigs_1kb)
+        .join(ch_user_proteins, remainder: true)
+        .map { meta, orig_assembly, contigs_1kb, user_gff, _user_fasta ->
+            tuple(meta, user_gff ? orig_assembly : contigs_1kb)
+        }
+
     ch_bgc_inputs = ch_proteins_source
-        .join( ch_assembly )  // TODO: If the proteins source is the internal prodigal, the assembly should be the renamed file
+        .join(ch_bgc_assembly)
         .join(ch_user_ips, remainder: true)
         .map { meta, proteins, gff, contigs, ips_tsv ->
             tuple(meta, contigs, gff, proteins, ips_tsv ?: [])
