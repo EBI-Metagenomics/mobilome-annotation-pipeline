@@ -256,19 +256,19 @@ workflow MOBILOMEANNOTATION {
             def user_source = sources.find { it.source == 'user' }
             def final_source = user_source ?: sources.find { it.source == 'prodigal' }
             tuple(meta, final_source.fasta, final_source.gff)
-        } 
-
+        }
     // Build PATHOFACT2 ch_inputs: tuple(meta, aminoacids, cds_gff, ips_tsv)
     ch_pathofact_inputs = ch_proteins_source
         .join(ch_user_ips, remainder: true)
         .map { meta, proteins, gff, ips_tsv ->
             tuple(meta, proteins, gff, ips_tsv ?: [])
         }
-
     // Calling pathofact2 databases
-    ch_models = channel.fromPath(file(params.pathofact_models, checkIfExists: true))
-    ch_vfdb   = channel.fromPath(file(params.virulecefactors_db, checkIfExists: true)).map { db -> [ [id: 'vfdb'], db ] }
-    ch_cdd    = params.ncbi_cdd ? Channel.fromPath(file(params.ncbi_cdd, checkIfExists: true)) : Channel.empty()
+    // .first() converts each single-file queue to a value channel so it broadcasts
+    // to every sample task instead of being consumed by the first sample only.
+    ch_models = channel.fromPath(file(params.pathofact_models, checkIfExists: true)).first()
+    ch_vfdb   = channel.fromPath(file(params.virulecefactors_db, checkIfExists: true)).map { db -> [ [id: 'vfdb'], db ] }.first()
+    ch_cdd    = params.ncbi_cdd ? Channel.fromPath(file(params.ncbi_cdd, checkIfExists: true)).first() : Channel.empty()
 
     PATHOFACT2(
         ch_pathofact_inputs,
@@ -282,9 +282,9 @@ workflow MOBILOMEANNOTATION {
 
     // AMR_ANNOTATION ch_inputs: tuple(meta, aminoacids, cds_gff) ready in ch_proteins_source
     // Calling amr annotation databases
-    ch_amrfinderplus_db     = channel.fromPath(file(params.amrfinderplus_db, checkIfExists: true))
-    ch_deeparg_db           = channel.fromPath(file(params.deeparg_db, checkIfExists: true))
-    ch_rgi_db               = channel.fromPath(file(params.rgi_db, checkIfExists: true))
+    ch_amrfinderplus_db     = channel.fromPath(file(params.amrfinderplus_db, checkIfExists: true)).first()
+    ch_deeparg_db           = channel.fromPath(file(params.deeparg_db, checkIfExists: true)).first()
+    ch_rgi_db               = channel.fromPath(file(params.rgi_db, checkIfExists: true)).first()
 
     AMR_ANNOTATION(
         ch_proteins_source,
@@ -316,10 +316,9 @@ workflow MOBILOMEANNOTATION {
         .map { meta, proteins, gff, contigs, ips_tsv ->
             tuple(meta, contigs, gff, proteins, ips_tsv ?: [])
         }
-  
     // Calling bgc annotation databases
-    ch_antismash_db = channel.fromPath(file(params.antismash_db, checkIfExists: true))
-    ch_ips_db       = channel.fromPath(file(params.ips_db, checkIfExists: true))
+    ch_antismash_db = channel.fromPath(file(params.antismash_db, checkIfExists: true)).first()
+    ch_ips_db       = channel.fromPath(file(params.ips_db, checkIfExists: true)).first()
 
     BGC_ANNOTATION(
         ch_bgc_inputs,
