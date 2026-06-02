@@ -1,12 +1,12 @@
 # Annotation Manifest
 
-The `--annotation_manifest` option allows functional annotation outputs produced by the [MGnify genomes catalogue pipeline](https://github.com/EBI-Metagenomics/genomes-catalogue-pipeline) to be reused directly, bypassing the corresponding internal tools. This avoids redundant compute when processing genomes that have already been annotated in a catalogue context.
+The `--annotation_manifest` option allows functional annotation outputs produced by the following MGnify pipelines: [Genomes Catalogue Pipeline](https://github.com/EBI-Metagenomics/genomes-catalogue-pipeline), [Assembly Analysis Pipeline](https://github.com/EBI-Metagenomics/assembly-analysis-pipeline), and [Mettanotator](https://github.com/EBI-Metagenomics/mettannotator) to be reused directly, bypassing the corresponding internal tools. This avoids redundant compute when processing genomes that have already been annotated in a catalogue context.
 
 ## When to use it
 
 Use `--annotation_manifest` when:
 
-- You are running MAP on assemblies that are part of an MGnify genomes catalogue pipeline run and you already have AMRFinderPlus, antiSMASH, GECCO, or SanntiS outputs for those assemblies.
+- You are running MAP on assemblies that are part of an MGnify pipelines run and you already have AMRFinderPlus, antiSMASH, GECCO, or SanntiS outputs for those assemblies.
 - You want to skip re-running one or more annotation tools to reduce runtime or avoid database requirements.
 
 When a manifest is provided, the pipeline skips the corresponding internal runs (e.g. does not invoke AMRFinderPlus or antiSMASH) and instead routes the manifest files directly into the downstream integration and reporting steps. Functional annotation tools not covered by the manifest still run normally. InterProScan is not a manifest column — pre-computed IPS results are supplied through the `interproscan_tsv` column of the input samplesheet instead.
