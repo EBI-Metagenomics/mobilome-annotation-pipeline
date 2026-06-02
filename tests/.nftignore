@@ -1,3 +1,4 @@
 pipeline_info/*
 **/*.tbi
 **/*.gzi
+**/*_bgcs.json
