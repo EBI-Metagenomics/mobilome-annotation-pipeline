@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "amrintegrator"
+description: Module that integrates the outputs of ARG annotation tools into a single GFF file
+keywords:
+  - amr
+  - deeparg
+  - rgi
+  - amrfinderplus
+  - hamronization
+  - gff
+tools:
+  - "amrintegrator":
+      description: "Integrates the standardised output of deeparg, rgi, and amrfinderplus into a single gff file,
+        uses mgnify-pipelines-toolkit as conda environment"
+      homepage: "https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit"
+      documentation: "https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit"
+      tool_dev_url: "https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit"
+      licence: ["Apache-2.0"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - deeparg:
+        type: file
+        description: Tab-delimited file of DEEPARG result after hAMRonization
+        pattern: "*.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+    - rgi:
+        type: file
+        description: Tab-delimited file of RGI result after hAMRonization
+        pattern: "*.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+    - amrfp:
+        type: file
+        description: Tab-delimited file of AMRfinderPlus result after hAMRonization
+        pattern: "*.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+    - gff:
+        type: file
+        description: The GFF3 file corresponding to the annotated genes and proteins. It could be gz compressed
+        pattern: "*.{gff,gff.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1975" # GFF
+output:
+  - gff:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.gff":
+          type: file
+          description: The GFF3 file containing the genes with AMR annotation
+          pattern: "*.gff"
+          ontologies:
+            - edam: "http://edamontology.org/format_1975" # GFF
+  - versions:
+      - "versions.yml":
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+          ontologies:
+            - edam: "http://edamontology.org/format_3750" # YAML
+
+authors:
+  - "@Ales-ibt"

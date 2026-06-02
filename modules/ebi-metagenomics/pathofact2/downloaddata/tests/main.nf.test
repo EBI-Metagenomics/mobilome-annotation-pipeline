@@ -1,0 +1,55 @@
+nextflow_process {
+
+    name "Test Process PATHOFACT2_DOWNLOADDATA"
+    script "../main.nf"
+    process "PATHOFACT2_DOWNLOADDATA"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_ebimetagenomics"
+    tag "pathofact2"
+    tag "pathofact2/downloaddata"
+
+    test("Pathofact2 downloader - zenodo id") {
+
+        when {
+            process {
+                """
+                input[0] = '18223764'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.zenodo_file).match("zenodo_file") },
+                { assert snapshot(process.out.versions_python).match("versions") }
+            )
+        }
+
+    }
+
+    test("Pathofact2 downloader - zenodo id - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = '18223764'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.zenodo_file).match("zenodo_file_stub") },
+                { assert snapshot(process.out.versions_python).match("versions_stub") }
+            )
+        }
+
+    }
+
+}

@@ -1,0 +1,85 @@
+nextflow_process {
+
+    name "Test Process ANTISMASH_JSON2GFF"
+    script "../main.nf"
+    process "ANTISMASH_JSON2GFF"
+
+    tag "modules"
+    tag "modules_nfcore"
+    tag "modules_ebimetagenomics"
+    tag "antismash"
+    tag "antismash/json2gff"
+    tag "nf-core/gunzip"
+
+
+    setup {
+        nfcoreInitialise("${launchDir}/library/")
+        nfcoreInstall(
+            "${launchDir}/library/",
+            [
+                "gunzip",  // Add gunzip module
+            ]
+        )
+
+        nfcoreLink("${launchDir}/library/", "${baseDir}/modules/")
+
+        run("GUNZIP") {
+            script "../../../../nf-core/gunzip/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file("${moduleDir}/tests/data/test_antismash.json.gz", checkIfExists: true),
+                ]
+                """
+            }
+        }
+    }
+
+    test("antismash_json - gff") {
+
+        when {
+            process {
+                """
+                input[0] = GUNZIP.out.gunzip
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gff,
+                    process.out.findAll { key, val -> key.startsWith("versions")}
+                ).match() }
+            )
+        }
+
+    }
+
+    test("antismash_json - gff - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = GUNZIP.out.gunzip
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gff,
+                    process.out.findAll { key, val -> key.startsWith("versions")}
+                ).match() }
+            )
+        }
+
+    }
+
+}

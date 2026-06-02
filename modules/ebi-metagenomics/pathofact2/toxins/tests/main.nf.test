@@ -1,0 +1,69 @@
+nextflow_process {
+
+    name "Test Process PATHOFACT2_TOXINS"
+    script "../main.nf"
+    process "PATHOFACT2_TOXINS"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_ebimetagenomics"
+    tag "pathofact2"
+    tag "pathofact2/toxins"
+    tag "pathofact2/downloaddata"
+
+    setup {
+        run("PATHOFACT2_DOWNLOADDATA") {
+            script "../../downloaddata/main.nf"
+            process {
+                """
+                input[0] = '18223764'
+                """
+            }
+        }
+    }
+
+    test("pathofact2 - toxins") {
+
+        when {
+            process {
+                """
+                input[0] = [ [id:'test'], [ file("${moduleDir}/tests/data/test_protein.faa.gz", checkIfExists: true)  ] ]
+                input[1] = PATHOFACT2_DOWNLOADDATA.out.zenodo_file
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.tsv).match("tsv_file") },
+                { assert snapshot(process.out.versions_python).match("versions") }
+            )
+        }
+
+    }
+
+    test("pathofact2 - toxins - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [ [id:'test'], [ file("${moduleDir}/tests/data/test_protein.faa.gz", checkIfExists: true)  ] ]
+                input[1] = PATHOFACT2_DOWNLOADDATA.out.zenodo_file
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.tsv).match("tsv_file_stub") },
+                { assert snapshot(process.out.versions_python).match("versions_stub") }
+            )
+        }
+
+    }
+
+}
