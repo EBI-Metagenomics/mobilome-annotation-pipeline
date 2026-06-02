@@ -85,7 +85,7 @@ workflow MOBILOMEANNOTATION {
 
     // Annotation manifest — parse once and emit per-tool channels.
     // When absent, all manifest channels remain empty and existing samplesheet
-    // inputs drive the subworkflows exactly as before.
+    // inputs drive the subworkflows
     def ch_manifest_amrfinder  = channel.empty()
     def ch_manifest_antismash  = channel.empty()
     def ch_manifest_gecco      = channel.empty()

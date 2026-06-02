@@ -92,13 +92,29 @@ MAP runs three independent functional annotation subworkflows after mobilome pre
 
 See [docs/usage.md](docs/usage.md) for skip flags, mobilome-only mode, and annotation manifest reuse.
 
+### Functional annotation flags
+
+| Parameter | Default | Description |
+|---|---|---|
+| `--skip_virulence` | `false` | Skip PATHOFACT2 toxin/virulence annotation and VFDB search |
+| `--skip_amrfinderplus` | `false` | Skip AMRFinderPlus |
+| `--skip_deeparg` | `false` | Skip DeepARG |
+| `--skip_rgi` | `false` | Skip RGI (CARD) |
+| `--skip_sanntis` | `false` | Skip SanntiS BGC prediction |
+| `--skip_gecco` | `false` | Skip GECCO BGC prediction |
+| `--skip_antismash` | `false` | Skip antiSMASH BGC prediction |
+
+For reusing pre-computed annotation outputs from the EBI Genomes Catalogues pipeline, see [docs/annotation_manifest.md](docs/annotation_manifest.md).
+
 <a name="out"></a>
 
 ## Outputs
 
 Results are written to `--outdir` (default: `results/`).
 
-```bash
+### Mobilome outputs
+
+```
 sample/
 ├── sample_combined_report.tsv
 ├── sample_discarded_mge.txt
@@ -243,4 +259,3 @@ This pipeline uses code and infrastructure developed and maintained by the [nf-c
 > Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
-

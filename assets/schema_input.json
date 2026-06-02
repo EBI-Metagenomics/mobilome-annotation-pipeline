@@ -21,7 +21,7 @@
             },
             "proteins_gff": {
                 "type": "string",
-                "pattern": "^\\S+\\.(gff3?)(\\.gz)?$",
+                "pattern": "^\\S+\\.(gff)(\\.gz)?$",
                 "errorMessage": "The file with proteins detected for the assembly needs to be a gff3 file (optionally compressed with .gz)"
             },
             "proteins_faa": {
