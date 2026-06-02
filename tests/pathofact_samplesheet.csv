@@ -1,0 +1,2 @@
+sample,assembly,proteins_gff,proteins_faa,virify_gff,interproscan_tsv
+MGYG000528118_sub,/hps/nobackup/rdf/metagenomics/service-team/projects/infectome/map_pathofact_dev/mobilome-annotation-pipeline/tests/data/MGYG000528118_sub/MGYG000528118_sub.fna,/hps/nobackup/rdf/metagenomics/service-team/projects/infectome/map_pathofact_dev/mobilome-annotation-pipeline/tests/data/MGYG000528118_sub/MGYG000528118_sub.gff,/hps/nobackup/rdf/metagenomics/service-team/projects/infectome/map_pathofact_dev/mobilome-annotation-pipeline/tests/data/MGYG000528118_sub/MGYG000528118_sub.faa,,
