@@ -17,7 +17,7 @@
 import os.path
 
 
-def genomad_viral(geno_out, mge_data):
+def genomad_viral(geno_out, mge_data, quality):
     mge_counter = 0
     if os.stat(geno_out).st_size == 0:
         return mge_data
@@ -39,6 +39,8 @@ def genomad_viral(geno_out, mge_data):
                     )
                     start = int(line_l[3].split("-")[0])
                     end = int(line_l[3].split("-")[1])
+                    if quality[contig]:
+                        description += ';' + quality[contig]
                 else:
                     contig = line_l[0]
                     description = (
@@ -46,6 +48,8 @@ def genomad_viral(geno_out, mge_data):
                     )
                     start = 1
                     end = int(line_l[1])
+                    if quality[contig]:
+                        description += ';' + quality[contig]
 
                 coord = (start, end)
                 value = (contig, description, coord)

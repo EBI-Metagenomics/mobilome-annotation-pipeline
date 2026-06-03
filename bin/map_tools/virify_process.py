@@ -15,6 +15,14 @@
 # limitations under the License.
 
 
+CHECKV_FIELDS = [
+    "checkv_kmer_freq",
+    "checkv_miuvig_quality",
+    "checkv_provirus",
+    "checkv_quality",
+    "checkv_viral_genes"
+]
+
 def mge_data_parser(mge_data):
     plasmids_list = []
     prophages_dic, prophages_ids, viral_dic = {}, {}, {}
@@ -182,12 +190,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
 
     # Replacing description
     mge_counter = 0
-    useful_info = [
-        "checkv_kmer_freq",
-        "checkv_miuvig_quality",
-        "checkv_provirus",
-        "checkv_quality",
-        "checkv_viral_genes",
+    useful_info = CHECKV_FIELDS + [
         "taxonomy",
         "virify_quality",
     ]
