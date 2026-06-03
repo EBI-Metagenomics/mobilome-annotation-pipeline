@@ -70,7 +70,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
 
                 # Saving protein predictions
                 # ID=NODE_7_length_946_cov_8.0571_8;virify_quality=HC;gbkey=CDS;viphog=ViPhOG18043;viphog_taxonomy=Andromedavirus
-                elif seq_source == "Prodigal":
+                elif seq_type == "CDS":
                     (
                         gene_id,
                         virify_quality,

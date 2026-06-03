@@ -16,6 +16,7 @@
 
 import argparse
 import os.path
+import csv
 
 from map_tools import (
     cds_locator,
@@ -33,7 +34,17 @@ from map_tools import (
 )
 
 
-def main():
+QUALITY_COLUMNS = [
+    'provirus', 'proviral_length', 'gene_count', 'viral_genes', 'host_genes',
+    'checkv_quality', 'miuvig_quality', 'completeness', 'completeness_method',
+    'contamination', 'kmer_freq', 'warnings',
+]
+
+
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+    """
     parser = argparse.ArgumentParser(
         description="This script integrates the results for the Mobilome Annotation Pipeline"
     )
@@ -98,6 +109,37 @@ def main():
     )
     parser.add_argument("--prefix", type=str, help="The output prefix", required=True)
     args = parser.parse_args()
+    return args
+
+
+def read_checkv_quality(quality_file: str) -> dict[str, dict[str, str]]:
+    """Read CheckV quality_summary.tsv file.
+
+    The key column ``contig_id`` is used for lookup; ``contig_length`` is
+    intentionally excluded.  All remaining columns are retained as strings.
+
+    Args:
+        quality_file: Paths to CheckV quality_summary.tsv file.
+
+    Returns:
+        Dict mapping contig_id -> quality column dict (see QUALITY_COLUMNS).
+    """
+    quality: dict[str, dict[str, str]] = {}
+    with open(quality_file) as f:
+        for row in csv.DictReader(f, delimiter='\t'):
+            contig_id = row['contig_id']
+            if contig_id in quality:
+                print(f'Warning: duplicate quality entry for {contig_id}, keeping first')
+                continue
+            quality[contig_id] = {col: row.get(col, 'NA') for col in QUALITY_COLUMNS}
+    return quality
+
+
+def main():
+    args = parse_arguments()
+
+    # CheckV quality data keyed by original contig name
+    quality_data: dict[str, dict[str, str]] = read_checkv_quality(args.checkv_genomad) if args.checkv_genomad else {}
 
     ### Calling functions
     mge_data = {}
