@@ -102,6 +102,8 @@ def test_mge_integrator_all_viruses_present(tmp_path):
 
     MGYG000518629_154 (contig_2, 0 viral genes, Low-quality) is intentionally
     absent — it does not pass the quality_decision filter.
+
+    Every contig from the virus summary appears as a viral_sequence in the output.
     """
     result = _run_integrator([], tmp_path)
     assert result.returncode == 0, result.stderr
@@ -110,6 +112,9 @@ def test_mge_integrator_all_viruses_present(tmp_path):
         content = fh.read()
 
     passing_contigs = [
+        "MGYG000518629_154",
+    ]
+    expected_contigs = [
         "MGYG000535607_62",
         "MGYG000518621_235",
         "MGYG000518644_131",
@@ -121,6 +126,9 @@ def test_mge_integrator_all_viruses_present(tmp_path):
         assert contig_id in content, f"{contig_id} missing from mobilome GFF"
 
     assert "MGYG000518629_154" not in content, "Low-quality contig (0 viral genes) should be filtered"
+
+    for contig_id in expected_contigs:
+        assert contig_id in content, f"{contig_id} missing from mobilome GFF"
 
 
 def test_mge_integrator_checkv_attributes_in_gff(tmp_path):
