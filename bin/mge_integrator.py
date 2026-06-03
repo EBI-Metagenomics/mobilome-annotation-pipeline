@@ -91,6 +91,11 @@ def main():
         type=str,
         help="HQ virify results",
     )
+    parser.add_argument(
+        "--checkv_genomad",
+        type=str,
+        help="checkV results for genomad viruses",
+    )
     parser.add_argument("--prefix", type=str, help="The output prefix", required=True)
     args = parser.parse_args()
 

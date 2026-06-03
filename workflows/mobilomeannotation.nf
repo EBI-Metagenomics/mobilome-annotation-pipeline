@@ -18,6 +18,7 @@ include { INTEGRONFINDER         } from '../modules/local/integronfinder'
 include { ISESCAN                } from '../modules/local/isescan'
 include { GENOMAD                } from '../modules/local/genomad'
 include { VIRIFY_QC              } from '../modules/local/virify_qc'
+include { CHECKV_ENDTOEND        } from '../modules/nf-core/checkv/endtoend'
 
 // Results integration and outputs writing modules
 include { FASTA_WRITER           } from '../modules/local/fasta_writer'
@@ -192,6 +193,9 @@ workflow MOBILOMEANNOTATION {
     GENOMAD(RENAME.out.contigs_5kb, genomad_db.first())
     ch_versions = ch_versions.mix(GENOMAD.out.versions)
 
+    def checkv_db = channel.of(file(params.checkv_db, checkIfExists: true))
+    CHECKV_ENDTOEND(GENOMAD.out.genomad_vir_fasta, checkv_db.first())
+
     INTEGRONFINDER(RENAME.out.contigs_100kb)
     ch_versions = ch_versions.mix(INTEGRONFINDER.out.versions)
 
@@ -230,6 +234,8 @@ workflow MOBILOMEANNOTATION {
         COMPOSITIONAL_OUTLIER_DETECTION.out.bed, remainder: true
     ).join(
         VIRIFY_QC.out.virify_hq, remainder: true
+    ).join(
+        CHECKV_ENDTOEND.out.quality_summary
     )
 
     INTEGRATOR(
@@ -244,7 +250,8 @@ workflow MOBILOMEANNOTATION {
             genomad_vir, 
             genomad_plas, 
             compos_bed, 
-            virify_hq 
+            virify_hq,
+            checkv
                 -> [
                 meta,
                 assem_gff,
@@ -256,7 +263,8 @@ workflow MOBILOMEANNOTATION {
                 genomad_vir,
                 genomad_plas,
                 compos_bed ? compos_bed : [],
-                virify_hq ? virify_hq : []
+                virify_hq ? virify_hq : [],
+                checkv
             ]
         }
     )
