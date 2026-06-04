@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/ebi-metagenomics/mobilome-annotation-pipeline/master/assets/schema_manifest.json",
+    "$id": "https://raw.githubusercontent.com/ebi-metagenomics/mobilome-annotation-pipeline/main/assets/schema_manifest.json",
     "title": "ebi-metagenomics/mobilome-annotation-pipeline pipeline - params.annotation_manifest schema",
     "description": "Schema for the annotation manifest provided with --annotation_manifest. Each row maps a sample to pre-computed annotation files from the genomes-catalogue-pipeline. All annotation columns are optional.",
     "type": "array",
