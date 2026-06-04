@@ -57,7 +57,7 @@ Manifest columns and skip flags are independent:
 ## Invocation
 
 ```bash
-nextflow run main.nf \
+nextflow run ebi-metagenomics/mobilome-annotation-pipeline \
     --input samplesheet.csv \
     --annotation_manifest manifest.csv \
     -c my_paths.config \
