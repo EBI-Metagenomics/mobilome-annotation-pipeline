@@ -50,7 +50,7 @@ The AMRFinderPlus output produced by the genomes-catalogue-pipeline uses a colum
 
 Manifest columns and skip flags are independent:
 
-- If a column is populated in the manifest, the corresponding internal tool is bypassed regardless of skip flags.
+- If a column is populated in the manifest, the corresponding tool is bypassed regardless of skip flags.
 - If a column is empty and the skip flag is set (e.g. `--skip_amrfinderplus`), the tool is skipped and no results for that tool appear in the report.
 - If a column is empty and the skip flag is not set, the tool runs internally as usual.
 
