@@ -1,6 +1,6 @@
 # Annotation Manifest
 
-The `--annotation_manifest` option allows functional annotation outputs produced by the [EBI Genomes Catalogues pipeline](https://github.com/EBI-Metagenomics/genomes-catalogue-pipeline) to be reused directly, bypassing the corresponding internal tools. This avoids redundant compute when processing genomes that have already been annotated in a catalogue context.
+The `--annotation_manifest` option allows functional annotation outputs produced by the [MGnify genomes catalogue pipeline](https://github.com/EBI-Metagenomics/genomes-catalogue-pipeline) to be reused directly, bypassing the corresponding internal tools. This avoids redundant compute when processing genomes that have already been annotated in a catalogue context.
 
 ## When to use it
 
