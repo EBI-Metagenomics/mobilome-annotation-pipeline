@@ -1,12 +1,12 @@
 nextflow_workflow {
 
-    name "Test Subworkflow PARSE_MANIFEST"
-    script "../parse_manifest.nf"
-    workflow "PARSE_MANIFEST"
+    name "Test Subworkflow PARSE_ANNOTATION_MANIFEST"
+    script "../parse_annotation_manifest.nf"
+    workflow "PARSE_ANNOTATION_MANIFEST"
 
     tag "subworkflows"
     tag "subworkflows_local"
-    tag "subworkflows/parse_manifest"
+    tag "subworkflows/parse_annotation_manifest"
 
     test("Manifest sample ID matches samplesheet") {
 

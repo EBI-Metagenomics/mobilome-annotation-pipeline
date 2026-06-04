@@ -4,7 +4,7 @@
 // joins receive [] as the absent-input sentinel rather than null.
 include { samplesheetToList } from 'plugin/nf-schema'
 
-workflow PARSE_MANIFEST {
+workflow PARSE_ANNOTATION_MANIFEST {
 
     take:
     manifest_path    // val: path string to the annotation manifest CSV
