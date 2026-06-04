@@ -22,22 +22,22 @@
             "amrfinder_tsv": {
                 "type": "string",
                 "pattern": "^\\S+\\.tsv(\\.gz)?$",
-                "errorMessage": "AMRFinderPlus raw TSV output from the genomes-catalogue-pipeline (optionally compressed with .gz). Column layout differs from the MAP-internal run and is normalised automatically."
+                "errorMessage": "AMRFinderPlus TSV output (optionally compressed with .gz). Column layout differs from the MAP-internal run and is normalised automatically."
             },
             "antismash_gff": {
                 "type": "string",
                 "pattern": "^\\S+\\.gff(\\.gz)?$",
-                "errorMessage": "antiSMASH GFF output from the genomes-catalogue-pipeline (optionally compressed with .gz)."
+                "errorMessage": "antiSMASH GFF output from mgnify-pipelines-toolkit/antismash_gff_builder script (optionally compressed with .gz)."
             },
             "gecco_gff": {
                 "type": "string",
                 "pattern": "^\\S+\\.gff(\\.gz)?$",
-                "errorMessage": "GECCO GFF output from the genomes-catalogue-pipeline (optionally compressed with .gz)."
+                "errorMessage": "GECCO GFF output using convert (optionally compressed with .gz)."
             },
             "sanntis_gff": {
                 "type": "string",
                 "pattern": "^\\S+\\.gff(\\.gz)?$",
-                "errorMessage": "SanntiS GFF output from the genomes-catalogue-pipeline (optionally compressed with .gz)."
+                "errorMessage": "SanntiS GFF output (optionally compressed with .gz)."
             }
         },
         "required": ["sample"]
