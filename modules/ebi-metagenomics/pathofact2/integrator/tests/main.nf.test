@@ -1,0 +1,196 @@
+nextflow_process {
+
+    name "Test Process PATHOFACT2_INTEGRATOR"
+    script "../main.nf"
+    process "PATHOFACT2_INTEGRATOR"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_ebimetagenomics"
+    tag "pathofact2"
+    tag "pathofact2/integrator"
+
+    test("Results integration to gff - cdd") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_cdd.tsv.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_support.tsv.gz", checkIfExists: true),
+                    'cdd'
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.gff).match("gff_cdd") },
+                { assert snapshot(process.out.versions_python).match("versions_cdd") }
+            )
+        }
+    }
+
+    test("Results integration to gff - cdd - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_cdd.tsv.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_support.tsv.gz", checkIfExists: true),
+                    'cdd'
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.gff).match("gff_cdd_stub") },
+                { assert snapshot(process.out.versions_python).match("versions_cdd_stub") }
+            )
+        }
+    }
+
+    test("Results integration to gff - ips") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_ips.tsv.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_support.tsv.gz", checkIfExists: true),
+                    'ips'
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.gff).match("gff_ips") },
+                { assert snapshot(process.out.versions_python).match("versions_ips") }
+            )
+        }
+    }
+
+    test("Results integration to gff - ips - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_ips.tsv.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_support.tsv.gz", checkIfExists: true),
+                    'ips'
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.gff).match("gff_ips_stub") },
+                { assert snapshot(process.out.versions_python).match("versions_ips_stub") }
+            )
+        }
+    }
+
+    test("Results integration to gff - ips - no detection") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_ips.tsv.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_support_invalid.tsv.gz", checkIfExists: true),
+                    'ips'
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.versions_python).match("versions_ips_inv") }
+            )
+        }
+
+    }
+
+    test("Results integration to gff - no annotation") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_ips_empty.tsv.gz, checkIfExists: true"),
+                    file("${moduleDir}/tests/data/test_support.tsv.gz", checkIfExists: true),
+                    'ips'
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.gff).match("gff_noips") },
+                { assert snapshot(process.out.versions_python).match("versions_noips") }
+            )
+        }
+
+    }
+
+    test("Results integration to gff - no annotation - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.gff.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_ips_empty.tsv.gz, checkIfExists: true"),
+                    file("${moduleDir}/tests/data/test_support.tsv.gz", checkIfExists: true),
+                    'ips'
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.gff).match("gff_noips_stub") },
+                { assert snapshot(process.out.versions_python).match("versions_noips_stub") }
+            )
+        }
+
+    }
+
+}

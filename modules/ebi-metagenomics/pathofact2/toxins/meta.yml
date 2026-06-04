@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "pathofact2_toxins"
+description: Pathofact2 - Machine Learning tool to predict toxins in protein sequences
+keywords:
+  - prediction
+  - toxin
+  - pathofact2
+tools:
+  - "pathofact2":
+      description: "PathoFact 2.0, an enhanced pipeline for improved ARG, VF, and toxin prediction in prokaryotic protein sequences"
+      homepage: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      documentation: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      tool_dev_url: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      doi: "10.1101/2024.12.09.627531"
+      licence: ["GNU v3.0"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fasta:
+        type: file
+        description: Protein sequences in FASTA format
+        pattern: "*{fasta,fasta.gz,fa,fa.gz,fna,fna.gz,faa,faa.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1929" # FASTA
+  - pathofact2_db:
+      type: directory
+      description: |
+        Pathofact2 database. Can be either:
+        - A compressed tarball (.tar.gz) that will be extracted
+        - An uncompressed directory containing the models
+      pattern: "*.{tar.gz,}"
+output:
+  tsv:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_classifier_toxins.tsv":
+          type: file
+          description: Predicted toxins tsv file
+          pattern: "*.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - "python --version | sed 's/Python //g'":
+          type: string
+          description: Command used to obtain the tool version
+  versions_pathofact2:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - pathofact2:
+          type: string
+          description: The name of the tool
+      - "echo ${VERSION}":
+          type: string
+          description: Command used to obtain the tool version
+
+authors:
+  - "@Ales-ibt"
+maintainers:
+  - "@Ales-ibt"

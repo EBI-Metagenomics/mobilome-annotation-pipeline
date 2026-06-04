@@ -1,0 +1,54 @@
+{
+    "Transform - gff - proteins - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_from_gff.gbk:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            {
+                "versions_mgnifypipelinestoolkit": [
+                    [
+                        "GFF2GBK",
+                        "mgnify-pipelines-toolkit",
+                        "1.4.19"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-20T13:56:49.720176"
+    },
+    "Transform - gff - proteins": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_from_gff.gbk:md5,1392f6e6857ce32efd3c1dab247328fe"
+                ]
+            ],
+            {
+                "versions_mgnifypipelinestoolkit": [
+                    [
+                        "GFF2GBK",
+                        "mgnify-pipelines-toolkit",
+                        "1.4.19"
+                    ]
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-03-24T16:17:46.706668"
+    }
+}

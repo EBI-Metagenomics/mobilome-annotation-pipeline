@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "pathofact2_extractfasta"
+description: Extract the fasta file of the proteins predicted by Pathofact2 for annotation using rpsblast vs CDD
+keywords:
+  - pathofact2
+  - vfdb
+  - fasta
+  - virulence
+  - toxins
+tools:
+  - "pathofact2":
+      description: "PathoFact 2.0, an enhanced pipeline for improved ARG, VF, and toxin prediction in prokaryotic protein sequences"
+      homepage: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      documentation: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      tool_dev_url: "https://gitlab.lcsb.uni.lu/ESB/PathoFact2"
+      doi: "10.1101/2024.12.09.627531"
+      licence: ["GNU v3.0"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: Groovy Map containing sample information e.g. `[ id:'sample1' ]`
+    - fasta:
+        type: file
+        description: Protein sequences in FASTA format
+        pattern: "*{fasta,fasta.gz,fa,fa.gz,fna,fna.gz,faa,faa.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1929" # FASTA
+    - blastp_out:
+        type: file
+        description: Result of diamond blastp vs VFDB. Columns qseqid sseqid pident length qlen slen evalue bitscore
+        pattern: "*.{txt,txt.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1964" # TXT
+    - pathofact2_tox:
+        type: file
+        description: Result of Pathofact2 toxins prediction
+        pattern: "*.{tsv,tsv.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+    - pathofact2_vf:
+        type: file
+        description: Result of Pathofact2 virulence factors prediction
+        pattern: "*.{tsv,tsv.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+output:
+  fasta:
+    - - meta:
+          type: map
+          description: Groovy Map containing sample information e.g. `[ id:'sample1' ]`
+      - "*_pathofact2.fasta":
+          type: file
+          description: Results of Pathofact2 proteins fasta
+          pattern: "*.fasta"
+          ontologies:
+            - edam: "http://edamontology.org/format_1929" # FASTA
+  tsv:
+    - - meta:
+          type: map
+          description: Groovy Map containing sample information e.g. `[ id:'sample1' ]`
+      - "*_support.tsv":
+          type: file
+          description: Results of Pathofact2 predictions support
+          pattern: "*.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - "python --version | sed 's/Python //g'":
+          type: string
+          description: Command used to obtain the tool version
+  versions_pathofact2:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - pathofact2:
+          type: string
+          description: The name of the tool
+      - "echo ${VERSION}":
+          type: string
+          description: Command used to obtain the tool version
+
+authors:
+  - "@Ales-ibt"
+maintainers:
+  - "@Ales-ibt"
