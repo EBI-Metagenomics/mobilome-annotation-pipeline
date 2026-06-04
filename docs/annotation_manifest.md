@@ -6,7 +6,7 @@ The `--annotation_manifest` option allows functional annotation outputs produced
 
 Use `--annotation_manifest` when:
 
-- You are running MAP on assemblies that are part of an EBI Genomes Catalogue run and you already have InterProScan, AMRFinderPlus, antiSMASH, GECCO, or SanntiS outputs for those assemblies.
+- You are running MAP on assemblies that are part of an MGnify genomes catalogue pipeline run and you already have InterProScan, AMRFinderPlus, antiSMASH, GECCO, or SanntiS outputs for those assemblies.
 - You want to skip re-running one or more annotation tools to reduce runtime or avoid database requirements.
 
 When a manifest is provided, the pipeline skips the corresponding internal runs (e.g. does not invoke InterProScan or AMRFinderPlus internally) and instead routes the manifest files directly into the downstream integration and reporting steps. Functional annotation tools not covered by the manifest still run normally.
