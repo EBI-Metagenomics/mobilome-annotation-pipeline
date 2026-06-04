@@ -1,0 +1,49 @@
+nextflow_workflow {
+
+    name "Test Subworkflow PARSE_MANIFEST"
+    script "../parse_manifest.nf"
+    workflow "PARSE_MANIFEST"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/parse_manifest"
+
+    test("Manifest sample ID matches samplesheet") {
+
+        when {
+            workflow {
+                """
+                input[0] = "${projectDir}/subworkflows/local/tests/data/manifest_valid.csv"
+                input[1] = ["MGYG000528118_sub"] as Set
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.ips_tsv.size()       == 0
+            assert workflow.out.amrfinder_tsv.size() == 0
+            assert workflow.out.antismash_gff.size() == 0
+            assert workflow.out.gecco_gff.size()     == 0
+            assert workflow.out.sanntis_gff.size()   == 0
+        }
+    }
+
+    test("Fail: manifest contains sample ID not present in samplesheet") {
+
+        when {
+            workflow {
+                """
+                input[0] = "${projectDir}/subworkflows/local/tests/data/manifest_non_valid.csv"
+                input[1] = ["MGYG000528118_sub"] as Set
+                """
+            }
+        }
+
+        then {
+            assert workflow.failed
+            assert workflow.errorReport.contains("MGYG000528118_fail")
+            assert workflow.errorReport.contains("not found in the samplesheet")
+        }
+    }
+}

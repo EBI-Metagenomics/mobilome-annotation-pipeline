@@ -7,12 +7,18 @@ include { samplesheetToList } from 'plugin/nf-schema'
 workflow PARSE_MANIFEST {
 
     take:
-    manifest_path   // val: path string to the annotation manifest CSV
+    manifest_path    // val: path string to the annotation manifest CSV
+    samplesheet_ids  // val: Set<String> of sample IDs from the input samplesheet
 
     main:
-    def ch_manifest = Channel.fromList(
-        samplesheetToList(manifest_path, "${projectDir}/assets/schema_manifest.json")
-    )
+    def manifest_list = samplesheetToList(manifest_path, "${projectDir}/assets/schema_manifest.json")
+    def manifest_ids  = manifest_list.collect { row -> row[0].id } as Set
+    def unknown_ids   = manifest_ids - samplesheet_ids
+    if (unknown_ids) {
+        error "Annotation manifest contains sample IDs not found in the samplesheet: " +
+              "${unknown_ids.sort().join(', ')}. Check for typos in the manifest 'sample' column."
+    }
+    def ch_manifest = Channel.fromList(manifest_list)
 
     // multiMap broadcasts every row to all five named output channels.
     // Multiple .map{} calls on a single queue channel would round-robin items

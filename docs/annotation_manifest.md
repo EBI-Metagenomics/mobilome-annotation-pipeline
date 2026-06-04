@@ -64,4 +64,4 @@ nextflow run ebi-metagenomics/mobilome-annotation-pipeline \
     -profile singularity
 ```
 
-The manifest is validated against `assets/schema_manifest.json` at startup. Sample IDs that appear in the manifest but not in the samplesheet are ignored with a warning.
+The manifest is validated against `assets/schema_manifest.json` at startup. Sample IDs that appear in the manifest but not in the samplesheet cause the pipeline to exit with an error.
