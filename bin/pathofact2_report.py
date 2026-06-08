@@ -160,7 +160,7 @@ def split_csv_value(value: str) -> list[str]:
 
 def merge_unique_preserving_order(existing: list[str], new_values: list[str]) -> list[str]:
     seen = set(existing)
-    merged = list(existing)
+    merged = existing.copy()
 
     for value in new_values:
         if value not in seen:
