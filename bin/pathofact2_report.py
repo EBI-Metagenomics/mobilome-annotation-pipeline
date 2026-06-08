@@ -124,17 +124,11 @@ def setup_logging(level: str) -> None:
 
 
 def path_is_missing_or_empty(path_str: str) -> bool:
-    if path_str == "":
+    if not path_str:
         return True
 
     path = Path(path_str)
-    if not path.exists():
-        return True
-
-    if path.stat().st_size == 0:
-        return True
-
-    return False
+    return not path.exists() or path.stat().st_size == 0
 
 
 def split_csv_value(value: str) -> list[str]:
