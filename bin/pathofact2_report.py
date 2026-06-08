@@ -75,36 +75,37 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--pathofact2",
         required=False,
-        default="",
+        type=Path,
         help="Optional PathoFact2 GFF file",
     )
     parser.add_argument(
         "--amr",
         required=False,
-        default="",
+        type=Path,
         help="Optional AMR GFF file",
     )
     parser.add_argument(
         "--mobilome",
         required=False,
-        default="",
+        type=Path,
         help="Optional mobilome GFF file",
     )
     parser.add_argument(
         "--bgc",
         required=False,
-        default="",
+        type=Path,
         help="Optional BGC GFF file",
     )
     parser.add_argument(
         "--interproscan",
         required=False,
-        default="",
+        type=Path,
         help="Optional InterProScan TSV file",
     )
     parser.add_argument(
         "--output",
         required=True,
+        type=Path,
         help="Output TSV file",
     )
     parser.add_argument(
@@ -123,11 +124,9 @@ def setup_logging(level: str) -> None:
     )
 
 
-def path_is_missing_or_empty(path_str: str) -> bool:
-    if not path_str:
+def path_is_missing_or_empty(path: Path | None) -> bool:
+    if not path:
         return True
-
-    path = Path(path_str)
     return not path.exists() or path.stat().st_size == 0
 
 
@@ -154,7 +153,7 @@ def join_or_dash(values: list[str]) -> str:
 
 
 def _iter_gff_rows(
-    gff_file: str,
+    gff_file: Path,
 ) -> Iterator[tuple[str, str, str, int, int, dict[str, str]]]:
     """Yield (raw_line, contig, feature_type, start, end, attributes) for valid GFF rows."""
     from mgnify_pipelines_toolkit.analysis.shared.gff.io import iter_gff_rows, parse_attr_str
@@ -164,7 +163,7 @@ def _iter_gff_rows(
 
 
 def parse_pathofact2_gff(
-    gff_file: str,
+    gff_file: Path,
 ) -> tuple[dict[str, tuple[str, int, int]], dict[str, tuple[str, str, str, str, str]]]:
     """
     Parse PathoFact2 GFF.
@@ -205,7 +204,7 @@ def parse_pathofact2_gff(
 
 
 def parse_amr_gff(
-    gff_file: str,
+    gff_file: Path,
     prots_coords: dict[str, tuple[str, int, int]],
 ) -> dict[str, tuple[str, str, str]]:
     """Parse AMR GFF and extend prots_coords for missing proteins."""
@@ -235,7 +234,7 @@ def parse_amr_gff(
     return amr_data
 
 
-def parse_mobilome_gff(gff_file: str) -> dict[str, list[tuple[int, int, str]]]:
+def parse_mobilome_gff(gff_file: Path) -> dict[str, list[tuple[int, int, str]]]:
     """Parse mobilome GFF into contig-level MGE intervals."""
     logging.info("Parsing mobilome GFF: %s", gff_file)
 
@@ -255,7 +254,7 @@ def parse_mobilome_gff(gff_file: str) -> dict[str, list[tuple[int, int, str]]]:
 
 
 def parse_bgc_gff(
-    gff_file: str,
+    gff_file: Path,
     prots_coords: dict[str, tuple[str, int, int]],
 ) -> dict[str, tuple[str, str]]:
     """
@@ -309,7 +308,7 @@ def parse_bgc_gff(
     return bgc_data
 
 
-def parse_interproscan_signalp(tsv_file: str) -> dict[str, str]:
+def parse_interproscan_signalp(tsv_file: Path) -> dict[str, str]:
     """Parse optional InterProScan TSV and keep only SignalP annotations."""
     logging.info("Parsing InterProScan TSV: %s", tsv_file)
 
@@ -448,13 +447,12 @@ def build_rows(
     return rows
 
 
-def write_output(rows: list[dict[str, str]], output_file: str) -> None:
+def write_output(rows: list[dict[str, str]], output_file: Path) -> None:
     logging.info("Writing output TSV: %s", output_file)
 
-    output_path = Path(output_file)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, "w", encoding="utf-8", newline="") as handle:
+    with open(output_file, "w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=OUTPUT_HEADER, delimiter="\t")
         writer.writeheader()
         writer.writerows(rows)

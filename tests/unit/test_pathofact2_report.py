@@ -45,21 +45,21 @@ def _parse(attr_str):
 
 
 class TestPathIsMissingOrEmpty:
-    def test_empty_string(self):
-        assert path_is_missing_or_empty("") is True
+    def test_none(self):
+        assert path_is_missing_or_empty(None) is True
 
     def test_nonexistent_path(self, tmp_path):
-        assert path_is_missing_or_empty(str(tmp_path / "ghost.gff")) is True
+        assert path_is_missing_or_empty(tmp_path / "ghost.gff") is True
 
     def test_empty_file(self, tmp_path):
         f = tmp_path / "empty.gff"
         f.write_text("")
-        assert path_is_missing_or_empty(str(f)) is True
+        assert path_is_missing_or_empty(f) is True
 
     def test_populated_file(self, tmp_path):
         f = tmp_path / "data.gff"
         f.write_text("##gff-version 3\n")
-        assert path_is_missing_or_empty(str(f)) is False
+        assert path_is_missing_or_empty(f) is False
 
 
 # ---------------------------------------------------------------------------
@@ -362,7 +362,7 @@ class TestParseInterproscanSignalp:
     def test_typical_signalp_row(self, tmp_path):
         f = tmp_path / "ips.tsv"
         self._write_ips(f, [_ips_line("prot1", "md5", "200", "SignalP_EUK", "Sec/SPI", "", "", "", "", "", "", "", "", "", "")])
-        data = parse_interproscan_signalp(str(f))
+        data = parse_interproscan_signalp(f)
         assert data["prot1"] == "Sec/SPI"
 
     def test_non_signalp_rows_skipped(self, tmp_path):
@@ -371,7 +371,7 @@ class TestParseInterproscanSignalp:
             _ips_line("prot1", "md5", "200", "Pfam", "PF00001", "domain", "", "", "", "", "", "", "", "", ""),
             _ips_line("prot2", "md5", "200", "SignalP_EUK", "Sec/SPI", "", "", "", "", "", "", "", "", "", ""),
         ])
-        data = parse_interproscan_signalp(str(f))
+        data = parse_interproscan_signalp(f)
         assert "prot1" not in data
         assert "prot2" in data
 
@@ -381,7 +381,7 @@ class TestParseInterproscanSignalp:
             _ips_line("prot1", "md5", "200", "SignalP_EUK", "", "", "", "", "", "", "", "", "", "", ""),
             _ips_line("prot2", "md5", "200", "SignalP_EUK", "-", "", "", "", "", "", "", "", "", "", ""),
         ])
-        data = parse_interproscan_signalp(str(f))
+        data = parse_interproscan_signalp(f)
         assert "prot1" not in data
         assert "prot2" not in data
 
@@ -391,7 +391,7 @@ class TestParseInterproscanSignalp:
             _ips_line("prot1", "md5", "200", "SignalP_EUK", "Sec/SPI", "", "", "", "", "", "", "", "", "", ""),
             _ips_line("prot1", "md5", "200", "SignalP_GRAM_NEGATIVE", "Sec/SPII", "", "", "", "", "", "", "", "", "", ""),
         ])
-        data = parse_interproscan_signalp(str(f))
+        data = parse_interproscan_signalp(f)
         assert "Sec/SPI" in data["prot1"] and "Sec/SPII" in data["prot1"]
 
     def test_gzip_input(self, tmp_path):
@@ -399,13 +399,13 @@ class TestParseInterproscanSignalp:
         content = _ips_line("prot1", "md5", "200", "SignalP_EUK", "Sec/SPI", "", "", "", "", "", "", "", "", "", "") + "\n"
         with gzip.open(f, "wt") as fh:
             fh.write(content)
-        data = parse_interproscan_signalp(str(f))
+        data = parse_interproscan_signalp(f)
         assert data["prot1"] == "Sec/SPI"
 
     def test_empty_file(self, tmp_path):
         f = tmp_path / "empty.tsv"
         f.write_text("")
-        data = parse_interproscan_signalp(str(f))
+        data = parse_interproscan_signalp(f)
         assert data == {}
 
 
