@@ -41,9 +41,6 @@ from collections import defaultdict
 from pathlib import Path
 from typing import DefaultDict, Iterator
 
-from mgnify_pipelines_toolkit.analysis.shared.gff.io import iter_gff_rows, parse_attr_str
-
-
 OUTPUT_HEADER = [
     "protein_id",
     "vfdb_hit",
@@ -166,6 +163,8 @@ def _iter_gff_rows(
     gff_file: str,
 ) -> Iterator[tuple[str, str, str, int, int, dict[str, str]]]:
     """Yield (raw_line, contig, feature_type, start, end, attributes) for valid GFF rows."""
+    from mgnify_pipelines_toolkit.analysis.shared.gff.io import iter_gff_rows, parse_attr_str
+
     for raw_line, cols in iter_gff_rows(Path(gff_file)):
         yield raw_line, cols[0], cols[2], int(cols[3]), int(cols[4]), parse_attr_str(cols[8])
 
