@@ -48,11 +48,50 @@ The AMRFinderPlus output produced by the genomes-catalogue-pipeline uses a colum
 
 ## Interaction with skip flags
 
-Manifest columns and skip flags are independent:
+The manifest and skip flags operate on different tool sets:
 
-- If a column is populated in the manifest, the corresponding tool is bypassed regardless of skip flags.
-- If a column is empty and the skip flag is set (e.g. `--skip_amrfinderplus`), the tool is skipped and no results for that tool appear in the report.
-- If a column is empty and the skip flag is not set, the tool runs as usual.
+- **Tools covered by the manifest** (InterProScan, AMRFinderPlus, antiSMASH, GECCO, SanntiS): when `--annotation_manifest` is provided, these tools are always bypassed — skip flags have no effect. If a column is populated, the manifest file is used directly; if a column is empty, no results are produced for that tool.
+- **Tools not covered by the manifest** (DeepARG, RGI): skip flags (`--skip_deeparg`, `--skip_rgi`) always work normally, regardless of whether a manifest is provided.
+
+### Examples
+
+**Skip a BGC tool — no manifest**
+
+Reduce runtime by skipping antiSMASH when you have no precomputed results:
+
+```bash
+nextflow run ebi-metagenomics/mobilome-annotation-pipeline \
+    --input samplesheet.csv \
+    --skip_antismash \
+    -profile singularity
+```
+
+**Partial manifest + skip an unrelated tool**
+
+You have precomputed antiSMASH and GECCO outputs, and want to skip RGI:
+
+```bash
+nextflow run ebi-metagenomics/mobilome-annotation-pipeline \
+    --input samplesheet.csv \
+    --annotation_manifest manifest.csv \
+    --skip_rgi \
+    -profile singularity
+```
+
+The `antismash_gff` and `gecco_gff` columns are used directly; SanntiS, AMRFinderPlus, and IPS run internally. `--skip_rgi` takes effect because RGI has no manifest column.
+
+**Skip flag alongside a populated manifest column — no effect**
+
+`--skip_antismash` is redundant when `antismash_gff` is populated in the manifest; the tool is already bypassed even if there's no entry in the annotation mannifest:
+
+```bash
+# --skip_antismash has no effect here — the manifest already bypasses antiSMASH
+nextflow run ebi-metagenomics/mobilome-annotation-pipeline \
+    --input samplesheet.csv \
+    --annotation_manifest manifest.csv \
+    --skip_antismash \
+    -profile singularity
+```
 
 ## Invocation
 
