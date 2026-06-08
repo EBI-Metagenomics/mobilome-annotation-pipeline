@@ -3,8 +3,8 @@ process COMBINEREPORTER {
     label 'process_single'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.12.12':
-        'biocontainers/python:3.12.12'}"
+        'https://depot.galaxyproject.org/singularity/mgnify-pipelines-toolkit:1.5.1--pyhdfd78af_0':
+        'biocontainers/mgnify-pipelines-toolkit:1.5.1--pyhdfd78af_0'}"
 
     input:
     tuple val(meta), path(mobilome_gff), path(pathofact_gff), path(arg_gff), path(bgcs_gff), path(ips_tsv)
