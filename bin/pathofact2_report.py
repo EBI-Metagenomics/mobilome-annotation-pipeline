@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Integrate PathoFact2, AMR, mobilome, BGC, and InterProScan annotations.
+Integrate PathoFact2, antimicrobial resistance genes (AMR), mobilome, biosintetic gene clusters (BGCs), and InterProScan annotations.
 
 Output columns:
     protein_id
