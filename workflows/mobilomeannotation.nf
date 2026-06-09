@@ -381,8 +381,8 @@ workflow MOBILOMEANNOTATION {
         def ch_models = params.pathofact_models
             ? channel.fromPath(file(params.pathofact_models, checkIfExists: true)).first()
             : null
-        def ch_vfdb = params.virulecefactors_db
-            ? channel.fromPath(file(params.virulecefactors_db, checkIfExists: true)).map { db -> [ [id: 'vfdb'], db ] }.first()
+        def ch_vfdb = params.virulencefactors_db
+            ? channel.fromPath(file(params.virulencefactors_db, checkIfExists: true)).map { db -> [ [id: 'vfdb'], db ] }.first()
             : null
         def ch_cdd    = params.ncbi_cdd ? Channel.fromPath(file(params.ncbi_cdd, checkIfExists: true)).first() : Channel.empty()
 

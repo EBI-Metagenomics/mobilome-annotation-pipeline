@@ -29,7 +29,7 @@ The Mobilome Annotation Pipeline integrates the output of different tools design
    <img src="media/map_pathofact2.png" width="90%"/>
 </p>
 
-The pipeline has four main stages:
+The pipeline has five main stages:
 
 **1. Preprocessing** — Contigs are filtered by length and renamed to short IDs (`RENAME`). CDS are annotated with Prodigal; tRNAs with ARAGORN.
 
