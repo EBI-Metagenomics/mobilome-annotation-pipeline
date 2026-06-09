@@ -37,7 +37,7 @@ The pipeline has four main stages:
 
 **3. Integration** — All predictions are merged into a single `{sample}_mobilome.gff.gz`. Predictions <500 bp or with no CDS are discarded.
 
-**4. Functional annotation** (runs after mobilome prediction) — Three independent subworkflows annotate virulence factors, ARG and BGC:
+**4. Functional annotation** — Three independent subworkflows annotate virulence factors, antimicrobial resistance genes (ARG) and biosynthetic gene clusters (BGC):
 - **PATHOFACT2**: toxin and virulence factor prediction via machine learning and DIAMOND vs VFDB.
 - **AMR_ANNOTATION**: antimicrobial resistance gene detection with AMRFinderPlus, DeepARG, and RGI (CARD).
 - **BGC_ANNOTATION**: biosynthetic gene cluster prediction and overlps merging with SanntiS, GECCO, and antiSMASH.
@@ -199,8 +199,6 @@ The functional annotation subworkflows are enabled by default but can be disable
 ```bash
 nextflow run /PATH/mobilome-annotation-pipeline/main.nf \
     --input samplesheet.csv \
-    -c my_paths.config \
-    -profile singularity \
     --skip_virulence true \
     --skip_amrfinderplus true \
     --skip_deeparg true \
@@ -222,7 +220,7 @@ nextflow run /PATH/mobilome-annotation-pipeline/main.nf \
 | `--skip_gecco` | `false` | Skip GECCO BGC prediction |
 | `--skip_antismash` | `false` | Skip antiSMASH BGC prediction |
 
-For reusing pre-computed annotation outputs from the EBI Genomes Catalogues pipeline, see [docs/annotation_manifest.md](docs/annotation_manifest.md).
+For reusing pre-computed annotation outputs from the MGnify Genomes Catalogues pipeline, see [docs/annotation_manifest.md](docs/annotation_manifest.md).
 
 <a name="out"></a>
 
