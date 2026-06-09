@@ -104,7 +104,7 @@ See [docs/usage.md](docs/usage.md) for skip flags, mobilome-only mode, and annot
 | `--skip_gecco` | `false` | Skip GECCO BGC prediction |
 | `--skip_antismash` | `false` | Skip antiSMASH BGC prediction |
 
-For reusing pre-computed annotation outputs from the EBI Genomes Catalogues pipeline, see [docs/annotation_manifest.md](docs/annotation_manifest.md).
+For reusing pre-computed annotation outputs from the MGnify Genomes Catalogues pipeline, see [docs/annotation_manifest.md](docs/annotation_manifest.md).
 
 <a name="out"></a>
 
