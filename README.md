@@ -75,17 +75,6 @@ sample1,/PATH/assembly.fasta,,,,
 sample2,/PATH/assembly.fasta,/PATH/proteins.gff,/PATH/proteins.faa,,/PATH/ips.tsv
 ```
 
-Only `sample` and `assembly` are required. Optional columns:
-
-| Column | Description |
-|---|---|
-| `proteins_gff` | Pre-computed CDS annotation GFF (Prodigal or equivalent). If absent, MAP runs Prodigal. |
-| `proteins_faa` | Protein FASTA matching `proteins_gff`. |
-| `virify_gff` | VIRify ≥3.0.0 output GFF. Prophage predictions are incorporated into the mobilome. |
-| `interproscan_tsv` | InterProScan TSV. Used by PATHOFACT2 (SignalP entries) instead of local CDsearch. |
-
-Basic run:
-
 ```bash
 nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
     --input samplesheet.csv \
@@ -103,45 +92,19 @@ MAP runs three independent functional annotation subworkflows after mobilome pre
 
 See [docs/usage.md](docs/usage.md) for skip flags, mobilome-only mode, and annotation manifest reuse.
 
-### Functional annotation flags
-
-| Parameter | Default | Description |
-|---|---|---|
-| `--skip_virulence` | `false` | Skip PATHOFACT2 toxin/virulence annotation and VFDB search |
-| `--skip_amrfinderplus` | `false` | Skip AMRFinderPlus |
-| `--skip_deeparg` | `false` | Skip DeepARG |
-| `--skip_rgi` | `false` | Skip RGI (CARD) |
-| `--skip_sanntis` | `false` | Skip SanntiS BGC prediction |
-| `--skip_gecco` | `false` | Skip GECCO BGC prediction |
-| `--skip_antismash` | `false` | Skip antiSMASH BGC prediction |
-
-For reusing pre-computed annotation outputs from the MGnify Genomes Catalogues pipeline, see [docs/annotation_manifest.md](docs/annotation_manifest.md).
-
 <a name="out"></a>
 
 ## Outputs
 
 Results are written to `--outdir` (default: `results/`).
 
-### Mobilome outputs
-
 ```
-sample/
-├── sample_combined_report.tsv
-├── sample_discarded_mge.txt
-├── sample_mobilome.fasta.gz
-├── sample_overlap_report.txt
+{sample}/
+├── {sample}_combined_report.tsv
+├── {sample}_discarded_mge.txt
+├── {sample}_mobilome.fasta.gz
+├── {sample}_overlap_report.txt
 ├── gff/
-│   ├── sample_mobilome.gff.gz
-│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + matching CDSs
-│   ├── sample_user_mobilome_clean.gff.gz.csi
-│   ├── sample_user_mobilome_clean.gff.gz.gzi
-│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
-│   ├── sample_user_mobilome_extra.gff.gz.csi
-│   ├── sample_user_mobilome_extra.gff.gz.gzi
-│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from user GFF
-│   ├── sample_user_mobilome_full.gff.gz.csi
-│   └── sample_user_mobilome_full.gff.gz.gzi
 ├── prediction/
 │   ├── amr_genes/
 │   │   ├── integrated_sample.gff
@@ -180,10 +143,6 @@ sample/
 │   └── virulence/
 │       └── sample_pathofact2.gff
 └── preprocessing/
-    ├── sample_1kb_contigs.fasta
-    ├── sample_5kb_contigs.fasta
-    ├── sample_100kb_contigs.fasta
-    └── sample_contigID.map
 ```
 When running with the flag `publish_all false`, the expected outputs are:
 ```
@@ -270,3 +229,4 @@ This pipeline uses code and infrastructure developed and maintained by the [nf-c
 > Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
+
