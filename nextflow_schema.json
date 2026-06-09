@@ -28,6 +28,12 @@
           "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
           "fa_icon": "fas fa-folder-open",
           "default": "results"
+        },
+        "download_dbs": {
+          "type": "string",
+          "description": "Target directory for database downloads. When provided, the pipeline downloads all required databases and exits without running annotation. Mutually exclusive with --input.",
+          "help_text": "Run nextflow run EBI-Metagenomics/mobilome-annotation-pipeline --download_dbs /path/to/dbs -profile singularity to download all databases. The pipeline will print a ready-to-use config snippet on completion.",
+          "fa_icon": "fas fa-download"
         }
       },
       "required": ["input", "outdir"]

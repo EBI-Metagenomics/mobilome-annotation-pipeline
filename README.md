@@ -53,107 +53,57 @@ The only prerequisites are [Nextflow](https://www.nextflow.io/) and a container 
 
 If this the first time running nextflow please refer to [this page](https://www.nextflow.io/index.html#GetStarted)
 
-The first time you run the pipeline you will need to set up the following databases:
+The first time you run the pipeline you will need to set up the required databases. MAP includes a built-in download subworkflow that handles this automatically.
 
-### Databases to run mobilome prediction
-1. Download and extract the geNomad database:
-```bash
-wget https://zenodo.org/records/14886553/files/genomad_db_v1.9.tar.gz
-tar -xvf genomad_db_v1.9.tar.gz
-```
+### Downloading all databases
 
-2. Download and extract the ICEfinder2-lite databases:
+Run the pipeline with `--download_dbs` pointing to a target directory:
+
 ```bash
-wget https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
-tar -xvf icf2_dbs.tar.gz
+nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
+    --download_dbs /path/to/dbs \
+    -profile singularity
 ```
 
-### Required databases for Pathofact2-style functional annotation
-Some databases set up require using the tool iteself. You can do it using docker
-```bash
-docker run --rm -v $(pwd):/data -w /data quay.io/biocontainers/TOOL:VERSION
-```
-Or singularity:
-```bash
-singularity run https://depot.galaxyproject.org/singularity/TOOL:VERSION
-```
+This downloads and sets up all databases in parallel:
 
-1. Download and extract the pathofact2 models
-```bash
-wget https://zenodo.org/records/18223764/files/Models.tar.gz?download=1 -O Models.tar.gz
-tar -xvf Models.tar.gz
-```
-2. Download and extract VFDB, and format using diamond with docker or singularity
-```bash
-wget https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz
-gzip -d VFDB_setB_pro.fas.gz
-diamond:2.1.16--h13889ed_0 diamond makedb --in VFDB_setB_pro.fas -d VFDB_setB_pro
-```
-3. Download CDD database using local-cd-search tool with docker or singularity. Optional; used when no IPS is provided
-```bash
-mkdir cdd_database
-local-cd-search:0.3.0--pyhdfd78af_0 local-cd-search download cdd_database/ cdd
-```
+| Database | Tool | Purpose |
+|---|---|---|
+| geNomad v1.9 | geNomad | Plasmid/phage prediction |
+| ICEfinder2-lite | ICEfinder2 | ICE/IME prediction |
+| PATHOFACT2 models | PATHOFACT2 | Toxin/virulence ML models |
+| VFDB (`VFDB_setB_pro.dmnd`) | DIAMOND + PATHOFACT2 | Virulence factor search |
+| CDD | local-cd-search | Domain annotation (used when no IPS provided) |
+| AMRFinderPlus DB | AMRFinderPlus | AMR gene detection |
+| DeepARG DB | DeepARG | AMR gene detection |
+| CARD | RGI | AMR gene detection |
+| antiSMASH DB | antiSMASH | BGC prediction |
 
-4. Download and decompress AMRfinderPlus database with docker or singularity
-```bash
-ncbi-amrfinderplus:4.2.7--hf69ffd2_0 amrfinder_update -d amrfinderdb
-tar czvf amrfinderdb.tar.gz -C amrfinderdb/\$(readlink amrfinderdb/latest) ./
-```
+> **InterProScan** (~100 GB) is not included due to its size. Download it manually following the [InterProScan documentation](https://interproscan-docs.readthedocs.io/en/v5/HowToDownload.html) if you need it. It is only required for SanntiS BGC prediction; the pipeline can run without it.
 
-5. Download deeparg database with docker or singularity
-```bash
-# if docker add: -v $(which bash):/usr/local/lib/python2.7/site-packages/Theano-0.8.2-py2.7.egg-info/PKG-INFO
-# If singularity add: -B $(which bash):/usr/local/lib/python2.7/site-packages/Theano-0.8.2-py2.7.egg-info/PKG-INFO
-mkdir -p theano
-export THEANO_FLAGS="base_compiledir=\$PWD/theano"
-deeparg:1.0.4--pyhdfd78af_0 deeparg download_data -o db/
-```
-
-6. Download CARD database for RGI
-```bash
-mkdir CARD_db
-wget https://card.mcmaster.ca/latest/data
-tar -xvf data ./card.json
-mv card.json CARD_db
-```
-
-7. Download antismash database with docker or singularity
-```bash
-antismash:8.0.1--pyhdfd78af_0 download-antismash-databases --database-dir antismash_db
-```
-
-8. Download [InterProScan](https://interproscan-docs.readthedocs.io/en/v5/HowToDownload.html) databases
-```bash
-mkdir interproscan && cd interproscan
-wget https://ftp.ebi.ac.uk/pub/software/unix/iprscan/5/5.76-107.0/interproscan-5.76-107.0-64-bit.tar.gz
-wget https://ftp.ebi.ac.uk/pub/software/unix/iprscan/5/5.76-107.0/interproscan-5.76-107.0-64-bit.tar.gz.md5
-md5sum -c interproscan-5.76-107.0-64-bit.tar.gz.md5
-```
-
-Once downloaded, we recommend creating a config file with all paths and passing it with `-c my_paths.config`:
+On completion, the pipeline prints a ready-to-paste config block with the exact paths for your system. Save it to a file (e.g. `my_paths.config`) and pass it on every run with `-c my_paths.config`:
 
 ```nextflow
 params {
     // Mobilome
-    genomad_db                   = "/PATH/genomad_db_v1.9"
-    icefinder_macsyfinder_models = "/PATH/icf2_dbs/macsydata/"
-    icefinder_hmm_models         = "/PATH/icf2_dbs/icehmm/icescan.hmm"
-    icefinder_prokka_uniprot_db  = "/PATH/icf2_dbs/icefinder_prokka_uniprot/"
+    genomad_db                   = "/path/to/dbs/genomad_db_v1.9"
+    icefinder_macsyfinder_models = "/path/to/dbs/icf2_dbs/macsydata"
+    icefinder_hmm_models         = "/path/to/dbs/icf2_dbs/icehmm/icescan"
+    icefinder_prokka_uniprot_db  = "/path/to/dbs/icf2_dbs/icefinder_prokka_uniprot"
 
     // PATHOFACT2
-    pathofact_models   = "/PATH/pathofact2_models"
-    virulecefactors_db = "/PATH/VFDB_setB_pro.dmnd"
-    ncbi_cdd           = "/PATH/cdd_database"   // optional; used when no IPS is provided
+    pathofact_models             = "/path/to/dbs/Models.tar.gz"
+    virulencefactors_db          = "/path/to/dbs/VFDB_setB_pro.dmnd"
+    ncbi_cdd                     = "/path/to/dbs/database"
 
     // AMR
-    amrfinderplus_db   = "/PATH/amrfinderplus_db"
-    deeparg_db         = "/PATH/deeparg_db"
-    rgi_db             = "/PATH/CARD_db"
+    amrfinderplus_db             = "/path/to/dbs/amrfinderdb"
+    deeparg_db                   = "/path/to/dbs/db"
+    rgi_db                       = "/path/to/dbs/card_dir"
 
     // BGC
-    antismash_db       = "/PATH/antismash_db"
-    // SanntiS require InterProScan output (provided via samplesheet or run internally)
+    antismash_db                 = "/path/to/dbs/antismash_db"
+    // SanntiS requires InterProScan output (provided via samplesheet or run internally)
 }
 ```
 
@@ -174,7 +124,7 @@ Only `sample` and `assembly` are required. Optional columns:
 
 | Column | Description |
 |---|---|
-| `proteins_gff` | Pre-computed CDS annotation GFF (Prodigal or equivalent). If absent, MAP runs Prodigal internally. |
+| `proteins_gff` | Pre-computed CDS annotation GFF (Prodigal or equivalent). If absent, MAP runs Prodigal. |
 | `proteins_faa` | Protein FASTA matching `proteins_gff`. |
 | `virify_gff` | VIRify ≥3.0.0 output GFF. Prophage predictions are incorporated into the mobilome. |
 | `interproscan_tsv` | InterProScan TSV. Used by PATHOFACT2 (SignalP entries) instead of local CDsearch. |
