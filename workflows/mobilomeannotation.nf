@@ -69,14 +69,14 @@ workflow MOBILOMEANNOTATION {
 
     // Handling user proteins GFF and FASTA optional inputs
     def ch_user_proteins = ch_inputs
-        .map { meta, _assembly, user_proteins_gff, user_proteins_fasta, _virify_gff, _ips_tsv ->
-            tuple(meta, user_proteins_gff ?: [], user_proteins_fasta ?: [])
+        .map { meta, _assembly, proteins_gff, proteins_fasta, _virify_gff, _ips_tsv ->
+            tuple(meta, proteins_gff ?: [], proteins_fasta ?: [])
         }
         .filter { meta, gff, fasta -> gff != [] && fasta != [] }
 
     // Handling virify GFF file optional input
     def ch_user_virify_gff = ch_inputs
-        .map { meta, _assembly, _user_proteins_gff, _user_proteins_fasta, virify_gff, _ips_tsv ->
+        .map { meta, _assembly, _proteins_gff, _proteins_fasta, virify_gff, _ips_tsv ->
             tuple(meta, virify_gff ?: [])
         }
         .filter { meta, virify_gff -> virify_gff != [] }
@@ -113,7 +113,7 @@ workflow MOBILOMEANNOTATION {
         }
     } else {
         def ch_user_ips = ch_inputs
-            .map { meta, _assembly, _user_proteins_gff, _user_proteins_fasta, _virify_gff, ips_tsv ->
+            .map { meta, _assembly, _proteins_gff, _proteins_fasta, _virify_gff, ips_tsv ->
                 tuple(meta, ips_tsv ?: [])
             }
         // multiMap broadcasts ch_user_ips to all three consumers (BGC inputs, PATHOFACT2, COMBINEREPORTER).
@@ -129,7 +129,7 @@ workflow MOBILOMEANNOTATION {
     // multiMap broadcasts to all three consumers (RENAME process, FASTA_WRITER join, ch_bgc_assembly join).
     // A plain queue channel used in multiple operator chains would split items between consumers.
     def ch_assembly_split = ch_inputs
-        .map { meta, assembly, _user_proteins_gff, _user_proteins_fasta, _virify_gff, _ips_tsv ->
+        .map { meta, assembly, _proteins_gff, _proteins_fasta, _virify_gff, _ips_tsv ->
             tuple(meta, assembly)
         }
         .multiMap { meta, assembly ->
