@@ -1,2 +1,2 @@
-sample,assembly
-GCF_002192495,/hps/nobackup/rdf/metagenomics/service-team/projects/infectome/map_pathofact_dev/mobilome-annotation-pipeline/tests/data/GCF_002192495_test.fna
+sample,assembly,proteins_gff,proteins_faa,virify_gff,interproscan_tsv
+GCF_002192495,${projectDir}/tests/data/GCF_002192495_test.fna,,,,
