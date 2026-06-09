@@ -1,0 +1,2 @@
+sample,assembly,proteins_gff,proteins_faa,virify_gff,interproscan_tsv
+MGYG000528118_sub,${projectDir}/tests/data/MGYG000528118_sub/MGYG000528118_sub.fna,${projectDir}/tests/data/MGYG000528118_sub/MGYG000528118_sub.gff,${projectDir}/tests/data/MGYG000528118_sub/MGYG000528118_sub.faa,,
