@@ -77,7 +77,9 @@ GFF feature types and their Sequence Ontology mappings:
 
 ## Combined report
 
-When functional annotation is enabled, `{sample}_combined_report.tsv` is produced. Each row is one protein. Only proteins with a virulence/toxin annotation from PATHOFACT2 or an AMR annotation are included. BGC context (`bgc_type`, `bgc_tools`) and mobilome context (`mge_type`) are added as additional columns when relevant, but BGC-only or MGE-only proteins are not included as rows.
+`{sample}_combined_report.tsv` is produced by the PathFact2 integrator step, which merges PathoFact2, AMR, mobilome, biosynthetic gene cluster (BGC), and InterProScan (IPS) annotations.
+
+**Seed proteins** — rows in the report — come from PathoFact2 and/or AMR GFF files. If both inputs are absent or empty, no report is generated. BGC annotations are only resolved for seed proteins; BGC-only or MGE-only proteins are not included as rows. MGE assignment requires ≥90% CDS overlap with a mobilome feature on the same contig. IPS input is optional; only SignalP entries are retained. Missing values are reported as `-`.
 
 | Column | Description |
 |---|---|
