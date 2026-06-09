@@ -153,20 +153,20 @@ sample/
 ├── sample_overlap_report.txt
 ├── gff
 │   ├── sample_mobilome.gff.gz
-│   ├── sample_[user]_mobilome_clean.gff.gz
-│   ├── sample_[user]_mobilome_extra.gff.gz
-│   └── sample_[user]_mobilome_full.gff.gz
+│   ├── sample_mobilome_clean.gff.gz
+│   ├── sample_mobilome_extra.gff.gz
+│   └── sample_mobilome_full.gff.gz
 ├── prediction
-│   ├── genomad_results
-│   │   ├── 5kb_contigs_plasmid_summary.tsv
-│   │   └── 5kb_contigs_virus_summary.tsv
-│   ├── icefinder_results
-│   │   ├── sample_refined.tsv
-│   │   └── sample_rejected.tsv
-│   ├── integronfinder_results
-│   │   ├── 5kb_contigs.summary
-│   │   └── contig_1.gbk
-│   ├── isescan_results
+│   ├── genomad
+│   │   ├── sample_5kb_contigs_plasmid_summary.tsv
+│   │   └── sample_5kb_contigs_virus_summary.tsv
+│   ├── icefinder2lite
+│   │   ├── sample_ice_genes.tsv
+│   │   └── sample_ices.tsv
+│   ├── integronfinder
+│   │   ├── sample_100kb_contigs.summary.summary
+│   │   └── contig.gbk
+│   ├── isescan
 │   │   └── sample_1kb_contigs.fasta.tsv
 │   ├── virify_filter
 │   │   └── sample_virify_hq.gff
