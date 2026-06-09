@@ -104,7 +104,7 @@ workflow MOBILOMEANNOTATION {
     //   manifest present → manifest IPS → PATHOFACT2 + COMBINEREPORTER only
     //                      (SanntiS is bypassed via its GFF; BGC branch receives [])
     //   manifest absent  → samplesheet IPS → all three consumers as today
-    def ch_user_ips_split
+    def ch_user_ips_split = channel.empty()
     if (manifest_provided) {
         ch_user_ips_split = ch_manifest_ips.multiMap { meta, ips_tsv ->
             bgc:             tuple(meta, [])
