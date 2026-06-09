@@ -327,13 +327,7 @@ workflow MOBILOMEANNOTATION {
     def ch_bgc_assembly = ch_assembly_split.bgc
         .join(RENAME.out.contigs_1kb)
         .join(ch_user_proteins, remainder: true)
-        .map { args ->
-            // Nextflow collapses all absent RHS columns (user_gff + user_fasta) into a
-            // single null when the sample has no user proteins (remainder case), producing
-            // a 4-element tuple instead of the expected 5. Groovy multi-assignment handles
-            // both: ignores the extra 5th element when proteins are present, and leaves
-            // user_gff as null when they are absent.
-            def (meta, orig_assembly, contigs_1kb, user_gff) = args
+        .map { meta, orig_assembly, contigs_1kb, user_gff ->
             tuple(meta, user_gff ? orig_assembly : contigs_1kb)
         }
 
