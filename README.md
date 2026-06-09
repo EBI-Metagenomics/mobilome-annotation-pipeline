@@ -75,6 +75,17 @@ sample1,/PATH/assembly.fasta,,,,
 sample2,/PATH/assembly.fasta,/PATH/proteins.gff,/PATH/proteins.faa,,/PATH/ips.tsv
 ```
 
+Only `sample` and `assembly` are required. Optional columns:
+
+| Column | Description |
+|---|---|
+| `proteins_gff` | Pre-computed CDS annotation GFF (Prodigal or equivalent). If absent, MAP runs Prodigal. |
+| `proteins_faa` | Protein FASTA matching `proteins_gff`. |
+| `virify_gff` | VIRify ≥3.0.0 output GFF. Prophage predictions are incorporated into the mobilome. |
+| `interproscan_tsv` | InterProScan TSV. Used by PATHOFACT2 (SignalP entries) instead of local CDsearch. |
+
+Basic run:
+
 ```bash
 nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
     --input samplesheet.csv \
