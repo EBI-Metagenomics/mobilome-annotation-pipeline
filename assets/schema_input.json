@@ -40,6 +40,10 @@
                 "errorMessage": "The Interpsocan annotation for the proteins provided. SignalP annotation is recommended (optionally compressed with .gz)"
             }
         },
-        "required": ["sample", "assembly"]
+        "required": ["sample", "assembly"],
+        "dependentRequired": {
+            "proteins_gff": ["proteins_faa"],
+            "proteins_faa": ["proteins_gff"]
+        }
     }
 }

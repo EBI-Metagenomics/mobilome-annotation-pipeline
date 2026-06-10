@@ -72,7 +72,7 @@ workflow MOBILOMEANNOTATION {
         .map { meta, _assembly, proteins_gff, proteins_fasta, _virify_gff, _ips_tsv ->
             tuple(meta, proteins_gff ?: [], proteins_fasta ?: [])
         }
-        .filter { meta, gff, fasta -> gff != [] && fasta != [] }
+        .filter { meta, gff, fasta -> gff != [] }
 
     // Handling virify GFF file optional input
     def ch_user_virify_gff = ch_inputs
@@ -84,14 +84,13 @@ workflow MOBILOMEANNOTATION {
     // Annotation manifest — parse once and emit per-tool channels.
     // When absent, all manifest channels remain empty and existing samplesheet
     // inputs drive the subworkflows exactly as before.
-    def manifest_provided = params.annotation_manifest ? true : false
     def ch_manifest_ips        = channel.empty()
     def ch_manifest_amrfinder  = channel.empty()
     def ch_manifest_antismash  = channel.empty()
     def ch_manifest_gecco      = channel.empty()
     def ch_manifest_sanntis    = channel.empty()
 
-    if (manifest_provided) {
+    if (params.annotation_manifest) {
         PARSE_MANIFEST(params.annotation_manifest)
         ch_manifest_ips       = PARSE_MANIFEST.out.ips_tsv
         ch_manifest_amrfinder = PARSE_MANIFEST.out.amrfinder_tsv
@@ -105,7 +104,7 @@ workflow MOBILOMEANNOTATION {
     //                      (SanntiS is bypassed via its GFF; BGC branch receives [])
     //   manifest absent  → samplesheet IPS → all three consumers as today
     def ch_user_ips_split = channel.empty()
-    if (manifest_provided) {
+    if (params.annotation_manifest) {
         ch_user_ips_split = ch_manifest_ips.multiMap { meta, ips_tsv ->
             bgc:             tuple(meta, [])
             pathofact:       tuple(meta, ips_tsv)
@@ -295,20 +294,15 @@ workflow MOBILOMEANNOTATION {
     def ch_prodigal_proteins = TRNAS_INTEGRATOR.out.merged_faa
         .join(TRNAS_INTEGRATOR.out.merged_gff)
 
-    // Determine which protein source to use per sample
-    // Strategy: If user provides both GFF and FASTA, use those; otherwise use Prodigal
-    def ch_proteins_source = ch_user_proteins
-        .map { meta, gff, fasta -> tuple(meta, [source: 'user', gff: gff, fasta: fasta]) }
-        .concat(
-            ch_prodigal_proteins
-                .map { meta, faa, gff -> tuple(meta, [source: 'prodigal', gff: gff, fasta: faa]) }
-        )
-        .groupTuple()
-        .map { meta, sources ->
-            // If user source exists, use it; otherwise use prodigal
-            def user_source = sources.find { it.source == 'user' }
-            def final_source = user_source ?: sources.find { it.source == 'prodigal' }
-            tuple(meta, final_source.fasta, final_source.gff)
+    // Determine which protein source to use per sample.
+    // Schema dependentRequired guarantees proteins_gff and proteins_faa are always co-present,
+    // so a simple join with remainder:true is sufficient to prefer user proteins over Prodigal.
+    def ch_proteins_source = ch_prodigal_proteins
+        .join(ch_user_proteins, remainder: true)
+        .map { meta, prodigal_faa, prodigal_gff, user_gff, user_faa ->
+            user_gff
+                ? tuple(meta, user_faa, user_gff)
+                : tuple(meta, prodigal_faa, prodigal_gff)
         }
     // multiMap broadcasts ch_proteins_source to all three consumers (BGC, PATHOFACT2, AMR).
     // A plain queue channel split between multiple operator chains would deliver each item
@@ -340,10 +334,10 @@ workflow MOBILOMEANNOTATION {
     // Calling bgc annotation databases
     // .first() converts each single-file queue to a value channel so it broadcasts
     // to every sample task instead of being consumed by the first sample only.
-    def ch_antismash_db = (manifest_provided || params.skip_antismash)
+    def ch_antismash_db = (params.annotation_manifest || params.skip_antismash)
         ? Channel.empty()
         : channel.fromPath(file(params.antismash_db, checkIfExists: true)).first()
-    def ch_ips_db       = (manifest_provided || params.skip_sanntis)
+    def ch_ips_db       = (params.annotation_manifest || params.skip_sanntis)
         ? Channel.empty()
         : channel.fromPath(file(params.interproscan_database, checkIfExists: true))
             .first()
@@ -359,7 +353,7 @@ workflow MOBILOMEANNOTATION {
         ch_manifest_sanntis,
         ch_manifest_gecco,
         ch_manifest_antismash,
-        manifest_provided
+        params.annotation_manifest
     )
     ch_versions = ch_versions.mix(BGC_ANNOTATION.out.versions)
     def ch_bgc_gff = BGC_ANNOTATION.out.bgc_output.map { meta, gff, _json -> tuple(meta, gff) }
@@ -397,7 +391,7 @@ workflow MOBILOMEANNOTATION {
     // AMR_ANNOTATION ch_inputs: tuple(meta, aminoacids, cds_gff) ready in ch_proteins_source
     // Calling amr annotation databases.
     // AMRFinder DB is not required when the manifest supplies pre-computed results.
-    def ch_amrfinderplus_db = (manifest_provided || params.skip_amrfinderplus)
+    def ch_amrfinderplus_db = (params.annotation_manifest || params.skip_amrfinderplus)
         ? Channel.empty()
         : channel.fromPath(file(params.amrfinderplus_db, checkIfExists: true)).first()
     def ch_deeparg_db       = params.skip_deeparg
@@ -419,7 +413,7 @@ workflow MOBILOMEANNOTATION {
         params.skip_deeparg,
         params.skip_rgi,
         ch_manifest_amrfinder,
-        manifest_provided
+        params.annotation_manifest
     )
     ch_versions = ch_versions.mix(AMR_ANNOTATION.out.versions)
 

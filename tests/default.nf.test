@@ -100,6 +100,21 @@ nextflow_pipeline {
         }
     }
 
+    test("Schema validation: proteins_gff without proteins_faa should fail (dependentRequired)") {
+        tag "schema"
+        when {
+            params {
+                input  = "${projectDir}/tests/invalid_proteins_samplesheet.csv"
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            assert workflow.failed
+            assert workflow.stderr.contains("proteins_faa")
+        }
+    }
+
     test("Pathofact integration test with annotation manifest. Expected a report of proteins with relevant annotation") {
         tag "pathofact"
         when {
