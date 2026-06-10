@@ -28,7 +28,7 @@ Full documentation: [docs/usage.md](docs/usage.md) · [docs/outputs.md](docs/out
 ## Workflow
 
 <p align="center" width="100%">
-   <img src="media/map_pathofact2.png" width="90%"/>
+   <img src="media/map_pathofact_numbers.png" width="90%"/>
 </p>
 
 The pipeline has five main stages:
