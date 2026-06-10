@@ -84,7 +84,6 @@ workflow MOBILOMEANNOTATION {
     // Annotation manifest — parse once and emit per-tool channels.
     // When absent, all manifest channels remain empty and existing samplesheet
     // inputs drive the subworkflows exactly as before.
-    def ch_manifest_ips        = channel.empty()
     def ch_manifest_amrfinder  = channel.empty()
     def ch_manifest_antismash  = channel.empty()
     def ch_manifest_gecco      = channel.empty()
@@ -92,53 +91,26 @@ workflow MOBILOMEANNOTATION {
 
     if (params.annotation_manifest) {
         PARSE_MANIFEST(params.annotation_manifest)
-        ch_manifest_ips       = PARSE_MANIFEST.out.ips_tsv
         ch_manifest_amrfinder = PARSE_MANIFEST.out.amrfinder_tsv
         ch_manifest_antismash = PARSE_MANIFEST.out.antismash_gff
         ch_manifest_gecco     = PARSE_MANIFEST.out.gecco_gff
         ch_manifest_sanntis   = PARSE_MANIFEST.out.sanntis_gff
     }
 
-    // IPS routing — mutually exclusive between manifest mode and samplesheet mode:
-    //   manifest present → manifest IPS → PATHOFACT2 + COMBINEREPORTER only
-    //                      (SanntiS is bypassed via its GFF; BGC branch receives [])
-    //   manifest absent  → samplesheet IPS → all three consumers as today
-    def ch_user_ips_split = channel.empty()
-    if (params.annotation_manifest) {
-        ch_user_ips_split = ch_manifest_ips.multiMap { meta, ips_tsv ->
-            bgc:             tuple(meta, [])
-            pathofact:       tuple(meta, ips_tsv)
-            combinereporter: tuple(meta, ips_tsv)
+    // IPS always comes from the samplesheet interproscan_tsv column.
+    def ch_user_ips = ch_inputs
+        .map { meta, _assembly, _proteins_gff, _proteins_fasta, _virify_gff, ips_tsv ->
+            tuple(meta, ips_tsv ?: [])
         }
-    } else {
-        def ch_user_ips = ch_inputs
-            .map { meta, _assembly, _proteins_gff, _proteins_fasta, _virify_gff, ips_tsv ->
-                tuple(meta, ips_tsv ?: [])
-            }
-        // multiMap broadcasts ch_user_ips to all three consumers (BGC inputs, PATHOFACT2, COMBINEREPORTER).
-        // A queue channel used in multiple operator chains would split items.
-        ch_user_ips_split = ch_user_ips.multiMap { meta, ips_tsv ->
-            bgc:             tuple(meta, ips_tsv)
-            pathofact:       tuple(meta, ips_tsv)
-            combinereporter: tuple(meta, ips_tsv)
-        }
-    }
 
     // Handling assembly mandatory input
-    // multiMap broadcasts to all three consumers (RENAME process, FASTA_WRITER join, ch_bgc_assembly join).
-    // A plain queue channel used in multiple operator chains would split items between consumers.
-    def ch_assembly_split = ch_inputs
+    def ch_assembly = ch_inputs
         .map { meta, assembly, _proteins_gff, _proteins_fasta, _virify_gff, _ips_tsv ->
             tuple(meta, assembly)
         }
-        .multiMap { meta, assembly ->
-            rename:       tuple(meta, assembly)
-            fasta_writer: tuple(meta, assembly)
-            bgc:          tuple(meta, assembly)
-        }
 
     // PREPROCESSING
-    RENAME(ch_assembly_split.rename)
+    RENAME(ch_assembly)
     ch_versions = ch_versions.mix(RENAME.out.versions)
 
     // Run PRODIGAL + ARAGORN to generate integrated gff file
@@ -265,7 +237,7 @@ workflow MOBILOMEANNOTATION {
     // POSTPROCESSING
     // Writing fasta file
     FASTA_WRITER(
-        ch_assembly_split.fasta_writer
+        ch_assembly
         .join(INTEGRATOR.out.mobilome_gff)
     )
     ch_versions = ch_versions.mix(FASTA_WRITER.out.versions)
@@ -304,30 +276,19 @@ workflow MOBILOMEANNOTATION {
                 ? tuple(meta, user_faa, user_gff)
                 : tuple(meta, prodigal_faa, prodigal_gff)
         }
-    // multiMap broadcasts ch_proteins_source to all three consumers (BGC, PATHOFACT2, AMR).
-    // A plain queue channel split between multiple operator chains would deliver each item
-    // to only one consumer (round-robin), causing the other subworkflows to miss samples.
-    def ch_proteins_source_split = ch_proteins_source.multiMap { meta, fasta, gff ->
-        bgc:      tuple(meta, fasta, gff)
-        pathofact: tuple(meta, fasta, gff)
-        amr:      tuple(meta, fasta, gff)
-    }
-
-    // BGC_ANNOTATION runs first so that InterProScan output for samples without
-    // samplesheet IPS is available before PATHOFACT2 needs it.
     // Build BGC ch_inputs: tuple( val(meta), path(contigs), path(gff), path(proteins), path(ips_annot) )
     // Use 1kb-filtered renamed contigs when proteins come from Prodigal (contig IDs must match),
     // or the original assembly when the user provides their own proteins.
-    def ch_bgc_assembly = ch_assembly_split.bgc
+    def ch_bgc_assembly = ch_assembly
         .join(RENAME.out.contigs_1kb)
         .join(ch_user_proteins, remainder: true)
         .map { meta, orig_assembly, contigs_1kb, user_gff ->
             tuple(meta, user_gff ? orig_assembly : contigs_1kb)
         }
 
-    def ch_bgc_inputs = ch_proteins_source_split.bgc
+    def ch_bgc_inputs = ch_proteins_source
         .join(ch_bgc_assembly)
-        .join(ch_user_ips_split.bgc, remainder: true)
+        .join(ch_user_ips, remainder: true)
         .map { meta, proteins, gff, contigs, ips_tsv ->
             tuple(meta, contigs, gff, proteins, ips_tsv ?: [])
         }
@@ -363,8 +324,8 @@ workflow MOBILOMEANNOTATION {
     // to every sample task instead of being consumed by the first sample only.
     def ch_pathofact_gff
     if (!params.skip_virulence) {
-        def ch_pathofact_inputs = ch_proteins_source_split.pathofact
-            .join(ch_user_ips_split.pathofact, remainder: true)
+        def ch_pathofact_inputs = ch_proteins_source
+            .join(ch_user_ips, remainder: true)
             .map { meta, proteins, gff, ips_tsv -> tuple(meta, proteins, gff, ips_tsv ?: []) }
         def ch_models = params.pathofact_models
             ? channel.fromPath(file(params.pathofact_models, checkIfExists: true)).first()
@@ -402,7 +363,7 @@ workflow MOBILOMEANNOTATION {
         : channel.fromPath(file(params.rgi_db, checkIfExists: true)).first()
 
     AMR_ANNOTATION(
-        ch_proteins_source_split.amr,
+        ch_proteins_source,
         ch_amrfinderplus_db,
         ch_deeparg_db,
         params.deeparg_db_version,
@@ -422,7 +383,7 @@ workflow MOBILOMEANNOTATION {
         .join(ch_pathofact_gff, remainder: true)
         .join(AMR_ANNOTATION.out.gff, remainder: true)
         .join(ch_bgc_gff, remainder: true)
-        .join(ch_user_ips_split.combinereporter, remainder: true)
+        .join(ch_user_ips, remainder: true)
         .map { meta, mobilome, pathofact, amr, bgc, ips ->
             tuple(meta, mobilome, pathofact ?: [], amr ?: [], bgc ?: [], ips ?: [])
         }
