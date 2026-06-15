@@ -58,19 +58,15 @@ nextflow_pipeline {
         tag "negative"
         when {
             params {
-                input                        = "${projectDir}/tests/neg_test_samplesheet.csv"
-                outdir                       = "$outputDir"
-                genomad_db                   = "${projectDir}/tests/reference_databases/genomad/nanogenomad_v19"
-                icefinder_hmm_models         = "${projectDir}/tests/reference_databases/icefinder/icehmm/icescan.hmm"
-                icefinder_macsyfinder_models = "${projectDir}/tests/reference_databases/icefinder/macsyfinder_tffscan_models"
-                icefinder_prokka_uniprot_db  = "${projectDir}/tests/reference_databases/icefinder/prokka_uniprot_sprot/"
-                skip_virulence               = true
-                skip_amrfinderplus           = true
-                skip_deeparg                 = true
-                skip_rgi                     = true
-                skip_sanntis                 = true
-                skip_gecco                   = true
-                skip_antismash               = true
+                input              = "${projectDir}/tests/neg_test_samplesheet.csv"
+                outdir             = "$outputDir"
+                skip_virulence     = true
+                skip_amrfinderplus = true
+                skip_deeparg       = true
+                skip_rgi           = true
+                skip_sanntis       = true
+                skip_gecco         = true
+                skip_antismash     = true
             }
         }
 
