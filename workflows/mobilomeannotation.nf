@@ -33,7 +33,7 @@ include { COMBINEREPORTER        } from '../modules/local/combinereporter'
 include { COMPOSITIONAL_OUTLIER_DETECTION      } from '../subworkflows/local/compositional_outlier_detection'
 include { ICEFINDER2_LITE                      } from '../subworkflows/local/icefinder2lite'
 include { GFF_MAPPING_COMPRESSION_AND_INDEXING } from '../subworkflows/local/gff_mapping_compression_and_indexing'
-include { PARSE_MANIFEST                       } from '../subworkflows/local/parse_manifest'
+include { PARSE_ANNOTATION_MANIFEST            } from '../subworkflows/local/parse_annotation_manifest'
 include { PATHOFACT2                           } from '../subworkflows/ebi-metagenomics/pathofact2/main'
 include { AMR_ANNOTATION                       } from '../subworkflows/ebi-metagenomics/amr_annotation/main'
 include { BGC_ANNOTATION                       } from '../subworkflows/ebi-metagenomics/bgc_annotation/main'
@@ -52,7 +52,9 @@ workflow MOBILOMEANNOTATION {
 
     validateParameters()
 
-    def ch_inputs = Channel.fromList(samplesheetToList(params.input, "./assets/schema_input.json"))
+    def samplesheet_list = samplesheetToList(params.input, "./assets/schema_input.json")
+    def ch_inputs        = Channel.fromList(samplesheet_list)
+    def samplesheet_ids  = samplesheet_list.collect { it[0].id } as Set
     ch_versions = Channel.empty()
 
 
@@ -90,11 +92,11 @@ workflow MOBILOMEANNOTATION {
     def ch_manifest_sanntis    = channel.empty()
 
     if (params.annotation_manifest) {
-        PARSE_MANIFEST(params.annotation_manifest)
-        ch_manifest_amrfinder = PARSE_MANIFEST.out.amrfinder_tsv
-        ch_manifest_antismash = PARSE_MANIFEST.out.antismash_gff
-        ch_manifest_gecco     = PARSE_MANIFEST.out.gecco_gff
-        ch_manifest_sanntis   = PARSE_MANIFEST.out.sanntis_gff
+        PARSE_ANNOTATION_MANIFEST(params.annotation_manifest, samplesheet_ids)
+        ch_manifest_amrfinder = PARSE_ANNOTATION_MANIFEST.out.amrfinder_tsv
+        ch_manifest_antismash = PARSE_ANNOTATION_MANIFEST.out.antismash_gff
+        ch_manifest_gecco     = PARSE_ANNOTATION_MANIFEST.out.gecco_gff
+        ch_manifest_sanntis   = PARSE_ANNOTATION_MANIFEST.out.sanntis_gff
     }
 
     // IPS always comes from the samplesheet interproscan_tsv column.

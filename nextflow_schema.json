@@ -256,7 +256,7 @@
     },
     "annotation_manifest": {
       "type": "string",
-      "description": "Path to a CSV manifest of pre-computed annotation files from the genomes-catalogue-pipeline. Columns: sample,ips_tsv,amrfinder_tsv,antismash_gff,gecco_gff,sanntis_gff (all annotation columns optional). When provided, matched tools are bypassed and their results reused directly."
+      "description": "Path to a CSV manifest of pre-computed annotation files from the genomes-catalogue-pipeline. Columns: sample,amrfinder_tsv,antismash_gff,gecco_gff,sanntis_gff (all annotation columns optional). When provided, matched tools are bypassed and their results reused directly."
     },
     "skip_virulence": {
       "type": "boolean",
