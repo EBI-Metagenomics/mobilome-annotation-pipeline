@@ -98,6 +98,37 @@ See [docs/usage.md](docs/usage.md) for skip flags, mobilome-only mode, and annot
 
 Results are written to `--outdir` (default: `results/`).
 
+```bash
+sample/
+├── sample_discarded_mge.txt
+├── sample_mobilome.fasta
+├── sample_overlap_report.txt
+├── gff
+│   ├── sample_mobilome.gff.gz
+│   ├── sample_mobilome_clean.gff.gz
+│   ├── sample_mobilome_extra.gff.gz
+│   └── sample_mobilome_full.gff.gz
+├── prediction
+│   ├── genomad
+│   │   ├── sample_5kb_contigs_plasmid_summary.tsv
+│   │   └── sample_5kb_contigs_virus_summary.tsv
+│   ├── icefinder2lite
+│   │   ├── sample_ice_genes.tsv
+│   │   └── sample_ices.tsv
+│   ├── integronfinder
+│   │   ├── sample_100kb_contigs.summary.summary
+│   │   └── contig.gbk
+│   ├── isescan
+│   │   └── sample_1kb_contigs.fasta.tsv
+│   ├── virify_filter
+│   │   └── sample_virify_hq.gff
+│   └── compositional_outliers_results
+│       └── sample.merged.bed
+└── preprocessing
+    ├── sample_1kb_contigs.fasta
+    ├── sample_5kb_contigs.fasta
+    ├── sample_100kb_contigs.fasta
+    └── sample_contigID.map
 ```
 {sample}/
 ├── {sample}_combined_report.tsv

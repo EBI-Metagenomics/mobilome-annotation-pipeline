@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Integrate PathoFact2, AMR, mobilome, BGC, and InterProScan annotations.
+Integrate PathoFact2, antimicrobial resistance genes (AMR), mobilome, biosintetic gene clusters (BGCs), and InterProScan annotations.
 
 Output columns:
     protein_id
@@ -39,8 +39,7 @@ import fileinput
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import DefaultDict
-
+from typing import DefaultDict, Iterator
 
 OUTPUT_HEADER = [
     "protein_id",
@@ -76,36 +75,37 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--pathofact2",
         required=False,
-        default="",
+        type=Path,
         help="Optional PathoFact2 GFF file",
     )
     parser.add_argument(
         "--amr",
         required=False,
-        default="",
+        type=Path,
         help="Optional AMR GFF file",
     )
     parser.add_argument(
         "--mobilome",
         required=False,
-        default="",
+        type=Path,
         help="Optional mobilome GFF file",
     )
     parser.add_argument(
         "--bgc",
         required=False,
-        default="",
+        type=Path,
         help="Optional BGC GFF file",
     )
     parser.add_argument(
         "--interproscan",
         required=False,
-        default="",
+        type=Path,
         help="Optional InterProScan TSV file",
     )
     parser.add_argument(
         "--output",
         required=True,
+        type=Path,
         help="Output TSV file",
     )
     parser.add_argument(
@@ -124,32 +124,10 @@ def setup_logging(level: str) -> None:
     )
 
 
-def path_is_missing_or_empty(path_str: str) -> bool:
-    if path_str == "":
+def path_is_missing_or_empty(path: Path | None) -> bool:
+    if not path:
         return True
-
-    path = Path(path_str)
-    if not path.exists():
-        return True
-
-    if path.stat().st_size == 0:
-        return True
-
-    return False
-
-
-def parse_attributes(attributes_field: str) -> dict[str, str]:
-    attributes: dict[str, str] = {}
-
-    for item in attributes_field.strip().split(";"):
-        if not item:
-            continue
-        if "=" not in item:
-            continue
-        key, value = item.split("=", 1)
-        attributes[key] = value
-
-    return attributes
+    return not path.exists() or path.stat().st_size == 0
 
 
 def split_csv_value(value: str) -> list[str]:
@@ -160,7 +138,7 @@ def split_csv_value(value: str) -> list[str]:
 
 def merge_unique_preserving_order(existing: list[str], new_values: list[str]) -> list[str]:
     seen = set(existing)
-    merged = list(existing)
+    merged = existing.copy()
 
     for value in new_values:
         if value not in seen:
@@ -174,8 +152,18 @@ def join_or_dash(values: list[str]) -> str:
     return ",".join(values) if values else "-"
 
 
+def _iter_gff_rows(
+    gff_file: Path,
+) -> Iterator[tuple[str, str, str, int, int, dict[str, str]]]:
+    """Yield (raw_line, contig, feature_type, start, end, attributes) for valid GFF rows."""
+    from mgnify_pipelines_toolkit.analysis.shared.gff.io import iter_gff_rows, parse_attr_str
+
+    for raw_line, cols in iter_gff_rows(Path(gff_file)):
+        yield raw_line, cols[0], cols[2], int(cols[3]), int(cols[4]), parse_attr_str(cols[8])
+
+
 def parse_pathofact2_gff(
-    gff_file: str,
+    gff_file: Path,
 ) -> tuple[dict[str, tuple[str, int, int]], dict[str, tuple[str, str, str, str, str]]]:
     """
     Parse PathoFact2 GFF.
@@ -192,41 +180,20 @@ def parse_pathofact2_gff(
     prots_coords: dict[str, tuple[str, int, int]] = {}
     pathofact_data: dict[str, tuple[str, str, str, str, str]] = {}
 
-    with fileinput.hook_compressed(gff_file, "r", encoding="utf-8", errors="ignore") as handle:
-        for line_number, raw_line in enumerate(handle, start=1):
-            line = raw_line.rstrip("\n")
-            if not line or line.startswith("#"):
-                continue
-
-            columns = line.split("\t")
-            if len(columns) != 9:
-                logging.warning(
-                    "Skipping malformed PathoFact2 GFF line %s with %s columns",
-                    line_number,
-                    len(columns),
-                )
-                continue
-
-            contig, _, feature_type, start, end, _, _, _, attributes_field = columns
-            if feature_type != "CDS":
-                continue
-
-            attributes = parse_attributes(attributes_field)
-            protein_id = attributes.get("ID", "")
-            if protein_id == "":
-                logging.warning("Skipping PathoFact2 line %s without ID", line_number)
-                continue
-
-            start_i = int(start)
-            end_i = int(end)
-            prots_coords[protein_id] = (contig, start_i, end_i)
-
-            vfdb = attributes.get("vfdb", "-")
-            blastp_eval = attributes.get("blastp_eval", "-")
-            tox_prob = attributes.get("pathofact2_tox_prob", "-")
-            vf_prob = attributes.get("pathofact2_vf_prob", "-")
-            cdd_annotation = attributes.get("cdd", "-")
-            pathofact_data[protein_id] = (vfdb, blastp_eval, tox_prob, vf_prob, cdd_annotation)
+    for raw_line, contig, feature_type, start, end, attributes in _iter_gff_rows(gff_file):
+        if feature_type != "CDS":
+            continue
+        protein_id = attributes.get("ID", "")
+        if protein_id == "":
+            logging.warning("Skipping PathoFact2 CDS without ID: %s", raw_line)
+            continue
+        prots_coords[protein_id] = (contig, start, end)
+        vfdb = attributes.get("vfdb", "-")
+        blastp_eval = attributes.get("blastp_eval", "-")
+        tox_prob = attributes.get("pathofact2_tox_prob", "-")
+        vf_prob = attributes.get("pathofact2_vf_prob", "-")
+        cdd_annotation = attributes.get("cdd", "-")
+        pathofact_data[protein_id] = (vfdb, blastp_eval, tox_prob, vf_prob, cdd_annotation)
 
     logging.info(
         "Parsed PathoFact2: %s proteins with coordinates, %s proteins with PathoFact2 data",
@@ -237,7 +204,7 @@ def parse_pathofact2_gff(
 
 
 def parse_amr_gff(
-    gff_file: str,
+    gff_file: Path,
     prots_coords: dict[str, tuple[str, int, int]],
 ) -> dict[str, tuple[str, str, str]]:
     """Parse AMR GFF and extend prots_coords for missing proteins."""
@@ -245,38 +212,19 @@ def parse_amr_gff(
 
     amr_data: dict[str, tuple[str, str, str]] = {}
 
-    with fileinput.hook_compressed(gff_file, "r", encoding="utf-8", errors="ignore") as handle:
-        for line_number, raw_line in enumerate(handle, start=1):
-            line = raw_line.rstrip("\n")
-            if not line or line.startswith("#"):
-                continue
-
-            columns = line.split("\t")
-            if len(columns) != 9:
-                logging.warning(
-                    "Skipping malformed AMR GFF line %s with %s columns",
-                    line_number,
-                    len(columns),
-                )
-                continue
-
-            contig, _, feature_type, start, end, _, _, _, attributes_field = columns
-            if feature_type != "CDS":
-                continue
-
-            attributes = parse_attributes(attributes_field)
-            protein_id = attributes.get("ID", "")
-            if protein_id == "":
-                logging.warning("Skipping AMR line %s without ID", line_number)
-                continue
-
-            if protein_id not in prots_coords:
-                prots_coords[protein_id] = (contig, int(start), int(end))
-
-            drug_class = attributes.get("drug_class", "-")
-            amr_tool = attributes.get("amr_tool", "-")
-            amr_tool_ident = attributes.get("amr_tool_ident", "-")
-            amr_data[protein_id] = (drug_class, amr_tool, amr_tool_ident)
+    for raw_line, contig, feature_type, start, end, attributes in _iter_gff_rows(gff_file):
+        if feature_type != "CDS":
+            continue
+        protein_id = attributes.get("ID", "")
+        if protein_id == "":
+            logging.warning("Skipping AMR CDS without ID: %s", raw_line)
+            continue
+        if protein_id not in prots_coords:
+            prots_coords[protein_id] = (contig, start, end)
+        drug_class = attributes.get("drug_class", "-")
+        amr_tool = attributes.get("amr_tool", "-")
+        amr_tool_ident = attributes.get("amr_tool_ident", "-")
+        amr_data[protein_id] = (drug_class, amr_tool, amr_tool_ident)
 
     logging.info(
         "Parsed AMR: %s proteins with AMR data, %s total proteins in seed set",
@@ -286,34 +234,17 @@ def parse_amr_gff(
     return amr_data
 
 
-def parse_mobilome_gff(gff_file: str) -> dict[str, list[tuple[int, int, str]]]:
+def parse_mobilome_gff(gff_file: Path) -> dict[str, list[tuple[int, int, str]]]:
     """Parse mobilome GFF into contig-level MGE intervals."""
     logging.info("Parsing mobilome GFF: %s", gff_file)
 
     mobilome_data: DefaultDict[str, list[tuple[int, int, str]]] = defaultdict(list)
 
-    with fileinput.hook_compressed(gff_file, "r", encoding="utf-8", errors="ignore") as handle:
-        for line_number, raw_line in enumerate(handle, start=1):
-            line = raw_line.rstrip("\n")
-            if not line or line.startswith("#"):
-                continue
-
-            columns = line.split("\t")
-            if len(columns) != 9:
-                logging.warning(
-                    "Skipping malformed mobilome GFF line %s with %s columns",
-                    line_number,
-                    len(columns),
-                )
-                continue
-
-            contig, _, feature_type, start, end, _, _, _, attributes_field = columns
-            if feature_type in IGNORE_MOBILOME_FEATURES:
-                continue
-
-            attributes = parse_attributes(attributes_field)
-            mobile_element_type = attributes.get("mobile_element_type", feature_type)
-            mobilome_data[contig].append((int(start), int(end), mobile_element_type))
+    for _raw, contig, feature_type, start, end, attributes in _iter_gff_rows(gff_file):
+        if feature_type in IGNORE_MOBILOME_FEATURES:
+            continue
+        mobile_element_type = attributes.get("mobile_element_type", feature_type)
+        mobilome_data[contig].append((start, end, mobile_element_type))
 
     logging.info(
         "Parsed mobilome: %s contigs with at least one retained MGE",
@@ -323,7 +254,7 @@ def parse_mobilome_gff(gff_file: str) -> dict[str, list[tuple[int, int, str]]]:
 
 
 def parse_bgc_gff(
-    gff_file: str,
+    gff_file: Path,
     prots_coords: dict[str, tuple[str, int, int]],
 ) -> dict[str, tuple[str, str]]:
     """
@@ -339,48 +270,31 @@ def parse_bgc_gff(
     bgc_tools_map: DefaultDict[str, list[str]] = defaultdict(list)
     bgc_type_map: DefaultDict[str, list[str]] = defaultdict(list)
 
-    with fileinput.hook_compressed(gff_file, "r", encoding="utf-8", errors="ignore") as handle:
-        for line_number, raw_line in enumerate(handle, start=1):
-            line = raw_line.rstrip("\n")
-            if not line or line.startswith("#"):
-                continue
+    for raw_line, _, feature_type, _, _, attributes in _iter_gff_rows(gff_file):
+        if feature_type != "CDS":
+            continue
+        protein_id = attributes.get("ID", "")
+        if protein_id == "":
+            logging.warning("Skipping BGC CDS without ID: %s", raw_line)
+            continue
+        if protein_id not in prots_coords:
+            continue
 
-            columns = line.split("\t")
-            if len(columns) != 9:
-                logging.warning(
-                    "Skipping malformed BGC GFF line %s with %s columns",
-                    line_number,
-                    len(columns),
-                )
-                continue
+        bgc_tools_values = split_csv_value(attributes.get("bgc_tools", "-"))
+        bgc_tools_map[protein_id] = merge_unique_preserving_order(
+            bgc_tools_map[protein_id],
+            bgc_tools_values,
+        )
 
-            _, _, feature_type, _, _, _, _, _, attributes_field = columns
-            if feature_type != "CDS":
-                continue
+        bgc_type_values: list[str] = []
+        bgc_type_values.extend(split_csv_value(attributes.get("nearest_MiBIG_class", "-")))
+        bgc_type_values.extend(split_csv_value(attributes.get("antismash_product", "-")))
+        bgc_type_values.extend(split_csv_value(attributes.get("gecco_bgc_type", "-")))
 
-            attributes = parse_attributes(attributes_field)
-            protein_id = attributes.get("ID", "")
-            if protein_id == "":
-                logging.warning("Skipping BGC line %s without ID", line_number)
-                continue
-            if protein_id not in prots_coords:
-                continue
-
-            bgc_tools_values = split_csv_value(attributes.get("bgc_tools", "-"))
-            bgc_tools_map[protein_id] = merge_unique_preserving_order(
-                bgc_tools_map[protein_id],
-                bgc_tools_values,
-            )
-
-            bgc_type_values: list[str] = []
-            bgc_type_values.extend(split_csv_value(attributes.get("nearest_MiBIG_class", "-")))
-            bgc_type_values.extend(split_csv_value(attributes.get("antismash_product", "-")))
-            bgc_type_values.extend(split_csv_value(attributes.get("gecco_bgc_type", "-")))
-
-            bgc_type_map[protein_id] = merge_unique_preserving_order(
-                bgc_type_map[protein_id],
-                bgc_type_values,
-            )
+        bgc_type_map[protein_id] = merge_unique_preserving_order(
+            bgc_type_map[protein_id],
+            bgc_type_values,
+        )
 
     bgc_data = {
         protein_id: (
@@ -394,7 +308,7 @@ def parse_bgc_gff(
     return bgc_data
 
 
-def parse_interproscan_signalp(tsv_file: str) -> dict[str, str]:
+def parse_interproscan_signalp(tsv_file: Path) -> dict[str, str]:
     """Parse optional InterProScan TSV and keep only SignalP annotations."""
     logging.info("Parsing InterProScan TSV: %s", tsv_file)
 
@@ -533,13 +447,12 @@ def build_rows(
     return rows
 
 
-def write_output(rows: list[dict[str, str]], output_file: str) -> None:
+def write_output(rows: list[dict[str, str]], output_file: Path) -> None:
     logging.info("Writing output TSV: %s", output_file)
 
-    output_path = Path(output_file)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, "w", encoding="utf-8", newline="") as handle:
+    with open(output_file, "w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=OUTPUT_HEADER, delimiter="\t")
         writer.writeheader()
         writer.writerows(rows)
