@@ -196,7 +196,7 @@
       "type": "string",
       "description": "Path to Pathofact2 machine learning models"
     },
-    "virulecefactors_db": {
+    "virulencefactors_db": {
       "type": "string",
       "description": "Path to the Virulence Factors Database (VFDB) directory"
     },

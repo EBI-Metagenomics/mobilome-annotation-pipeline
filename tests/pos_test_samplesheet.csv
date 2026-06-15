@@ -1,2 +1,2 @@
 sample,assembly,proteins_gff,proteins_faa,virify_gff,interproscan_tsv
-pos_test,${projectDir}/tests/data/pos_test.fasta.gz,,,${projectDir}/tests/data/pos_test_virify.gff,
+pos_test,https://raw.githubusercontent.com/EBI-Metagenomics/mobilome-annotation-pipeline/refs/heads/feature/final-integration/tests/data/pos_test.fasta.gz,,,https://raw.githubusercontent.com/EBI-Metagenomics/mobilome-annotation-pipeline/refs/heads/feature/final-integration/tests/data/pos_test_virify.gff,

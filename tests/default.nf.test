@@ -107,7 +107,8 @@ nextflow_pipeline {
 
         then {
             assert workflow.failed
-            assert workflow.stderr.contains("proteins_faa")
+            // workflow.stderr is a list of lines; check the substring per line
+            assert workflow.stderr.any { it.contains("proteins_faa") }
         }
     }
 

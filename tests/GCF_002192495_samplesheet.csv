@@ -1,2 +1,2 @@
 sample,assembly,proteins_gff,proteins_faa,virify_gff,interproscan_tsv
-GCF_002192495,${projectDir}/tests/data/GCF_002192495_test.fna,,,,
+GCF_002192495,https://raw.githubusercontent.com/EBI-Metagenomics/mobilome-annotation-pipeline/refs/heads/feature/final-integration/tests/data/GCF_002192495_test.fna,,,,

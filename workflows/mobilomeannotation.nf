@@ -273,7 +273,13 @@ workflow MOBILOMEANNOTATION {
     // so a simple join with remainder:true is sufficient to prefer user proteins over Prodigal.
     def ch_proteins_source = ch_prodigal_proteins
         .join(ch_user_proteins, remainder: true)
-        .map { meta, prodigal_faa, prodigal_gff, user_gff, user_faa ->
+        .map { row ->
+            // remainder:true appends a single null for the whole missing right side, so
+            // unmatched rows are [meta, prodigal_faa, prodigal_gff, null] (length 4) and
+            // matched rows are [meta, prodigal_faa, prodigal_gff, user_gff, user_faa] (length 5).
+            def (meta, prodigal_faa, prodigal_gff) = [row[0], row[1], row[2]]
+            def user_gff = row[3]
+            def user_faa = row[4]
             user_gff
                 ? tuple(meta, user_faa, user_gff)
                 : tuple(meta, prodigal_faa, prodigal_gff)
@@ -284,7 +290,12 @@ workflow MOBILOMEANNOTATION {
     def ch_bgc_assembly = ch_assembly
         .join(RENAME.out.contigs_1kb)
         .join(ch_user_proteins, remainder: true)
-        .map { meta, orig_assembly, contigs_1kb, user_gff ->
+        .map { row ->
+            // remainder:true appends a single null for the whole missing right side, so
+            // matched rows are [meta, orig_assembly, contigs_1kb, user_gff, user_faa] (length 5)
+            // and unmatched rows are [meta, orig_assembly, contigs_1kb, null] (length 4).
+            def (meta, orig_assembly, contigs_1kb) = [row[0], row[1], row[2]]
+            def user_gff = row[3]
             tuple(meta, user_gff ? orig_assembly : contigs_1kb)
         }
 
@@ -335,15 +346,20 @@ workflow MOBILOMEANNOTATION {
         def ch_vfdb = params.virulencefactors_db
             ? channel.fromPath(file(params.virulencefactors_db, checkIfExists: true)).map { db -> [ [id: 'vfdb'], db ] }.first()
             : null
-        def ch_cdd    = params.ncbi_cdd ? Channel.fromPath(file(params.ncbi_cdd, checkIfExists: true)).first() : Channel.empty()
+        // Use null (not Channel.empty()) when absent: the subworkflow gates the CDD
+        // download on `if (ch_cdd)`, and an empty channel is truthy so it would skip
+        // LOCALCDSEARCH_DOWNLOAD and leave the without-IPS samples without a CDD database.
+        def ch_cdd    = params.ncbi_cdd ? Channel.fromPath(file(params.ncbi_cdd, checkIfExists: true)).first() : null
 
+        // vfdb_url must be a channel: the PATHOFACT2 download path does
+        // ch_vfdb_url.map { url -> [[id:'vfdb'], url] }, which fails on a plain String.
         PATHOFACT2(
             ch_pathofact_inputs,
             ch_models,
             ch_vfdb,
             ch_cdd,
             params.zenodo_id,
-            params.vfdb_url
+            channel.value(params.vfdb_url)
         )
         ch_versions = ch_versions.mix(PATHOFACT2.out.versions)
         ch_pathofact_gff = PATHOFACT2.out.gff
