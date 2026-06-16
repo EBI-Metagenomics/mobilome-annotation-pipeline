@@ -34,6 +34,7 @@ This downloads and sets up all databases in parallel:
 | Database | Tool | Purpose |
 |---|---|---|
 | geNomad v1.9 | geNomad | Plasmid/phage prediction |
+| CheckV DB | CheckV | QC of geNomad viral predictions |
 | ICEfinder2-lite | ICEfinder2 | ICE/IME prediction |
 | PATHOFACT2 models | PATHOFACT2 | Toxin/virulence ML models |
 | VFDB (`VFDB_setB_pro.dmnd`) | DIAMOND + PATHOFACT2 | Virulence factor search |
