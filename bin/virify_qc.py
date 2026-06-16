@@ -30,6 +30,26 @@ def open_file(filename):
         return open(filename, 'r')
 
 
+def quality_decision(checkv_quality, checkv_viral_genes, checkv_kmer_freq):
+    if any(
+        [
+            checkv_quality == "High-quality",
+            checkv_quality == "Complete",
+        ]
+    ):
+        return True
+    elif all(
+        [
+            checkv_viral_genes > 0,
+            checkv_quality != "Not-determined",
+            checkv_kmer_freq <= 1.0,
+        ]
+    ):
+        return True
+    else:
+        return False
+
+
 def virify_parser(virify_gff, output_prefix):
     qc_passed = []
     all_proteins = {}
@@ -69,21 +89,7 @@ def virify_parser(virify_gff, output_prefix):
                         output_gff.write(line + "\n")
                         qc_passed.append(feature_id)
                     else:
-                        if any(
-                            [
-                                checkv_quality == "High-quality",
-                                checkv_quality == "Complete",
-                            ]
-                        ):
-                            output_gff.write(line + "\n")
-                            qc_passed.append(feature_id)
-                        elif all(
-                            [
-                                checkv_viral_genes > 0,
-                                checkv_quality != "Not-determined",
-                                checkv_kmer_freq <= 1.0,
-                            ]
-                        ):
+                        if quality_decision(checkv_quality, checkv_viral_genes, checkv_kmer_freq):
                             output_gff.write(line + "\n")
                             qc_passed.append(feature_id)
 

@@ -16,6 +16,7 @@
 
 import argparse
 import os.path
+import csv
 
 from map_tools import (
     cds_locator,
@@ -33,7 +34,15 @@ from map_tools import (
 )
 
 
-def main():
+CHECKV_QUALITY_COLUMNS = [
+    'kmer_freq', 'miuvig_quality', 'provirus', 'checkv_quality', 'viral_genes'
+]
+
+
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+    """
     parser = argparse.ArgumentParser(
         description="This script integrates the results for the Mobilome Annotation Pipeline"
     )
@@ -91,8 +100,52 @@ def main():
         type=str,
         help="HQ virify results",
     )
+    parser.add_argument(
+        "--checkv_genomad",
+        type=str,
+        help="checkV results for genomad viruses",
+    )
     parser.add_argument("--prefix", type=str, help="The output prefix", required=True)
     args = parser.parse_args()
+    return args
+
+
+def read_checkv_quality(quality_file: str) -> dict[str]:
+    """Read CheckV quality_summary.tsv file.
+
+    The key column ``contig_id`` is used for lookup; ``contig_length`` is
+    intentionally excluded.  All remaining columns are retained as strings.
+
+    Args:
+        quality_file: Paths to CheckV quality_summary.tsv file.
+
+    Returns:
+        Dict mapping contig_id -> quality column dict (see QUALITY_COLUMNS).
+    """
+    quality: dict[str] = {}
+    with open(quality_file) as f:
+        for row in csv.DictReader(f, delimiter='\t'):
+            contig_id = row['contig_id']
+            if contig_id in quality:
+                print(f'Warning: duplicate quality entry for {contig_id}, keeping first')
+                continue
+            line = []
+            for col in CHECKV_QUALITY_COLUMNS:
+                value = row.get(col, 'NA')
+                if 'checkv_' in col:
+                    # for checkv_quality
+                    line.append(f"{col}={value}")
+                else:
+                    line.append(f"checkv_{col}={value}")
+            quality[contig_id] = ';'.join(line)
+    return quality
+
+
+def main():
+    args = parse_arguments()
+
+    # CheckV quality data keyed by original contig name
+    genomad_viral_quality_data: dict[str, dict[str, str]] = read_checkv_quality(args.checkv_genomad) if args.checkv_genomad else {}
 
     ### Calling functions
     mge_data = {}
@@ -121,7 +174,7 @@ def main():
     )
 
     # Parsing geNomad results
-    (mge_data) = genomad_parser.genomad_viral(args.geno_out, mge_data)
+    (mge_data) = genomad_parser.genomad_viral(args.geno_out, mge_data, genomad_viral_quality_data)
     (mge_data) = genomad_parser.plasmids_parser(args.geno_plas, mge_data)
 
     # Parsing VIRIfy results and solving redundancy with geNomad

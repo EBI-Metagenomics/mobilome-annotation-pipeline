@@ -5,13 +5,13 @@ process INTEGRATOR {
     container 'quay.io/biocontainers/biopython:1.81'
 
     input:
-    tuple val(meta), path(gff_file), path(map_file), path(iss_tsv), path(inf_summ), path(inf_gbks), path(icf_tsv), path(genomad_vir), path(genomad_plas), path(compos_bed), path(vir_results)
+    tuple val(meta), path(gff_file), path(map_file), path(iss_tsv), path(inf_summ), path(inf_gbks), path(icf_tsv), path(genomad_vir), path(genomad_plas), path(compos_bed), path(vir_results), path(checkv_genomad)
 
     output:
     tuple val(meta), path("*_mobilome.gff.gz")    , emit: mobilome_gff
     tuple val(meta), path("*_overlap_report.txt") , emit: overlapping_integrons_txt
     tuple val(meta), path("*_discarded_mge.txt")  , emit: discarded_mge_txt
-    path "versions.yml", emit: versions
+    path "versions.yml"                           , emit: versions
 
     script:
     def virify_arg = vir_results ? "--virify_out ${vir_results}" : ""
@@ -27,6 +27,7 @@ process INTEGRATOR {
         --geno_out ${genomad_vir} \\
         --geno_plas ${genomad_plas} \\
         --comp_bed ${compos_bed} \\
+        --checkv_genomad ${checkv_genomad} \\
         ${virify_arg} \\
         --prefix ${prefix}
 

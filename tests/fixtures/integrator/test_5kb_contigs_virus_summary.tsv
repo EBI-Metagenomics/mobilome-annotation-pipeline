@@ -1,0 +1,8 @@
+seq_name	length	topology	coordinates	n_genes	genetic_code	virus_score	fdr	n_hallmarks	marker_enrichment	taxonomy
+contig_5	19838	No terminal repeats	NA	27	11	0.9998	NA	7	23.3709	Viruses;Duplodnaviria;Heunggongvirae;Uroviricota;Caudoviricetes;;
+contig_7	6078	No terminal repeats	NA	9	11	0.9997	NA	3	13.5896	Viruses;Duplodnaviria;Heunggongvirae;Uroviricota;Caudoviricetes;;
+contig_6	8836	No terminal repeats	NA	10	11	0.9996	NA	2	13.1226	Viruses;Duplodnaviria;Heunggongvirae;Uroviricota;Caudoviricetes;;
+contig_4	20991	No terminal repeats	NA	45	11	0.9990	NA	4	19.2318	Viruses;Duplodnaviria;Heunggongvirae;Uroviricota;Caudoviricetes;;
+contig_3	31465	No terminal repeats	NA	40	11	0.9987	NA	15	29.4675	Viruses;Duplodnaviria;Heunggongvirae;Uroviricota;Caudoviricetes;;
+contig_1	10832	No terminal repeats	NA	11	11	0.9892	NA	0	5.4185	Viruses;Duplodnaviria;Heunggongvirae;Uroviricota;Caudoviricetes;;
+contig_2	8397	No terminal repeats	NA	8	11	0.9883	NA	0	3.3170	Unclassified

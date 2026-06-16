@@ -15,9 +15,11 @@
 # limitations under the License.
 
 import os.path
+import sys
+from virify_qc import quality_decision
 
 
-def genomad_viral(geno_out, mge_data):
+def genomad_viral(geno_out, mge_data, quality):
     mge_counter = 0
     if os.stat(geno_out).st_size == 0:
         return mge_data
@@ -47,9 +49,21 @@ def genomad_viral(geno_out, mge_data):
                     start = 1
                     end = int(line_l[1])
 
-                coord = (start, end)
-                value = (contig, description, coord)
-                mge_data[mge_id] = value
+                quality_contig = quality.get(pred_id, "")
+                if not quality_contig:
+                    sys.exit(f"No checkV values for record {pred_id}")
+                description += ';' + quality_contig
+                qc_attrs = dict(
+                    kv.split("=", 1) for kv in quality_contig.split(";") if "=" in kv
+                )
+                if quality_decision(
+                    qc_attrs['checkv_quality'],
+                    int(qc_attrs['checkv_viral_genes']),
+                    float(qc_attrs['checkv_kmer_freq'])
+                ):
+                    coord = (start, end)
+                    value = (contig, description, coord)
+                    mge_data[mge_id] = value
 
     return mge_data
 
