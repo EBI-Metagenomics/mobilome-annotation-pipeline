@@ -240,11 +240,11 @@
       "type": "string",
       "description": "Path to AntiSMASH databases"
     },
-    "interproscan_database": {
+    "interproscan_db": {
       "type": "string",
       "description": "Path to InterProScan databases directory"
     },
-    "interproscan_database_version": {
+    "interproscan_db_version": {
       "type": "string",
       "default": "5.76-107.0",
       "description": "Version string of the InterProScan database (e.g. 5.76-107.0)"

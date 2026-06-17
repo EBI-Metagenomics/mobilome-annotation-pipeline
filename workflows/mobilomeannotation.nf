@@ -313,9 +313,9 @@ workflow MOBILOMEANNOTATION {
         : channel.fromPath(file(params.antismash_db, checkIfExists: true)).first()
     def ch_ips_db       = (params.annotation_manifest || params.skip_sanntis)
         ? Channel.empty()
-        : channel.fromPath(file(params.interproscan_database, checkIfExists: true))
+        : channel.fromPath(file(params.interproscan_db, checkIfExists: true))
             .first()
-            .map { db_path -> tuple(db_path, params.interproscan_database_version) }
+            .map { db_path -> tuple(db_path, params.interproscan_db_version) }
 
     BGC_ANNOTATION(
         ch_bgc_inputs,
