@@ -19,7 +19,7 @@ process DB_DOWNLOAD_MOBILOME_DBS {
     tar -xzf genomad_db_v1.9.tar.gz
     rm genomad_db_v1.9.tar.gz
 
-    wget https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
+    wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
     tar -xzf icf2_dbs.tar.gz
     rm icf2_dbs.tar.gz
 
