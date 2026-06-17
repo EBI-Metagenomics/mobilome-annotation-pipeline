@@ -111,7 +111,7 @@ When MAP runs IPS internally, it uses the following applications:
 | PROSITEPATTERNS | PROSITE pattern matches |
 | PFAM | Pfam domain annotation |
 
-SignalP is added automatically when `--interpro_licensed_software true` is set (SignalP is a licensed database not distributed with IPS by default).
+[SignalP](https://services.healthtech.dtu.dk/services/SignalP-6.0/) is added automatically when `--interpro_licensed_software true` is set (SignalP is a licensed database not distributed with IPS by default).
 
 If you provide a pre-computed `interproscan_tsv` in the samplesheet, MAP skips the internal IPS run entirely and uses your file for both SanntiS and the SignalP column.
 
@@ -137,13 +137,13 @@ The functional annotation subworkflows are enabled by default but can be disable
 ```bash
 nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
     --input samplesheet.csv \
-    --skip_virulence true \
-    --skip_amrfinderplus true \
-    --skip_deeparg true \
-    --skip_rgi true \
-    --skip_sanntis true \
-    --skip_gecco true \
-    --skip_antismash true
+    --skip_virulence \
+    --skip_amrfinderplus \
+    --skip_deeparg \
+    --skip_rgi \
+    --skip_sanntis \
+    --skip_gecco \
+    --skip_antismash 
 ```
 
 ### Skip flags
@@ -162,6 +162,6 @@ nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
 
 ## Annotation manifest (reuse mode)
 
-When running MAP on assemblies that were previously processed by the [MGnify Genomes Catalogues pipeline](https://github.com/EBI-Metagenomics/genomes-catalogue-pipeline), pre-computed annotation outputs (IPS, AMRFinderPlus, antiSMASH, GECCO, SanntiS) can be reused directly to avoid redundant computation.
+When running MAP on assemblies that were previously processed by the following MGnify pipelines: [Genomes Catalogues pipeline](https://github.com/EBI-Metagenomics/genomes-catalogue-pipeline), [Assembly Analysis Pipeline](https://github.com/EBI-Metagenomics/assembly-analysis-pipeline), and [Mettanotator](https://github.com/EBI-Metagenomics/mettannotator); pre-computed annotation outputs (IPS, AMRFinderPlus, antiSMASH, GECCO, SanntiS) can be reused directly to avoid redundant computation.
 
 See [annotation_manifest.md](annotation_manifest.md) for the manifest format and column reference.
