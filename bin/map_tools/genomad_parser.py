@@ -41,8 +41,6 @@ def genomad_viral(geno_out, mge_data, quality):
                     )
                     start = int(line_l[3].split("-")[0])
                     end = int(line_l[3].split("-")[1])
-                    if quality[contig]:
-                        description += ';' + quality[contig]
                 else:
                     contig = line_l[0]
                     description = (
@@ -50,8 +48,6 @@ def genomad_viral(geno_out, mge_data, quality):
                     )
                     start = 1
                     end = int(line_l[1])
-                    if quality[contig]:
-                        description += ';' + quality[contig]
 
                 quality_contig = quality.get(pred_id, "")
                 if not quality_contig:
