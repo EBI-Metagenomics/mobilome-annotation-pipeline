@@ -13,7 +13,7 @@
 
 ## Install and dependencies
 
-The only prerequisites are [Nextflow](https://www.nextflow.io/) and a container tool such as [Docker](https://www.docker.com/) or [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html).
+The only prerequisites are [Nextflow](https://www.nextflow.io/) >=24.04.0 and a container tool such as [Docker](https://www.docker.com/) or [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html).
 
 If this is the first time running Nextflow, refer to [this page](https://www.nextflow.io/index.html#GetStarted).
 
