@@ -58,7 +58,7 @@ Download all required databases with:
 ```bash
 nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
     --download_dbs /path/to/dbs \
-    -profile singularity
+    -profile singularity/docker
 ```
 
 On completion the pipeline prints a ready-to-paste params config block. See [docs/usage.md](docs/usage.md) for the full setup guide including the config snippet and InterProScan notes.
@@ -79,7 +79,7 @@ sample2,/PATH/assembly.fasta,/PATH/proteins.gff,/PATH/proteins.faa,,/PATH/ips.ts
 nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
     --input samplesheet.csv \
     -c my_paths.config \
-    -profile singularity
+    -profile singularity/docker
 ```
 
 See [docs/usage.md](docs/usage.md) for the full samplesheet column reference, InterProScan details, skip flags, and mobilome-only mode.
@@ -130,14 +130,18 @@ sample/
     ├── sample_100kb_contigs.fasta
     └── sample_contigID.map
 ```
-{sample}/
-├── {sample}_combined_report.tsv
-├── {sample}_discarded_mge.txt
-├── {sample}_mobilome.fasta.gz
-├── {sample}_overlap_report.txt
-├── gff/
-├── prediction/
-└── preprocessing/
+When running with the flag `publish_all false`, the expected outputs are:
+```
+sample/
+├── sample_combined_report.tsv
+├── sample_discarded_mge.txt
+├── sample_mobilome.fasta.gz
+├── sample_overlap_report.txt
+└── gff/
+    ├── sample_mobilome.gff.gz
+    ├── sample_mobilome_clean.gff.gz
+    ├── sample_mobilome_extra.gff.gz
+    └── sample_mobilome_full.gff.gz
 ```
 
 See [docs/outputs.md](docs/outputs.md) for the full directory layout, discarded prediction reasons, GFF feature type definitions, and combined report column reference.
