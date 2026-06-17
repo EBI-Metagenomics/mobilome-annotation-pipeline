@@ -100,31 +100,59 @@ Results are written to `--outdir` (default: `results/`).
 
 ```bash
 sample/
+├── sample_combined_report.tsv
 ├── sample_discarded_mge.txt
-├── sample_mobilome.fasta
+├── sample_mobilome.fasta.gz
 ├── sample_overlap_report.txt
-├── gff
+├── gff/
 │   ├── sample_mobilome.gff.gz
-│   ├── sample_mobilome_clean.gff.gz
-│   ├── sample_mobilome_extra.gff.gz
-│   └── sample_mobilome_full.gff.gz
-├── prediction
-│   ├── genomad
+│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + matching CDSs
+│   ├── sample_user_mobilome_clean.gff.gz.csi
+│   ├── sample_user_mobilome_clean.gff.gz.gzi
+│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
+│   ├── sample_user_mobilome_extra.gff.gz.csi
+│   ├── sample_user_mobilome_extra.gff.gz.gzi
+│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from user GFF
+│   ├── sample_user_mobilome_full.gff.gz.csi
+│   └── sample_user_mobilome_full.gff.gz.gzi
+├── prediction/
+│   ├── amr_genes/
+│   │   ├── integrated_sample.gff
+│   │   ├── amrfinderplus/
+│   │   │   └── sample.tsv
+│   │   ├── deeparg/
+│   │   │   └── sample.mapping.ARG
+│   │   └── rgi/
+│   │       └── sample.txt
+│   ├── bgcs/
+│   │   ├── sample_bgcs.gff
+│   │   ├── sample_bgcs.json
+│   │   ├── antismash/
+│   │   │   └── sample_antismash.gff
+│   │   ├── gecco/
+│   │   │   └── sample.gff
+│   │   └── sanntis/
+│   │       └── sample_sanntis.gff.gz
+│   ├── compositional_outliers/
+│   │   └── sample_100kb_contigs.1.bed
+│   ├── genomad/
 │   │   ├── sample_5kb_contigs_plasmid_summary.tsv
 │   │   └── sample_5kb_contigs_virus_summary.tsv
-│   ├── icefinder2lite
+│   ├── icefinder2lite/
 │   │   ├── sample_ice_genes.tsv
 │   │   └── sample_ices.tsv
-│   ├── integronfinder
-│   │   ├── sample_100kb_contigs.summary.summary
-│   │   └── contig.gbk
-│   ├── isescan
+│   ├── integronfinder/
+│   │   ├── sample_100kb_contigs.summary
+│   │   └── contig_1.gbk
+│   ├── interproscan/
+│   │   └── sample.tsv.gz
+│   ├── isescan/
 │   │   └── sample_1kb_contigs.fasta.tsv
-│   ├── virify_filter
+│   ├── virify_filter/
 │   │   └── sample_virify_hq.gff
-│   └── compositional_outliers_results
-│       └── sample.merged.bed
-└── preprocessing
+│   └── virulence/
+│       └── sample_pathofact2.gff
+└── preprocessing/
     ├── sample_1kb_contigs.fasta
     ├── sample_5kb_contigs.fasta
     ├── sample_100kb_contigs.fasta
@@ -139,9 +167,15 @@ sample/
 ├── sample_overlap_report.txt
 └── gff/
     ├── sample_mobilome.gff.gz
-    ├── sample_mobilome_clean.gff.gz
-    ├── sample_mobilome_extra.gff.gz
-    └── sample_mobilome_full.gff.gz
+    ├── sample_user_mobilome_clean.gff.gz
+    ├── sample_user_mobilome_clean.gff.gz.csi
+    ├── sample_user_mobilome_clean.gff.gz.gzi
+    ├── sample_user_mobilome_extra.gff.gz
+    ├── sample_user_mobilome_extra.gff.gz.csi
+    ├── sample_user_mobilome_extra.gff.gz.gzi
+    ├── sample_user_mobilome_full.gff.gz
+    ├── sample_user_mobilome_full.gff.gz.csi
+    └── sample_user_mobilome_full.gff.gz.gzi
 ```
 
 See [docs/outputs.md](docs/outputs.md) for the full directory layout, discarded prediction reasons, GFF feature type definitions, and combined report column reference.

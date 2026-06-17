@@ -5,56 +5,76 @@ Results are written to `--outdir` (default: `results/`).
 ## Directory structure
 
 ```
-{sample}/
-├── {sample}_combined_report.tsv
-├── {sample}_discarded_mge.txt
-├── {sample}_mobilome.fasta.gz
-├── {sample}_overlap_report.txt
+sample/
+├── sample_combined_report.tsv
+├── sample_discarded_mge.txt
+├── sample_mobilome.fasta.gz
+├── sample_overlap_report.txt
 ├── gff/
-│   ├── {sample}_mobilome.gff.gz
-│   ├── {sample}_user_mobilome_clean.gff.gz      # mobilome + matching CDSs
-│   ├── {sample}_user_mobilome_clean.gff.gz.csi
-│   ├── {sample}_user_mobilome_clean.gff.gz.gzi
-│   ├── {sample}_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
-│   ├── {sample}_user_mobilome_extra.gff.gz.csi
-│   ├── {sample}_user_mobilome_extra.gff.gz.gzi
-│   ├── {sample}_user_mobilome_full.gff.gz       # mobilome + all features from user GFF
-│   ├── {sample}_user_mobilome_full.gff.gz.csi
-│   └── {sample}_user_mobilome_full.gff.gz.gzi
+│   ├── sample_mobilome.gff.gz
+│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + matching CDSs
+│   ├── sample_user_mobilome_clean.gff.gz.csi
+│   ├── sample_user_mobilome_clean.gff.gz.gzi
+│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
+│   ├── sample_user_mobilome_extra.gff.gz.csi
+│   ├── sample_user_mobilome_extra.gff.gz.gzi
+│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from user GFF
+│   ├── sample_user_mobilome_full.gff.gz.csi
+│   └── sample_user_mobilome_full.gff.gz.gzi
 ├── prediction/
 │   ├── amr_genes/
+│   │   ├── integrated_sample.gff
+│   │   ├── amrfinderplus/
+│   │   │   └── sample.tsv
+│   │   ├── deeparg/
+│   │   │   └── sample.mapping.ARG
+│   │   └── rgi/
+│   │       └── sample.txt
 │   ├── bgcs/
-│   │   ├── {sample}_bgcs.gff
-│   │   └── {sample}_bgcs.json
+│   │   ├── sample_bgcs.gff
+│   │   ├── sample_bgcs.json
+│   │   ├── antismash/
+│   │   │   └── sample_antismash.gff
+│   │   ├── gecco/
+│   │   │   └── sample.gff
+│   │   └── sanntis/
+│   │       └── sample_sanntis.gff.gz
 │   ├── compositional_outliers/
-│   │   └── {sample}_100kb_contigs.1.bed
+│   │   └── sample_100kb_contigs.1.bed
 │   ├── genomad/
-│   │   ├── {sample}_5kb_contigs_plasmid_summary.tsv
-│   │   └── {sample}_5kb_contigs_virus_summary.tsv
+│   │   ├── sample_5kb_contigs_plasmid_summary.tsv
+│   │   └── sample_5kb_contigs_virus_summary.tsv
+│   ├── icefinder2lite/
+│   │   ├── sample_ice_genes.tsv
+│   │   └── sample_ices.tsv
 │   ├── integronfinder/
-│   │   ├── {sample}_100kb_contigs.summary
+│   │   ├── sample_100kb_contigs.summary
 │   │   └── contig_1.gbk
+│   ├── interproscan/
+│   │   └── sample.tsv.gz
 │   ├── isescan/
-│   │   └── {sample}_1kb_contigs.fasta.tsv
+│   │   └── sample_1kb_contigs.fasta.tsv
+│   ├── virify_filter/
+│   │   └── sample_virify_hq.gff
 │   └── virulence/
-│       └── {sample}_pathofact2.gff
+│       └── sample_pathofact2.gff
 └── preprocessing/
-    ├── {sample}_1kb_contigs.fasta
-    ├── {sample}_5kb_contigs.fasta
-    ├── {sample}_100kb_contigs.fasta
-    └── {sample}_contigID.map
+    ├── sample_1kb_contigs.fasta
+    ├── sample_5kb_contigs.fasta
+    ├── sample_100kb_contigs.fasta
+    └── sample_contigID.map
 ```
 
 ## Discarded predictions
 
-`{sample}_discarded_mge.txt` lists predictions excluded during integration and the reason:
+`sample_discarded_mge.txt` lists predictions excluded during integration and the reason:
 
 1. `mge < 500bp` — discarded by length
 2. `no_cds` — no coding sequences within the prediction
 3. `tRNAs_in_window` — tRNA genes present inside a compositional outlier
 4. `CO_overlap_with_MGE` — compositional outlier overlapping another MGE
 
-`{sample}_overlap_report.txt` lists long-MGEs with overlapping coordinates. No predictions are discarded for this reason; it is informational only.
+`sample_overlap_report.txt` lists long-MGEs with overlapping coordinates. No predictions are discarded for this reason; it is informational only.
 
 ## Feature identifiers and types
 
@@ -77,7 +97,7 @@ GFF feature types and their Sequence Ontology mappings:
 
 ## Combined report
 
-`{sample}_combined_report.tsv` is produced by the PathFact2 integrator step, which merges PathoFact2, AMR, mobilome, biosynthetic gene cluster (BGC), and InterProScan (IPS) annotations.
+`sample_combined_report.tsv` is produced by the PathFact2 integrator step, which merges PathoFact2, AMR, mobilome, biosynthetic gene cluster (BGC), and InterProScan (IPS) annotations.
 
 **Seed proteins** — rows in the report — come from PathoFact2 and/or AMR GFF files. If both inputs are absent or empty, no report is generated. BGC annotations are only resolved for seed proteins; BGC-only or MGE-only proteins are not included as rows. MGE assignment requires ≥90% CDS overlap with a mobilome feature on the same contig. IPS input is optional; only SignalP entries are retained. Missing values are reported as `-`.
 
