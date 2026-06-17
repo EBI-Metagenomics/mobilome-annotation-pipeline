@@ -52,6 +52,7 @@ On completion, the pipeline prints a ready-to-paste config block with the exact 
 params {
     // Mobilome
     genomad_db                   = "/path/to/dbs/genomad/genomad_db_v1.9"
+    checkv_db                    = "/path/to/dbs/checkV/checkv-db-v1.5"
     icefinder_macsyfinder_models = "/path/to/dbs/icefinder2/icf2_dbs/macsydata"
     icefinder_hmm_models         = "/path/to/dbs/icefinder2/icf2_dbs/icehmm/icescan"
     icefinder_prokka_uniprot_db  = "/path/to/dbs/icefinder2/icf2_dbs/icefinder_prokka_uniprot"

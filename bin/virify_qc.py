@@ -96,8 +96,10 @@ def virify_parser(virify_gff, output_prefix):
                             qc_passed.append(feature_id)
                             contig_to_region_id[contig] = feature_id
 
-                # These are proteins. Use the contig to find the parent region.
-                else:
+                # Proteins are CDS features (col 3). VIRify v2 can accept user-provided
+                # proteins from any tool, so the source (col 2) is not reliable — match
+                # on the feature type. Use the contig to find the parent region.
+                elif seq_type == "CDS":
                     parent_feature = contig_to_region_id.get(contig)
                     if parent_feature:
                         all_proteins.setdefault(parent_feature, []).append(line)
