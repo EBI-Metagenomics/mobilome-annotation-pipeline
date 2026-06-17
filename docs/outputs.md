@@ -95,4 +95,4 @@ GFF feature types and their Sequence Ontology mappings:
 | `mge_type` | MGE type when the protein has ≥90% overlap with a mobilome feature (e.g. `prophage`, `insertion_sequence`); `-` otherwise |
 | `bgc_type` | BGC class (e.g. `T3PKS`, `Saccharide`, `RiPP-like`); `-` if no BGC |
 | `bgc_tools` | Tool(s) that called the BGC (`antismash`, `sanntis`, `gecco`; comma-separated if multiple) |
-| `signalP` | SignalP annotation from InterProScan if an IPS TSV was provided or IPS was run internally with `--interpro_licensed_software true`; `-` otherwise |
+| `signalp` | SignalP annotation from InterProScan if an IPS TSV was provided or IPS was run internally with `--interpro_licensed_software true`; `-` otherwise |
