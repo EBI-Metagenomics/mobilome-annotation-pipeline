@@ -50,23 +50,23 @@ On completion, the pipeline prints a ready-to-paste config block with the exact 
 ```nextflow
 params {
     // Mobilome
-    genomad_db                   = "/path/to/dbs/genomad_db_v1.9"
-    icefinder_macsyfinder_models = "/path/to/dbs/icf2_dbs/macsydata"
-    icefinder_hmm_models         = "/path/to/dbs/icf2_dbs/icehmm/icescan"
-    icefinder_prokka_uniprot_db  = "/path/to/dbs/icf2_dbs/icefinder_prokka_uniprot"
+    genomad_db                   = "/path/to/dbs/genomad/genomad_db_v1.9"
+    icefinder_macsyfinder_models = "/path/to/dbs/icefinder2/icf2_dbs/macsydata"
+    icefinder_hmm_models         = "/path/to/dbs/icefinder2/icf2_dbs/icehmm/icescan"
+    icefinder_prokka_uniprot_db  = "/path/to/dbs/icefinder2/icf2_dbs/icefinder_prokka_uniprot"
 
     // PATHOFACT2
-    pathofact_models             = "/path/to/dbs/Models.tar.gz"
-    virulencefactors_db          = "/path/to/dbs/VFDB_setB_pro.dmnd"
-    ncbi_cdd                     = "/path/to/dbs/database"
+    pathofact_models             = "/path/to/dbs/pathofact"
+    virulencefactors_db          = "/path/to/dbs/virulence/VFDB_setB_pro.dmnd"
+    ncbi_cdd                     = "/path/to/dbs/localcdsearch/database"
 
     // AMR
-    amrfinderplus_db             = "/path/to/dbs/amrfinderdb"
-    deeparg_db                   = "/path/to/dbs/db"
-    rgi_db                       = "/path/to/dbs/card_dir"
+    amrfinderplus_db             = "/path/to/dbs/amrfinderplus/amrfinderdb"
+    deeparg_db                   = "/path/to/dbs/deeparg/db"
+    rgi_db                       = "/path/to/dbs/rgi/card_dir"
 
     // BGC
-    antismash_db                 = "/path/to/dbs/antismash_db"
+    antismash_db                 = "/path/to/dbs/antismash/antismash_db"
     // SanntiS requires InterProScan output (provided via samplesheet or run internally)
 }
 ```

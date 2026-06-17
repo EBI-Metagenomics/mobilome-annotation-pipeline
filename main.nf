@@ -43,23 +43,23 @@ workflow {
                 ============================================================
                 params {
                     // Mobilome databases
-                    genomad_db                   = "${db_dir}/genomad_db_v1.9"
-                    icefinder_macsyfinder_models = "${db_dir}/icf2_dbs/macsydata"
-                    icefinder_hmm_models         = "${db_dir}/icf2_dbs/icehmm/icescan"
-                    icefinder_prokka_uniprot_db  = "${db_dir}/icf2_dbs/icefinder_prokka_uniprot"
+                    genomad_db                   = "${db_dir}/genomad/genomad_db_v1.9"
+                    icefinder_macsyfinder_models = "${db_dir}/icefinder2/icf2_dbs/macsydata"
+                    icefinder_hmm_models         = "${db_dir}/icefinder2/icf2_dbs/icehmm/icescan"
+                    icefinder_prokka_uniprot_db  = "${db_dir}/icefinder2/icf2_dbs/icefinder_prokka_uniprot"
 
                     // PATHOFACT2
-                    pathofact_models             = "${db_dir}/Models.tar.gz"
-                    virulencefactors_db          = "${db_dir}/VFDB_setB_pro.dmnd"
-                    ncbi_cdd                     = "${db_dir}/database"
+                    pathofact_models             = "${db_dir}/pathofact"
+                    virulencefactors_db          = "${db_dir}/virulence/VFDB_setB_pro.dmnd"
+                    ncbi_cdd                     = "${db_dir}/localcdsearch/database"
 
                     // AMR
-                    amrfinderplus_db             = "${db_dir}/amrfinderdb"
-                    deeparg_db                   = "${db_dir}/db"
-                    rgi_db                       = "${db_dir}/card_dir"
+                    amrfinderplus_db             = "${db_dir}/amrfinderplus/amrfinderdb"
+                    deeparg_db                   = "${db_dir}/deeparg/db"
+                    rgi_db                       = "${db_dir}/rgi/card_dir"
 
                     // BGC
-                    antismash_db                 = "${db_dir}/antismash_db"
+                    antismash_db                 = "${db_dir}/antismash/antismash_db"
                 }
                 ============================================================
                 """.stripIndent()
