@@ -15,6 +15,7 @@ process INTEGRATOR {
 
     script:
     def virify_arg = vir_results ? "--virify_out ${vir_results}" : ""
+    def checkv_arg = checkv_genomad ? "--checkv_genomad ${checkv_genomad}" : ""
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     mge_integrator.py \\
@@ -27,7 +28,7 @@ process INTEGRATOR {
         --geno_out ${genomad_vir} \\
         --geno_plas ${genomad_plas} \\
         --comp_bed ${compos_bed} \\
-        --checkv_genomad ${checkv_genomad} \\
+        ${checkv_arg} \\
         ${virify_arg} \\
         --prefix ${prefix}
 

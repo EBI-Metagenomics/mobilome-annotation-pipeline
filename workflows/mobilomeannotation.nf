@@ -167,7 +167,14 @@ workflow MOBILOMEANNOTATION {
     ch_versions = ch_versions.mix(GENOMAD.out.versions)
 
     def checkv_db = channel.of(file(params.checkv_db, checkIfExists: true))
-    CHECKV_ENDTOEND(GENOMAD.out.genomad_vir_fasta, checkv_db.first())
+    // geNomad writes an empty virus FASTA when no viral sequences are predicted, and
+    // CheckV errors on empty input. Only run CheckV for samples that have viruses;
+    // samples without are routed around it and join the integrator with an empty CheckV input.
+    def genomad_vir_fasta = GENOMAD.out.genomad_vir_fasta.branch { _meta, fasta ->
+        with_viruses: fasta.size() > 0
+        empty: true
+    }
+    CHECKV_ENDTOEND(genomad_vir_fasta.with_viruses, checkv_db.first())
 
     INTEGRONFINDER(RENAME.out.contigs_100kb)
     ch_versions = ch_versions.mix(INTEGRONFINDER.out.versions)
@@ -208,7 +215,7 @@ workflow MOBILOMEANNOTATION {
     ).join(
         VIRIFY_QC.out.virify_hq, remainder: true
     ).join(
-        CHECKV_ENDTOEND.out.quality_summary
+        CHECKV_ENDTOEND.out.quality_summary, remainder: true
     )
 
     INTEGRATOR(
@@ -237,7 +244,7 @@ workflow MOBILOMEANNOTATION {
                 genomad_plas,
                 compos_bed ? compos_bed : [],
                 virify_hq ? virify_hq : [],
-                checkv
+                checkv ? checkv : []
             ]
         }
     )
