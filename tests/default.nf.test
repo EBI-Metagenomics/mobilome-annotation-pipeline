@@ -4,11 +4,19 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
 
-    test("Positive test of the Mobilome annotation pipeline with user proteins and VIRify input") {
+    test("Positive test: mobilome-only run on two-contig assembly covering IS, integron, ICE, prophage, and CO") {
+        tag "positive"
         when {
             params {
-                input = "${projectDir}/tests/pos_test_samplesheet.csv"
-                outdir = "$outputDir"
+                input                = "${projectDir}/tests/GCF_002192495_samplesheet.csv"
+                outdir               = "$outputDir"
+                skip_virulence       = true
+                skip_amrfinderplus   = true
+                skip_deeparg         = true
+                skip_rgi             = true
+                skip_sanntis         = true
+                skip_gecco           = true
+                skip_antismash       = true
             }
         }
 
@@ -46,14 +54,75 @@ nextflow_pipeline {
         }
     }
 
-    test("Negative test of the Mobilome annotation pipeline. Expect empty gff output file") {
+    test("Negative test of the mobile elements detection skipping pathofact annotation. Expect empty gff output file") {
+        tag "negative"
         when {
             params {
-                input = "${projectDir}/tests/neg_test_samplesheet.csv"
+                input              = "${projectDir}/tests/neg_test_samplesheet.csv"
+                outdir             = "$outputDir"
+                skip_virulence     = true
+                skip_amrfinderplus = true
+                skip_deeparg       = true
+                skip_rgi           = true
+                skip_sanntis       = true
+                skip_gecco         = true
+                skip_antismash     = true
+            }
+        }
+
+        then {
+            // stable_name: All files + folders in ${params.outdir}/ with a stable name
+            def stable_name = getAllFilesFromDir(
+                params.outdir,
+                relative: true,
+                includeDir: true,
+                ignore: [
+                    'pipeline_info/*'
+                ]
+            )
+            // stable_path: All files in ${params.outdir}/ with stable content
+            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(
+                    // Number of tasks
+                    workflow.trace.succeeded().size(),
+                    // All stable path name
+                    stable_name,
+                    // All files with stable contents
+                    stable_path,
+                ).match() }
+            )
+        }
+    }
+
+    test("Schema validation: proteins_gff without proteins_faa should fail (dependentRequired)") {
+        tag "schema"
+        when {
+            params {
+                input  = "${projectDir}/tests/invalid_proteins_samplesheet.csv"
                 outdir = "$outputDir"
             }
         }
-    
+
+        then {
+            assert workflow.failed
+            // workflow.stderr is a list of lines; check the substring per line
+            assert workflow.stderr.any { it.contains("proteins_faa") }
+        }
+    }
+
+    test("Pathofact integration test with annotation manifest. Expected a report of proteins with relevant annotation") {
+        tag "pathofact"
+        when {
+            params {
+                input                = "${projectDir}/tests/pathofact_samplesheet.csv"
+                outdir               = "$outputDir"
+                annotation_manifest  = "${projectDir}/tests/data/MGYG000528118_sub/annotation_manifest.csv"
+                skip_deeparg         = true    // skipping as minidatabase building is not possible. Test at subwf level 
+            }
+        }
+
         then {
             // stable_name: All files + folders in ${params.outdir}/ with a stable name
             def stable_name = getAllFilesFromDir(

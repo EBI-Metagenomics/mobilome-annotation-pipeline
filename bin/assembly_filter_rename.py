@@ -46,10 +46,10 @@ def rename(input_file, prefix):
                 new_id = ">contig_" + str(counter)
                 my_chain = str(record.seq).upper()
                 to_map.write(new_id + "\t" + str(record.id) + "\n")
-                if len(my_chain) > 1000:
+                if len(my_chain) >= 1000:
                     to_1kb.write(new_id + "\n")
                     to_1kb.write(my_chain + "\n")
-                if len(my_chain) > 5000:
+                if len(my_chain) >= 5000:
                     to_5kb.write(new_id + "\n")
                     to_5kb.write(my_chain + "\n")
                 if len(my_chain) >= 100000:

@@ -6,15 +6,15 @@ The `--annotation_manifest` option allows functional annotation outputs produced
 
 Use `--annotation_manifest` when:
 
-- You are running MAP on assemblies that are part of an MGnify genomes catalogue pipeline run and you already have InterProScan, AMRFinderPlus, antiSMASH, GECCO, or SanntiS outputs for those assemblies.
+- You are running MAP on assemblies that are part of an MGnify genomes catalogue pipeline run and you already have AMRFinderPlus, antiSMASH, GECCO, or SanntiS outputs for those assemblies.
 - You want to skip re-running one or more annotation tools to reduce runtime or avoid database requirements.
 
-When a manifest is provided, the pipeline skips the corresponding internal runs (e.g. does not invoke InterProScan or AMRFinderPlus) and instead routes the manifest files directly into the downstream integration and reporting steps. Functional annotation tools not covered by the manifest still run normally.
+When a manifest is provided, the pipeline skips the corresponding internal runs (e.g. does not invoke AMRFinderPlus or antiSMASH) and instead routes the manifest files directly into the downstream integration and reporting steps. Functional annotation tools not covered by the manifest still run normally. InterProScan is not a manifest column — pre-computed IPS results are supplied through the `interproscan_tsv` column of the input samplesheet instead.
 
 ## CSV format
 
 ```
-sample,ips_tsv,amrfinder_tsv,antismash_gff,gecco_gff,sanntis_gff
+sample,amrfinder_tsv,antismash_gff,gecco_gff,sanntis_gff
 ```
 
 - `sample` — required; must match the `sample` column in the input samplesheet exactly.
@@ -25,18 +25,17 @@ Supported file extensions: `.tsv` / `.tsv.gz` for tabular files, `.gff` / `.gff.
 ### Example
 
 ```csv
-sample,ips_tsv,amrfinder_tsv,antismash_gff,gecco_gff,sanntis_gff
-MGYG000528118,/data/catalogues/MGYG000528118_InterProScan.tsv,/data/catalogues/MGYG000528118_amrfinderplus.tsv,/data/catalogues/MGYG000528118_antismash.gff,/data/catalogues/MGYG000528118_gecco.gff,/data/catalogues/MGYG000528118_sanntis.gff
-MGYG000012345,/data/catalogues/MGYG000012345_InterProScan.tsv,,,, 
+sample,amrfinder_tsv,antismash_gff,gecco_gff,sanntis_gff
+MGYG000528118,/data/catalogues/MGYG000528118_amrfinderplus.tsv,/data/catalogues/MGYG000528118_antismash.gff,/data/catalogues/MGYG000528118_gecco.gff,/data/catalogues/MGYG000528118_sanntis.gff
+MGYG000012345,/data/catalogues/MGYG000012345_amrfinderplus.tsv,,,
 ```
 
-In the second row, only the IPS TSV is provided; all BGC tools will run internally for that sample.
+In the second row, only the AMRFinderPlus TSV is provided; all BGC tools will run internally for that sample.
 
 ## Column details
 
 | Column | Source tool | Used by |
 |---|---|---|
-| `ips_tsv` | InterProScan | PATHOFACT2 (CDS search step), COMBINEREPORTER |
 | `amrfinder_tsv` | AMRFinderPlus (catalogue layout) | AMR_ANNOTATION subworkflow (REFORMAT step), COMBINEREPORTER |
 | `antismash_gff` | antiSMASH | BGC_ANNOTATION subworkflow, COMBINEREPORTER |
 | `gecco_gff` | GECCO | BGC_ANNOTATION subworkflow, COMBINEREPORTER |
@@ -50,7 +49,7 @@ The AMRFinderPlus output produced by the genomes-catalogue-pipeline uses a colum
 
 The manifest and skip flags operate on different tool sets:
 
-- **Tools covered by the manifest** (InterProScan, AMRFinderPlus, antiSMASH, GECCO, SanntiS): when `--annotation_manifest` is provided, these tools are always bypassed — skip flags have no effect. If a column is populated, the manifest file is used directly; if a column is empty, no results are produced for that tool.
+- **Tools covered by the manifest** (AMRFinderPlus, antiSMASH, GECCO, SanntiS): when `--annotation_manifest` is provided, these tools are always bypassed — skip flags have no effect. If a column is populated, the manifest file is used directly; if a column is empty, no results are produced for that tool.
 - **Tools not covered by the manifest** (DeepARG, RGI): skip flags (`--skip_deeparg`, `--skip_rgi`) always work normally, regardless of whether a manifest is provided.
 
 ### Examples
@@ -78,7 +77,7 @@ nextflow run ebi-metagenomics/mobilome-annotation-pipeline \
     -profile singularity
 ```
 
-The `antismash_gff` and `gecco_gff` columns are used directly; SanntiS, AMRFinderPlus, and IPS run internally. `--skip_rgi` takes effect because RGI has no manifest column.
+The `antismash_gff` and `gecco_gff` columns are used directly; SanntiS and AMRFinderPlus run internally. `--skip_rgi` takes effect because RGI has no manifest column.
 
 **Skip flag alongside a populated manifest column — no effect**
 

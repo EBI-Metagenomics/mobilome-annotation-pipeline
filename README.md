@@ -1,280 +1,216 @@
 [![Run nf-tests for modules](https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/actions/workflows/test_modules.yml/badge.svg)](https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline/actions/workflows/test_modules.yml)
 
-# Mobilome Annotation Pipeline (former MoMofy)
+# Mobilome Annotation Pipeline (MAP)
 
 <p align="center" width="100%">
    <img src="media/mges_schema.png" width="100%"/>
 </p>
 
-Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrative elements. Plasmids are mostly extrachromosmal; phages can be found extrachromosmal or as temperate phages (prophages); whereas integrons are stable inserted in the chromosome. Autonomous elements are those integrative elements capable of excising themselves from the chromosome and reintegrate elsewhere. They can use a transposase (like insertion sequences and transposons) or an integrase/excisionase (like ICEs and IMEs).
+Bacteria can acquire genetic material through horizontal gene transfer, allowing them to rapidly adapt to changing environmental conditions. These mobile genetic elements can be classified into three main categories: plasmids, phages, and integrative elements. Plasmids are mostly extrachromosomal; phages can be found extrachromosomal or as temperate phages (prophages); whereas integrons are stably inserted in the chromosome. Autonomous elements are those integrative elements capable of excising themselves from the chromosome and reintegrating elsewhere. They can use a transposase (like insertion sequences and transposons) or an integrase/excisionase (like ICEs and IMEs).
 
-The Mobilome Annotation Pipeline is a wrapper that integrates the output of different tools designed for the prediction of plasmids, phages, insertion sequences, integrative mobile genetic elements such as ICEs, IMEs, integrons, and non-autonomous mobile genetic elements in prokaryotic genomes and metagenomes. The output is a GFF3 file with the mobilome annotation.
-
-> [!NOTE]  
-> This is an intermediate release of the MAP, positioned between two major development milestones.  
-> We are currently developing a new subworkflow for gene-level annotation that will integrate multiple tools for antimicrobial resistance detection, virulence factor identification, and other ecologically relevant functions.  
->  
-> In the meantime, this version does **not**:  
-> 1. Run PROKKA  
-> 2. Run AMRFinderPlus  
->  
-> You can still provide as input a GFF file generated with your favourite annotation tool, which MAP will use to append the mobilome results.
-
-
+The Mobilome Annotation Pipeline integrates the output of different tools designed for the prediction of plasmids, phages, insertion sequences, integrative mobile genetic elements (ICEs, IMEs), integrons, and non-autonomous mobile genetic elements in prokaryotic genomes and metagenomes. The primary output is a compressed GFF3 file of the mobilome annotation. Since v5, MAP also runs functional annotation subworkflows for antimicrobial resistance (AMR), virulence factors, and biosynthetic gene clusters (BGCs), producing a combined per-protein report.
 
 ## Contents
 
-- [ Workflow ](#wf)
-- [ Install and dependencies ](#install)
-- [ Usage ](#usage)
-- [ Inputs ](#in)
-- [ Outputs ](#out)
-- [ Tests ](#test)
-- [ License and Attribution ](#license)
-- [ Citation ](#cite)
+- [Workflow](#wf)
+- [Install and dependencies](#install)
+- [Usage](#usage)
+- [Functional annotation](#functional)
+- [Outputs](#out)
+- [Tests](#test)
+- [License and Attribution](#license)
+- [Citation](#cite)
+
+Full documentation: [docs/usage.md](docs/usage.md) · [docs/outputs.md](docs/outputs.md)
 
 <a name="wf"></a>
 
 ## Workflow
 
 <p align="center" width="100%">
-   <img src="media/MAP_v41.png" width="90%"/>
+   <img src="media/map_v5_numbers.png" width="90%"/>
 </p>
 
-This workflow has the following main blocks of analysis:
+The pipeline has five main stages:
 
-- Preprocessing: Rename, filter contigs and CDS annotation with Prodigal.
-- Prediction: Run geNomad, ICEfinder2-lite, IntegronFinder, ISEScan, and the compositional outliers detection subworkflow (on contigs > 100kb).
-- Integration: Parse and integrate. In this step optional results of VIRify v3.0.0 can be incorporated. MGEs <500 bp lengh and predictions with no genes are discarded.
-- Postprocessing: Write the compressed mobilome gff file (`mobilome.gff.gz`) and the mobilome fasta file (`mobilome.fasta`). The output `mobilome.gff.gz` is validated as part of the postprocesing.
+**1. Preprocessing** — Contigs are filtered by length and renamed to short IDs (`RENAME`). CDS are annotated with Prodigal; tRNAs with ARAGORN.
 
-When `user_proteins_gff` is provided, three more GFF files will be generated:
+**2. MGE prediction** (parallel) — geNomad (plasmids/phages), ICEfinder2-lite (ICEs/IMEs), IntegronFinder (integrons), ISEScan (insertion sequences), and a compositional outlier detection subworkflow (contigs ≥100 kb).
 
-1. `user_mobilome_clean.gff.gz`: mobilome + its associated CDSs
-2. `user_mobilome_extra.gff.gz`: mobilome + ViPhOGs annotated genes (note that ViPhOG annotation is generated by VIRify)
-3. `user_mobilome_full.gff.gz`: mobilome + any other annotation on user GFF
+**3. Integration** — All predictions are merged into a single `{sample}_mobilome.gff.gz`. Predictions <500 bp or with no CDS are discarded.
+
+**4. Functional annotation** — Three independent subworkflows annotate virulence factors, antimicrobial resistance genes (ARG) and biosynthetic gene clusters (BGC):
+- **PATHOFACT2**: toxin and virulence factor prediction via machine learning and DIAMOND vs VFDB.
+- **AMR_ANNOTATION**: antimicrobial resistance gene detection with AMRFinderPlus, DeepARG, and RGI (CARD).
+- **BGC_ANNOTATION**: biosynthetic gene cluster prediction and overlps merging with SanntiS, GECCO, and antiSMASH.
+
+**5. Pathofact2-style report** — Virulence factor and ARG report in the context of BGCs and MGEs.
 
 
 <a name="install"></a>
 
-## Install and downloading dependencies
+## Install and dependencies
 
-The only prerequisites for running it are [Nextflow](https://www.nextflow.io/) and a container tool such as [Docker](https://www.docker.com/) or [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html), since all tools use pre-built containers.
+The only prerequisites are [Nextflow](https://www.nextflow.io/) >=24.04.0 and a container tool such as [Docker](https://www.docker.com/) or [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html).
 
-To get a copy of the Mobilome Annotation Pipeline, clone this repo by:
-
-```bash
-$ git clone https://github.com/EBI-Metagenomics/mobilome-annotation-pipeline.git
-```
-
-The first time you run the pipeline you will need to set up the following databases:
-
-1. Download and extract the geNomad database
-```bash
-wget https://zenodo.org/records/14886553/files/genomad_db_v1.9.tar.gz
-tar -xvf genomad_db_v1.9.tar.gz
-```
-
-2. Download and extract the databases to run ICEfinder2-lite
-```bash
-wget https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
-tar -xvf icf2_dbs.tar.gz
-```
-
-Once the downloading is complete, you can move the files to any suitable location. Then you should pass the paths to all your datbases to the pipeline as a parameter during execution using the corresponding flag. For instance:
+Download all required databases with:
 
 ```bash
-nextflow run /PATH/mobilome-annotation-pipeline/main.nf --input samplesheet.csv --genomad_db /FULL/PATH/TO/genomad_db_v1.9
+nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
+    --download_dbs /path/to/dbs \
+    -profile singularity/docker
 ```
 
-Alternatively, we recomment to create a config file with the following paths and pass it to the pipeline during execution using `-c my_paths.config`
-
-`my_paths.config`
-```bash
-/*
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     Config to store my DB paths and names
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-params {
-    genomad_db                   = "/FULL/PATH/TO/genomad_db_v1.9"
-    icefinder_macsyfinder_models = "/FULL/PATH/TO/icf2_dbs/macsydata/"
-    icefinder_hmm_models         = "/FULL/PATH/TO/icf2_dbs/icehmm/icescan.hmm"
-    icefinder_prokka_uniprot_db  = "/FULL/PATH/TO/icf2_dbs/icefinder_prokka_uniprot/"
-}
-
-```
+On completion the pipeline prints a ready-to-paste params config block. See [docs/usage.md](docs/usage.md) for the full setup guide including the config snippet and InterProScan notes.
 
 <a name="usage"></a>
 
-## Inputs
+## Usage
 
-To run the Mobilome Annotation Pipeline on multiple samples, prepare a samplesheet with your input data that looks like the following example.
-
-`samplesheet.csv`:
+Prepare a samplesheet (only `sample` and `assembly` are required):
 
 ```csv
-sample,assembly,user_proteins_gff,virify_gff
-assembly,/PATH/assembly.fasta,,
-assembly_proteins,/PATH/assembly.fasta,/PATH/proteins.gff,
-assembly_proteins_virify,/PATH/assembly.fasta,/PATH/proteins.gff,/PATH/virify_out.gff
+sample,assembly,proteins_gff,proteins_faa,virify_gff,interproscan_tsv
+sample1,/PATH/assembly.fasta,,,,
+sample2,/PATH/assembly.fasta,/PATH/proteins.gff,/PATH/proteins.faa,,/PATH/ips.tsv
 ```
-
-Each row represents a sample. Note that sample names have to be unique. The minimal input is the (meta)genome assembly in FASTA format that can be compressed (.gz). User proteins GFF file also can be compressed (.gz).
-
-Basic run:
 
 ```bash
-$ nextflow run /PATH/mobilome-annotation-pipeline/main.nf --input samplesheet.csv -c my_paths.config -profile docker,singularity
+nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
+    --input samplesheet.csv \
+    -c my_paths.config \
+    -profile singularity/docker
 ```
 
-Note that the final output in gff format is created by integrating the predicted MGEs. If you have your own protein prediction files and want to append the mobilome annotation to it, provide the path to the uncompressed gff file in the samplesheet.csv. This file will be used to generate a `user_mobilome_full.gff` file containing the mobilome plus any feature existing in your original input.
+See [docs/usage.md](docs/usage.md) for the full samplesheet column reference, InterProScan details, skip flags, and mobilome-only mode.
 
-Note that the virify output provided in the samplesheet under `virify_gff` has to be generated independently with [VIRify](https://github.com/EBI-Metagenomics/emg-viral-pipeline) version >=3.0.0 tool. 
+<a name="functional"></a>
 
-A summary of the mobilome annotation pipeline boolean flags:
+## Functional annotation
 
-```bash
-gff_validation <True>:	Validation step of the final gff file generated containig the mobile genetic elements only (mobilome_nogenes.gff).	
-publish_all    <True>:	Write the preprocessing and prediction results in the output folder. When set to `False`, only final outputs after integration will be writen.
-```
+MAP runs three independent functional annotation subworkflows after mobilome prediction: **PATHOFACT2** (toxins/virulence), **AMR_ANNOTATION** (AMRFinderPlus, DeepARG, RGI), and **BGC_ANNOTATION** (SanntiS, GECCO, antiSMASH). Each tool can be skipped individually.
+
+See [docs/usage.md](docs/usage.md) for skip flags, mobilome-only mode, and annotation manifest reuse.
 
 <a name="out"></a>
 
 ## Outputs
 
-Results will be written by default in the `results` directory unless the `--outdir` option is used. There, you will find the following outputs:
+Results are written to `--outdir` (default: `results/`).
 
 ```bash
 sample/
+├── sample_combined_report.tsv
 ├── sample_discarded_mge.txt
-├── sample_mobilome.fasta
+├── sample_mobilome.fasta.gz
 ├── sample_overlap_report.txt
-├── gff
+├── gff/
 │   ├── sample_mobilome.gff.gz
-│   ├── sample_mobilome_clean.gff.gz
-│   ├── sample_mobilome_extra.gff.gz
-│   └── sample_mobilome_full.gff.gz
-├── prediction
-│   ├── genomad
+│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + matching CDSs
+│   ├── sample_user_mobilome_clean.gff.gz.csi
+│   ├── sample_user_mobilome_clean.gff.gz.gzi
+│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
+│   ├── sample_user_mobilome_extra.gff.gz.csi
+│   ├── sample_user_mobilome_extra.gff.gz.gzi
+│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from user GFF
+│   ├── sample_user_mobilome_full.gff.gz.csi
+│   └── sample_user_mobilome_full.gff.gz.gzi
+├── prediction/
+│   ├── amr_genes/
+│   │   ├── integrated_sample.gff
+│   │   ├── amrfinderplus/
+│   │   │   └── sample.tsv
+│   │   ├── deeparg/
+│   │   │   └── sample.mapping.ARG
+│   │   └── rgi/
+│   │       └── sample.txt
+│   ├── bgcs/
+│   │   ├── sample_bgcs.gff
+│   │   ├── sample_bgcs.json
+│   │   ├── antismash/
+│   │   │   └── sample_antismash.gff
+│   │   ├── gecco/
+│   │   │   └── sample.gff
+│   │   └── sanntis/
+│   │       └── sample_sanntis.gff.gz
+│   ├── compositional_outliers/
+│   │   └── sample_100kb_contigs.1.bed
+│   ├── genomad/
 │   │   ├── sample_5kb_contigs_plasmid_summary.tsv
 │   │   └── sample_5kb_contigs_virus_summary.tsv
-│   ├── icefinder2lite
+│   ├── icefinder2lite/
 │   │   ├── sample_ice_genes.tsv
 │   │   └── sample_ices.tsv
-│   ├── integronfinder
-│   │   ├── sample_100kb_contigs.summary.summary
-│   │   └── contig.gbk
-│   ├── isescan
+│   ├── integronfinder/
+│   │   ├── sample_100kb_contigs.summary
+│   │   └── contig_1.gbk
+│   ├── interproscan/
+│   │   └── sample.tsv.gz
+│   ├── isescan/
 │   │   └── sample_1kb_contigs.fasta.tsv
-│   ├── virify_filter
+│   ├── virify_filter/
 │   │   └── sample_virify_hq.gff
-│   └── compositional_outliers_results
-│       └── sample.merged.bed
-└── preprocessing
+│   └── virulence/
+│       └── sample_pathofact2.gff
+└── preprocessing/
     ├── sample_1kb_contigs.fasta
     ├── sample_5kb_contigs.fasta
     ├── sample_100kb_contigs.fasta
     └── sample_contigID.map
 ```
-
-If `--publish_all` option is set to FALSE (default is TRUE), the output directory structure will look like:
-```bash
+When running with the flag `publish_all false`, the expected outputs are:
+```
 sample/
+├── sample_combined_report.tsv
 ├── sample_discarded_mge.txt
-├── sample_mobilome.fasta
+├── sample_mobilome.fasta.gz
 ├── sample_overlap_report.txt
-└── gff
+└── gff/
     ├── sample_mobilome.gff.gz
-    ├── sample_[user]_mobilome_clean.gff.gz
-    ├── sample_[user]_mobilome_extra.gff.gz
-    └── sample_[user]_mobilome_full.gff.gz
+    ├── sample_user_mobilome_clean.gff.gz
+    ├── sample_user_mobilome_clean.gff.gz.csi
+    ├── sample_user_mobilome_clean.gff.gz.gzi
+    ├── sample_user_mobilome_extra.gff.gz
+    ├── sample_user_mobilome_extra.gff.gz.csi
+    ├── sample_user_mobilome_extra.gff.gz.gzi
+    ├── sample_user_mobilome_full.gff.gz
+    ├── sample_user_mobilome_full.gff.gz.csi
+    └── sample_user_mobilome_full.gff.gz.gzi
 ```
 
-The file `discarded_mge.txt` contains a list of predictions that were discarded, along with the reason for their exclusion. Possible reasons include:
-
-1. 'mge < 500bp' Discarded by length.
-2. 'no_cds' If there are no genes encoded in the prediction.
-3. 'tRNAs_in_window' There are tRNA genes in a compositional outlier
-4. 'CO_overlap_with_MGE' Compositional outlier overlapping other MGE
-
-The file `overlapping_integrons.txt` is a report of long-MGEs with overlapping coordinates. No predictions are discarded in this case.
-
-The mobilome prediction IDs are build as follows:
-
-1. Contig ID
-2. MGE type:
-   flanking_site
-   recombination_site
-   prophage
-   viral_sequence
-   plasmid
-   phage_plasmid
-   integron
-   conjugative_integron
-   insertion_sequence
-   compositional_outlier
-3. Start and end coordinates separated by ':'
-
-Example:
-
-```bash
->contig_id|mge_type-start:end
-```
-
-When `user_gff` of `-run_prokka`, CDS with a coverage >= 0.9 in the boundaries of a predicted MGE is considered as part of the mobilome and labelled accordingly in the attributes field under the key `location` in the `mobilome_full.gff` output file.
-
-The labels used in the Type column of the GFF file correspond to the following nomenclature according to the [Sequence Ontology resource](http://www.sequenceontology.org/browser/current_svn/term/SO:0000001) when possible:
-
-| Type in gff file        | Sequence ontology ID                                                              | Element description                                                         | Reporting tool            |
-| ----------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------- |
-| insertion_sequence      | [SO:0000973](http://www.sequenceontology.org/browser/current_svn/term/SO:0000973) | Insertion sequence                                                          | ISEScan                   |
-| inverted_repeat_element | [SO:0000481](http://www.sequenceontology.org/browser/current_svn/term/SO:0000481) | Inverted Repeat (IR) flanking insertion sequences or compositional outliers | ISEScan, MAP              |
-| integron                | [SO:0000365](http://www.sequenceontology.org/browser/current_svn/term/SO:0000365) | Integrative mobilizable element                                             | IntegronFinder, ICEfinder |
-| attC_site               | [SO:0000950](http://www.sequenceontology.org/browser/current_svn/term/SO:0000950) | Integration site of DNA integron                                            | IntegronFinder            |
-| conjugative_integron    | [SO:0000371](http://www.sequenceontology.org/browser/current_svn/term/SO:0000371) | Integrative Conjugative Element                                             | ICEfinder                 |
-| direct_repeat           | [SO:0000314](http://www.sequenceontology.org/browser/current_svn/term/SO:0000314) | Flanking regions on mobilizable elements                                    | ICEfinder, MAP            |
-| prophage                | [SO:0001006](http://www.sequenceontology.org/browser/current_svn/term/SO:0001006) | Temperate phage                                                             | geNomad, VIRify           |
-| viral_sequence          | [SO:0001041](http://www.sequenceontology.org/browser/current_svn/term/SO:0001041) | Viral genome fragment                                                       | geNomad, VIRify           |
-| plasmid                 | [SO:0000155](http://www.sequenceontology.org/browser/current_svn/term/SO:0000155) | Plasmid                                                                     | geNomad                   |
-| compositional_outlier   |                                                                                   | Non-autonomous elements detected in contigs > 100 kb long                   | MAP                       |
+See [docs/outputs.md](docs/outputs.md) for the full directory layout, discarded prediction reasons, GFF feature type definitions, and combined report column reference.
 
 <a name="test"></a>
 
 ## Tests
 
-Nextflow tests are executed with [nf-test](https://github.com/askimed/nf-test). It takes around 9 minutes to run.
-
-Run:
+Nextflow integration tests use [nf-test](https://github.com/askimed/nf-test). The full suite takes ~10 minutes.
 
 ```bash
-$ cd mobilome-annotation-pipeline/
-$ nf-test test --profile test,singularity
+cd mobilome-annotation-pipeline/
+nf-test test --profile test,singularity
+```
+
+Individual test tags: `positive`, `negative`, `pathofact`.
+
+Python unit tests for `bin/` scripts use [pytest](https://pytest.org/):
+
+```bash
+task setup-venv   # once
+task test
 ```
 
 ## Development Tasks
 
-This project uses [Task](https://taskfile.dev/) to manage common development tasks and [uv](https://docs.astral.sh/uv/) for Python virtual environment management. The available tasks are:
+This project uses [Task](https://taskfile.dev/) and [uv](https://docs.astral.sh/uv/) for development workflow management.
 
 ```bash
-# Setup and dependencies
-$ task setup-venv          # Bootstrap Python virtual environment with uv and install dependencies
-
-# Testing
-$ task test                # Run all tests with pytest
-$ task test-verbose        # Run tests with verbose output
-$ task test-coverage       # Run tests with coverage report (generates HTML report)
-$ task test-specific -- <pattern>  # Run specific test file or pattern
-
-# Utilities
-$ task clean               # Clean up virtual environment
-```
-
-To see all available tasks, run:
-
-```bash
-$ task --list
+task setup-venv              # Bootstrap Python virtual environment
+task test                    # Run all pytest tests
+task test-verbose            # Run pytest with verbose output
+task test-coverage           # Run pytest with HTML coverage report
+task test-specific -- <pat>  # Run a specific test file or pattern
+task clean                   # Remove virtual environment
 ```
 
 <a name="license"></a>
@@ -285,9 +221,9 @@ $ task --list
 
 This pipeline includes scripts derived from or inspired by ICEfinder2 algorithms and methods. The following scripts contain code adapted from ICEfinder2:
 
-- `bin/ice_boundary_refinement.py` - ICE boundary refinement and direct repeat processing
-- `bin/map_tools/icefinder_process.py` - ICE result processing and data formatting
-- `bin/prescan_to_fasta.py` - ICE prescanning and candidate detection methods
+- `bin/ice_boundary_refinement.py` — ICE boundary refinement and direct repeat processing
+- `bin/map_tools/icefinder_process.py` — ICE result processing and data formatting
+- `bin/prescan_to_fasta.py` — ICE prescanning and candidate detection methods
 
 **ICEfinder2 License**: These algorithms are used under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
 
@@ -298,11 +234,13 @@ This pipeline includes scripts derived from or inspired by ICEfinder2 algorithms
 
 ## Citation
 
-The Mobilome Annotation Pipeline parses and integrates the output of the following tools and DBs sorted alphabetically:
+An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
-- geNomad v1.11.1 [Camargo et al., Nature Biotechnology, 2023](https://doi.org/10.1038/s41587-023-01953-y)
-- ICEfinder v2.0 [Wang et al., Nucleic Acids Res, 2024](https://academic.oup.com/nar/article/52/D1/D732/7327075)
-- IntegronFinder2 v2.0.6 [Néron et al., Microorganisms, 2022](https://doi.org/10.3390/microorganisms10040700)
-- ISEScan v1.7.3 [Xie et al., Bioinformatics, 2017](https://doi.org/10.1093/bioinformatics/btx433)
-- Prodigal v2.6.3 [Hyatt et al., Bioinformatics, 2010](https://doi.org/10.1186/1471-2105-11-119)
-- VIRify v3.0.0 [Rangel-Pineros et al., PLoS Comput Biol, 2023](https://doi.org/10.1371/journal.pcbi.1011422)
+This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/main/LICENSE).
+
+> **The nf-core framework for community-curated bioinformatics pipelines.**
+>
+> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
+>
+> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
+

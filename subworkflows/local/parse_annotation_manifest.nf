@@ -20,11 +20,10 @@ workflow PARSE_ANNOTATION_MANIFEST {
     }
     def ch_manifest = Channel.fromList(manifest_list)
 
-    // multiMap broadcasts every row to all five named output channels.
+    // multiMap broadcasts every row to all four named output channels.
     // Multiple .map{} calls on a single queue channel would round-robin items
     // between consumers, causing each tool channel to receive only a fraction.
-    def ch_split = ch_manifest.multiMap { meta, ips_tsv, amrfinder_tsv, antismash_gff, gecco_gff, sanntis_gff ->
-        ips_tsv:       tuple(meta, ips_tsv       ?: [])
+    def ch_split = ch_manifest.multiMap { meta, amrfinder_tsv, antismash_gff, gecco_gff, sanntis_gff ->
         amrfinder_tsv: tuple(meta, amrfinder_tsv ?: [])
         antismash_gff: tuple(meta, antismash_gff ?: [])
         gecco_gff:     tuple(meta, gecco_gff     ?: [])
@@ -32,7 +31,6 @@ workflow PARSE_ANNOTATION_MANIFEST {
     }
 
     emit:
-    ips_tsv       = ch_split.ips_tsv.filter       { _meta, f -> f != [] }
     amrfinder_tsv = ch_split.amrfinder_tsv.filter { _meta, f -> f != [] }
     antismash_gff = ch_split.antismash_gff.filter { _meta, f -> f != [] }
     gecco_gff     = ch_split.gecco_gff.filter     { _meta, f -> f != [] }

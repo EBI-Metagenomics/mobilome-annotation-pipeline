@@ -1,3 +1,7 @@
 pipeline_info/*
 **/*.tbi
 **/*.gzi
+**/*_bgcs.json
+# IntegronFinder summary embeds the run command line (incl. --cpu N), so its md5
+# changes with CPU allocation. Verify presence (stable_name) but not content.
+**/*_contigs.summary

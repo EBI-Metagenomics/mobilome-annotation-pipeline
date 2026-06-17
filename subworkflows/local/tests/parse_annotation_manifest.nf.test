@@ -21,7 +21,6 @@ nextflow_workflow {
 
         then {
             assert workflow.success
-            assert workflow.out.ips_tsv.size()       == 0
             assert workflow.out.amrfinder_tsv.size() == 0
             assert workflow.out.antismash_gff.size() == 0
             assert workflow.out.gecco_gff.size()     == 0
