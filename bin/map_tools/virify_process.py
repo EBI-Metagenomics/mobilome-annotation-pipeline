@@ -24,6 +24,12 @@ CHECKV_FIELDS = [
 ]
 
 def mge_data_parser(mge_data):
+```
+    Extracting genomad predictions in three different structures:
+        viral_dic -> Viral genomes in a single contig
+        prophages_dic -> Prophages
+        plasmids_list -> Plasmid contigs
+```
     plasmids_list = []
     prophages_dic, prophages_ids, viral_dic = {}, {}, {}
     for mge in mge_data:
@@ -46,6 +52,10 @@ def mge_data_parser(mge_data):
 
 
 def virify_reader(virify_gff, inv_names_equiv, mge_data):
+    ```
+    Parsing virify predictions. We are storing the virify_prots
+    and virify_with_viphogs to use them to replace genomad overlapping predictions.
+    ```
     virify_predictions, virify_prots = {}, {}
     mge_counter = 0
     virify_with_viphogs = set()
@@ -96,10 +106,11 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
                     prot_location = (contig, int(start), int(end))
                     virify_prots[prot_location] = prot_viphog
 
-    ## Parsing the mge_data
+    ## Parsing the mge_data to retrieve genomad predictions
     (viral_dic, prophages_dic, prophages_ids, plasmids_list) = mge_data_parser(mge_data)
 
-    ## Removing redundancy on viral genome fragments to keep only one entry as plasmid_phage
+    ## Removing redundancy on viral genomes to keep only one entry as plasmid_phage
+    ## This applies only for viral genomes, not for prophages
     to_discard = []
     virify_plasmids = {}
 
@@ -114,7 +125,7 @@ def virify_reader(virify_gff, inv_names_equiv, mge_data):
             virify_plasmids[v_contig] = virify_predictions[phage]
             to_discard.append(phage)
 
-    # Removing viral-phages from virify list
+    # Removing viral-phages from virify list to avoid double entry in the final GFF
     for phage in to_discard:
         del virify_predictions[phage]
 
