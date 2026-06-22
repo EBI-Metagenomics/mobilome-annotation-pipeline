@@ -24,12 +24,12 @@ CHECKV_FIELDS = [
 ]
 
 def mge_data_parser(mge_data):
-```
+    """
     Extracting genomad predictions in three different structures:
         viral_dic -> Viral genomes in a single contig
         prophages_dic -> Prophages
         plasmids_list -> Plasmid contigs
-```
+    """
     plasmids_list = []
     prophages_dic, prophages_ids, viral_dic = {}, {}, {}
     for mge in mge_data:
@@ -52,10 +52,10 @@ def mge_data_parser(mge_data):
 
 
 def virify_reader(virify_gff, inv_names_equiv, mge_data):
-    ```
+    """
     Parsing virify predictions. We are storing the virify_prots
     and virify_with_viphogs to use them to replace genomad overlapping predictions.
-    ```
+    """
     virify_predictions, virify_prots = {}, {}
     mge_counter = 0
     virify_with_viphogs = set()
