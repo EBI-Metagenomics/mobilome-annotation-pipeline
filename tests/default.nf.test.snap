@@ -220,9 +220,9 @@
                 "pos_test/preprocessing/pos_test_contigID.map"
             ],
             [
-                "pos_test_mobilome.gff.gz:md5,d5c7c01ab1dda872de82b20be0df54ee",
+                "pos_test_mobilome.gff.gz:md5,97e7cc8970662747312bd980e204ab09",
                 "pos_test_discarded_mge.txt:md5,a51ab77df5bce71176b9b1e047d05c9a",
-                "pos_test_mobilome.fasta.gz:md5,66e845e8ec6ecf8384205be75dd95d67",
+                "pos_test_mobilome.fasta.gz:md5,0e1163f0f09a2f6bf560e0d93c834da7",
                 "pos_test_overlap_report.txt:md5,696323e2421f64ea4f9b6a9e349e3079",
                 "pos_test_100kb_contigs.1.bed:md5,c33dbcfc010cc5a3beadcd4bf86e1832",
                 "checkv_quality_summary.tsv:md5,1c40ba9f848a172866b88359fd935cf6",
@@ -246,6 +246,6 @@
             "nf-test": "0.9.3",
             "nextflow": "26.04.4"
         },
-        "timestamp": "2026-06-19T14:57:21.675841"
+        "timestamp": "2026-06-22T11:17:26.027888"
     }
 }

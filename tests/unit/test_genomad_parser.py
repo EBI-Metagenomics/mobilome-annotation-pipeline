@@ -96,13 +96,19 @@ def test_missing_checkv_entry_exits(tmp_path):
     assert str(excinfo.value) == "No checkV values for record contig_14"
 
 
-def test_low_quality_record_is_filtered(tmp_path):
-    """A record present in CheckV but failing quality_decision is dropped."""
+def test_low_quality_record_is_retained_with_attrs(tmp_path):
+    """A record passing the geNomad score cutoff is kept regardless of its
+    CheckV quality tier; the CheckV values are embedded in the attributes so the
+    user can judge them. We no longer filter on CheckV (database bias)."""
     geno_out = _write_summary(tmp_path, [VIRAL])
     quality = {"contig_14": _checkv("Low-quality", 0)}
 
     mge_data = genomad_viral(geno_out, {}, quality)
-    assert mge_data == {}
+
+    assert "vir1_1" in mge_data
+    _, description, _ = mge_data["vir1_1"]
+    assert "checkv_quality=Low-quality" in description
+    assert "checkv_viral_genes=0" in description
 
 
 def test_low_score_record_skips_checkv_lookup(tmp_path):
