@@ -98,10 +98,13 @@ def test_mge_integrator_gff_matches_fixture(tmp_path):
 
 
 def test_mge_integrator_all_viruses_present(tmp_path):
-    """Quality-passing contigs from the virus summary appear as viral_sequence entries.
+    """Every score-passing contig from the virus summary appears as a
+    viral_sequence entry.
 
-    MGYG000518629_154 (contig_2, 0 viral genes, Low-quality) is intentionally
-    absent — it does not pass the quality_decision filter.
+    CheckV is no longer used to filter (to avoid discarding novelty due to
+    database bias); only geNomad's own score threshold gates the predictions.
+    MGYG000518629_154 (contig_2, 0 viral genes, Low-quality) is therefore
+    retained, with its CheckV values embedded in the attributes.
     """
     result = _run_integrator([], tmp_path)
     assert result.returncode == 0, result.stderr
@@ -116,11 +119,19 @@ def test_mge_integrator_all_viruses_present(tmp_path):
         "MGYG000535607_58",
         "MGYG000535607_34",
         "MGYG000518629_136",
+        "MGYG000518629_154",
     ]
     for contig_id in passing_contigs:
         assert contig_id in content, f"{contig_id} missing from mobilome GFF"
 
-    assert "MGYG000518629_154" not in content, "Low-quality contig (0 viral genes) should be filtered"
+    # Previously dropped by the CheckV quality_decision filter; now kept with its
+    # CheckV attributes so the user can judge it.
+    low_quality_line = next(
+        l for l in content.splitlines()
+        if "MGYG000518629_154" in l and "\tviral_sequence\t" in l
+    )
+    assert "checkv_quality=Low-quality" in low_quality_line
+    assert "checkv_viral_genes=0" in low_quality_line
 
 
 def test_mge_integrator_checkv_attributes_in_gff(tmp_path):
