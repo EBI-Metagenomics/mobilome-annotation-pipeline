@@ -16,7 +16,6 @@
 
 import os.path
 import sys
-from virify_qc import quality_decision
 
 
 def genomad_viral(geno_out, mge_data, quality):
@@ -52,18 +51,14 @@ def genomad_viral(geno_out, mge_data, quality):
                 quality_contig = quality.get(pred_id, "")
                 if not quality_contig:
                     sys.exit(f"No checkV values for record {pred_id}")
+                # CheckV values are appended to the attributes for the user to
+                # judge; we deliberately do NOT filter on them, to avoid
+                # discarding novel viral sequences due to CheckV database bias.
+                # geNomad's own score threshold (0.8) is the only QC gate here.
                 description += ';' + quality_contig
-                qc_attrs = dict(
-                    kv.split("=", 1) for kv in quality_contig.split(";") if "=" in kv
-                )
-                if quality_decision(
-                    qc_attrs['checkv_quality'],
-                    int(qc_attrs['checkv_viral_genes']),
-                    float(qc_attrs['checkv_kmer_freq'])
-                ):
-                    coord = (start, end)
-                    value = (contig, description, coord)
-                    mge_data[mge_id] = value
+                coord = (start, end)
+                value = (contig, description, coord)
+                mge_data[mge_id] = value
 
     return mge_data
 
