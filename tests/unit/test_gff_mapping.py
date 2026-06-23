@@ -184,8 +184,9 @@ def test_passenger_protein_detection(tmp_path):
     - Protein from 1500-1800 (length 300)
     - MGE from 1000-2000
     - Overlap: 300bp, coverage: 300/300 = 100% > 75% threshold
-    - Therefore prot001 should be marked as passenger
-    - prot002 (no overlap) should NOT be marked as passenger
+    - Therefore prot001 should be marked as passenger and kept in the clean output
+    - prot002 (no overlap) is not a passenger, so it must be excluded from clean
+      entirely (it remains in the full output)
     """
     user_gff = tmp_path / "user.gff"
     user_content = """##gff-version 3
@@ -213,10 +214,60 @@ contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot002
 
     lines = (tmp_path / "output_user_mobilome_clean.gff").read_text().splitlines()
 
+    # Clean carries a minimal header
+    assert lines[0] == "##gff-version 3"
+
     # Check that prot001 is marked as passenger (has mge_location)
     prot001_line = [l for l in lines if "prot001" in l][0]
     assert "mge_location=virus" in prot001_line
 
-    # Check that prot002 is NOT marked as passenger
-    prot002_line = [l for l in lines if "prot002" in l][0]
-    assert "mge_location" not in prot002_line
+    # prot002 has no MGE overlap, so it must NOT appear in the clean output at all
+    assert not any("prot002" in l for l in lines)
+
+    # ...but the non-passenger protein is still preserved in the full output
+    full_lines = (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
+    assert any("prot002" in l for l in full_lines)
+
+
+def test_header_routing(tmp_path):
+    """
+    clean and extra carry only a minimal `##gff-version 3` header; full preserves the
+    user GFF's full header, including any `##sequence-region` lines.
+    """
+    user_gff = tmp_path / "user.gff"
+    user_content = """##gff-version 3
+##sequence-region contig1 1 10000
+contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001
+"""
+    user_gff.write_text(user_content)
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff),
+        str(output_prefix),
+        {},
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+    )
+
+    # clean and extra: header is exactly the minimal version line
+    for name in ("clean", "extra"):
+        content = (tmp_path / f"output_user_mobilome_{name}.gff").read_text()
+        header = [l for l in content.splitlines() if l.startswith("#")]
+        assert header == ["##gff-version 3"]
+
+    # full: keeps the full user header, sequence-region included
+    full_header = [
+        l
+        for l in (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
+        if l.startswith("#")
+    ]
+    assert "##gff-version 3" in full_header
+    assert "##sequence-region contig1 1 10000" in full_header
