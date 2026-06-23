@@ -12,13 +12,17 @@ sample/
 ├── sample_overlap_report.txt
 ├── gff/
 │   ├── sample_mobilome.gff.gz
-│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + matching CDSs
+│   │   # When user proteins+GFF are provided, the three derived files are named
+│   │   # sample_user_mobilome_{clean,extra,full}.gff.gz (baseline: the user GFF).
+│   │   # Otherwise they are named sample_mobilome_{clean,extra,full}.gff.gz
+│   │   # (baseline: the Prodigal/tRNA genes GFF). Each has matching .csi and .gzi indexes.
+│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + genes covered by an MGE
 │   ├── sample_user_mobilome_clean.gff.gz.csi
 │   ├── sample_user_mobilome_clean.gff.gz.gzi
 │   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
 │   ├── sample_user_mobilome_extra.gff.gz.csi
 │   ├── sample_user_mobilome_extra.gff.gz.gzi
-│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from user GFF
+│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from the genes GFF
 │   ├── sample_user_mobilome_full.gff.gz.csi
 │   └── sample_user_mobilome_full.gff.gz.gzi
 ├── prediction/
@@ -100,6 +104,8 @@ GFF feature types and their Sequence Ontology mappings:
 `sample_combined_report.tsv` is produced by the PathFact2 integrator step, which merges PathoFact2, AMR, mobilome, biosynthetic gene cluster (BGC), and InterProScan (IPS) annotations.
 
 **Seed proteins** — rows in the report — come from PathoFact2 and/or AMR GFF files. If both inputs are absent or empty, no report is generated. BGC annotations are only resolved for seed proteins; BGC-only or MGE-only proteins are not included as rows. MGE assignment requires ≥90% CDS overlap with a mobilome feature on the same contig. IPS input is optional; only SignalP entries are retained. Missing values are reported as `-`.
+
+Each protein's `summary_string` is also carried into the derived `*_mobilome_{clean,extra,full}.gff.gz` files as a `pathofact2=<summary_string>` attribute on the matching CDS.
 
 | Column | Description |
 |---|---|

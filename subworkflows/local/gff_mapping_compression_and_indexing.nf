@@ -12,7 +12,7 @@ include { GFF_MAPPING } from '../../modules/local/gff_mapping.nf'
 
 workflow GFF_MAPPING_COMPRESSION_AND_INDEXING {
     take:
-    ch_gff_inputs // tuple(meta, mobilome_gff, user_gff, combined_report)
+    ch_gff_inputs // tuple(meta, mobilome_gff, genes_gff, combined_report, user_proteins)
 
     main:
     /*

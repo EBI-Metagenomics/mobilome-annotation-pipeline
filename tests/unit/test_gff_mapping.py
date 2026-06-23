@@ -376,3 +376,38 @@ def test_no_pathofact2_without_report(tmp_path):
     for name in ("clean", "extra", "full"):
         content = (tmp_path / f"output_user_mobilome_{name}.gff").read_text()
         assert "pathofact2=" not in content
+
+
+def test_output_naming_infix(tmp_path):
+    """
+    output_infix controls the output filenames: the default keeps the historical
+    `*_user_mobilome_*` names; `_mobilome_` (Prodigal/tRNA baseline) drops the `_user`.
+    """
+    genes_gff = tmp_path / "genes.gff"
+    genes_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001\n"
+    )
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+
+    # No-user baseline -> *_mobilome_* (no _user)
+    no_user_prefix = tmp_path / "nouser"
+    gff_updater(
+        str(genes_gff), str(no_user_prefix), {}, mobilome_annot, mges_dict, mob_types,
+        output_infix="_mobilome_",
+    )
+    for kind in ("clean", "extra", "full"):
+        assert (tmp_path / f"nouser_mobilome_{kind}.gff").exists()
+        assert not (tmp_path / f"nouser_user_mobilome_{kind}.gff").exists()
+
+    # Default keeps the user naming
+    user_prefix = tmp_path / "user"
+    gff_updater(
+        str(genes_gff), str(user_prefix), {}, mobilome_annot, mges_dict, mob_types,
+    )
+    for kind in ("clean", "extra", "full"):
+        assert (tmp_path / f"user_user_mobilome_{kind}.gff").exists()

@@ -410,19 +410,30 @@ workflow MOBILOMEANNOTATION {
 
     COMBINEREPORTER( ch_combinereporter_input )
 
-    // Appending the mobilome annotation to the user gff when provided, then compress and index (.gzi and .csi).
+    // Append the mobilome annotation onto a genes GFF, then compress and index (.gzi and .csi).
+    // Runs for EVERY sample: the genes baseline is the user GFF when provided (outputs named
+    // *_user_mobilome_*), otherwise the Prodigal/tRNA merged GFF (outputs named *_mobilome_*).
     // Runs after COMBINEREPORTER so each protein's combined-report summary_string can be carried
-    // into the GFFs as a `pathofact2=` attribute.
-    // Use remainder:true to avoid a strict-join mismatch when some samples have no user proteins.
-    // Remainder items (no user proteins) emit (meta, mobilome_gff, null) — one null for the
-    // entire missing right side — so it[2] is null for those and non-null for matched samples.
+    // into the GFFs as a `pathofact2=` attribute. The mobilome ⋈ merged_gff left side spans all
+    // samples, so the optional COMBINEREPORTER join only yields left-only remainders (report null).
     GFF_MAPPING_COMPRESSION_AND_INDEXING(
         INTEGRATOR.out.mobilome_gff
+            .join(TRNAS_INTEGRATOR.out.merged_gff)
             .join(ch_user_proteins, remainder: true)
-            .filter { it[2] != null }
-            .map { meta, mobilome_gff, user_gff, _user_faa -> tuple(meta, mobilome_gff, user_gff) }
+            .map { row ->
+                // remainder:true appends a single null for the whole missing right side, so
+                // unmatched rows are [meta, mobilome, prodigal_gff, null] and matched rows are
+                // [meta, mobilome, prodigal_gff, user_gff, user_faa].
+                def (meta, mobilome_gff, prodigal_gff) = [row[0], row[1], row[2]]
+                def user_gff = row[3]
+                user_gff
+                    ? tuple(meta, mobilome_gff, user_gff, true)
+                    : tuple(meta, mobilome_gff, prodigal_gff, false)
+            }
             .join(COMBINEREPORTER.out.tsv, remainder: true)
-            .map { meta, mobilome_gff, user_gff, report -> tuple(meta, mobilome_gff, user_gff, report ?: []) }
+            .map { meta, mobilome_gff, genes_gff, user_proteins, report ->
+                tuple(meta, mobilome_gff, genes_gff, report ?: [], user_proteins)
+            }
     )
     ch_versions = ch_versions.mix(GFF_MAPPING_COMPRESSION_AND_INDEXING.out.versions)
 

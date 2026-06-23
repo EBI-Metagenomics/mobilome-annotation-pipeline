@@ -224,44 +224,47 @@ def parse_combined_report(report_file):
 
 def gff_updater(
     user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types,
-    summary_map=None,
+    summary_map=None, output_infix="_user_mobilome_",
 ):
-    """Adding the mobilome predictions to the user file (handles compressed input/output)."""
+    """Adding the mobilome predictions to the user file (handles compressed input/output).
+
+    output_infix controls the output file naming: "_user_mobilome_" for user-provided
+    genes, "_mobilome_" when the baseline is the Prodigal/tRNA genes GFF.
+    """
 
     summary_map = summary_map or {}
+
+    extra_file = f"{output_prefix}{output_infix}extra.gff"
+    full_file = f"{output_prefix}{output_infix}full.gff"
+    clean_file = f"{output_prefix}{output_infix}clean.gff"
 
     # Check if input file exists
     if not os.path.exists(user_gff):
         logger.error(f"User GFF file not found: {user_gff}")
         sys.exit(1)
-    
+
     # Check if input file has content
     if is_file_empty(user_gff):
         logger.warning(f"User GFF file is empty: {user_gff}")
         # Still create empty output files
-        output_files = [
-            f"{output_prefix}_user_mobilome_extra.gff",
-            f"{output_prefix}_user_mobilome_full.gff",
-            f"{output_prefix}_user_mobilome_clean.gff"
-        ]
-        for output_file in output_files:
+        for output_file in (extra_file, full_file, clean_file):
             with open_file(output_file, 'w') as f:
                 pass  # Create empty file
         logger.info(f"Created empty output files with prefix: {output_prefix}")
         return
-    
+
     logger.info(f"Starting GFF update process with file: {user_gff}")
-    
+
     used_contigs = []
     processed_lines = 0
     annotation_lines = 0
     proteins_with_extra_annot = 0
     passenger_proteins = 0
-    
+
     with open_file(user_gff) as input_table, \
-         open_file(f"{output_prefix}_user_mobilome_extra.gff", "w") as output_extra, \
-         open_file(f"{output_prefix}_user_mobilome_full.gff", "w") as output_full, \
-         open_file(f"{output_prefix}_user_mobilome_clean.gff", "w") as output_clean:
+         open_file(extra_file, "w") as output_extra, \
+         open_file(full_file, "w") as output_full, \
+         open_file(clean_file, "w") as output_clean:
 
         logger.info(f"Output files created with prefix: {output_prefix}")
 
@@ -360,13 +363,13 @@ def gff_updater(
     logger.info(f"  - Proteins with extra annotations: {proteins_with_extra_annot}")
     logger.info(f"  - Passenger proteins identified: {passenger_proteins}")
     logger.info(
-        f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff.gz"
+        f"  - Output files created: {output_prefix}{output_infix}[extra|full|clean].gff.gz"
     )
 
     # Sort output files
-    sort_gff_file(f"{output_prefix}_user_mobilome_extra.gff")
-    sort_gff_file(f"{output_prefix}_user_mobilome_full.gff")
-    sort_gff_file(f"{output_prefix}_user_mobilome_clean.gff")
+    sort_gff_file(extra_file)
+    sort_gff_file(full_file)
+    sort_gff_file(clean_file)
     logger.info("Output files sorted by contig and position")
 
 def main():
@@ -399,6 +402,13 @@ def main():
              "each protein is appended to its CDS as a `pathofact2=` attribute.",
         required=False,
     )
+    parser.add_argument(
+        "--user_proteins",
+        action="store_true",
+        help="The genes GFF comes from the user. Outputs are named "
+             "`{prefix}_user_mobilome_*`; without this flag (Prodigal/tRNA baseline) they "
+             "are named `{prefix}_mobilome_*`.",
+    )
     args = parser.parse_args()
 
     ## Calling functions
@@ -410,7 +420,8 @@ def main():
     # Optional per-protein summary strings from the combined report
     summary_map = parse_combined_report(args.combined_report) if args.combined_report else {}
 
-    # Adding the mobilome predictions to the user file
+    # Adding the mobilome predictions to the genes GFF
+    output_infix = "_user_mobilome_" if args.user_proteins else "_mobilome_"
     if args.user_gff:
         gff_updater(
             args.user_gff,
@@ -420,6 +431,7 @@ def main():
             mges_dict,
             mob_types,
             summary_map,
+            output_infix,
         )
 
 if __name__ == "__main__":
