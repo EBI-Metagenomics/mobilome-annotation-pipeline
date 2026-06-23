@@ -1,11 +1,20 @@
 {
     "Negative test of the mobile elements detection skipping pathofact annotation. Expect empty gff output file": {
         "content": [
-            16,
+            23,
             [
                 "neg_test",
                 "neg_test/gff",
                 "neg_test/gff/neg_test_mobilome.gff.gz",
+                "neg_test/gff/neg_test_mobilome_clean.gff.gz",
+                "neg_test/gff/neg_test_mobilome_clean.gff.gz.csi",
+                "neg_test/gff/neg_test_mobilome_clean.gff.gz.gzi",
+                "neg_test/gff/neg_test_mobilome_extra.gff.gz",
+                "neg_test/gff/neg_test_mobilome_extra.gff.gz.csi",
+                "neg_test/gff/neg_test_mobilome_extra.gff.gz.gzi",
+                "neg_test/gff/neg_test_mobilome_full.gff.gz",
+                "neg_test/gff/neg_test_mobilome_full.gff.gz.csi",
+                "neg_test/gff/neg_test_mobilome_full.gff.gz.gzi",
                 "neg_test/neg_test_discarded_mge.txt",
                 "neg_test/neg_test_mobilome.fasta.gz",
                 "neg_test/neg_test_overlap_report.txt",
@@ -27,6 +36,12 @@
             ],
             [
                 "neg_test_mobilome.gff.gz:md5,df19e1b84ba6f691d20c72b397c88abf",
+                "neg_test_mobilome_clean.gff.gz:md5,df19e1b84ba6f691d20c72b397c88abf",
+                "neg_test_mobilome_clean.gff.gz.csi:md5,812c0d392568c42e03b6f375de8b6424",
+                "neg_test_mobilome_extra.gff.gz:md5,df19e1b84ba6f691d20c72b397c88abf",
+                "neg_test_mobilome_extra.gff.gz.csi:md5,812c0d392568c42e03b6f375de8b6424",
+                "neg_test_mobilome_full.gff.gz:md5,9eb24c75ce7bf249344222195faa1a3c",
+                "neg_test_mobilome_full.gff.gz.csi:md5,43c73f50d36a9f405cdc9cd8d94b8ee5",
                 "neg_test_discarded_mge.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "neg_test_mobilome.fasta.gz:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "neg_test_overlap_report.txt:md5,009fc7891415a47b1f07493101509b73",
@@ -43,9 +58,9 @@
         ],
         "meta": {
             "nf-test": "0.9.3",
-            "nextflow": "26.04.4"
+            "nextflow": "25.04.7"
         },
-        "timestamp": "2026-06-22T10:26:23.373596"
+        "timestamp": "2026-06-23T15:31:23.348048"
     },
     "Pathofact integration test with annotation manifest. Expected a report of proteins with relevant annotation": {
         "content": [
@@ -94,17 +109,17 @@
                 "pipeline_info"
             ],
             [
-                "MGYG000528118_sub_combined_report.tsv:md5,dbcefec6f4c4835ab454b3271f271329",
+                "MGYG000528118_sub_combined_report.tsv:md5,5d8ea449eae7e4657b939d9a143079e6",
                 "MGYG000528118_sub_discarded_mge.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "MGYG000528118_sub_mobilome.fasta.gz:md5,6c831a87595d8427b6c14fa64b7acd77",
                 "MGYG000528118_sub_overlap_report.txt:md5,009fc7891415a47b1f07493101509b73",
                 "MGYG000528118_sub_mobilome.gff.gz:md5,f778614ca5af1075d615603e15f0ac73",
-                "MGYG000528118_sub_user_mobilome_clean.gff.gz:md5,128bb0d40947bd857bb0f1302516d295",
-                "MGYG000528118_sub_user_mobilome_clean.gff.gz.csi:md5,eef4afec0f16303c7cdf31d347bfbcb7",
-                "MGYG000528118_sub_user_mobilome_extra.gff.gz:md5,8038ad6af6fb7e2c4de28c7ec725e213",
-                "MGYG000528118_sub_user_mobilome_extra.gff.gz.csi:md5,73119f6c69ab822c717d872360e8a68b",
-                "MGYG000528118_sub_user_mobilome_full.gff.gz:md5,e0679c05b086d325d2a37237619fff8a",
-                "MGYG000528118_sub_user_mobilome_full.gff.gz.csi:md5,553eedde3aba6a6fd5062d27973cf46f",
+                "MGYG000528118_sub_user_mobilome_clean.gff.gz:md5,c6c1ccca590acb0a508c3fdcbd86221f",
+                "MGYG000528118_sub_user_mobilome_clean.gff.gz.csi:md5,a60208f6f7ba778515dc43c902e1d862",
+                "MGYG000528118_sub_user_mobilome_extra.gff.gz:md5,cccda286885910f98bb97037885e62b5",
+                "MGYG000528118_sub_user_mobilome_extra.gff.gz.csi:md5,1f043d0369a4948a1088aaeafb68b716",
+                "MGYG000528118_sub_user_mobilome_full.gff.gz:md5,ae8e56c013a37e511d7b79765fb43430",
+                "MGYG000528118_sub_user_mobilome_full.gff.gz.csi:md5,1a71b486a8ee14f70e0093eb60b303a3",
                 "MGYG000528118_sub.txt:md5,601f0a16c0e999c2c5272d81f61bdf2f",
                 "MGYG000528118_sub_bgcs.gff:md5,85a5f38b14921b6256cf808d3e89c54b",
                 "MGYG000528118_sub_100kb_contigs.1.bed:md5,ce61c2fc1ece2d1738d7cbb8fe5583bd",
@@ -123,16 +138,25 @@
             "nf-test": "0.9.3",
             "nextflow": "25.04.7"
         },
-        "timestamp": "2026-06-23T09:30:58.663336"
+        "timestamp": "2026-06-23T15:33:48.809148"
     },
     "Positive test: mobilome-only run on the pos_test assembly covering IS, integron, ICE, plasmid, prophage (VIRify), and CO": {
         "content": [
-            25,
+            32,
             [
                 "pipeline_info",
                 "pos_test",
                 "pos_test/gff",
                 "pos_test/gff/pos_test_mobilome.gff.gz",
+                "pos_test/gff/pos_test_mobilome_clean.gff.gz",
+                "pos_test/gff/pos_test_mobilome_clean.gff.gz.csi",
+                "pos_test/gff/pos_test_mobilome_clean.gff.gz.gzi",
+                "pos_test/gff/pos_test_mobilome_extra.gff.gz",
+                "pos_test/gff/pos_test_mobilome_extra.gff.gz.csi",
+                "pos_test/gff/pos_test_mobilome_extra.gff.gz.gzi",
+                "pos_test/gff/pos_test_mobilome_full.gff.gz",
+                "pos_test/gff/pos_test_mobilome_full.gff.gz.csi",
+                "pos_test/gff/pos_test_mobilome_full.gff.gz.gzi",
                 "pos_test/pos_test_discarded_mge.txt",
                 "pos_test/pos_test_mobilome.fasta.gz",
                 "pos_test/pos_test_overlap_report.txt",
@@ -161,6 +185,12 @@
             ],
             [
                 "pos_test_mobilome.gff.gz:md5,2446229c56258ed546dbd266c90749fb",
+                "pos_test_mobilome_clean.gff.gz:md5,67a57b5be047843b63b8347916ffe027",
+                "pos_test_mobilome_clean.gff.gz.csi:md5,f7a115be3e7e1a4075ef62afa2299119",
+                "pos_test_mobilome_extra.gff.gz:md5,f159be0e6bf696daafe21ea4e15ceaed",
+                "pos_test_mobilome_extra.gff.gz.csi:md5,f47eb2fcc1ed57c8fe066bd356f7e506",
+                "pos_test_mobilome_full.gff.gz:md5,fba2d8f1f31cc8c1fd9f273d665b4084",
+                "pos_test_mobilome_full.gff.gz.csi:md5,ad4fde7b3e6b0cf82038cdccd773d843",
                 "pos_test_discarded_mge.txt:md5,cb95cbdbde35c62c9ec7a7f7322f3a9d",
                 "pos_test_mobilome.fasta.gz:md5,a2aef37a55f756b5a7ebc48065b165cc",
                 "pos_test_overlap_report.txt:md5,dd99d385dd3d942b3a9d2cd89ccd726b",
@@ -185,6 +215,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.04.7"
         },
-        "timestamp": "2026-06-22T15:58:11.28443"
+        "timestamp": "2026-06-23T15:30:25.357117"
     }
 }
