@@ -226,7 +226,11 @@ def gff_updater(
          open_file(f"{output_prefix}_user_mobilome_clean.gff", "w") as output_clean:
 
         logger.info(f"Output files created with prefix: {output_prefix}")
-        
+
+        # clean and extra carry a minimal header; full preserves the user GFF's full header.
+        output_clean.write("##gff-version 3\n")
+        output_extra.write("##gff-version 3\n")
+
         for line in input_table:
             processed_lines += 1
             l_line = line.rstrip().split("\t")
@@ -281,6 +285,7 @@ def gff_updater(
                                 passenger_flag = 1
                                 mge_loc.append(mge_label)
                 
+                # Only MGE-covered (passenger) CDSs go to clean.
                 if passenger_flag == 1:
                     passenger_proteins += 1
                     mge_loc = "mge_location=" + ",".join(mge_loc)
@@ -291,11 +296,9 @@ def gff_updater(
                         )
                     else:
                         output_clean.write(line.rstrip() + ";" + mge_loc + "\n")
-                else:
-                    output_clean.write(line.rstrip() + "\n")
             else:
-                # Non-annotation lines (headers, comments, etc.)
-                output_extra.write(line.rstrip() + "\n")
+                # Header/comment lines from the user GFF go to full only; clean and extra
+                # use the minimal header written above.
                 output_full.write(line.rstrip() + "\n")
     
     # Log processing statistics
