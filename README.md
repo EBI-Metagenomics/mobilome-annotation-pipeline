@@ -98,23 +98,13 @@ See [docs/usage.md](docs/usage.md) for skip flags, mobilome-only mode, and annot
 
 Results are written to `--outdir` (default: `results/`).
 
-```bash
-sample/
-├── sample_combined_report.tsv
-├── sample_discarded_mge.txt
-├── sample_mobilome.fasta.gz
-├── sample_overlap_report.txt
+```
+{sample}/
+├── {sample}_combined_report.tsv
+├── {sample}_discarded_mge.txt
+├── {sample}_mobilome.fasta.gz
+├── {sample}_overlap_report.txt
 ├── gff/
-│   ├── sample_mobilome.gff.gz
-│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + matching CDSs
-│   ├── sample_user_mobilome_clean.gff.gz.csi
-│   ├── sample_user_mobilome_clean.gff.gz.gzi
-│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
-│   ├── sample_user_mobilome_extra.gff.gz.csi
-│   ├── sample_user_mobilome_extra.gff.gz.gzi
-│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from user GFF
-│   ├── sample_user_mobilome_full.gff.gz.csi
-│   └── sample_user_mobilome_full.gff.gz.gzi
 ├── prediction/
 │   ├── amr_genes/
 │   │   ├── integrated_sample.gff
@@ -153,10 +143,6 @@ sample/
 │   └── virulence/
 │       └── sample_pathofact2.gff
 └── preprocessing/
-    ├── sample_1kb_contigs.fasta
-    ├── sample_5kb_contigs.fasta
-    ├── sample_100kb_contigs.fasta
-    └── sample_contigID.map
 ```
 When running with the flag `publish_all false`, the expected outputs are:
 ```

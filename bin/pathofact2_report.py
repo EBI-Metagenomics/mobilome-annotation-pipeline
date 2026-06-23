@@ -129,7 +129,6 @@ def path_is_missing_or_empty(path: Path | None) -> bool:
         return True
     return not path.exists() or path.stat().st_size == 0
 
-
 def split_csv_value(value: str) -> list[str]:
     if value in {"", "-"}:
         return []

@@ -18,6 +18,7 @@ include { INTEGRONFINDER         } from '../modules/local/integronfinder'
 include { ISESCAN                } from '../modules/local/isescan'
 include { GENOMAD                } from '../modules/local/genomad'
 include { VIRIFY_QC              } from '../modules/local/virify_qc'
+include { CHECKV_ENDTOEND        } from '../modules/nf-core/checkv/endtoend'
 
 // Results integration and outputs writing modules
 include { FASTA_WRITER           } from '../modules/local/fasta_writer'
@@ -85,7 +86,7 @@ workflow MOBILOMEANNOTATION {
 
     // Annotation manifest — parse once and emit per-tool channels.
     // When absent, all manifest channels remain empty and existing samplesheet
-    // inputs drive the subworkflows exactly as before.
+    // inputs drive the subworkflows
     def ch_manifest_amrfinder  = channel.empty()
     def ch_manifest_antismash  = channel.empty()
     def ch_manifest_gecco      = channel.empty()
@@ -165,6 +166,16 @@ workflow MOBILOMEANNOTATION {
     GENOMAD(RENAME.out.contigs_5kb, genomad_db.first())
     ch_versions = ch_versions.mix(GENOMAD.out.versions)
 
+    def checkv_db = channel.of(file(params.checkv_db, checkIfExists: true))
+    // geNomad writes an empty virus FASTA when no viral sequences are predicted, and
+    // CheckV errors on empty input. Only run CheckV for samples that have viruses;
+    // samples without are routed around it and join the integrator with an empty CheckV input.
+    def genomad_vir_fasta = GENOMAD.out.genomad_vir_fasta.branch { _meta, fasta ->
+        with_viruses: fasta.size() > 0
+        empty: true
+    }
+    CHECKV_ENDTOEND(genomad_vir_fasta.with_viruses, checkv_db.first())
+
     INTEGRONFINDER(RENAME.out.contigs_100kb)
     ch_versions = ch_versions.mix(INTEGRONFINDER.out.versions)
 
@@ -203,6 +214,8 @@ workflow MOBILOMEANNOTATION {
         COMPOSITIONAL_OUTLIER_DETECTION.out.bed, remainder: true
     ).join(
         VIRIFY_QC.out.virify_hq, remainder: true
+    ).join(
+        CHECKV_ENDTOEND.out.quality_summary, remainder: true
     )
 
     INTEGRATOR(
@@ -217,7 +230,8 @@ workflow MOBILOMEANNOTATION {
             genomad_vir, 
             genomad_plas, 
             compos_bed, 
-            virify_hq 
+            virify_hq,
+            checkv
                 -> [
                 meta,
                 assem_gff,
@@ -229,7 +243,8 @@ workflow MOBILOMEANNOTATION {
                 genomad_vir,
                 genomad_plas,
                 compos_bed ? compos_bed : [],
-                virify_hq ? virify_hq : []
+                virify_hq ? virify_hq : [],
+                checkv ? checkv : []
             ]
         }
     )

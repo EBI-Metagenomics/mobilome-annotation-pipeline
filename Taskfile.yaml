@@ -40,6 +40,22 @@ tasks:
      - uv run pytest {{.CLI_ARGS}}
    interactive: true
 
+ # Fetch the full ICEfinder2-lite test databases (replaces the old committed mini-DB).
+ # Same 61 MB tarball the production DB_DOWNLOAD_MOBILOME_DBS module uses, hosted on the EBI FTP.
+ # Required by the nf-test positive test before `nf-test test`.
+ fetch-icefinder-test-db:
+   desc: "Download + extract the ICEfinder2-lite DBs needed by the nf-test positive test"
+   vars:
+     ICF2_DIR: tests/reference_databases/icefinder
+     ICF2_URL: ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
+   status:
+     - test -d {{.ICF2_DIR}}/icf2_dbs/macsydata
+   cmds:
+     - wget -q -O {{.ICF2_DIR}}/icf2_dbs.tar.gz {{.ICF2_URL}}
+     - tar -xzf {{.ICF2_DIR}}/icf2_dbs.tar.gz -C {{.ICF2_DIR}}
+     - rm -f {{.ICF2_DIR}}/icf2_dbs.tar.gz
+   silent: true
+
  # Utility tasks
  clean:
    desc: "Clean up virtual environment"

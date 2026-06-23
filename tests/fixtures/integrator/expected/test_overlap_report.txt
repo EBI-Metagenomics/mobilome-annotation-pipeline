@@ -1,0 +1,1 @@
+contig	coord_1	coord_2	coverage_1	coverage_2	type_1	type_2

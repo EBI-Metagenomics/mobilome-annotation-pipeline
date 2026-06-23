@@ -1,0 +1,72 @@
+database	file	hmm	acc	length	desc	score_cutoff	category	initial_hits	final_hits	selected
+vpfs	IMG_VR_25281.hmms	YP_008239651@NC_021775	NA	789	sp|Q05233|VG26_BPML5 Minor tail protein Gp26	25	viral	281	162	Yes
+vog	vog97.hmm	VOG00812	NA	688	Protein P5	25	viral	225	183	Yes
+vog	vog97.hmm	VOG11310	NA	169	hypothetical protein	20	viral	77	57	Yes
+vog	vog97.hmm	VOG00460	NA	568	hypothetical protein	75	viral	158	112	Yes
+vog	vog97.hmm	VOG12450	NA	91	hypothetical protein	25	viral	31	31	Yes
+vog	vog97.hmm	VOG12451	NA	88	hypothetical protein	15	viral	54	54	Yes
+vog	vog97.hmm	VOG09830	NA	216	hypothetical protein	20	viral	75	76	Yes
+vog	vog97.hmm	VOG00526	NA	711	Minor head protein GP7	15	viral	1866	1173	Yes
+vog	vog97.hmm	VOG23701	NA	605	gp5 baseplate hub subunit and tail lysozyme	25	viral	1233	385	Yes
+pfam_a	Pfam-A.r32.hmm	ABC_membrane	PF00664.23	274	ABC transporter transmembrane region	20	microbial	9210	8315	Yes
+vpfs	IMG_VR_25281.hmms	YP_001468406@NC_009810	NA	356	sp|O31966|YOMR_BACSU SPbeta prophage-derived uncharacterized protein YomR	20	viral	123	13	Yes
+vpfs	IMG_VR_25281.hmms	YP_007010975@NC_019545	NA	417	sp|A3N1T0|CLPP_ACTP2 ATP-dependent Clp protease proteolytic subunit	20	viral	147	79	Yes
+ko	kegg_2019-10-02.hmm	K07181	NA	408	c-di-GMP phosphodiesterase [EC:3.1.4.52]	5	microbial	7128	1289	Yes
+vpfs	IMG_VR_25281.hmms	YP_008320349@NC_021865	NA	152	REFSEQ hypothetical protein	20	viral	45	45	Yes
+pfam_a	Pfam-A.r32.hmm	BppU_N	PF10651.9	148	BppU N-terminal domain	15	viral	457	87	Yes
+ko	kegg_2019-10-02.hmm	K07679	NA	1185	bvgS; two-component system, NarL family, sensor histidine kinase EvgS [EC:2.7.13.3]	5	microbial	107671	69631	Yes
+vpfs	IMG_VR_25281.hmms	3300000116@DelMOSpr2010_c10000111@DelMOSpr2010_100001112	NA	142	NA	25	viral	38	38	Yes
+vog	vog97.hmm	VOG01107	NA	202	Protein 2.8	20	viral	985	536	Yes
+vpfs	IMG_VR_25281.hmms	YP_001456752@NC_009799	NA	571	sp|Q5UQ50|COLL6_MIMIV Collagen-like protein 6	15	viral	489	24	Yes
+vpfs	IMG_VR_25281.hmms	YP_007010976@NC_019545	NA	149	REFSEQ hypothetical protein	20	viral	76	72	Yes
+vog	vog97.hmm	VOG00584	NA	813	hypothetical protein	230	viral	302	272	Yes
+vog	vog97.hmm	VOG01218	NA	144	Putative autolysin regulatory protein ArpU	35	viral	474	386	Yes
+vog	vog97.hmm	VOG02466	NA	334	Terminase small subunit	50	viral	548	410	Yes
+vog	vog97.hmm	VOG10231	NA	653	Recombination protein bet	15	viral	1081	632	Yes
+vog	vog97.hmm	VOG12442	NA	73	hypothetical protein	20	viral	25	23	Yes
+vog	vog97.hmm	VOG01164	NA	271	hypothetical protein	15	viral	354	145	Yes
+vog	vog97.hmm	VOG01719	NA	1072	hypothetical protein	20	viral	159	38	Yes
+vog	vog97.hmm	VOG01715	NA	234	hypothetical protein	20	viral	26	26	Yes
+vog	vog97.hmm	VOG01691	NA	129	hypothetical protein	20	viral	83	74	Yes
+vpfs	IMG_VR_25281.hmms	YP_293742@NC_007145	NA	91	REFSEQ hypothetical protein	20	viral	83	81	Yes
+pfam_a	Pfam-A.r32.hmm	cNMP_binding	PF00027.29	89	Cyclic nucleotide-binding domain	15	microbial	8148	5982	Yes
+tigr	TIGRFAMs_15.0_HMM.LIB	TIGR01593	TIGR01593	128	holin_tox_secr: toxin secretion/phage lysis holin	110	viral	70	65	Yes
+vpfs	IMG_VR_25281.hmms	2199352008_2200168970_2200499208_TRSJC2b_761	NA	1002	NA	70	viral	47	40	Yes
+vog	vog97.hmm	VOG11081	NA	367	Major capsid protein	150	viral	73	73	Yes
+vpfs	IMG_VR_25281.hmms	3300001354@JGI20155J14468_10000175@JGI20155J14468_100001759	NA	619	NA	20	viral	125	78	Yes
+vog	vog97.hmm	VOG19328	NA	670	phage-related minor tail protein	15	viral	995	33	Yes
+vog	vog97.hmm	VOG00154	NA	212	Putative tail protein	20	viral	590	372	Yes
+vog	vog97.hmm	VOG13715	NA	38	hypothetical protein	20	viral	103	103	Yes
+vog	vog97.hmm	VOG02758	NA	680	Probable portal protein	25	viral	314	242	Yes
+vog	vog97.hmm	VOG09528	NA	621	Gene 13 protein	30	viral	6697	2382	Yes
+vog	vog97.hmm	VOG00234	NA	161	Regulatory protein cro	35	viral	250	216	Yes
+vpfs	IMG_VR_25281.hmms	AGH16062@JF974287	NA	342	NA	20	viral	104	76	Yes
+vpfs	IMG_VR_25281.hmms	3300000439@TBL_comb48_EPIDRAFT_1000042@TBL_comb48_EPIDRAFT_100004228	NA	287	Uncharacterized protein conserved in bacteria	45	viral	38	29	Yes
+vog	vog97.hmm	VOG11186	NA	219	hypothetical protein	45	viral	58	59	Yes
+vpfs	IMG_VR_25281.hmms	YP_005098033@NC_016762	NA	181	REFSEQ hypothetical protein	20	viral	33	33	Yes
+vog	vog97.hmm	VOG02975	NA	328	Uncharacterized protein YdhT	25	viral	50	42	Yes
+vpfs	IMG_VR_25281.hmms	YP_007237613@NC_019927	NA	166	REFSEQ hypothetical protein	20	viral	80	75	Yes
+vog	vog97.hmm	VOG01121	NA	128	hypothetical protein	25	viral	83	82	Yes
+vog	vog97.hmm	VOG00834	NA	156	hypothetical protein	50	viral	148	121	Yes
+vog	vog97.hmm	VOG00436	NA	408	hypothetical protein	15	viral	288	171	Yes
+vog	vog97.hmm	VOG15324	NA	597	hypothetical protein	460	viral	23	23	Yes
+vpfs	IMG_VR_25281.hmms	3300001041@C687J13239_1000034@C687J13239_100003418	NA	135	Bacteriophage protein of unknown function (DUF646)	15	viral	467	75	Yes
+vog	vog97.hmm	VOG00742	NA	253	Crossover junction endodeoxyribonuclease rusA	35	viral	1071	957	Yes
+ko	kegg_2019-10-02.hmm	K21701	NA	548	AraC family transcriptional regulator, transcriptional activator for feuABC-ybbA operon	20	microbial	11600	6225	Yes
+vpfs	IMG_VR_25281.hmms	YP_005098078@NC_016762	NA	112	REFSEQ hypothetical protein	20	viral	76	75	Yes
+vog	vog97.hmm	VOG10030	NA	145	hypothetical protein	20	viral	364	362	Yes
+vog	vog97.hmm	VOG01055	NA	171	hypothetical protein	20	viral	288	246	Yes
+vpfs	IMG_VR_25281.hmms	3300000553@TBL_comb47_HYPODRAFT_10000291@TBL_comb47_HYPODRAFT_100002917	NA	212	NA	20	viral	105	90	Yes
+vog	vog97.hmm	VOG12449	NA	122	hypothetical protein	30	viral	31	30	Yes
+vog	vog97.hmm	VOG12443	NA	50	hypothetical protein	20	viral	23	23	Yes
+vog	vog97.hmm	VOG12447	NA	65	hypothetical protein	20	viral	23	22	Yes
+vog	vog97.hmm	VOG00195	NA	136	hypothetical protein	75	viral	197	189	Yes
+vog	vog97.hmm	VOG00192	NA	567	hypothetical protein	15	viral	186	126	Yes
+ko	kegg_2019-10-02.hmm	K16692	NA	838	tyrosine-protein kinase Etk/Wzc [EC:2.7.10.-]	35	microbial	8602	6795	Yes
+vog	vog97.hmm	VOG01455	NA	651	Portal protein B	15	viral	810	324	Yes
+vog	vog97.hmm	VOG02806	NA	122	Translational regulator CsrA	90	viral	42	42	Yes
+vog	vog97.hmm	VOG09828	NA	127	hypothetical protein	20	viral	76	74	Yes
+vog	vog97.hmm	VOG22107	NA	818	hypothetical protein	20	viral	56	13	Yes
+vog	vog97.hmm	VOG02645	NA	336	scaffolding protein	25	viral	63	58	Yes
+vpfs	IMG_VR_25281.hmms	YP_008767381@NC_022758	NA	526	REFSEQ hypothetical protein	25	viral	99	40	Yes
+vog	vog97.hmm	VOG00383	NA	1170	Exonuclease	110	viral	502	496	Yes

@@ -34,6 +34,7 @@ This downloads and sets up all databases in parallel:
 | Database | Tool | Purpose |
 |---|---|---|
 | geNomad v1.9 | geNomad | Plasmid/phage prediction |
+| CheckV DB | CheckV | QC of geNomad viral predictions |
 | ICEfinder2-lite | ICEfinder2 | ICE/IME prediction |
 | PATHOFACT2 models | PATHOFACT2 | Toxin/virulence ML models |
 | VFDB (`VFDB_setB_pro.dmnd`) | DIAMOND + PATHOFACT2 | Virulence factor search |
@@ -51,6 +52,7 @@ On completion, the pipeline prints a ready-to-paste config block with the exact 
 params {
     // Mobilome
     genomad_db                   = "/path/to/dbs/genomad/genomad_db_v1.9"
+    checkv_db                    = "/path/to/dbs/checkV/checkv-db-v1.5"
     icefinder_macsyfinder_models = "/path/to/dbs/icefinder2/icf2_dbs/macsydata"
     icefinder_hmm_models         = "/path/to/dbs/icefinder2/icf2_dbs/icehmm/icescan"
     icefinder_prokka_uniprot_db  = "/path/to/dbs/icefinder2/icf2_dbs/icefinder_prokka_uniprot"

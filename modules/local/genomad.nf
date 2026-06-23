@@ -12,8 +12,9 @@ process GENOMAD {
     path(genomad_db)
 
     output:
-    tuple val(meta), path("*_5kb_contigs_virus_summary.tsv"), emit: genomad_vir
+    tuple val(meta), path("*_5kb_contigs_virus_summary.tsv"),   emit: genomad_vir
     tuple val(meta), path("*_5kb_contigs_plasmid_summary.tsv"), emit: genomad_plas
+    tuple val(meta), path("*_virus.fna"),                       emit: genomad_vir_fasta
     path "versions.yml", emit: versions
 
     script:

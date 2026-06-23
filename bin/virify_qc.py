@@ -30,16 +30,37 @@ def open_file(filename):
         return open(filename, 'r')
 
 
+def quality_decision(checkv_quality, checkv_viral_genes, checkv_kmer_freq):
+    if any(
+        [
+            checkv_quality == "High-quality",
+            checkv_quality == "Complete",
+        ]
+    ):
+        return True
+    elif all(
+        [
+            checkv_viral_genes > 0,
+            checkv_quality != "Not-determined",
+            checkv_kmer_freq <= 1.0,
+        ]
+    ):
+        return True
+    else:
+        return False
+
+
 def virify_parser(virify_gff, output_prefix):
     qc_passed = []
     all_proteins = {}
+    contig_to_region_id = {}
     with (
         open_file(virify_gff) as input_table,
         open(f"{output_prefix}_virify_hq.gff", "w") as output_gff,
     ):
         output_gff.write("##gff-version 3\n")
         for line in input_table:
-            line = line.rstrip()
+            line = line.rstrip().replace(';taxonomy=',';virify_taxonomy=')
             line_l = line.split("\t")
             # Annotation lines have exactly 9 columns
             if len(line_l) == 9:
@@ -68,43 +89,20 @@ def virify_parser(virify_gff, output_prefix):
                     if virify_quality == "HC":
                         output_gff.write(line + "\n")
                         qc_passed.append(feature_id)
+                        contig_to_region_id[contig] = feature_id
                     else:
-                        if any(
-                            [
-                                checkv_quality == "High-quality",
-                                checkv_quality == "Complete",
-                            ]
-                        ):
+                        if quality_decision(checkv_quality, checkv_viral_genes, checkv_kmer_freq):
                             output_gff.write(line + "\n")
                             qc_passed.append(feature_id)
-                        elif all(
-                            [
-                                checkv_viral_genes > 0,
-                                checkv_quality != "Not-determined",
-                                checkv_kmer_freq <= 1.0,
-                            ]
-                        ):
-                            output_gff.write(line + "\n")
-                            qc_passed.append(feature_id)
+                            contig_to_region_id[contig] = feature_id
 
-                # These are proteins. Saving and parsing later
-                else:
-                    id_spliced = feature_id.split("_")
-                    id_spliced.pop(-1)
-                    parent_feature = "_".join(id_spliced)
-
-                    if not "prophage" in parent_feature:
-                        parent_feature = parent_feature + "|viral_sequence"
-
-                    if "|phage-circular" in parent_feature:
-                        parent_feature = parent_feature.replace(
-                            "phage-circular", "viral_sequence"
-                        )
-
-                    if parent_feature in all_proteins:
-                        all_proteins[parent_feature].append(line)
-                    else:
-                        all_proteins[parent_feature] = [line]
+                # Proteins are CDS features (col 3). VIRify v2 can accept user-provided
+                # proteins from any tool, so the source (col 2) is not reliable — match
+                # on the feature type. Use the contig to find the parent region.
+                elif seq_type == "CDS":
+                    parent_feature = contig_to_region_id.get(contig)
+                    if parent_feature:
+                        all_proteins.setdefault(parent_feature, []).append(line)
 
         # Printing proteins belonging to HQ virify predictions
         for prediction_id in all_proteins:

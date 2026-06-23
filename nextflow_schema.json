@@ -51,6 +51,12 @@
           "help_text": "Directory containing the geNomad database files for virus and plasmid detection.",
           "fa_icon": "fas fa-virus"
         },
+        "checkv_db": {
+          "type": "string",
+          "description": "Path to checkV database directory.",
+          "help_text": "Directory containing the checkV database files for quality assignment.",
+          "fa_icon": "fas fa-virus"
+        },
         "icefinder_hmm_models": {
           "type": "string",
           "description": "Path to ICEfinder2 HMM models.",

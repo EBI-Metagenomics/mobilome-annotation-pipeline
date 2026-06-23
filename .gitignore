@@ -18,6 +18,9 @@ bin/python_modules/__pycache__/
 # local database
 databases/mobileOG_beatrix1.6.dmnd
 
+# ICEfinder2-lite test DBs, fetched on the fly (task fetch-icefinder-test-db)
+tests/reference_databases/icefinder/icf2_dbs/
+
 __pycache__/
 htmlcov/
 .coverage

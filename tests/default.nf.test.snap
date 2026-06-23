@@ -1,62 +1,4 @@
 {
-    "Positive test: mobilome-only run on two-contig assembly covering IS, integron, ICE, prophage, and CO": {
-        "content": [
-            23,
-            [
-                "GCF_002192495",
-                "GCF_002192495/GCF_002192495_discarded_mge.txt",
-                "GCF_002192495/GCF_002192495_mobilome.fasta.gz",
-                "GCF_002192495/GCF_002192495_overlap_report.txt",
-                "GCF_002192495/gff",
-                "GCF_002192495/gff/GCF_002192495_mobilome.gff.gz",
-                "GCF_002192495/prediction",
-                "GCF_002192495/prediction/compositional_outliers",
-                "GCF_002192495/prediction/compositional_outliers/GCF_002192495_100kb_contigs.1.bed",
-                "GCF_002192495/prediction/genomad",
-                "GCF_002192495/prediction/genomad/GCF_002192495_5kb_contigs_plasmid_summary.tsv",
-                "GCF_002192495/prediction/genomad/GCF_002192495_5kb_contigs_virus_summary.tsv",
-                "GCF_002192495/prediction/icefinder2lite",
-                "GCF_002192495/prediction/icefinder2lite/GCF_002192495_ice_genes.tsv",
-                "GCF_002192495/prediction/icefinder2lite/GCF_002192495_ices.tsv",
-                "GCF_002192495/prediction/integronfinder",
-                "GCF_002192495/prediction/integronfinder/GCF_002192495_100kb_contigs.summary",
-                "GCF_002192495/prediction/integronfinder/contig_1.gbk",
-                "GCF_002192495/prediction/isescan",
-                "GCF_002192495/prediction/isescan/GCF_002192495_1kb_contigs.fasta.tsv",
-                "GCF_002192495/preprocessing",
-                "GCF_002192495/preprocessing/GCF_002192495_100kb_contigs.fasta",
-                "GCF_002192495/preprocessing/GCF_002192495_1kb_contigs.fasta",
-                "GCF_002192495/preprocessing/GCF_002192495_5kb_contigs.fasta",
-                "GCF_002192495/preprocessing/GCF_002192495_contigID.map",
-                "pipeline_info"
-            ],
-            [
-                "GCF_002192495_discarded_mge.txt:md5,3fa8fc123d805f1aebfb475c416040e1",
-                "GCF_002192495_mobilome.fasta.gz:md5,7c5ee79fb14ab064102cbc5f5841dbfe",
-                "GCF_002192495_overlap_report.txt:md5,69aa13bcccc6b0360a3a9e32b862a03b",
-                "GCF_002192495_mobilome.gff.gz:md5,0744f1865393581cd51d0abedbaa4581",
-                "GCF_002192495_100kb_contigs.1.bed:md5,eb6c2d14f31dde038b11a37a632155d6",
-                "GCF_002192495_5kb_contigs_plasmid_summary.tsv:md5,8c4ddaa8a90da779c11537be0fddb799",
-                "GCF_002192495_5kb_contigs_virus_summary.tsv:md5,0990fc5b72ba5259dc98f631135e6ce1",
-                "GCF_002192495_ice_genes.tsv:md5,f46e330b6ff07ccf7b8e05af1d1190d4",
-                "GCF_002192495_ices.tsv:md5,8f11aa31e6d2a489f56129b4fd324752",
-                "contig_1.gbk:md5,478cd3f64f199581369b2b29df581018",
-                "GCF_002192495_1kb_contigs.fasta.tsv:md5,e988c1b8d538c6392b3a76d156605c49",
-                "GCF_002192495_100kb_contigs.fasta:md5,a935a3e1d643535470d87e807a66e558",
-                "GCF_002192495_1kb_contigs.fasta:md5,9bb45f189fac52d39eac74ea72efabc7",
-                "GCF_002192495_5kb_contigs.fasta:md5,a935a3e1d643535470d87e807a66e558",
-                "GCF_002192495_contigID.map:md5,cf41974db3fec2e6df92f0408d4e50f4"
-            ],
-            [
-                
-            ]
-        ],
-        "meta": {
-            "nf-test": "0.9.3",
-            "nextflow": "25.10.0"
-        },
-        "timestamp": "2026-06-15T13:13:22.035583"
-    },
     "Negative test of the mobile elements detection skipping pathofact annotation. Expect empty gff output file": {
         "content": [
             16,
@@ -100,14 +42,14 @@
             ]
         ],
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "24.10.4"
+            "nf-test": "0.9.3",
+            "nextflow": "26.04.4"
         },
-        "timestamp": "2026-05-11T16:12:02.722695241"
+        "timestamp": "2026-06-22T10:26:23.373596"
     },
     "Pathofact integration test with annotation manifest. Expected a report of proteins with relevant annotation": {
         "content": [
-            39,
+            38,
             [
                 "MGYG000528118_sub",
                 "MGYG000528118_sub/MGYG000528118_sub_combined_report.tsv",
@@ -127,6 +69,8 @@
                 "MGYG000528118_sub/gff/MGYG000528118_sub_user_mobilome_full.gff.gz.gzi",
                 "MGYG000528118_sub/prediction",
                 "MGYG000528118_sub/prediction/amr_genes",
+                "MGYG000528118_sub/prediction/amr_genes/rgi",
+                "MGYG000528118_sub/prediction/amr_genes/rgi/MGYG000528118_sub.txt",
                 "MGYG000528118_sub/prediction/bgcs",
                 "MGYG000528118_sub/prediction/bgcs/MGYG000528118_sub_bgcs.gff",
                 "MGYG000528118_sub/prediction/bgcs/MGYG000528118_sub_bgcs.json",
@@ -150,7 +94,7 @@
                 "pipeline_info"
             ],
             [
-                "MGYG000528118_sub_combined_report.tsv:md5,c5cfcd70af3aab80b98d8a827e1ab619",
+                "MGYG000528118_sub_combined_report.tsv:md5,dbcefec6f4c4835ab454b3271f271329",
                 "MGYG000528118_sub_discarded_mge.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "MGYG000528118_sub_mobilome.fasta.gz:md5,6c831a87595d8427b6c14fa64b7acd77",
                 "MGYG000528118_sub_overlap_report.txt:md5,009fc7891415a47b1f07493101509b73",
@@ -161,13 +105,14 @@
                 "MGYG000528118_sub_user_mobilome_extra.gff.gz.csi:md5,73119f6c69ab822c717d872360e8a68b",
                 "MGYG000528118_sub_user_mobilome_full.gff.gz:md5,e0679c05b086d325d2a37237619fff8a",
                 "MGYG000528118_sub_user_mobilome_full.gff.gz.csi:md5,553eedde3aba6a6fd5062d27973cf46f",
+                "MGYG000528118_sub.txt:md5,601f0a16c0e999c2c5272d81f61bdf2f",
                 "MGYG000528118_sub_bgcs.gff:md5,85a5f38b14921b6256cf808d3e89c54b",
                 "MGYG000528118_sub_100kb_contigs.1.bed:md5,ce61c2fc1ece2d1738d7cbb8fe5583bd",
                 "MGYG000528118_sub_5kb_contigs_plasmid_summary.tsv:md5,8c4ddaa8a90da779c11537be0fddb799",
                 "MGYG000528118_sub_5kb_contigs_virus_summary.tsv:md5,aafc334566eab51ff2ffb3f5a89dacdb",
                 "contig_1.gbk:md5,4fa5d9684893b6e752413ad952da5866",
                 "MGYG000528118_sub_1kb_contigs.fasta.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "MGYG000528118_sub_pathofact2.gff:md5,5cc749495d8c19345d7adbb8e2bb84fb",
+                "MGYG000528118_sub_pathofact2.gff:md5,deecd37dfb4c90440ad703e581b09d64",
                 "MGYG000528118_sub_100kb_contigs.fasta:md5,3bfa2eb92880a330da8d913fec58e2bb",
                 "MGYG000528118_sub_1kb_contigs.fasta:md5,3bfa2eb92880a330da8d913fec58e2bb",
                 "MGYG000528118_sub_5kb_contigs.fasta:md5,3bfa2eb92880a330da8d913fec58e2bb",
@@ -176,8 +121,70 @@
         ],
         "meta": {
             "nf-test": "0.9.3",
-            "nextflow": "25.10.0"
+            "nextflow": "25.04.7"
         },
-        "timestamp": "2026-06-15T13:50:11.238413"
+        "timestamp": "2026-06-23T09:30:58.663336"
+    },
+    "Positive test: mobilome-only run on the pos_test assembly covering IS, integron, ICE, plasmid, prophage (VIRify), and CO": {
+        "content": [
+            25,
+            [
+                "pipeline_info",
+                "pos_test",
+                "pos_test/gff",
+                "pos_test/gff/pos_test_mobilome.gff.gz",
+                "pos_test/pos_test_discarded_mge.txt",
+                "pos_test/pos_test_mobilome.fasta.gz",
+                "pos_test/pos_test_overlap_report.txt",
+                "pos_test/prediction",
+                "pos_test/prediction/compositional_outliers",
+                "pos_test/prediction/compositional_outliers/pos_test_100kb_contigs.1.bed",
+                "pos_test/prediction/genomad",
+                "pos_test/prediction/genomad/checkv_quality_summary.tsv",
+                "pos_test/prediction/genomad/pos_test_5kb_contigs_plasmid_summary.tsv",
+                "pos_test/prediction/genomad/pos_test_5kb_contigs_virus_summary.tsv",
+                "pos_test/prediction/icefinder2lite",
+                "pos_test/prediction/icefinder2lite/pos_test_ice_genes.tsv",
+                "pos_test/prediction/icefinder2lite/pos_test_ices.tsv",
+                "pos_test/prediction/integronfinder",
+                "pos_test/prediction/integronfinder/contig_7.gbk",
+                "pos_test/prediction/integronfinder/pos_test_100kb_contigs.summary",
+                "pos_test/prediction/isescan",
+                "pos_test/prediction/isescan/pos_test_1kb_contigs.fasta.tsv",
+                "pos_test/prediction/virify_filter",
+                "pos_test/prediction/virify_filter/pos_test_virify_hq.gff",
+                "pos_test/preprocessing",
+                "pos_test/preprocessing/pos_test_100kb_contigs.fasta",
+                "pos_test/preprocessing/pos_test_1kb_contigs.fasta",
+                "pos_test/preprocessing/pos_test_5kb_contigs.fasta",
+                "pos_test/preprocessing/pos_test_contigID.map"
+            ],
+            [
+                "pos_test_mobilome.gff.gz:md5,2446229c56258ed546dbd266c90749fb",
+                "pos_test_discarded_mge.txt:md5,cb95cbdbde35c62c9ec7a7f7322f3a9d",
+                "pos_test_mobilome.fasta.gz:md5,a2aef37a55f756b5a7ebc48065b165cc",
+                "pos_test_overlap_report.txt:md5,dd99d385dd3d942b3a9d2cd89ccd726b",
+                "pos_test_100kb_contigs.1.bed:md5,c33dbcfc010cc5a3beadcd4bf86e1832",
+                "checkv_quality_summary.tsv:md5,1c40ba9f848a172866b88359fd935cf6",
+                "pos_test_5kb_contigs_plasmid_summary.tsv:md5,85f4371044bb9727a2d4ed72315e2760",
+                "pos_test_5kb_contigs_virus_summary.tsv:md5,f7213aa3ef195625c3c248907d97ced2",
+                "pos_test_ices.tsv:md5,987cb27f63ab080016876e3b5f3324c8",
+                "contig_7.gbk:md5,2432b7e9039ec4ad698e5e4e7bc23a9b",
+                "pos_test_1kb_contigs.fasta.tsv:md5,1cdf1b699c9e04079d81a502ab1e071a",
+                "pos_test_virify_hq.gff:md5,4c71713e35a11659782d6d3215c931c4",
+                "pos_test_100kb_contigs.fasta:md5,f11994b14fb11cc575e0287748f4fc47",
+                "pos_test_1kb_contigs.fasta:md5,7a677affb9f9f6c600647918a5e93bd9",
+                "pos_test_5kb_contigs.fasta:md5,7a677affb9f9f6c600647918a5e93bd9",
+                "pos_test_contigID.map:md5,8789f2f0ae143559b7610ed08f952988"
+            ],
+            [
+                
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.04.7"
+        },
+        "timestamp": "2026-06-22T15:58:11.28443"
     }
 }

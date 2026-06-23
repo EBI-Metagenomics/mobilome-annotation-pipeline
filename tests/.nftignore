@@ -5,3 +5,8 @@ pipeline_info/*
 # IntegronFinder summary embeds the run command line (incl. --cpu N), so its md5
 # changes with CPU allocation. Verify presence (stable_name) but not content.
 **/*_contigs.summary
+# ice_genes.tsv has a gene_annot column of BLASTP best-hit UniProt product names.
+# Best-hit selection varies by CPU architecture (arm64 dev vs x86 CI), so its md5 is
+# not portable. The ICE call itself (ices.tsv + the feature in mobilome.gff) is stable
+# and stays content-asserted; here we verify presence (stable_name) but not content.
+**/*_ice_genes.tsv

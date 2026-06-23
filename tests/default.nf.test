@@ -4,11 +4,11 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
 
-    test("Positive test: mobilome-only run on two-contig assembly covering IS, integron, ICE, prophage, and CO") {
+    test("Positive test: mobilome-only run on the pos_test assembly covering IS, integron, ICE, plasmid, prophage (VIRify), and CO") {
         tag "positive"
         when {
             params {
-                input                = "${projectDir}/tests/GCF_002192495_samplesheet.csv"
+                input                = "${projectDir}/tests/pos_test_samplesheet.csv"
                 outdir               = "$outputDir"
                 skip_virulence       = true
                 skip_amrfinderplus   = true

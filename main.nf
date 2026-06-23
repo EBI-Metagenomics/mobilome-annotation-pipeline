@@ -44,6 +44,7 @@ workflow {
                 params {
                     // Mobilome databases
                     genomad_db                   = "${db_dir}/genomad/genomad_db_v1.9"
+                    checkv_db                    = "${db_dir}/checkV/checkv-db-v1.5"
                     icefinder_macsyfinder_models = "${db_dir}/icefinder2/icf2_dbs/macsydata"
                     icefinder_hmm_models         = "${db_dir}/icefinder2/icf2_dbs/icehmm/icescan"
                     icefinder_prokka_uniprot_db  = "${db_dir}/icefinder2/icf2_dbs/icefinder_prokka_uniprot"
@@ -69,6 +70,7 @@ workflow {
         EBIMETAGENOMICS()
     }
 }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
