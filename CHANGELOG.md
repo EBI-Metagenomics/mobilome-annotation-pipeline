@@ -3,6 +3,27 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Two columns to the combined report (`*_combined_report.tsv`): `contig_id` (the contig
+  each protein is on) and `summary_string`, a condensed per-gene tag string with comma-joined
+  tokens `vf,arg,mge,bgc` (virulence, AMR, mobile element, BGC).
+- The `summary_string` is now also carried into the derived GFFs as a
+  `pathofact2=<summary_string>` attribute on each matching CDS.
+- The derived `clean`/`extra`/`full` GFFs are now produced even when no user proteins are
+  provided, built from the Prodigal/tRNA genes GFF and named
+  `*_mobilome_{clean,extra,full}.gff.gz` (without the `_user` infix). With user proteins the
+  outputs keep their `*_user_mobilome_*` names.
+
+### Fixed
+
+- `*_user_mobilome_clean.gff` now starts with a `##gff-version 3` header and contains only
+  genes covered by a mobile element (previously it had no header and included every gene).
+- `*_user_mobilome_extra.gff` header is reduced to just `##gff-version 3`; the
+  `##sequence-region` lines are kept only in the `full` output.
+
 ## v5.0.0 - [2026-06-15]
 
 Major release adding a full functional annotation layer (toxins/virulence, AMR, BGC) on
