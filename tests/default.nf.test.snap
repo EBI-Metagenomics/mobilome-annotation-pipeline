@@ -121,9 +121,9 @@
         ],
         "meta": {
             "nf-test": "0.9.3",
-            "nextflow": "26.04.4"
+            "nextflow": "25.04.7"
         },
-        "timestamp": "2026-06-22T12:50:18.571235"
+        "timestamp": "2026-06-23T09:30:58.663336"
     },
     "Positive test: mobilome-only run on the pos_test assembly covering IS, integron, ICE, plasmid, prophage (VIRify), and CO": {
         "content": [
@@ -160,16 +160,16 @@
                 "pos_test/preprocessing/pos_test_contigID.map"
             ],
             [
-                "pos_test_mobilome.gff.gz:md5,97e7cc8970662747312bd980e204ab09",
-                "pos_test_discarded_mge.txt:md5,a51ab77df5bce71176b9b1e047d05c9a",
-                "pos_test_mobilome.fasta.gz:md5,0e1163f0f09a2f6bf560e0d93c834da7",
-                "pos_test_overlap_report.txt:md5,696323e2421f64ea4f9b6a9e349e3079",
+                "pos_test_mobilome.gff.gz:md5,2446229c56258ed546dbd266c90749fb",
+                "pos_test_discarded_mge.txt:md5,cb95cbdbde35c62c9ec7a7f7322f3a9d",
+                "pos_test_mobilome.fasta.gz:md5,a2aef37a55f756b5a7ebc48065b165cc",
+                "pos_test_overlap_report.txt:md5,dd99d385dd3d942b3a9d2cd89ccd726b",
                 "pos_test_100kb_contigs.1.bed:md5,c33dbcfc010cc5a3beadcd4bf86e1832",
                 "checkv_quality_summary.tsv:md5,1c40ba9f848a172866b88359fd935cf6",
                 "pos_test_5kb_contigs_plasmid_summary.tsv:md5,85f4371044bb9727a2d4ed72315e2760",
                 "pos_test_5kb_contigs_virus_summary.tsv:md5,f7213aa3ef195625c3c248907d97ced2",
-                "pos_test_ice_genes.tsv:md5,f46e330b6ff07ccf7b8e05af1d1190d4",
-                "pos_test_ices.tsv:md5,8f11aa31e6d2a489f56129b4fd324752",
+                "pos_test_ice_genes.tsv:md5,0db822d5c30d83aa3f6cf71fa5e4617f",
+                "pos_test_ices.tsv:md5,987cb27f63ab080016876e3b5f3324c8",
                 "contig_7.gbk:md5,2432b7e9039ec4ad698e5e4e7bc23a9b",
                 "pos_test_1kb_contigs.fasta.tsv:md5,1cdf1b699c9e04079d81a502ab1e071a",
                 "pos_test_virify_hq.gff:md5,4c71713e35a11659782d6d3215c931c4",
@@ -184,8 +184,8 @@
         ],
         "meta": {
             "nf-test": "0.9.3",
-            "nextflow": "26.04.4"
+            "nextflow": "25.04.7"
         },
-        "timestamp": "2026-06-22T11:17:26.027888"
+        "timestamp": "2026-06-22T15:58:11.28443"
     }
 }
