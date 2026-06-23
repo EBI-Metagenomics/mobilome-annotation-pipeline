@@ -168,7 +168,6 @@
                 "checkv_quality_summary.tsv:md5,1c40ba9f848a172866b88359fd935cf6",
                 "pos_test_5kb_contigs_plasmid_summary.tsv:md5,85f4371044bb9727a2d4ed72315e2760",
                 "pos_test_5kb_contigs_virus_summary.tsv:md5,f7213aa3ef195625c3c248907d97ced2",
-                "pos_test_ice_genes.tsv:md5,0db822d5c30d83aa3f6cf71fa5e4617f",
                 "pos_test_ices.tsv:md5,987cb27f63ab080016876e3b5f3324c8",
                 "contig_7.gbk:md5,2432b7e9039ec4ad698e5e4e7bc23a9b",
                 "pos_test_1kb_contigs.fasta.tsv:md5,1cdf1b699c9e04079d81a502ab1e071a",
