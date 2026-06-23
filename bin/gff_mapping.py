@@ -187,11 +187,49 @@ def mobilome_parser(mobilome_clean):
     
     return (proteins_annot, mobilome_annot, mges_dict, mob_types)
 
+def parse_combined_report(report_file):
+    """
+    Parse the PathoFact2 combined report into a {protein_id: summary_string} map.
+
+    Column positions are resolved from the header row so the parser is robust to
+    column re-ordering. Returns an empty dict if the file is missing, empty, or does
+    not contain the expected columns.
+    """
+    if is_file_empty(report_file):
+        logger.warning(f"Combined report is empty or missing: {report_file}")
+        return {}
+
+    summary_map = {}
+    with open_file(report_file) as handle:
+        header = handle.readline().rstrip("\n").split("\t")
+        try:
+            id_idx = header.index("protein_id")
+            summary_idx = header.index("summary_string")
+        except ValueError:
+            logger.error(
+                "Combined report missing 'protein_id' or 'summary_string' column; "
+                "skipping pathofact2 annotation"
+            )
+            return {}
+
+        for line in handle:
+            cols = line.rstrip("\n").split("\t")
+            if len(cols) <= max(id_idx, summary_idx):
+                continue
+            summary_map[cols[id_idx]] = cols[summary_idx]
+
+    logger.info(f"Parsed combined report: {len(summary_map)} proteins with summary strings")
+    return summary_map
+
+
 def gff_updater(
-    user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types
+    user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types,
+    summary_map=None,
 ):
     """Adding the mobilome predictions to the user file (handles compressed input/output)."""
-    
+
+    summary_map = summary_map or {}
+
     # Check if input file exists
     if not os.path.exists(user_gff):
         logger.error(f"User GFF file not found: {user_gff}")
@@ -243,7 +281,20 @@ def gff_updater(
                 end = l_line[4]
                 strand = l_line[6]
                 composite_val = (contig, start, end, strand)
-                
+
+                # Append the PathoFact2 summary string (e.g. vf,mge,bgc) from the combined
+                # report when this protein is present in it, as a `;pathofact2=...` attribute.
+                protein_id = ""
+                for attr in l_line[8].split(";"):
+                    if attr.startswith("ID="):
+                        protein_id = attr[3:]
+                        break
+                pf_suffix = (
+                    f";pathofact2={summary_map[protein_id]}"
+                    if protein_id in summary_map
+                    else ""
+                )
+
                 if contig not in used_contigs:
                     used_contigs.append(contig)
                     
@@ -258,10 +309,10 @@ def gff_updater(
                 if composite_val in proteins_annot:
                     proteins_with_extra_annot += 1
                     extra_annot = proteins_annot[composite_val]
-                    output_extra.write(line.rstrip() + ";" + extra_annot + "\n")
-                    output_full.write(line.rstrip() + ";" + extra_annot + "\n")
+                    output_extra.write(line.rstrip() + ";" + extra_annot + pf_suffix + "\n")
+                    output_full.write(line.rstrip() + ";" + extra_annot + pf_suffix + "\n")
                 else:
-                    output_full.write(line.rstrip() + "\n")
+                    output_full.write(line.rstrip() + pf_suffix + "\n")
                 
                 # Finding mobilome proteins in the user file and writing to clean output
                 u_prot_start = int(start)
@@ -292,10 +343,10 @@ def gff_updater(
                     if composite_val in proteins_annot:
                         extra_annot = proteins_annot[composite_val]
                         output_clean.write(
-                            line.rstrip() + ";" + extra_annot + ";" + mge_loc + "\n"
+                            line.rstrip() + ";" + extra_annot + ";" + mge_loc + pf_suffix + "\n"
                         )
                     else:
-                        output_clean.write(line.rstrip() + ";" + mge_loc + "\n")
+                        output_clean.write(line.rstrip() + ";" + mge_loc + pf_suffix + "\n")
             else:
                 # Header/comment lines from the user GFF go to full only; clean and extra
                 # use the minimal header written above.
@@ -341,6 +392,13 @@ def main():
         help="Output files prefix (outputs will be uncompressed .gff files)",
         required=True
     )
+    parser.add_argument(
+        "--combined_report",
+        type=str,
+        help="Optional PathoFact2 combined report TSV. When given, the summary_string of "
+             "each protein is appended to its CDS as a `pathofact2=` attribute.",
+        required=False,
+    )
     args = parser.parse_args()
 
     ## Calling functions
@@ -348,6 +406,9 @@ def main():
     (proteins_annot, mobilome_annot, mges_dict, mob_types) = mobilome_parser(
         args.mobilome_gff
     )
+
+    # Optional per-protein summary strings from the combined report
+    summary_map = parse_combined_report(args.combined_report) if args.combined_report else {}
 
     # Adding the mobilome predictions to the user file
     if args.user_gff:
@@ -358,6 +419,7 @@ def main():
             mobilome_annot,
             mges_dict,
             mob_types,
+            summary_map,
         )
 
 if __name__ == "__main__":

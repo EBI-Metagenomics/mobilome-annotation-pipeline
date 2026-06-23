@@ -19,6 +19,7 @@ from gff_mapping import (
     sort_gff_file,
     mobilome_parser,
     gff_updater,
+    parse_combined_report,
 )
 
 
@@ -271,3 +272,107 @@ contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001
     ]
     assert "##gff-version 3" in full_header
     assert "##sequence-region contig1 1 10000" in full_header
+
+
+def test_parse_combined_report(tmp_path):
+    """Combined report TSV is parsed into a {protein_id: summary_string} map."""
+    report = tmp_path / "report.tsv"
+    # summary_string deliberately not adjacent to protein_id to check name-based lookup
+    report.write_text(
+        "protein_id\tcontig_id\tsummary_string\tvfdb_hit\n"
+        "prot001\tcontig1\tvf,mge\tVFG1\n"
+        "prot002\tcontig1\targ\t-\n"
+    )
+
+    summary_map = parse_combined_report(str(report))
+
+    assert summary_map == {"prot001": "vf,mge", "prot002": "arg"}
+
+    # Missing/empty report yields an empty map (annotation simply skipped)
+    empty = tmp_path / "empty.tsv"
+    empty.write_text("")
+    assert parse_combined_report(str(empty)) == {}
+
+
+def test_pathofact2_annotation(tmp_path):
+    """
+    When a summary_map is supplied, each CDS present in the report gains a
+    `pathofact2=<summary>` attribute, in clean/extra/full wherever that CDS is written.
+    - prot001: passenger (in an MGE) and in the report -> annotated in clean and full
+    - prot002: not a passenger but in the report -> annotated in full only (absent from clean)
+    - prot003: passenger but NOT in the report -> in clean with no pathofact2 attribute
+    """
+    user_gff = tmp_path / "user.gff"
+    user_content = """##gff-version 3
+contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001
+contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot002
+contig1\tProdigal\tCDS\t1550\t1750\t.\t+\t0\tID=prot003
+"""
+    user_gff.write_text(user_content)
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+    summary_map = {"prot001": "vf,mge", "prot002": "arg"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff),
+        str(output_prefix),
+        {},
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+        summary_map,
+    )
+
+    clean = (tmp_path / "output_user_mobilome_clean.gff").read_text().splitlines()
+    full = (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
+
+    # prot001: passenger + in report -> pathofact2 in both clean and full
+    prot001_clean = [l for l in clean if "ID=prot001" in l][0]
+    assert "pathofact2=vf,mge" in prot001_clean
+    assert "mge_location=virus" in prot001_clean
+    prot001_full = [l for l in full if "ID=prot001" in l][0]
+    assert "pathofact2=vf,mge" in prot001_full
+
+    # prot002: in report but not a passenger -> annotated in full, absent from clean
+    assert not any("ID=prot002" in l for l in clean)
+    prot002_full = [l for l in full if "ID=prot002" in l][0]
+    assert "pathofact2=arg" in prot002_full
+
+    # prot003: passenger but not in report -> present in clean, no pathofact2
+    prot003_clean = [l for l in clean if "ID=prot003" in l][0]
+    assert "mge_location=virus" in prot003_clean
+    assert "pathofact2=" not in prot003_clean
+
+
+def test_no_pathofact2_without_report(tmp_path):
+    """Without a summary_map, no `pathofact2=` attribute is added (backward compatible)."""
+    user_gff = tmp_path / "user.gff"
+    user_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001\n"
+    )
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff),
+        str(output_prefix),
+        {},
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+    )
+
+    for name in ("clean", "extra", "full"):
+        content = (tmp_path / f"output_user_mobilome_{name}.gff").read_text()
+        assert "pathofact2=" not in content

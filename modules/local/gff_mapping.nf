@@ -7,7 +7,7 @@ process GFF_MAPPING {
         : 'biocontainers/python:3.9--1'}"
 
     input:
-    tuple val(meta), path(mobilome_gff), path(user_gff)
+    tuple val(meta), path(mobilome_gff), path(user_gff), path(combined_report)
 
     output:
     tuple val(meta), path("*_mobilome_clean.gff"),      optional: true, emit: mobilome_clean_gff
@@ -18,11 +18,13 @@ process GFF_MAPPING {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     def user_proteins_arg = user_gff ? "--user_gff ${user_gff}" : ""
+    def combined_report_arg = combined_report ? "--combined_report ${combined_report}" : ""
     """
     gff_mapping.py \\
         --prefix ${prefix} \\
         --mobilome_gff ${mobilome_gff} \\
-        ${user_proteins_arg}
+        ${user_proteins_arg} \\
+        ${combined_report_arg}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

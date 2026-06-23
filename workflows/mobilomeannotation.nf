@@ -265,19 +265,6 @@ workflow MOBILOMEANNOTATION {
         ch_versions = ch_versions.mix(GT_GFF3VALIDATOR.out.versions)
     }
 
-    // Appending the mobilome annotation to the user gff when provided, then compress and index (.gzi and .csi)
-    // Use remainder:true to avoid a strict-join mismatch when some samples have no user proteins.
-    // Remainder items (no user proteins) emit (meta, mobilome_gff, null) — one null for the
-    // entire missing right side — so it[2] is null for those and non-null for matched samples.
-    GFF_MAPPING_COMPRESSION_AND_INDEXING(
-        INTEGRATOR.out.mobilome_gff
-            .join(ch_user_proteins, remainder: true)
-            .filter { it[2] != null }
-            .map { meta, mobilome_gff, user_gff, _user_faa -> tuple(meta, mobilome_gff, user_gff) }
-    )
-    ch_versions = ch_versions.mix(GFF_MAPPING_COMPRESSION_AND_INDEXING.out.versions)
-
-
     // GENERATING PATHOFACT2-STYLE ANNOTATION
     // Get Prodigal outputs
     def ch_prodigal_proteins = TRNAS_INTEGRATOR.out.merged_faa
@@ -422,6 +409,22 @@ workflow MOBILOMEANNOTATION {
         }
 
     COMBINEREPORTER( ch_combinereporter_input )
+
+    // Appending the mobilome annotation to the user gff when provided, then compress and index (.gzi and .csi).
+    // Runs after COMBINEREPORTER so each protein's combined-report summary_string can be carried
+    // into the GFFs as a `pathofact2=` attribute.
+    // Use remainder:true to avoid a strict-join mismatch when some samples have no user proteins.
+    // Remainder items (no user proteins) emit (meta, mobilome_gff, null) — one null for the
+    // entire missing right side — so it[2] is null for those and non-null for matched samples.
+    GFF_MAPPING_COMPRESSION_AND_INDEXING(
+        INTEGRATOR.out.mobilome_gff
+            .join(ch_user_proteins, remainder: true)
+            .filter { it[2] != null }
+            .map { meta, mobilome_gff, user_gff, _user_faa -> tuple(meta, mobilome_gff, user_gff) }
+            .join(COMBINEREPORTER.out.tsv, remainder: true)
+            .map { meta, mobilome_gff, user_gff, report -> tuple(meta, mobilome_gff, user_gff, report ?: []) }
+    )
+    ch_versions = ch_versions.mix(GFF_MAPPING_COMPRESSION_AND_INDEXING.out.versions)
 
     //
     // Collate and save software versions
