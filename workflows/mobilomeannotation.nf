@@ -419,20 +419,23 @@ workflow MOBILOMEANNOTATION {
     GFF_MAPPING_COMPRESSION_AND_INDEXING(
         INTEGRATOR.out.mobilome_gff
             .join(TRNAS_INTEGRATOR.out.merged_gff)
+            .join(RENAME.out.map_file)
             .join(ch_user_proteins, remainder: true)
             .map { row ->
                 // remainder:true appends a single null for the whole missing right side, so
-                // unmatched rows are [meta, mobilome, prodigal_gff, null] and matched rows are
-                // [meta, mobilome, prodigal_gff, user_gff, user_faa].
-                def (meta, mobilome_gff, prodigal_gff) = [row[0], row[1], row[2]]
-                def user_gff = row[3]
+                // unmatched rows are [meta, mobilome, prodigal_gff, map_file, null] and matched
+                // rows are [meta, mobilome, prodigal_gff, map_file, user_gff, user_faa].
+                def (meta, mobilome_gff, prodigal_gff, map_file) = [row[0], row[1], row[2], row[3]]
+                def user_gff = row[4]
+                // User GFFs already use original contig names (no map needed); the Prodigal/tRNA
+                // baseline still uses renamed ids, so pass the map to translate them back.
                 user_gff
-                    ? tuple(meta, mobilome_gff, user_gff, true)
-                    : tuple(meta, mobilome_gff, prodigal_gff, false)
+                    ? tuple(meta, mobilome_gff, user_gff, [], true)
+                    : tuple(meta, mobilome_gff, prodigal_gff, map_file, false)
             }
             .join(COMBINEREPORTER.out.tsv, remainder: true)
-            .map { meta, mobilome_gff, genes_gff, user_proteins, report ->
-                tuple(meta, mobilome_gff, genes_gff, report ?: [], user_proteins)
+            .map { meta, mobilome_gff, genes_gff, contig_map, user_proteins, report ->
+                tuple(meta, mobilome_gff, genes_gff, contig_map, report ?: [], user_proteins)
             }
     )
     ch_versions = ch_versions.mix(GFF_MAPPING_COMPRESSION_AND_INDEXING.out.versions)

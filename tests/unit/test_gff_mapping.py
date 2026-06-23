@@ -411,3 +411,41 @@ def test_output_naming_infix(tmp_path):
     )
     for kind in ("clean", "extra", "full"):
         assert (tmp_path / f"user_user_mobilome_{kind}.gff").exists()
+
+
+def test_contig_name_translation(tmp_path):
+    """
+    With a renamed->original contig map, genes-GFF contigs are translated so they align with
+    the (already renamed-back) mobilome GFF, and the outputs use the original names. Without
+    it, the contigs would not match and no MGE/passenger would be written.
+    """
+    genes_gff = tmp_path / "genes.gff"
+    genes_gff.write_text(
+        "##gff-version 3\n"
+        "contig_1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001\n"
+    )
+    # mobilome annotation is keyed by the ORIGINAL contig name
+    mobilome_annot = {
+        "NZ_real_1": ["NZ_real_1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"NZ_real_1": [(1000, 2000)]}
+    mob_types = {("NZ_real_1", 1000, 2000): "virus"}
+    names_equiv = {"contig_1": "NZ_real_1"}
+
+    output_prefix = tmp_path / "out"
+    gff_updater(
+        str(genes_gff), str(output_prefix), {}, mobilome_annot, mges_dict, mob_types,
+        names_equiv=names_equiv, output_infix="_mobilome_",
+    )
+
+    full = (tmp_path / "out_mobilome_full.gff").read_text()
+    clean = (tmp_path / "out_mobilome_clean.gff").read_text()
+
+    # MGE feature present and the gene translated to the original contig name (no renamed id left)
+    assert "NZ_real_1\tgeNomad\tvirus" in full
+    assert "NZ_real_1\tProdigal\tCDS" in full
+    assert "contig_1" not in full
+    # Passenger gene (100% within the MGE) lands in clean under the original name
+    assert "NZ_real_1\tProdigal\tCDS\t1500\t1800" in clean
+    assert "mge_location=virus" in clean
+    assert "contig_1" not in clean

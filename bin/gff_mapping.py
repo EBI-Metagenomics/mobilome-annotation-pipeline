@@ -19,6 +19,8 @@ import sys
 import os.path
 import gzip
 
+from map_tools import mapping_names
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 COV_THRESHOLD = 0.75
@@ -224,15 +226,20 @@ def parse_combined_report(report_file):
 
 def gff_updater(
     user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types,
-    summary_map=None, output_infix="_user_mobilome_",
+    summary_map=None, output_infix="_user_mobilome_", names_equiv=None,
 ):
     """Adding the mobilome predictions to the user file (handles compressed input/output).
 
     output_infix controls the output file naming: "_user_mobilome_" for user-provided
     genes, "_mobilome_" when the baseline is the Prodigal/tRNA genes GFF.
+
+    names_equiv maps renamed contig ids -> original ids. When provided (the Prodigal/tRNA
+    baseline still uses the internal renamed ids), each genes-GFF feature's contig is
+    translated to its original name so it aligns with the already-renamed-back mobilome GFF.
     """
 
     summary_map = summary_map or {}
+    names_equiv = names_equiv or {}
 
     extra_file = f"{output_prefix}{output_infix}extra.gff"
     full_file = f"{output_prefix}{output_infix}full.gff"
@@ -279,6 +286,11 @@ def gff_updater(
             # Annotation lines have exactly 9 columns
             if len(l_line) == 9:
                 annotation_lines += 1
+                # Translate the contig from the internal renamed id to the original name so
+                # it matches the mobilome GFF; rebuild the line so the output uses it too.
+                if names_equiv:
+                    l_line[0] = names_equiv.get(l_line[0], l_line[0])
+                    line = "\t".join(l_line)
                 contig = l_line[0]
                 start = l_line[3]
                 end = l_line[4]
@@ -409,6 +421,14 @@ def main():
              "`{prefix}_user_mobilome_*`; without this flag (Prodigal/tRNA baseline) they "
              "are named `{prefix}_mobilome_*`.",
     )
+    parser.add_argument(
+        "--contig_map",
+        type=str,
+        help="Optional contigID.map (renamed<TAB>original). When given, genes-GFF contig "
+             "ids are translated back to their original names so they align with the "
+             "mobilome GFF (used for the Prodigal/tRNA baseline).",
+        required=False,
+    )
     args = parser.parse_args()
 
     ## Calling functions
@@ -419,6 +439,9 @@ def main():
 
     # Optional per-protein summary strings from the combined report
     summary_map = parse_combined_report(args.combined_report) if args.combined_report else {}
+
+    # Optional renamed -> original contig mapping (Prodigal/tRNA baseline only)
+    names_equiv = mapping_names.names_map(args.contig_map)[0] if args.contig_map else {}
 
     # Adding the mobilome predictions to the genes GFF
     output_infix = "_user_mobilome_" if args.user_proteins else "_mobilome_"
@@ -432,6 +455,7 @@ def main():
             mob_types,
             summary_map,
             output_infix,
+            names_equiv,
         )
 
 if __name__ == "__main__":
