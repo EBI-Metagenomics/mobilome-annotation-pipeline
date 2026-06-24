@@ -11,7 +11,7 @@ The Mobilome Annotation Pipeline integrates the output of different tools design
 
 ## Contents
 
-<img src="media/map_logo.png" align="right" width="180" alt="Mobilome Annotation Pipeline logo">
+<img src="media/map_logo.png" align="right" width="200" alt="Mobilome Annotation Pipeline logo">
 
 - [Workflow](#wf)
 - [Install and dependencies](#install)
