@@ -99,12 +99,26 @@ See [docs/usage.md](docs/usage.md) for skip flags, mobilome-only mode, and annot
 Results are written to `--outdir` (default: `results/`).
 
 ```
-{sample}/
-├── {sample}_combined_report.tsv
-├── {sample}_discarded_mge.txt
-├── {sample}_mobilome.fasta.gz
-├── {sample}_overlap_report.txt
+sample/
+├── sample_combined_report.tsv
+├── sample_discarded_mge.txt
+├── sample_mobilome.fasta.gz
+├── sample_overlap_report.txt
 ├── gff/
+│   ├── sample_mobilome.gff.gz
+│   │   # When user proteins+GFF are provided, the three derived files are named
+│   │   # sample_user_mobilome_{clean,extra,full}.gff.gz (baseline: the user GFF).
+│   │   # Otherwise they are named sample_mobilome_{clean,extra,full}.gff.gz
+│   │   # (baseline: the Prodigal/tRNA genes GFF). Each has matching .csi and .gzi indexes.
+│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + genes covered by an MGE
+│   ├── sample_user_mobilome_clean.gff.gz.csi
+│   ├── sample_user_mobilome_clean.gff.gz.gzi
+│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
+│   ├── sample_user_mobilome_extra.gff.gz.csi
+│   ├── sample_user_mobilome_extra.gff.gz.gzi
+│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from the genes GFF
+│   ├── sample_user_mobilome_full.gff.gz.csi
+│   └── sample_user_mobilome_full.gff.gz.gzi
 ├── prediction/
 │   ├── amr_genes/
 │   │   ├── integrated_sample.gff
@@ -153,6 +167,10 @@ sample/
 ├── sample_overlap_report.txt
 └── gff/
     ├── sample_mobilome.gff.gz
+    │   # When user proteins+GFF are provided, the three derived files are named
+    │   # sample_user_mobilome_{clean,extra,full}.gff.gz (baseline: the user GFF).
+    │   # Otherwise they are named sample_mobilome_{clean,extra,full}.gff.gz
+    │   # (baseline: the Prodigal/tRNA genes GFF). Each has matching .csi and .gzi indexes.
     ├── sample_user_mobilome_clean.gff.gz
     ├── sample_user_mobilome_clean.gff.gz.csi
     ├── sample_user_mobilome_clean.gff.gz.gzi
