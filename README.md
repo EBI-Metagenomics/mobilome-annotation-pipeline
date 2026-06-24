@@ -34,16 +34,16 @@ Full documentation: [docs/usage.md](docs/usage.md) · [docs/outputs.md](docs/out
 
 The pipeline has five main stages:
 
-**1. Preprocessing** — Contigs are filtered by length and renamed to short IDs (`RENAME`). CDS are annotated with Prodigal; tRNAs with ARAGORN.
+**1. Preprocessing** — Contigs are filtered by length and renamed to short IDs (`RENAME`). CDS are annotated with [Prodigal](https://github.com/hyattpd/prodigal); tRNAs with [ARAGORN](https://github.com/morloclib/aragorn).
 
-**2. MGE prediction** (parallel) — geNomad (plasmids/phages), ICEfinder2-lite (ICEs/IMEs), IntegronFinder (integrons), ISEScan (insertion sequences), and a compositional outlier detection subworkflow (contigs ≥100 kb).
+**2. MGE prediction** (parallel) — [geNomad](https://github.com/apcamargo/genomad) (plasmids/phages), ICEfinder2-lite (ICEs/IMEs detection refactored from [ICEfinder2](https://github.com/EBI-Metagenomics/icefinder2/)), [Integron_Finder](https://github.com/gem-pasteur/Integron_Finder) (integrons), [ISEScan](https://github.com/xiezhq/ISEScan) (insertion sequences), and a compositional outlier detection subworkflow (contigs ≥100 kb). [Virify](https://github.com/EBI-Metagenomics/emg-viral-pipeline) results can be ingested (optional input).
 
-**3. Integration** — All predictions are merged into a single `{sample}_mobilome.gff.gz`. Predictions <500 bp or with no CDS are discarded.
+**3. Integration** — All predictions are merged into a single `sample_mobilome.gff.gz`. Predictions <500 bp or with no CDS are discarded.
 
 **4. Functional annotation** — Three independent subworkflows annotate virulence factors, antimicrobial resistance genes (ARG) and biosynthetic gene clusters (BGC):
-- **PATHOFACT2**: toxin and virulence factor prediction via machine learning and DIAMOND vs VFDB.
-- **AMR_ANNOTATION**: antimicrobial resistance gene detection with AMRFinderPlus, DeepARG, and RGI (CARD).
-- **BGC_ANNOTATION**: biosynthetic gene cluster prediction and overlps merging with SanntiS, GECCO, and antiSMASH.
+- **PATHOFACT2**: toxin and virulence factor prediction via machine learning ([Pathofact2](https://gitlab.com/uniluxembourg/lcsb/systems-ecology/pathofact2)) and [DIAMOND](https://github.com/bbuchfink/diamond) vs [VFDB](https://www.mgc.ac.cn/VFs/).
+- **AMR_ANNOTATION**: antimicrobial resistance gene detection with [AMRFinderPlus](https://github.com/ncbi/amr), [DeepARG](https://github.com/gaarangoa/deeparg), and [RGI](https://github.com/arpcard/rgi) ([CARD](https://card.mcmaster.ca/)).
+- **BGC_ANNOTATION**: biosynthetic gene cluster prediction and overlps merging with [SanntiS](https://github.com/Finn-Lab/SanntiS), [GECCO](https://github.com/zellerlab/GECCO), and [antiSMASH](https://github.com/antismash/antismash).
 
 **5. Pathofact2-style report** — Virulence factor and ARG report in the context of BGCs and MGEs.
 
@@ -97,92 +97,7 @@ See [docs/usage.md](docs/usage.md) for skip flags, mobilome-only mode, and annot
 
 ## Outputs
 
-Results are written to `--outdir` (default: `results/`).
-
-```
-sample/
-├── sample_combined_report.tsv
-├── sample_discarded_mge.txt
-├── sample_mobilome.fasta.gz
-├── sample_overlap_report.txt
-├── gff/
-│   ├── sample_mobilome.gff.gz
-│   │   # When user proteins+GFF are provided, the three derived files are named
-│   │   # sample_user_mobilome_{clean,extra,full}.gff.gz (baseline: the user GFF).
-│   │   # Otherwise they are named sample_mobilome_{clean,extra,full}.gff.gz
-│   │   # (baseline: the Prodigal/tRNA genes GFF). Each has matching .csi and .gzi indexes.
-│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + genes covered by an MGE
-│   ├── sample_user_mobilome_clean.gff.gz.csi
-│   ├── sample_user_mobilome_clean.gff.gz.gzi
-│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
-│   ├── sample_user_mobilome_extra.gff.gz.csi
-│   ├── sample_user_mobilome_extra.gff.gz.gzi
-│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from the genes GFF
-│   ├── sample_user_mobilome_full.gff.gz.csi
-│   └── sample_user_mobilome_full.gff.gz.gzi
-├── prediction/
-│   ├── amr_genes/
-│   │   ├── integrated_sample.gff
-│   │   ├── amrfinderplus/
-│   │   │   └── sample.tsv
-│   │   ├── deeparg/
-│   │   │   └── sample.mapping.ARG
-│   │   └── rgi/
-│   │       └── sample.txt
-│   ├── bgcs/
-│   │   ├── sample_bgcs.gff
-│   │   ├── sample_bgcs.json
-│   │   ├── antismash/
-│   │   │   └── sample_antismash.gff
-│   │   ├── gecco/
-│   │   │   └── sample.gff
-│   │   └── sanntis/
-│   │       └── sample_sanntis.gff.gz
-│   ├── compositional_outliers/
-│   │   └── sample_100kb_contigs.1.bed
-│   ├── genomad/
-│   │   ├── sample_5kb_contigs_plasmid_summary.tsv
-│   │   └── sample_5kb_contigs_virus_summary.tsv
-│   ├── icefinder2lite/
-│   │   ├── sample_ice_genes.tsv
-│   │   └── sample_ices.tsv
-│   ├── integronfinder/
-│   │   ├── sample_100kb_contigs.summary
-│   │   └── contig_1.gbk
-│   ├── interproscan/
-│   │   └── sample.tsv.gz
-│   ├── isescan/
-│   │   └── sample_1kb_contigs.fasta.tsv
-│   ├── virify_filter/
-│   │   └── sample_virify_hq.gff
-│   └── virulence/
-│       └── sample_pathofact2.gff
-└── preprocessing/
-```
-When running with the flag `publish_all false`, the expected outputs are:
-```
-sample/
-├── sample_combined_report.tsv
-├── sample_discarded_mge.txt
-├── sample_mobilome.fasta.gz
-├── sample_overlap_report.txt
-└── gff/
-    ├── sample_mobilome.gff.gz
-    │   # When user proteins+GFF are provided, the three derived files are named
-    │   # sample_user_mobilome_{clean,extra,full}.gff.gz (baseline: the user GFF).
-    │   # Otherwise they are named sample_mobilome_{clean,extra,full}.gff.gz
-    │   # (baseline: the Prodigal/tRNA genes GFF). Each has matching .csi and .gzi indexes.
-    ├── sample_user_mobilome_clean.gff.gz
-    ├── sample_user_mobilome_clean.gff.gz.csi
-    ├── sample_user_mobilome_clean.gff.gz.gzi
-    ├── sample_user_mobilome_extra.gff.gz
-    ├── sample_user_mobilome_extra.gff.gz.csi
-    ├── sample_user_mobilome_extra.gff.gz.gzi
-    ├── sample_user_mobilome_full.gff.gz
-    ├── sample_user_mobilome_full.gff.gz.csi
-    └── sample_user_mobilome_full.gff.gz.gzi
-```
-
+Results are written to `--outdir` (default: `results/`). The main outputs are the sample/gff/sample_mobilome.gff.gz and the sample/sample_combined_report.tsv files.
 See [docs/outputs.md](docs/outputs.md) for the full directory layout, discarded prediction reasons, GFF feature type definitions, and combined report column reference.
 
 <a name="test"></a>
