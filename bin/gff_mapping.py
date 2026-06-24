@@ -25,6 +25,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 COV_THRESHOLD = 0.75
 
+# Attribute keys carried over from per-protein annotations (e.g. VIRify viphog hits)
+EXTRA_ANNOT_KEYS = [
+    "viphog",
+    "viphog_taxonomy",
+]
+
 def open_file(filename, mode='r'):
     """
     Open a file, handling both compressed (.gz) and uncompressed files.
@@ -131,12 +137,7 @@ def mobilome_parser(mobilome_clean):
         "geNomad_VIRify",
         "MAP",
     ]
-    
-    extra_annot = [
-        "viphog",
-        "viphog_taxonomy",
-    ]
-    
+
     with open_file(mobilome_clean) as input_table:
         logger.info(f"Successfully opened mobilome file: {mobilome_clean}")
         
@@ -171,7 +172,7 @@ def mobilome_parser(mobilome_clean):
                     for attr in attrib.split(";"):
                         if "=" in attr:  # Ensure attr has the expected format
                             att_key = attr.split("=")[0]
-                            if att_key in extra_annot:
+                            if att_key in EXTRA_ANNOT_KEYS:
                                 extra_list.append(attr)
                     
                     if len(extra_list) > 0:
