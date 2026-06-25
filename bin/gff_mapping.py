@@ -321,16 +321,17 @@ def gff_updater(
                             output_extra.write(mge + "\n")
                             output_full.write(mge + "\n")
                 
-                # Writing to extra and full outputs
-                if composite_val in proteins_annot:
+                # full keeps every feature, appending the viphog and pathofact2 attributes
+                # wherever they are available.
+                has_viphog = composite_val in proteins_annot
+                viphog_attr = proteins_annot[composite_val] if has_viphog else ""
+                if has_viphog:
                     proteins_with_extra_annot += 1
-                    extra_annot = proteins_annot[composite_val]
-                    output_extra.write(line.rstrip() + ";" + extra_annot + pf_suffix + "\n")
-                    output_full.write(line.rstrip() + ";" + extra_annot + pf_suffix + "\n")
+                    output_full.write(line.rstrip() + ";" + viphog_attr + pf_suffix + "\n")
                 else:
                     output_full.write(line.rstrip() + pf_suffix + "\n")
-                
-                # Finding mobilome proteins in the user file and writing to clean output
+
+                # Finding mobilome proteins in the user file and writing to clean/extra outputs
                 u_prot_start = int(start)
                 u_prot_end = int(end)
                 u_prot_range = range(u_prot_start, u_prot_end + 1)
@@ -352,17 +353,21 @@ def gff_updater(
                                 passenger_flag = 1
                                 mge_loc.append(mge_label)
                 
-                # Only MGE-covered (passenger) CDSs go to clean.
+                # clean keeps every MGE-covered (passenger) CDS; extra keeps the subset of
+                # those passengers that carry a functional annotation (viphog and/or
+                # pathofact2). Both share the same row format.
                 if passenger_flag == 1:
                     passenger_proteins += 1
                     mge_loc = "mge_location=" + ",".join(mge_loc)
-                    if composite_val in proteins_annot:
-                        extra_annot = proteins_annot[composite_val]
-                        output_clean.write(
-                            line.rstrip() + ";" + extra_annot + ";" + mge_loc + pf_suffix + "\n"
+                    if has_viphog:
+                        passenger_line = (
+                            line.rstrip() + ";" + viphog_attr + ";" + mge_loc + pf_suffix
                         )
                     else:
-                        output_clean.write(line.rstrip() + ";" + mge_loc + pf_suffix + "\n")
+                        passenger_line = line.rstrip() + ";" + mge_loc + pf_suffix
+                    output_clean.write(passenger_line + "\n")
+                    if has_viphog or pf_suffix:
+                        output_extra.write(passenger_line + "\n")
             else:
                 # Header/comment lines from the user GFF go to full only; clean and extra
                 # use the minimal header written above.

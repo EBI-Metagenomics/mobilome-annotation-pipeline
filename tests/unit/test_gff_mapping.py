@@ -176,6 +176,11 @@ contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot002
     assert "virus" in clean_content
     assert "mge_location=virus" in clean_content
 
+    # With no functional annotation, extra carries the mobilome feature but no genes
+    extra_content = (tmp_path / "output_user_mobilome_extra.gff").read_text()
+    assert "geNomad" in extra_content
+    assert "prot001" not in extra_content
+
 
 def test_passenger_protein_detection(tmp_path):
     """
@@ -347,6 +352,80 @@ contig1\tProdigal\tCDS\t1550\t1750\t.\t+\t0\tID=prot003
     prot003_clean = [l for l in clean if "ID=prot003" in l][0]
     assert "mge_location=virus" in prot003_clean
     assert "pathofact2=" not in prot003_clean
+
+    # extra holds only annotated passengers (viphog and/or pathofact2)
+    extra = (tmp_path / "output_user_mobilome_extra.gff").read_text().splitlines()
+    # prot001: passenger + in report -> qualifies, with the same row format as clean
+    prot001_extra = [l for l in extra if "ID=prot001" in l][0]
+    assert "pathofact2=vf,mge" in prot001_extra
+    assert "mge_location=virus" in prot001_extra
+    # prot002: in report but not a passenger -> excluded from extra
+    assert not any("ID=prot002" in l for l in extra)
+    # prot003: passenger but no functional annotation -> excluded from extra
+    assert not any("ID=prot003" in l for l in extra)
+
+
+def test_extra_holds_annotated_passengers(tmp_path):
+    """
+    `extra` holds the mobilome features plus the passenger CDSs (>75% inside an MGE) that
+    carry a functional annotation: a VIRify ViPhOG hit AND/OR a pathofact2 summary. A
+    passenger with neither, and an annotated CDS that is not a passenger, are both excluded.
+    Rows mirror the clean formatting (including mge_location).
+    """
+    user_gff = tmp_path / "user.gff"
+    user_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001\n"  # passenger + viphog
+        "contig1\tProdigal\tCDS\t1550\t1750\t.\t+\t0\tID=prot002\n"  # passenger + pathofact
+        "contig1\tProdigal\tCDS\t1600\t1700\t.\t+\t0\tID=prot003\n"  # passenger, no annotation
+        "contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot004\n"  # viphog but not passenger
+        "contig1\tProdigal\tCDS\t5100\t5400\t.\t+\t0\tID=prot005\n"  # pathofact but not passenger
+    )
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+    # proteins_annot is keyed (contig, start, end, strand) -> viphog attribute string
+    proteins_annot = {
+        ("contig1", "1500", "1800", "+"): "viphog=VOG0001",
+        ("contig1", "5000", "5500", "+"): "viphog=VOG0004",
+    }
+    summary_map = {"prot002": "arg", "prot005": "vf"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff),
+        str(output_prefix),
+        proteins_annot,
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+        summary_map,
+    )
+
+    extra = (tmp_path / "output_user_mobilome_extra.gff").read_text().splitlines()
+
+    # The mobilome feature is always present
+    assert any("geNomad\tvirus" in l for l in extra)
+
+    # prot001: passenger + viphog -> included, mirroring clean (viphog + mge_location)
+    prot001_extra = [l for l in extra if "ID=prot001" in l][0]
+    assert "viphog=VOG0001" in prot001_extra
+    assert "mge_location=virus" in prot001_extra
+
+    # prot002: passenger + pathofact2 (no viphog) -> included
+    prot002_extra = [l for l in extra if "ID=prot002" in l][0]
+    assert "pathofact2=arg" in prot002_extra
+    assert "mge_location=virus" in prot002_extra
+
+    # prot003: passenger but no annotation -> excluded
+    assert not any("ID=prot003" in l for l in extra)
+    # prot004: viphog but not a passenger -> excluded
+    assert not any("ID=prot004" in l for l in extra)
+    # prot005: pathofact2 but not a passenger -> excluded
+    assert not any("ID=prot005" in l for l in extra)
 
 
 def test_no_pathofact2_without_report(tmp_path):

@@ -16,13 +16,13 @@ sample/
 │   │   # sample_user_mobilome_{clean,extra,full}.gff.gz (baseline: the user GFF).
 │   │   # Otherwise they are named sample_mobilome_{clean,extra,full}.gff.gz
 │   │   # (baseline: the Prodigal/tRNA genes GFF). Each has matching .csi and .gzi indexes.
-│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + genes covered by an MGE
+│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + CDSs that fall inside an MGE
 │   ├── sample_user_mobilome_clean.gff.gz.csi
 │   ├── sample_user_mobilome_clean.gff.gz.gzi
-│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
+│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + functionally annotated passengers
 │   ├── sample_user_mobilome_extra.gff.gz.csi
 │   ├── sample_user_mobilome_extra.gff.gz.gzi
-│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from the genes GFF
+│   ├── sample_user_mobilome_full.gff.gz       # mobilome + every CDS from the genes GFF
 │   ├── sample_user_mobilome_full.gff.gz.csi
 │   └── sample_user_mobilome_full.gff.gz.gzi
 ├── prediction/
@@ -68,6 +68,33 @@ sample/
     ├── sample_100kb_contigs.fasta
     └── sample_contigID.map
 ```
+
+## Derived mobilome GFFs (clean / extra / full)
+
+The `gff/` directory holds the mobilome GFF (`sample_mobilome.gff.gz`) plus three derived
+GFFs produced by `gff_mapping.py`. Each merges the mobilome features with a baseline genes
+GFF: the user-provided proteins GFF when one is supplied (outputs named
+`sample_user_mobilome_*`), otherwise the pipeline's Prodigal/tRNA genes GFF (outputs named
+`sample_mobilome_*`). All three carry the **same set of mobilome features**; they differ in
+which genes from the baseline GFF they additionally include:
+
+- **`full`** — the superset: every mobilome feature plus **every** feature from the baseline
+  genes GFF. It preserves the baseline GFF's header. Where available, each CDS gains its
+  VIRify ViPhOG attributes (`viphog` / `viphog_taxonomy`) and a `pathofact2=<summary_string>`
+  attribute (from the [combined report](#combined-report)).
+- **`clean`** — mobilome features plus only the "passenger" CDSs that fall **inside** a mobile
+  element (>75% of the CDS length overlapping an MGE on the same contig). Each passenger CDS
+  additionally carries an `mge_location=` attribute, plus ViPhOG and `pathofact2=` attributes
+  when present.
+- **`extra`** — a subset of `clean`: the mobilome features plus only those **passenger** CDSs
+  that also carry a **functional annotation** — a VIRify ViPhOG hit (`viphog` /
+  `viphog_taxonomy`) and/or a `pathofact2=` summary. Rows use the same format as in `clean`
+  (including `mge_location=`). A passenger CDS with no functional annotation appears in
+  `clean` but not in `extra`; a functionally-annotated CDS that is not a passenger appears in
+  `full` but not in `extra`.
+
+`clean` and `extra` carry a minimal `##gff-version 3` header; `full` preserves the baseline
+GFF's full header. All three are bgzip-compressed with matching `.csi` and `.gzi` indexes.
 
 ## Discarded predictions
 
