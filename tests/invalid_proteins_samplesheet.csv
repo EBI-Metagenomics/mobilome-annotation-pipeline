@@ -1,2 +1,2 @@
 sample,assembly,proteins_gff,proteins_faa,virify_gff,interproscan_tsv
-neg_test,https://raw.githubusercontent.com/EBI-Metagenomics/mobilome-annotation-pipeline/refs/heads/feature/final-integration/tests/data/neg_test.fasta.gz,https://raw.githubusercontent.com/EBI-Metagenomics/mobilome-annotation-pipeline/refs/heads/feature/final-integration/tests/data/pos_test.gff.gz,,,
+neg_test,https://raw.githubusercontent.com/EBI-Metagenomics/mobilome-annotation-pipeline/refs/heads/dev/tests/data/neg_test.fasta.gz,https://raw.githubusercontent.com/EBI-Metagenomics/mobilome-annotation-pipeline/refs/heads/dev/tests/data/pos_test.gff.gz,,,

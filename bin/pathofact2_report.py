@@ -5,6 +5,8 @@ Integrate PathoFact2, antimicrobial resistance genes (AMR), mobilome, biosinteti
 
 Output columns:
     protein_id
+    contig_id
+    summary_string
     vfdb_hit
     vfdb_blastp_eval
     pathofact2_tox_prob
@@ -43,6 +45,8 @@ from typing import DefaultDict, Iterator
 
 OUTPUT_HEADER = [
     "protein_id",
+    "contig_id",
+    "summary_string",
     "vfdb_hit",
     "vfdb_blastp_eval",
     "pathofact2_tox_prob",
@@ -410,6 +414,7 @@ def build_rows(
     rows: list[dict[str, str]] = []
 
     for protein_id in sorted(prots_coords):
+        contig_id = prots_coords[protein_id][0]
         vfdb_hit, vfdb_blastp_eval, tox_prob, vf_prob, cdd_annotation = pathofact_data.get(
             protein_id,
             ("-", "-", "-", "-", "-"),
@@ -425,8 +430,22 @@ def build_rows(
         signalp = signalp_data.get(protein_id, "-")
         mge_type = protein_mge_map.get(protein_id, "-")
 
+        # Condensed per-gene tag string, tokens in fixed order: vf, arg, mge, bgc.
+        summary_string_list: list[str] = []
+        if vfdb_hit != "-" or tox_prob != "-" or vf_prob != "-":
+            summary_string_list.append("vf")
+        if protein_id in amr_data:
+            summary_string_list.append("arg")
+        if mge_type != "-":
+            summary_string_list.append("mge")
+        if protein_id in bgc_data:
+            summary_string_list.append("bgc")
+        summary_string = join_or_dash(summary_string_list)
+
         row = {
             "protein_id": protein_id,
+            "contig_id": contig_id,
+            "summary_string": summary_string,
             "vfdb_hit": vfdb_hit,
             "vfdb_blastp_eval": vfdb_blastp_eval,
             "pathofact2_tox_prob": tox_prob,

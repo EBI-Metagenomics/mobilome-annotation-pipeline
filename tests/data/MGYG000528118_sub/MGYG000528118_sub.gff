@@ -1,17 +1,4 @@
 ##gff-version 3
-##sequence-region MGYG000528118_1 1 2704123
-##sequence-region MGYG000528118_2 1 1934
-##sequence-region MGYG000528118_3 1 189487
-##sequence-region MGYG000528118_4 1 36019
-##sequence-region MGYG000528118_5 1 6504
-##sequence-region MGYG000528118_6 1 6446
-##sequence-region MGYG000528118_7 1 4408
-##sequence-region MGYG000528118_8 1 4374
-##sequence-region MGYG000528118_9 1 3874
-##sequence-region MGYG000528118_10 1 3837
-MGYG000528118_1_sub	ISEScan	terminal_inverted_repeat_element	14448	14460	.	.	.	ID=MGYG000528118_1_sub|terminal_inverted_repeat_element-1014447:1014459;flanking_site=TIR_1
-MGYG000528118_1_sub	ISEScan	terminal_inverted_repeat_element	16208	16220	.	.	.	ID=MGYG000528118_1_sub|terminal_inverted_repeat_element-1016207:1016219;flanking_site=TIR_2
-MGYG000528118_1_sub	ISEScan	insertion_sequence	14448	16220	.	.	.	ID=MGYG000528118_1_sub|insertion_sequence-1014447:1016219;mobile_element_type=IS110_with_TIR
 MGYG000528118_1_sub	Prodigal:002006	CDS	601	1035	.	+	0	ID=MGYG000528118_00983;inference=ab initio prediction:Prodigal:002006;locus_tag=MGYG000528118_00983;product=hypothetical protein;eggNOG=1104325.M7W_1502;cog=K;interpro=IPR016181,IPR045039
 MGYG000528118_1_sub	Prodigal:002006	CDS	1132	1431	.	-	0	ID=MGYG000528118_00984;inference=ab initio prediction:Prodigal:002006;locus_tag=MGYG000528118_00984;product=hypothetical protein;eggNOG=1104325.M7W_1503
 MGYG000528118_1_sub	Prodigal:002006	CDS	1700	1894	.	-	0	ID=MGYG000528118_00985;inference=ab initio prediction:Prodigal:002006;locus_tag=MGYG000528118_00985;product=hypothetical protein;eggNOG=1104325.M7W_1504
@@ -105,4 +92,3 @@ MGYG000528118_1_sub	Prodigal:002006	CDS	97768	97938	.	+	0	ID=MGYG000528118_01072
 MGYG000528118_1_sub	Prodigal:002006	CDS	97895	98782	.	+	0	ID=MGYG000528118_01073;Name=xerD;gene=xerD;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P0A0P0;locus_tag=MGYG000528118_01073;product=Tyrosine recombinase XerD;eggNOG=1104325.M7W_1599;cog=D;kegg=ko:K04763;pfam=PF00589,PF02899;interpro=IPR002104,IPR004107,IPR010998,IPR011010,IPR011931,IPR011932,IPR013762,IPR050090
 MGYG000528118_1_sub	Prodigal:002006	CDS	98801	99172	.	+	0	ID=MGYG000528118_01074;eC_number=2.3.1.-;Name=ribT;gene=ribT;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P17622;locus_tag=MGYG000528118_01074;product=Protein RibT;eggNOG=1104325.M7W_1600;cog=K;kegg=ko:K02859
 MGYG000528118_1_sub	Prodigal:002006	CDS	99142	99939	.	+	0	ID=MGYG000528118_01075;Name=scpA;Dbxref=COG:COG1354;gene=scpA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P35154;locus_tag=MGYG000528118_01075;product=Segregation and condensation protein A;eggNOG=1104325.M7W_1601;cog=D;kegg=ko:K05896;Ontology_term=GO:0003674,GO:0005488,GO:0005515,GO:0042802;pfam=PF02616;interpro=IPR003768
-##FASTA

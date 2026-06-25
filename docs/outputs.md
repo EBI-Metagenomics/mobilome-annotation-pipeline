@@ -12,13 +12,17 @@ sample/
 ├── sample_overlap_report.txt
 ├── gff/
 │   ├── sample_mobilome.gff.gz
-│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + matching CDSs
+│   │   # When user proteins+GFF are provided, the three derived files are named
+│   │   # sample_user_mobilome_{clean,extra,full}.gff.gz (baseline: the user GFF).
+│   │   # Otherwise they are named sample_mobilome_{clean,extra,full}.gff.gz
+│   │   # (baseline: the Prodigal/tRNA genes GFF). Each has matching .csi and .gzi indexes.
+│   ├── sample_user_mobilome_clean.gff.gz      # mobilome + CDSs that fall inside an MGE
 │   ├── sample_user_mobilome_clean.gff.gz.csi
 │   ├── sample_user_mobilome_clean.gff.gz.gzi
-│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + VIRify ViPhOG-annotated genes
+│   ├── sample_user_mobilome_extra.gff.gz      # mobilome + functionally annotated passengers
 │   ├── sample_user_mobilome_extra.gff.gz.csi
 │   ├── sample_user_mobilome_extra.gff.gz.gzi
-│   ├── sample_user_mobilome_full.gff.gz       # mobilome + all features from user GFF
+│   ├── sample_user_mobilome_full.gff.gz       # mobilome + every CDS from the genes GFF
 │   ├── sample_user_mobilome_full.gff.gz.csi
 │   └── sample_user_mobilome_full.gff.gz.gzi
 ├── prediction/
@@ -65,6 +69,33 @@ sample/
     └── sample_contigID.map
 ```
 
+## Derived mobilome GFFs (clean / extra / full)
+
+The `gff/` directory holds the mobilome GFF (`sample_mobilome.gff.gz`) plus three derived
+GFFs produced by `gff_mapping.py`. Each merges the mobilome features with a baseline genes
+GFF: the user-provided proteins GFF when one is supplied (outputs named
+`sample_user_mobilome_*`), otherwise the pipeline's Prodigal/tRNA genes GFF (outputs named
+`sample_mobilome_*`). All three carry the **same set of mobilome features**; they differ in
+which genes from the baseline GFF they additionally include:
+
+- **`full`** — the superset: every mobilome feature plus **every** feature from the baseline
+  genes GFF. It preserves the baseline GFF's header. Where available, each CDS gains its
+  VIRify ViPhOG attributes (`viphog` / `viphog_taxonomy`) and a `pathofact2=<summary_string>`
+  attribute (from the [combined report](#combined-report)).
+- **`clean`** — mobilome features plus only the "passenger" CDSs that fall **inside** a mobile
+  element (>75% of the CDS length overlapping an MGE on the same contig). Each passenger CDS
+  additionally carries an `mge_location=` attribute, plus ViPhOG and `pathofact2=` attributes
+  when present.
+- **`extra`** — a subset of `clean`: the mobilome features plus only those **passenger** CDSs
+  that also carry a **functional annotation** — a VIRify ViPhOG hit (`viphog` /
+  `viphog_taxonomy`) and/or a `pathofact2=` summary. Rows use the same format as in `clean`
+  (including `mge_location=`). A passenger CDS with no functional annotation appears in
+  `clean` but not in `extra`; a functionally-annotated CDS that is not a passenger appears in
+  `full` but not in `extra`.
+
+`clean` and `extra` carry a minimal `##gff-version 3` header; `full` preserves the baseline
+GFF's full header. All three are bgzip-compressed with matching `.csi` and `.gzi` indexes.
+
 ## Discarded predictions
 
 `sample_discarded_mge.txt` lists predictions excluded during integration and the reason:
@@ -101,9 +132,13 @@ GFF feature types and their Sequence Ontology mappings:
 
 **Seed proteins** — rows in the report — come from PathoFact2 and/or AMR GFF files. If both inputs are absent or empty, no report is generated. BGC annotations are only resolved for seed proteins; BGC-only or MGE-only proteins are not included as rows. MGE assignment requires ≥90% CDS overlap with a mobilome feature on the same contig. IPS input is optional; only SignalP entries are retained. Missing values are reported as `-`.
 
+Each protein's `summary_string` is also carried into the derived `*_mobilome_{clean,extra,full}.gff.gz` files as a `pathofact2=<summary_string>` attribute on the matching CDS.
+
 | Column | Description |
 |---|---|
 | `protein_id` | Protein identifier from Prodigal or the user-provided GFF |
+| `contig_id` | Contig the protein is located on |
+| `summary_string` | Condensed annotation tags for the gene, comma-joined in fixed order `vf,arg,mge,bgc`: `vf` (virulence — VFDB hit or PATHOFACT2 toxin/VF), `arg` (AMR), `mge` (within a mobile element), `bgc` (within a BGC). Every row carries at least `vf` or `arg` |
 | `vfdb_hit` | Best VFDB hit accession (DIAMOND blastp), `-` if no hit |
 | `vfdb_blastp_eval` | E-value of the VFDB hit |
 | `pathofact2_tox_prob` | PATHOFACT2 toxin probability (0–1); `-` if PATHOFACT2 was not run |
