@@ -90,7 +90,7 @@ Only `sample` and `assembly` are required. Optional columns:
 
 | Column | Description |
 |---|---|
-| `proteins_gff` | Pre-computed CDS annotation GFF (Prodigal or equivalent). If absent, MAP runs Prodigal internally. |
+| `proteins_gff` | Pre-computed CDS annotation GFF (PROKKA or equivalent). If absent, MAP runs Prodigal and fix the protein IDs in the gffg file. |
 | `proteins_faa` | Protein FASTA matching `proteins_gff`. |
 | `virify_gff` | VIRify ≥3.0.0 output GFF. Prophage predictions are incorporated into the mobilome. |
 | `interproscan_tsv` | Pre-computed InterProScan TSV. See below. |
