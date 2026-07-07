@@ -35,17 +35,24 @@ process PATHOFACT2_VIRULENCE {
     $uncompress_input
     $uncompress_db
 
-    python3 -c "
-        with open('${fasta_name}', 'r') as infile, open('cleaned_fasta.faa', 'w') as outfile:
-            # Split the file by '>' to handle multi-line records as single blocks
-            records = infile.read().split('>')
-            for r in records:
-                if not r.strip(): continue
-                    header, _, seq = r.partition('\\n')
-                    # Filtering out sequencies with 'X' characters
-                    if 'X' not in seq.replace('\\n', ''):
-                        outfile.write('>' + r)
-    "
+    python3 <<'PY'
+    from pathlib import Path
+
+    infile = Path("${fasta_name}")
+    outfile = Path("cleaned_fasta.faa")
+
+    with infile.open("r") as fin, outfile.open("w") as fout:
+        records = fin.read().split(">")
+
+        for record in records:
+            if not record.strip():
+                continue
+
+            _, _, seq = record.partition("\\n")
+
+            if "X" not in seq.replace("\\n", ""):
+                fout.write(">" + record)
+    PY
 
     vf_prediction2.py \\
         ${args} \\
