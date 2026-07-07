@@ -36,9 +36,21 @@ process PATHOFACT2_TOXINS {
     $uncompress_input
     $uncompress_db
 
+    python3 -c "
+        with open('${fasta_name}', 'r') as infile, open('cleaned_fasta.faa', 'w') as outfile:
+            # Split the file by '>' to handle multi-line records as single blocks
+            records = infile.read().split('>')
+            for r in records:
+                if not r.strip(): continue
+                    header, _, seq = r.partition('\\n')
+                    # Filtering out sequencies with 'X' characters
+                    if 'X' not in seq.replace('\\n', ''):
+                        outfile.write('>' + r)
+    "
+
     predict.py \\
         ${args} \\
-        -s ${fasta_name} \\
+        -s cleaned_fasta.faa \\
         -m ${db_dir}/Models/TOX/final_model.joblib \\
         -v ${db_dir}/Models/TOX/ \\
         --cpus ${task.cpus} \\
