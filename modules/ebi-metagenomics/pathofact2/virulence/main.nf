@@ -35,9 +35,21 @@ process PATHOFACT2_VIRULENCE {
     $uncompress_input
     $uncompress_db
 
+    python3 -c "
+        with open('${fasta_name}', 'r') as infile, open('cleaned_fasta.faa', 'w') as outfile:
+            # Split the file by '>' to handle multi-line records as single blocks
+            records = infile.read().split('>')
+            for r in records:
+                if not r.strip(): continue
+                    header, _, seq = r.partition('\\n')
+                    # Filtering out sequencies with 'X' characters
+                    if 'X' not in seq.replace('\\n', ''):
+                        outfile.write('>' + r)
+    "
+
     vf_prediction2.py \\
         ${args} \\
-        --file ${fasta_name} \\
+        --file cleaned_fasta.faa \\
         --model ${db_dir}/Models/VF/final_model.joblib \\
         --cpus ${task.cpus} \\
         --outfile ${prefix}_classifier_virulence.tsv
