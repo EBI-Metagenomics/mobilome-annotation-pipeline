@@ -57,10 +57,10 @@
             ]
         ],
         "meta": {
-            "nf-test": "0.9.3",
-            "nextflow": "25.04.7"
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
         },
-        "timestamp": "2026-06-23T15:31:23.348048"
+        "timestamp": "2026-07-08T12:39:38.075625691"
     },
     "Pathofact integration test with annotation manifest. Expected a report of proteins with relevant annotation": {
         "content": [
@@ -109,17 +109,17 @@
                 "pipeline_info"
             ],
             [
-                "MGYG000528118_sub_combined_report.tsv:md5,5d8ea449eae7e4657b939d9a143079e6",
+                "MGYG000528118_sub_combined_report.tsv:md5,551b1840e332cc6ccb67049c6dd1e4bc",
                 "MGYG000528118_sub_discarded_mge.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "MGYG000528118_sub_mobilome.fasta.gz:md5,6c831a87595d8427b6c14fa64b7acd77",
                 "MGYG000528118_sub_overlap_report.txt:md5,009fc7891415a47b1f07493101509b73",
                 "MGYG000528118_sub_mobilome.gff.gz:md5,f778614ca5af1075d615603e15f0ac73",
-                "MGYG000528118_sub_user_mobilome_clean.gff.gz:md5,c6c1ccca590acb0a508c3fdcbd86221f",
-                "MGYG000528118_sub_user_mobilome_clean.gff.gz.csi:md5,a60208f6f7ba778515dc43c902e1d862",
+                "MGYG000528118_sub_user_mobilome_clean.gff.gz:md5,a660aabfa5d3ddc0756667bcf9fc15a5",
+                "MGYG000528118_sub_user_mobilome_clean.gff.gz.csi:md5,03238dc76728dc458709736cab53814c",
                 "MGYG000528118_sub_user_mobilome_extra.gff.gz:md5,dfc20efd95619b0707598326349c128f",
                 "MGYG000528118_sub_user_mobilome_extra.gff.gz.csi:md5,11bb5b1efee88c6f2969c3c37a032df6",
-                "MGYG000528118_sub_user_mobilome_full.gff.gz:md5,ae8e56c013a37e511d7b79765fb43430",
-                "MGYG000528118_sub_user_mobilome_full.gff.gz.csi:md5,1a71b486a8ee14f70e0093eb60b303a3",
+                "MGYG000528118_sub_user_mobilome_full.gff.gz:md5,5fe761f8cfcfd384c45dafefde1a91cc",
+                "MGYG000528118_sub_user_mobilome_full.gff.gz.csi:md5,b2e1a9b28d015607fe5868fb18581b27",
                 "MGYG000528118_sub.txt:md5,601f0a16c0e999c2c5272d81f61bdf2f",
                 "MGYG000528118_sub_bgcs.gff:md5,85a5f38b14921b6256cf808d3e89c54b",
                 "MGYG000528118_sub_100kb_contigs.1.bed:md5,ce61c2fc1ece2d1738d7cbb8fe5583bd",
@@ -127,7 +127,7 @@
                 "MGYG000528118_sub_5kb_contigs_virus_summary.tsv:md5,aafc334566eab51ff2ffb3f5a89dacdb",
                 "contig_1.gbk:md5,4fa5d9684893b6e752413ad952da5866",
                 "MGYG000528118_sub_1kb_contigs.fasta.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "MGYG000528118_sub_pathofact2.gff:md5,deecd37dfb4c90440ad703e581b09d64",
+                "MGYG000528118_sub_pathofact2.gff:md5,cd7b0d1cf432cda22ff826f7782a0579",
                 "MGYG000528118_sub_100kb_contigs.fasta:md5,3bfa2eb92880a330da8d913fec58e2bb",
                 "MGYG000528118_sub_1kb_contigs.fasta:md5,3bfa2eb92880a330da8d913fec58e2bb",
                 "MGYG000528118_sub_5kb_contigs.fasta:md5,3bfa2eb92880a330da8d913fec58e2bb",
@@ -135,10 +135,10 @@
             ]
         ],
         "meta": {
-            "nf-test": "0.9.3",
-            "nextflow": "25.04.7"
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
         },
-        "timestamp": "2026-06-25T10:51:17.932525"
+        "timestamp": "2026-07-08T12:59:06.870494258"
     },
     "Positive test: mobilome-only run on the pos_test assembly covering IS, integron, ICE, plasmid, prophage (VIRify), and CO": {
         "content": [
@@ -212,9 +212,9 @@
             ]
         ],
         "meta": {
-            "nf-test": "0.9.3",
-            "nextflow": "25.04.7"
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
         },
-        "timestamp": "2026-06-23T15:30:25.357117"
+        "timestamp": "2026-07-08T12:20:37.258533475"
     }
 }
