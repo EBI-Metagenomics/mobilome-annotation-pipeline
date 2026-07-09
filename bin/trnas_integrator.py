@@ -35,10 +35,45 @@ class Feature:
     original_id: Optional[str] = None  # For tracking original prodigal IDs
 
 
-def parse_aragorn_output(file_path: str) -> Dict[str, List[Feature]]:
+def parse_contig_lengths_from_gff(file_path: str) -> Dict[str, int]:
+    """
+    Parse contig lengths from Prodigal GFF comment lines.
+
+    Expected Prodigal format:
+    # Sequence Data: seqnum=1;seqlen=118594;seqhdr="contig_1"
+    """
+    contig_lengths = {}
+
+    with gzip.open(file_path, "rt") as f:
+        for line_num, line in enumerate(f, start=1):
+            if not line.startswith("# Sequence Data:"):
+                continue
+
+            seqhdr_match = re.search(r'seqhdr="([^"]+)"', line)
+            seqlen_match = re.search(r"seqlen=(\d+)", line)
+
+            if not seqhdr_match or not seqlen_match:
+                print(
+                    f"Line {line_num}: Warning: could not parse Prodigal "
+                    f"Sequence Data line: {line.strip()}"
+                )
+                continue
+
+            contig_id = seqhdr_match.group(1)
+            contig_len = int(seqlen_match.group(1))
+            contig_lengths[contig_id] = contig_len
+
+    return contig_lengths
+
+
+def parse_aragorn_output(
+    file_path: str,
+    contig_lengths: Dict[str, int],
+) -> Dict[str, List[Feature]]:
     """
     Parse aragorn output following prokka rules.
     Returns dictionary with contig names as keys and tRNA features as values.
+    Fix coordinates whn start = 0 or end > contig length
     """
     trnas_per_contig = defaultdict(list)
     current_contig = None
@@ -86,6 +121,18 @@ def parse_aragorn_output(file_path: str) -> Dict[str, List[Feature]]:
             is_reverse = coord_match.group(1) == "c"
             start = int(coord_match.group(2))
             end = int(coord_match.group(3))
+
+            # Aragorn can report start as 0 for features beginning at the first base.
+            # GFF coordinates are 1-based, so convert 0 to 1.
+            if start == 0:
+                start = 1
+
+            # Clamp tRNA end coordinate to contig length if Aragorn reports one base
+            # beyond the contig boundary.
+            if current_contig in contig_lengths:
+                contig_len = contig_lengths[current_contig]
+                if end >= contig_len:
+                    end = contig_len
 
             # Apply prokka validation rules
             if start > end:
@@ -434,8 +481,12 @@ def main():
     print()
 
     # Parse input files
+    print("Parsing contig lengths from Prodigal GFF...")
+    contig_lengths = parse_contig_lengths_from_gff(args.prodigal_gff)
+    print(f"Found lengths for {len(contig_lengths)} contigs")
+
     print("Parsing Aragorn output...")
-    trna_features = parse_aragorn_output(args.aragorn)
+    trna_features = parse_aragorn_output(args.aragorn, contig_lengths)
     total_trnas = sum(len(features) for features in trna_features.values())
     print(
         f"Found {total_trnas} tRNA/tmRNA features across {len(trna_features)} contigs"
@@ -466,7 +517,7 @@ def main():
 
     # Write outputs
     print(f"\nWriting GFF3 output to: {args.prefix}_merged.gff")
-    write_gff3(integrated_features, args.prefix)
+    write_gff3(integrated_features, args.prefix, contig_lengths)
 
     print(f"\nWriting renamed faa output to: {args.prefix}_renamed.faa")
     write_faa(args.prodigal_faa, id_mapping, args.prefix)
