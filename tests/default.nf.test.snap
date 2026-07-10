@@ -40,8 +40,8 @@
                 "neg_test_mobilome_clean.gff.gz.csi:md5,812c0d392568c42e03b6f375de8b6424",
                 "neg_test_mobilome_extra.gff.gz:md5,df19e1b84ba6f691d20c72b397c88abf",
                 "neg_test_mobilome_extra.gff.gz.csi:md5,812c0d392568c42e03b6f375de8b6424",
-                "neg_test_mobilome_full.gff.gz:md5,9eb24c75ce7bf249344222195faa1a3c",
-                "neg_test_mobilome_full.gff.gz.csi:md5,43c73f50d36a9f405cdc9cd8d94b8ee5",
+                "neg_test_mobilome_full.gff.gz:md5,ee92649c1d9d35d011c2c5fe89aa179e",
+                "neg_test_mobilome_full.gff.gz.csi:md5,0b9127cbb5eefb5f4a4321380f61dee4",
                 "neg_test_discarded_mge.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "neg_test_mobilome.fasta.gz:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "neg_test_overlap_report.txt:md5,009fc7891415a47b1f07493101509b73",
@@ -60,7 +60,7 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.4"
         },
-        "timestamp": "2026-07-08T12:39:38.075625691"
+        "timestamp": "2026-07-10T10:25:03.437609355"
     },
     "Pathofact integration test with annotation manifest. Expected a report of proteins with relevant annotation": {
         "content": [
@@ -189,8 +189,8 @@
                 "pos_test_mobilome_clean.gff.gz.csi:md5,f7a115be3e7e1a4075ef62afa2299119",
                 "pos_test_mobilome_extra.gff.gz:md5,f159be0e6bf696daafe21ea4e15ceaed",
                 "pos_test_mobilome_extra.gff.gz.csi:md5,f47eb2fcc1ed57c8fe066bd356f7e506",
-                "pos_test_mobilome_full.gff.gz:md5,fba2d8f1f31cc8c1fd9f273d665b4084",
-                "pos_test_mobilome_full.gff.gz.csi:md5,ad4fde7b3e6b0cf82038cdccd773d843",
+                "pos_test_mobilome_full.gff.gz:md5,5d5db8d52fefd1322e9075f9d0cc0d79",
+                "pos_test_mobilome_full.gff.gz.csi:md5,d702d193e560196a6df48ad37a399b34",
                 "pos_test_discarded_mge.txt:md5,cb95cbdbde35c62c9ec7a7f7322f3a9d",
                 "pos_test_mobilome.fasta.gz:md5,a2aef37a55f756b5a7ebc48065b165cc",
                 "pos_test_overlap_report.txt:md5,dd99d385dd3d942b3a9d2cd89ccd726b",
@@ -215,6 +215,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.4"
         },
-        "timestamp": "2026-07-08T12:20:37.258533475"
+        "timestamp": "2026-07-10T10:03:47.680208496"
     }
 }
