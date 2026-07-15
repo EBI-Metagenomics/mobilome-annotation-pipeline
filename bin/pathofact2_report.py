@@ -43,6 +43,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import DefaultDict, Iterator
 
+from map_tools import mapping_names
+
 OUTPUT_HEADER = [
     "protein_id",
     "contig_id",
@@ -105,6 +107,15 @@ def parse_args() -> argparse.Namespace:
         required=False,
         type=Path,
         help="Optional InterProScan TSV file",
+    )
+    parser.add_argument(
+        "--contig_map",
+        required=False,
+        type=Path,
+        help="Optional contigID.map (renamed<TAB>original). When given, protein contig ids "
+        "are translated back to their original names so the report contig_id column and the "
+        "MGE-overlap matching use the original contig names. Only needed for the Prodigal "
+        "baseline; user-provided proteins already carry original names.",
     )
     parser.add_argument(
         "--output",
@@ -401,6 +412,22 @@ def assign_mge_types(
     return protein_mge_map
 
 
+def remap_contigs(
+    prots_coords: dict[str, tuple[str, int, int]],
+    names_equiv: dict[str, str],
+) -> dict[str, tuple[str, int, int]]:
+    """Translate protein contig ids (renamed) to their original names via names_equiv.
+
+    Proteins whose contig is not present in the map keep their contig id unchanged, so
+    inputs that already use original names (e.g. user-provided proteins) pass through
+    untouched.
+    """
+    return {
+        protein_id: (names_equiv.get(contig, contig), start, end)
+        for protein_id, (contig, start, end) in prots_coords.items()
+    }
+
+
 def build_rows(
     prots_coords: dict[str, tuple[str, int, int]],
     pathofact_data: dict[str, tuple[str, str, str, str, str]],
@@ -517,6 +544,16 @@ def main() -> None:
             "Skipping downstream parsing and not generating an output file."
         )
         return
+
+    # Translate renamed protein contig ids back to their original names (Prodigal baseline).
+    # Done before mobilome parsing so contig_id and the MGE-overlap matching (which keys on
+    # the mobilome GFF's already-original contig names) are consistent.
+    if not path_is_missing_or_empty(args.contig_map):
+        names_equiv = mapping_names.names_map(str(args.contig_map))[0]
+        prots_coords = remap_contigs(prots_coords, names_equiv)
+        logging.info("Translated protein contig ids to original names using %s", args.contig_map)
+    else:
+        logging.info("No contig map provided; using contig ids as found in the input GFFs")
 
     if not mobilome_missing:
         mobilome_data = parse_mobilome_gff(args.mobilome)

@@ -321,24 +321,20 @@ def gff_updater(
                             output_extra.write(mge + "\n")
                             output_full.write(mge + "\n")
                 
-                # full keeps every feature, appending the viphog and pathofact2 attributes
-                # wherever they are available.
                 has_viphog = composite_val in proteins_annot
                 viphog_attr = proteins_annot[composite_val] if has_viphog else ""
                 if has_viphog:
                     proteins_with_extra_annot += 1
-                    output_full.write(line.rstrip() + ";" + viphog_attr + pf_suffix + "\n")
-                else:
-                    output_full.write(line.rstrip() + pf_suffix + "\n")
 
-                # Finding mobilome proteins in the user file and writing to clean/extra outputs
+                # Finding the mobilome proteins (passengers) in the user file. Done before the
+                # full write so the mobile_element_type attribute is available for every output.
                 u_prot_start = int(start)
                 u_prot_end = int(end)
                 u_prot_range = range(u_prot_start, u_prot_end + 1)
                 u_prot_len = u_prot_end - u_prot_start
                 passenger_flag = 0
                 mge_loc = []
-                
+
                 if contig in mobilome_annot:
                     for coordinates in mges_dict[contig]:
                         mge_start = coordinates[0]
@@ -346,25 +342,32 @@ def gff_updater(
                         mge_range = range(mge_start, mge_end + 1)
                         mge_label = mob_types[(contig, mge_start, mge_end)]
                         intersection = len(list(set(mge_range) & set(u_prot_range)))
-                        
+
                         if intersection > 0:
                             u_prot_cov = float(intersection) / float(u_prot_len)
                             if u_prot_cov > COV_THRESHOLD:
                                 passenger_flag = 1
                                 mge_loc.append(mge_label)
-                
+
+                # Shared attribute suffix: viphog (when available), mobile_element_type (for
+                # passenger CDS), then pathofact2 (pf_suffix already begins with ";" or is "").
+                extra_attrs = ""
+                if has_viphog:
+                    extra_attrs += ";" + viphog_attr
+                if passenger_flag == 1:
+                    extra_attrs += ";" + "mobile_element_type=" + ",".join(mge_loc)
+                extra_attrs += pf_suffix
+
+                # full keeps every feature, carrying the viphog, mobile_element_type and pathofact2
+                # attributes wherever they are available.
+                output_full.write(line.rstrip() + extra_attrs + "\n")
+
                 # clean keeps every MGE-covered (passenger) CDS; extra keeps the subset of
                 # those passengers that carry a functional annotation (viphog and/or
-                # pathofact2). Both share the same row format.
+                # pathofact2). Both share the same row format as the full passenger line.
                 if passenger_flag == 1:
                     passenger_proteins += 1
-                    mge_loc = "mge_location=" + ",".join(mge_loc)
-                    if has_viphog:
-                        passenger_line = (
-                            line.rstrip() + ";" + viphog_attr + ";" + mge_loc + pf_suffix
-                        )
-                    else:
-                        passenger_line = line.rstrip() + ";" + mge_loc + pf_suffix
+                    passenger_line = line.rstrip() + extra_attrs
                     output_clean.write(passenger_line + "\n")
                     if has_viphog or pf_suffix:
                         output_extra.write(passenger_line + "\n")

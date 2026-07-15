@@ -15,6 +15,7 @@ from pathofact2_report import (
     parse_mobilome_gff,
     parse_pathofact2_gff,
     path_is_missing_or_empty,
+    remap_contigs,
     split_csv_value,
 )
 
@@ -452,6 +453,33 @@ class TestAssignMgeTypes:
         mges = {"ctg1": [(50, 250, "IS3")]}
         result = assign_mge_types(prots, mges)
         assert result["prot1"] == "-"
+
+
+# ---------------------------------------------------------------------------
+# remap_contigs
+# ---------------------------------------------------------------------------
+
+
+class TestRemapContigs:
+    def test_renamed_contigs_translated_to_original(self):
+        prots = {"prot1": ("1", 100, 200), "prot2": ("2", 300, 400)}
+        names_equiv = {"1": "NZ_real_1", "2": "NZ_real_2"}
+        result = remap_contigs(prots, names_equiv)
+        assert result == {
+            "prot1": ("NZ_real_1", 100, 200),
+            "prot2": ("NZ_real_2", 300, 400),
+        }
+
+    def test_unmapped_contigs_pass_through_unchanged(self):
+        # Original names (e.g. user-provided proteins) are not map keys -> left untouched
+        prots = {"prot1": ("NZ_real_1", 100, 200)}
+        names_equiv = {"1": "NZ_real_1"}
+        result = remap_contigs(prots, names_equiv)
+        assert result == {"prot1": ("NZ_real_1", 100, 200)}
+
+    def test_empty_map_is_noop(self):
+        prots = {"prot1": ("1", 100, 200)}
+        assert remap_contigs(prots, {}) == prots
 
 
 # ---------------------------------------------------------------------------
