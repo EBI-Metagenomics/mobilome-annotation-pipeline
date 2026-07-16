@@ -13,6 +13,7 @@
 */
 
 include { MOBILOMEANNOTATION } from './workflows/mobilomeannotation'
+include { DOWNLOAD_DATABASES } from './subworkflows/local/download_databases'
 
 //
 // WORKFLOW: Run main ebi-metagenomics/mobilome-annotation-pipeline analysis pipeline
@@ -28,8 +29,48 @@ workflow EBIMETAGENOMICS {
 */
 
 workflow {
-    EBIMETAGENOMICS()
+    if (params.download_dbs) {
+        DOWNLOAD_DATABASES()
+
+        workflow.onComplete {
+            def db_dir = params.download_dbs
+            if (workflow.success) {
+                log.info """
+                ============================================================
+                 Database download complete!
+                 Add the following block to your config file (e.g. my_paths.config)
+                 and pass it with: nextflow run ... -c my_paths.config
+                ============================================================
+                params {
+                    // Mobilome databases
+                    genomad_db                   = "${db_dir}/genomad/genomad_db_v1.9"
+                    checkv_db                    = "${db_dir}/checkV/checkv-db-v1.5"
+                    icefinder_macsyfinder_models = "${db_dir}/icefinder2/icf2_dbs/macsydata"
+                    icefinder_hmm_models         = "${db_dir}/icefinder2/icf2_dbs/icehmm/icescan"
+                    icefinder_prokka_uniprot_db  = "${db_dir}/icefinder2/icf2_dbs/icefinder_prokka_uniprot"
+
+                    // PATHOFACT2
+                    pathofact_models             = "${db_dir}/pathofact"
+                    virulencefactors_db          = "${db_dir}/virulence/VFDB_setB_pro.dmnd"
+                    ncbi_cdd                     = "${db_dir}/localcdsearch/database"
+
+                    // AMR
+                    amrfinderplus_db             = "${db_dir}/amrfinderplus/amrfinderdb"
+                    deeparg_db                   = "${db_dir}/deeparg/db"
+                    rgi_db                       = "${db_dir}/rgi/card_dir"
+
+                    // BGC
+                    antismash_db                 = "${db_dir}/antismash/antismash_db"
+                }
+                ============================================================
+                """.stripIndent()
+            }
+        }
+    } else {
+        EBIMETAGENOMICS()
+    }
 }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

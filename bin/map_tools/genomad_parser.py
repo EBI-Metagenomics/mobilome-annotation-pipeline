@@ -15,9 +15,10 @@
 # limitations under the License.
 
 import os.path
+import sys
 
 
-def genomad_viral(geno_out, mge_data):
+def genomad_viral(geno_out, mge_data, quality):
     mge_counter = 0
     if os.stat(geno_out).st_size == 0:
         return mge_data
@@ -47,6 +48,14 @@ def genomad_viral(geno_out, mge_data):
                     start = 1
                     end = int(line_l[1])
 
+                quality_contig = quality.get(pred_id, "")
+                if not quality_contig:
+                    sys.exit(f"No checkV values for record {pred_id}")
+                # CheckV values are appended to the attributes for the user to
+                # judge; we deliberately do NOT filter on them, to avoid
+                # discarding novel viral sequences due to CheckV database bias.
+                # geNomad's own score threshold (0.8) is the only QC gate here.
+                description += ';' + quality_contig
                 coord = (start, end)
                 value = (contig, description, coord)
                 mge_data[mge_id] = value

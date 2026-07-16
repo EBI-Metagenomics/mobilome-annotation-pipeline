@@ -1,3 +1,20 @@
 pipeline_info/*
 **/*.tbi
 **/*.gzi
+**/*_bgcs.json
+# IntegronFinder summary embeds the run command line (incl. --cpu N), so its md5
+# changes with CPU allocation. Verify presence (stable_name) but not content.
+**/*_contigs.summary
+# ice_genes.tsv has a gene_annot column of BLASTP best-hit UniProt product names.
+# Best-hit selection varies by CPU architecture (arm64 dev vs x86 CI), so its md5 is
+# not portable. The ICE call itself (ices.tsv + the feature in mobilome.gff) is stable
+# and stays content-asserted; here we verify presence (stable_name) but not content.
+**/*_ice_genes.tsv
+# pathofact2.gff and the combined report are assembled from multithreaded, tie-sensitive
+# tools (DIAMOND vs VFDB, hmmsearch, CD-search): among equal-scoring hits the order/selection
+# depends on thread scheduling (thread count follows task.cpus), so their md5 is not
+# reproducible across CPU allocations. The combined report is downstream of pathofact2.gff and
+# inherits the same noise. Presence (stable_name) and key content lines are asserted in the
+# pathofact test instead of the md5.
+**/*_pathofact2.gff
+**/*_combined_report.tsv

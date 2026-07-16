@@ -30,6 +30,30 @@ jobs:
         with:
           install-pdiff: true
 
+      - name: Free disk space
+        run: |
+          echo "Disk before cleanup:"
+          df -h
+
+          docker system prune -af || true
+          docker volume prune -f || true
+
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+
+          echo "Disk after cleanup:"
+          df -h
+
+      - name: Fetch ICEfinder2-lite test databases
+        run: |
+          mkdir -p tests/reference_databases/icefinder
+          wget -q -O tests/reference_databases/icefinder/icf2_dbs.tar.gz \
+            ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
+          tar -xzf tests/reference_databases/icefinder/icf2_dbs.tar.gz -C tests/reference_databases/icefinder
+          rm -f tests/reference_databases/icefinder/icf2_dbs.tar.gz
+
       - name: Run Tests
         run: nf-test test --verbose --ci tests/default.nf.test
      

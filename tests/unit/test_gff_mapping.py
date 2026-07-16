@@ -19,6 +19,7 @@ from gff_mapping import (
     sort_gff_file,
     mobilome_parser,
     gff_updater,
+    parse_combined_report,
 )
 
 
@@ -173,7 +174,12 @@ contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot002
 
     assert "geNomad" in clean_content
     assert "virus" in clean_content
-    assert "mge_location=virus" in clean_content
+    assert "mobile_element_type=virus" in clean_content
+
+    # With no functional annotation, extra carries the mobilome feature but no genes
+    extra_content = (tmp_path / "output_user_mobilome_extra.gff").read_text()
+    assert "geNomad" in extra_content
+    assert "prot001" not in extra_content
 
 
 def test_passenger_protein_detection(tmp_path):
@@ -184,8 +190,9 @@ def test_passenger_protein_detection(tmp_path):
     - Protein from 1500-1800 (length 300)
     - MGE from 1000-2000
     - Overlap: 300bp, coverage: 300/300 = 100% > 75% threshold
-    - Therefore prot001 should be marked as passenger
-    - prot002 (no overlap) should NOT be marked as passenger
+    - Therefore prot001 should be marked as passenger and kept in the clean output
+    - prot002 (no overlap) is not a passenger, so it must be excluded from clean
+      entirely (it remains in the full output)
     """
     user_gff = tmp_path / "user.gff"
     user_content = """##gff-version 3
@@ -213,10 +220,318 @@ contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot002
 
     lines = (tmp_path / "output_user_mobilome_clean.gff").read_text().splitlines()
 
-    # Check that prot001 is marked as passenger (has mge_location)
-    prot001_line = [l for l in lines if "prot001" in l][0]
-    assert "mge_location=virus" in prot001_line
+    # Clean carries a minimal header
+    assert lines[0] == "##gff-version 3"
 
-    # Check that prot002 is NOT marked as passenger
-    prot002_line = [l for l in lines if "prot002" in l][0]
-    assert "mge_location" not in prot002_line
+    # Check that prot001 is marked as passenger (has mobile_element_type)
+    prot001_line = [l for l in lines if "prot001" in l][0]
+    assert "mobile_element_type=virus" in prot001_line
+
+    # prot002 has no MGE overlap, so it must NOT appear in the clean output at all
+    assert not any("prot002" in l for l in lines)
+
+    # ...but the non-passenger protein is still preserved in the full output
+    full_lines = (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
+    assert any("prot002" in l for l in full_lines)
+
+    # full carries mobile_element_type on passenger CDS, matching clean/extra...
+    prot001_full = [l for l in full_lines if "prot001" in l][0]
+    assert "mobile_element_type=virus" in prot001_full
+    # ...but not on the non-passenger CDS, which has no MGE location
+    prot002_full = [l for l in full_lines if "prot002" in l][0]
+    assert "mobile_element_type=" not in prot002_full
+
+
+def test_header_routing(tmp_path):
+    """
+    clean and extra carry only a minimal `##gff-version 3` header; full preserves the
+    user GFF's full header, including any `##sequence-region` lines.
+    """
+    user_gff = tmp_path / "user.gff"
+    user_content = """##gff-version 3
+##sequence-region contig1 1 10000
+contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001
+"""
+    user_gff.write_text(user_content)
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff),
+        str(output_prefix),
+        {},
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+    )
+
+    # clean and extra: header is exactly the minimal version line
+    for name in ("clean", "extra"):
+        content = (tmp_path / f"output_user_mobilome_{name}.gff").read_text()
+        header = [l for l in content.splitlines() if l.startswith("#")]
+        assert header == ["##gff-version 3"]
+
+    # full: keeps the full user header, sequence-region included
+    full_header = [
+        l
+        for l in (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
+        if l.startswith("#")
+    ]
+    assert "##gff-version 3" in full_header
+    assert "##sequence-region contig1 1 10000" in full_header
+
+
+def test_parse_combined_report(tmp_path):
+    """Combined report TSV is parsed into a {protein_id: summary_string} map."""
+    report = tmp_path / "report.tsv"
+    # summary_string deliberately not adjacent to protein_id to check name-based lookup
+    report.write_text(
+        "protein_id\tcontig_id\tsummary_string\tvfdb_hit\n"
+        "prot001\tcontig1\tvf,mge\tVFG1\n"
+        "prot002\tcontig1\targ\t-\n"
+    )
+
+    summary_map = parse_combined_report(str(report))
+
+    assert summary_map == {"prot001": "vf,mge", "prot002": "arg"}
+
+    # Missing/empty report yields an empty map (annotation simply skipped)
+    empty = tmp_path / "empty.tsv"
+    empty.write_text("")
+    assert parse_combined_report(str(empty)) == {}
+
+
+def test_pathofact2_annotation(tmp_path):
+    """
+    When a summary_map is supplied, each CDS present in the report gains a
+    `pathofact2=<summary>` attribute, in clean/extra/full wherever that CDS is written.
+    - prot001: passenger (in an MGE) and in the report -> annotated in clean and full
+    - prot002: not a passenger but in the report -> annotated in full only (absent from clean)
+    - prot003: passenger but NOT in the report -> in clean with no pathofact2 attribute
+    """
+    user_gff = tmp_path / "user.gff"
+    user_content = """##gff-version 3
+contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001
+contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot002
+contig1\tProdigal\tCDS\t1550\t1750\t.\t+\t0\tID=prot003
+"""
+    user_gff.write_text(user_content)
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+    summary_map = {"prot001": "vf,mge", "prot002": "arg"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff),
+        str(output_prefix),
+        {},
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+        summary_map,
+    )
+
+    clean = (tmp_path / "output_user_mobilome_clean.gff").read_text().splitlines()
+    full = (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
+
+    # prot001: passenger + in report -> pathofact2 in both clean and full
+    prot001_clean = [l for l in clean if "ID=prot001" in l][0]
+    assert "pathofact2=vf,mge" in prot001_clean
+    assert "mobile_element_type=virus" in prot001_clean
+    prot001_full = [l for l in full if "ID=prot001" in l][0]
+    assert "pathofact2=vf,mge" in prot001_full
+
+    # prot002: in report but not a passenger -> annotated in full, absent from clean
+    assert not any("ID=prot002" in l for l in clean)
+    prot002_full = [l for l in full if "ID=prot002" in l][0]
+    assert "pathofact2=arg" in prot002_full
+
+    # prot003: passenger but not in report -> present in clean, no pathofact2
+    prot003_clean = [l for l in clean if "ID=prot003" in l][0]
+    assert "mobile_element_type=virus" in prot003_clean
+    assert "pathofact2=" not in prot003_clean
+
+    # extra holds only annotated passengers (viphog and/or pathofact2)
+    extra = (tmp_path / "output_user_mobilome_extra.gff").read_text().splitlines()
+    # prot001: passenger + in report -> qualifies, with the same row format as clean
+    prot001_extra = [l for l in extra if "ID=prot001" in l][0]
+    assert "pathofact2=vf,mge" in prot001_extra
+    assert "mobile_element_type=virus" in prot001_extra
+    # prot002: in report but not a passenger -> excluded from extra
+    assert not any("ID=prot002" in l for l in extra)
+    # prot003: passenger but no functional annotation -> excluded from extra
+    assert not any("ID=prot003" in l for l in extra)
+
+
+def test_extra_holds_annotated_passengers(tmp_path):
+    """
+    `extra` holds the mobilome features plus the passenger CDSs (>75% inside an MGE) that
+    carry a functional annotation: a VIRify ViPhOG hit AND/OR a pathofact2 summary. A
+    passenger with neither, and an annotated CDS that is not a passenger, are both excluded.
+    Rows mirror the clean formatting (including mobile_element_type).
+    """
+    user_gff = tmp_path / "user.gff"
+    user_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001\n"  # passenger + viphog
+        "contig1\tProdigal\tCDS\t1550\t1750\t.\t+\t0\tID=prot002\n"  # passenger + pathofact
+        "contig1\tProdigal\tCDS\t1600\t1700\t.\t+\t0\tID=prot003\n"  # passenger, no annotation
+        "contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot004\n"  # viphog but not passenger
+        "contig1\tProdigal\tCDS\t5100\t5400\t.\t+\t0\tID=prot005\n"  # pathofact but not passenger
+    )
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+    # proteins_annot is keyed (contig, start, end, strand) -> viphog attribute string
+    proteins_annot = {
+        ("contig1", "1500", "1800", "+"): "viphog=VOG0001",
+        ("contig1", "5000", "5500", "+"): "viphog=VOG0004",
+    }
+    summary_map = {"prot002": "arg", "prot005": "vf"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff),
+        str(output_prefix),
+        proteins_annot,
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+        summary_map,
+    )
+
+    extra = (tmp_path / "output_user_mobilome_extra.gff").read_text().splitlines()
+
+    # The mobilome feature is always present
+    assert any("geNomad\tvirus" in l for l in extra)
+
+    # prot001: passenger + viphog -> included, mirroring clean (viphog + mobile_element_type)
+    prot001_extra = [l for l in extra if "ID=prot001" in l][0]
+    assert "viphog=VOG0001" in prot001_extra
+    assert "mobile_element_type=virus" in prot001_extra
+
+    # prot002: passenger + pathofact2 (no viphog) -> included
+    prot002_extra = [l for l in extra if "ID=prot002" in l][0]
+    assert "pathofact2=arg" in prot002_extra
+    assert "mobile_element_type=virus" in prot002_extra
+
+    # prot003: passenger but no annotation -> excluded
+    assert not any("ID=prot003" in l for l in extra)
+    # prot004: viphog but not a passenger -> excluded
+    assert not any("ID=prot004" in l for l in extra)
+    # prot005: pathofact2 but not a passenger -> excluded
+    assert not any("ID=prot005" in l for l in extra)
+
+
+def test_no_pathofact2_without_report(tmp_path):
+    """Without a summary_map, no `pathofact2=` attribute is added (backward compatible)."""
+    user_gff = tmp_path / "user.gff"
+    user_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001\n"
+    )
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff),
+        str(output_prefix),
+        {},
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+    )
+
+    for name in ("clean", "extra", "full"):
+        content = (tmp_path / f"output_user_mobilome_{name}.gff").read_text()
+        assert "pathofact2=" not in content
+
+
+def test_output_naming_infix(tmp_path):
+    """
+    output_infix controls the output filenames: the default keeps the historical
+    `*_user_mobilome_*` names; `_mobilome_` (Prodigal/tRNA baseline) drops the `_user`.
+    """
+    genes_gff = tmp_path / "genes.gff"
+    genes_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001\n"
+    )
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+
+    # No-user baseline -> *_mobilome_* (no _user)
+    no_user_prefix = tmp_path / "nouser"
+    gff_updater(
+        str(genes_gff), str(no_user_prefix), {}, mobilome_annot, mges_dict, mob_types,
+        output_infix="_mobilome_",
+    )
+    for kind in ("clean", "extra", "full"):
+        assert (tmp_path / f"nouser_mobilome_{kind}.gff").exists()
+        assert not (tmp_path / f"nouser_user_mobilome_{kind}.gff").exists()
+
+    # Default keeps the user naming
+    user_prefix = tmp_path / "user"
+    gff_updater(
+        str(genes_gff), str(user_prefix), {}, mobilome_annot, mges_dict, mob_types,
+    )
+    for kind in ("clean", "extra", "full"):
+        assert (tmp_path / f"user_user_mobilome_{kind}.gff").exists()
+
+
+def test_contig_name_translation(tmp_path):
+    """
+    With a renamed->original contig map, genes-GFF contigs are translated so they align with
+    the (already renamed-back) mobilome GFF, and the outputs use the original names. Without
+    it, the contigs would not match and no MGE/passenger would be written.
+    """
+    genes_gff = tmp_path / "genes.gff"
+    genes_gff.write_text(
+        "##gff-version 3\n"
+        "contig_1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\tID=prot001\n"
+    )
+    # mobilome annotation is keyed by the ORIGINAL contig name
+    mobilome_annot = {
+        "NZ_real_1": ["NZ_real_1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"NZ_real_1": [(1000, 2000)]}
+    mob_types = {("NZ_real_1", 1000, 2000): "virus"}
+    names_equiv = {"contig_1": "NZ_real_1"}
+
+    output_prefix = tmp_path / "out"
+    gff_updater(
+        str(genes_gff), str(output_prefix), {}, mobilome_annot, mges_dict, mob_types,
+        names_equiv=names_equiv, output_infix="_mobilome_",
+    )
+
+    full = (tmp_path / "out_mobilome_full.gff").read_text()
+    clean = (tmp_path / "out_mobilome_clean.gff").read_text()
+
+    # MGE feature present and the gene translated to the original contig name (no renamed id left)
+    assert "NZ_real_1\tgeNomad\tvirus" in full
+    assert "NZ_real_1\tProdigal\tCDS" in full
+    assert "contig_1" not in full
+    # Passenger gene (100% within the MGE) lands in clean under the original name
+    assert "NZ_real_1\tProdigal\tCDS\t1500\t1800" in clean
+    assert "mobile_element_type=virus" in clean
+    assert "contig_1" not in clean

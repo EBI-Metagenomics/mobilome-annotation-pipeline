@@ -1,12 +1,32 @@
-# Test Database Preparation for ICEFinder 2 Lite
+# Test Databases for ICEFinder 2 Lite
 
-ICEFinder 2 lite requires three reference databases for proper functionality:
+ICEFinder 2 lite requires three reference databases (HMM models, MacSyFinder models,
+and a Prokka-formatted UniProt BLAST DB). These are **not committed** to the repo.
 
-## ICEFinder 2 specific HMM Models
-These models are sourced directly from [ICEFinder 2](https://github.com/EBI-Metagenomics/icefinder2) and have been converted from HMMER 2 format to HMMER 3. The complete model set is used without trimming down as it is small enough not to be problem.
+The full DBs are downloaded on the fly from the EBI FTP (the same 61 MB `icf2_dbs.tar.gz`
+the production `DB_DOWNLOAD_MOBILOME_DBS` module uses), and extracted into `icf2_dbs/`
+here (git-ignored). Fetch them before running the nf-test suite:
 
-## MacSyFinder Models
-The [MacSyFinder](https://macsyfinder.readthedocs.io/en/latest/) models were compiled by the ICEFinder 2 team. For the test database, a subset of these models has been selected.
+```bash
+task fetch-icefinder-test-db
+```
 
-## UniProt Database (Prokka format)
-A custom UniProt database formatted following Prokka custom headers has been created. This format is required because ICEFinder 2 extracts specific annotations from the database during analysis.
+This downloads and unpacks:
+
+```
+icf2_dbs/
+├── icehmm/                    # icescan.hmm.* (hmmpressed) + ICEfinder.hmm.*
+├── macsydata/ICEscan/         # full MacSyFinder model set (T4SS typeB..typeG, AICE, IME)
+└── icefinder_prokka_uniprot/  # prokka_uniprot_sprot.fasta.* BLAST DB
+```
+
+`conf/test.config` points the `icefinder_*` params at these paths, and CI fetches the
+same tarball before `nf-test test` (see `.github/workflows/full_pipeline_test.yml`).
+
+## Why the full DB instead of a mini-DB?
+
+The previous hand-curated mini-DB only modelled AICE-type systems, so it could never
+detect the T4SS/MOBH/typeG ICE present in the positive-test assembly — `ices.tsv` was
+always empty. Using the full model set (the same one the cluster runs use) gives a real
+positive ICE detection end-to-end, and removes ~60 MB of binaries from the repo tree at
+the cost of a 61 MB runtime fetch.

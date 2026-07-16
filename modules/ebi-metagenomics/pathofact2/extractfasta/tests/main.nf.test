@@ -1,0 +1,121 @@
+nextflow_process {
+
+    name "Test Process PATHOFACT2_EXTRACTFASTA"
+    script "../main.nf"
+    process "PATHOFACT2_EXTRACTFASTA"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_ebimetagenomics"
+    tag "pathofact2"
+    tag "pathofact2/extractfasta"
+
+    test("extract - fasta") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.faa.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_diamond_vfdb.txt.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_classifier_toxins.tsv.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_classifier_virulence.tsv.gz", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.fasta).match("fasta_file") },
+                { assert snapshot(process.out.tsv).match("tsv_file") },
+                { assert snapshot(process.out.versions_python).match("versions") }
+            )
+        }
+
+    }
+
+    test("extract - fasta - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.faa.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_diamond_vfdb.txt.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_classifier_toxins.tsv.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_classifier_virulence.tsv.gz", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.fasta).match("fasta_file_stub") },
+                { assert snapshot(process.out.tsv).match("tsv_file_stub") },
+                { assert snapshot(process.out.versions_python).match("versions_stub") }
+            )
+        }
+
+    }
+
+    test("empty inputs - fasta") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.faa.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_diamond_vfdb_empty.txt.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_toxins_empty.tsv.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_virulence_empty.tsv.gz", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.versions_python).match("versions_empty") }
+            )
+        }
+
+    }
+
+    test("empty inputs - fasta - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id:'test'],
+                    file("${moduleDir}/tests/data/test_protein.faa.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_diamond_vfdb_empty.txt.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_toxins_empty.tsv.gz", checkIfExists: true),
+                    file("${moduleDir}/tests/data/test_virulence_empty.tsv.gz", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.versions_python).match("versions_empty_stub") }
+            )
+        }
+
+    }
+
+}

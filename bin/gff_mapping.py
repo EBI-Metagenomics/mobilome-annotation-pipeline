@@ -19,9 +19,17 @@ import sys
 import os.path
 import gzip
 
+from map_tools import mapping_names
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 COV_THRESHOLD = 0.75
+
+# Attribute keys carried over from per-protein annotations (e.g. VIRify viphog hits)
+EXTRA_ANNOT_KEYS = [
+    "viphog",
+    "viphog_taxonomy",
+]
 
 def open_file(filename, mode='r'):
     """
@@ -129,12 +137,7 @@ def mobilome_parser(mobilome_clean):
         "geNomad_VIRify",
         "MAP",
     ]
-    
-    extra_annot = [
-        "viphog",
-        "viphog_taxonomy",
-    ]
-    
+
     with open_file(mobilome_clean) as input_table:
         logger.info(f"Successfully opened mobilome file: {mobilome_clean}")
         
@@ -169,7 +172,7 @@ def mobilome_parser(mobilome_clean):
                     for attr in attrib.split(";"):
                         if "=" in attr:  # Ensure attr has the expected format
                             att_key = attr.split("=")[0]
-                            if att_key in extra_annot:
+                            if att_key in EXTRA_ANNOT_KEYS:
                                 extra_list.append(attr)
                     
                     if len(extra_list) > 0:
@@ -187,46 +190,96 @@ def mobilome_parser(mobilome_clean):
     
     return (proteins_annot, mobilome_annot, mges_dict, mob_types)
 
+def parse_combined_report(report_file):
+    """
+    Parse the PathoFact2 combined report into a {protein_id: summary_string} map.
+
+    Column positions are resolved from the header row so the parser is robust to
+    column re-ordering. Returns an empty dict if the file is missing, empty, or does
+    not contain the expected columns.
+    """
+    if is_file_empty(report_file):
+        logger.warning(f"Combined report is empty or missing: {report_file}")
+        return {}
+
+    summary_map = {}
+    with open_file(report_file) as handle:
+        header = handle.readline().rstrip("\n").split("\t")
+        try:
+            id_idx = header.index("protein_id")
+            summary_idx = header.index("summary_string")
+        except ValueError:
+            logger.error(
+                "Combined report missing 'protein_id' or 'summary_string' column; "
+                "skipping pathofact2 annotation"
+            )
+            return {}
+
+        for line in handle:
+            cols = line.rstrip("\n").split("\t")
+            if len(cols) <= max(id_idx, summary_idx):
+                continue
+            summary_map[cols[id_idx]] = cols[summary_idx]
+
+    logger.info(f"Parsed combined report: {len(summary_map)} proteins with summary strings")
+    return summary_map
+
+
 def gff_updater(
-    user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types
+    user_gff, output_prefix, proteins_annot, mobilome_annot, mges_dict, mob_types,
+    summary_map=None, output_infix="_user_mobilome_", names_equiv=None,
 ):
-    """Adding the mobilome predictions to the user file (handles compressed input/output)."""
-    
+    """Adding the mobilome predictions to the user file (handles compressed input/output).
+
+    output_infix controls the output file naming: "_user_mobilome_" for user-provided
+    genes, "_mobilome_" when the baseline is the Prodigal/tRNA genes GFF.
+
+    names_equiv maps renamed contig ids -> original ids. When provided (the Prodigal/tRNA
+    baseline still uses the internal renamed ids), each genes-GFF feature's contig is
+    translated to its original name so it aligns with the already-renamed-back mobilome GFF.
+    """
+
+    summary_map = summary_map or {}
+    names_equiv = names_equiv or {}
+
+    extra_file = f"{output_prefix}{output_infix}extra.gff"
+    full_file = f"{output_prefix}{output_infix}full.gff"
+    clean_file = f"{output_prefix}{output_infix}clean.gff"
+
     # Check if input file exists
     if not os.path.exists(user_gff):
         logger.error(f"User GFF file not found: {user_gff}")
         sys.exit(1)
-    
+
     # Check if input file has content
     if is_file_empty(user_gff):
         logger.warning(f"User GFF file is empty: {user_gff}")
         # Still create empty output files
-        output_files = [
-            f"{output_prefix}_user_mobilome_extra.gff",
-            f"{output_prefix}_user_mobilome_full.gff",
-            f"{output_prefix}_user_mobilome_clean.gff"
-        ]
-        for output_file in output_files:
+        for output_file in (extra_file, full_file, clean_file):
             with open_file(output_file, 'w') as f:
                 pass  # Create empty file
         logger.info(f"Created empty output files with prefix: {output_prefix}")
         return
-    
+
     logger.info(f"Starting GFF update process with file: {user_gff}")
-    
+
     used_contigs = []
     processed_lines = 0
     annotation_lines = 0
     proteins_with_extra_annot = 0
     passenger_proteins = 0
-    
+
     with open_file(user_gff) as input_table, \
-         open_file(f"{output_prefix}_user_mobilome_extra.gff", "w") as output_extra, \
-         open_file(f"{output_prefix}_user_mobilome_full.gff", "w") as output_full, \
-         open_file(f"{output_prefix}_user_mobilome_clean.gff", "w") as output_clean:
+         open_file(extra_file, "w") as output_extra, \
+         open_file(full_file, "w") as output_full, \
+         open_file(clean_file, "w") as output_clean:
 
         logger.info(f"Output files created with prefix: {output_prefix}")
-        
+
+        # clean and extra carry a minimal header; full preserves the user GFF's full header.
+        output_clean.write("##gff-version 3\n")
+        output_extra.write("##gff-version 3\n")
+
         for line in input_table:
             processed_lines += 1
             l_line = line.rstrip().split("\t")
@@ -234,12 +287,30 @@ def gff_updater(
             # Annotation lines have exactly 9 columns
             if len(l_line) == 9:
                 annotation_lines += 1
+                # Translate the contig from the internal renamed id to the original name so
+                # it matches the mobilome GFF; rebuild the line so the output uses it too.
+                if names_equiv:
+                    l_line[0] = names_equiv.get(l_line[0], l_line[0])
+                    line = "\t".join(l_line)
                 contig = l_line[0]
                 start = l_line[3]
                 end = l_line[4]
                 strand = l_line[6]
                 composite_val = (contig, start, end, strand)
-                
+
+                # Append the PathoFact2 summary string (e.g. vf,mge,bgc) from the combined
+                # report when this protein is present in it, as a `;pathofact2=...` attribute.
+                protein_id = ""
+                for attr in l_line[8].split(";"):
+                    if attr.startswith("ID="):
+                        protein_id = attr[3:]
+                        break
+                pf_suffix = (
+                    f";pathofact2={summary_map[protein_id]}"
+                    if protein_id in summary_map
+                    else ""
+                )
+
                 if contig not in used_contigs:
                     used_contigs.append(contig)
                     
@@ -250,23 +321,20 @@ def gff_updater(
                             output_extra.write(mge + "\n")
                             output_full.write(mge + "\n")
                 
-                # Writing to extra and full outputs
-                if composite_val in proteins_annot:
+                has_viphog = composite_val in proteins_annot
+                viphog_attr = proteins_annot[composite_val] if has_viphog else ""
+                if has_viphog:
                     proteins_with_extra_annot += 1
-                    extra_annot = proteins_annot[composite_val]
-                    output_extra.write(line.rstrip() + ";" + extra_annot + "\n")
-                    output_full.write(line.rstrip() + ";" + extra_annot + "\n")
-                else:
-                    output_full.write(line.rstrip() + "\n")
-                
-                # Finding mobilome proteins in the user file and writing to clean output
+
+                # Finding the mobilome proteins (passengers) in the user file. Done before the
+                # full write so the mobile_element_type attribute is available for every output.
                 u_prot_start = int(start)
                 u_prot_end = int(end)
                 u_prot_range = range(u_prot_start, u_prot_end + 1)
-                u_prot_len = u_prot_end - u_prot_start + 1
+                u_prot_len = u_prot_end - u_prot_start
                 passenger_flag = 0
                 mge_loc = []
-                
+
                 if contig in mobilome_annot:
                     for coordinates in mges_dict[contig]:
                         mge_start = coordinates[0]
@@ -274,28 +342,38 @@ def gff_updater(
                         mge_range = range(mge_start, mge_end + 1)
                         mge_label = mob_types[(contig, mge_start, mge_end)]
                         intersection = len(list(set(mge_range) & set(u_prot_range)))
-                        
+
                         if intersection > 0:
                             u_prot_cov = float(intersection) / float(u_prot_len)
                             if u_prot_cov > COV_THRESHOLD:
                                 passenger_flag = 1
                                 mge_loc.append(mge_label)
-                
+
+                # Shared attribute suffix: viphog (when available), mobile_element_type (for
+                # passenger CDS), then pathofact2 (pf_suffix already begins with ";" or is "").
+                extra_attrs = ""
+                if has_viphog:
+                    extra_attrs += ";" + viphog_attr
+                if passenger_flag == 1:
+                    extra_attrs += ";" + "mobile_element_type=" + ",".join(mge_loc)
+                extra_attrs += pf_suffix
+
+                # full keeps every feature, carrying the viphog, mobile_element_type and pathofact2
+                # attributes wherever they are available.
+                output_full.write(line.rstrip() + extra_attrs + "\n")
+
+                # clean keeps every MGE-covered (passenger) CDS; extra keeps the subset of
+                # those passengers that carry a functional annotation (viphog and/or
+                # pathofact2). Both share the same row format as the full passenger line.
                 if passenger_flag == 1:
                     passenger_proteins += 1
-                    mge_loc = "mge_location=" + ",".join(mge_loc)
-                    if composite_val in proteins_annot:
-                        extra_annot = proteins_annot[composite_val]
-                        output_clean.write(
-                            line.rstrip() + ";" + extra_annot + ";" + mge_loc + "\n"
-                        )
-                    else:
-                        output_clean.write(line.rstrip() + ";" + mge_loc + "\n")
-                else:
-                    output_clean.write(line.rstrip() + "\n")
+                    passenger_line = line.rstrip() + extra_attrs
+                    output_clean.write(passenger_line + "\n")
+                    if has_viphog or pf_suffix:
+                        output_extra.write(passenger_line + "\n")
             else:
-                # Non-annotation lines (headers, comments, etc.)
-                output_extra.write(line.rstrip() + "\n")
+                # Header/comment lines from the user GFF go to full only; clean and extra
+                # use the minimal header written above.
                 output_full.write(line.rstrip() + "\n")
     
     # Log processing statistics
@@ -306,13 +384,13 @@ def gff_updater(
     logger.info(f"  - Proteins with extra annotations: {proteins_with_extra_annot}")
     logger.info(f"  - Passenger proteins identified: {passenger_proteins}")
     logger.info(
-        f"  - Output files created: {output_prefix}_user_mobilome_[extra|full|clean].gff.gz"
+        f"  - Output files created: {output_prefix}{output_infix}[extra|full|clean].gff.gz"
     )
 
     # Sort output files
-    sort_gff_file(f"{output_prefix}_user_mobilome_extra.gff")
-    sort_gff_file(f"{output_prefix}_user_mobilome_full.gff")
-    sort_gff_file(f"{output_prefix}_user_mobilome_clean.gff")
+    sort_gff_file(extra_file)
+    sort_gff_file(full_file)
+    sort_gff_file(clean_file)
     logger.info("Output files sorted by contig and position")
 
 def main():
@@ -338,6 +416,28 @@ def main():
         help="Output files prefix (outputs will be uncompressed .gff files)",
         required=True
     )
+    parser.add_argument(
+        "--combined_report",
+        type=str,
+        help="Optional PathoFact2 combined report TSV. When given, the summary_string of "
+             "each protein is appended to its CDS as a `pathofact2=` attribute.",
+        required=False,
+    )
+    parser.add_argument(
+        "--user_proteins",
+        action="store_true",
+        help="The genes GFF comes from the user. Outputs are named "
+             "`{prefix}_user_mobilome_*`; without this flag (Prodigal/tRNA baseline) they "
+             "are named `{prefix}_mobilome_*`.",
+    )
+    parser.add_argument(
+        "--contig_map",
+        type=str,
+        help="Optional contigID.map (renamed<TAB>original). When given, genes-GFF contig "
+             "ids are translated back to their original names so they align with the "
+             "mobilome GFF (used for the Prodigal/tRNA baseline).",
+        required=False,
+    )
     args = parser.parse_args()
 
     ## Calling functions
@@ -346,7 +446,14 @@ def main():
         args.mobilome_gff
     )
 
-    # Adding the mobilome predictions to the user file
+    # Optional per-protein summary strings from the combined report
+    summary_map = parse_combined_report(args.combined_report) if args.combined_report else {}
+
+    # Optional renamed -> original contig mapping (Prodigal/tRNA baseline only)
+    names_equiv = mapping_names.names_map(args.contig_map)[0] if args.contig_map else {}
+
+    # Adding the mobilome predictions to the genes GFF
+    output_infix = "_user_mobilome_" if args.user_proteins else "_mobilome_"
     if args.user_gff:
         gff_updater(
             args.user_gff,
@@ -355,6 +462,9 @@ def main():
             mobilome_annot,
             mges_dict,
             mob_types,
+            summary_map,
+            output_infix,
+            names_equiv,
         )
 
 if __name__ == "__main__":

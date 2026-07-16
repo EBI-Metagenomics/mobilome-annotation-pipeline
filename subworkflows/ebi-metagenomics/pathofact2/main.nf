@@ -1,0 +1,144 @@
+// Subworkflow to generate toxins and virulence factors annotation from protein sequences
+// Outputs are filtered by threshold and integrated into a single GFF3 format output
+include { PATHOFACT2_DOWNLOADDATA  } from '../../../modules/ebi-metagenomics/pathofact2/downloaddata/main'
+include { PATHOFACT2_TOXINS        } from '../../../modules/ebi-metagenomics/pathofact2/toxins/main'
+include { PATHOFACT2_VIRULENCE     } from '../../../modules/ebi-metagenomics/pathofact2/virulence/main'
+include { PATHOFACT2_INTEGRATOR    } from '../../../modules/ebi-metagenomics/pathofact2/integrator/main'
+include { PATHOFACT2_EXTRACTFASTA  } from '../../../modules/ebi-metagenomics/pathofact2/extractfasta/main'
+include { LOCALCDSEARCH_ANNOTATE   } from '../../../modules/nf-core/localcdsearch/annotate/main'
+include { LOCALCDSEARCH_DOWNLOAD   } from '../../../modules/nf-core/localcdsearch/download/main'
+include { DIAMOND_BLASTP           } from '../../../modules/nf-core/diamond/blastp/main'
+include { DIAMOND_MAKEDB           } from '../../../modules/nf-core/diamond/makedb/main'
+include { WGET                     } from '../../../modules/nf-core/wget/main'
+
+workflow PATHOFACT2 {
+    take:
+    ch_inputs          // channel: tuple( val(meta), path(aminoacids), path(cds_gff), path(ips_tsv) )
+    ch_models          // channel: path( pathofact2_db )
+    ch_vfdb            // channel: path( vfdb )
+    ch_cdd             // channel: path( cdd_db )
+    ch_zenodo_id        // channel: value( pathofact2_db_zenodo_id )
+    ch_vfdb_url        // channel: tuple( val(meta2), val(vfdb_url) )
+
+    main:
+    ch_versions = channel.empty()
+
+    // Extract individual components from input channel.
+    // multiMap is required here to broadcast all samples to all outputs;
+    // multiple .map{} calls on the same queue channel would split items between operators.
+    // ch_faa is consumed 4 times (toxins, virulence, diamond, extractfasta), so each
+    // consumer gets its own named multiMap output to avoid queue splitting.
+    def ch_inputs_split = ch_inputs.multiMap { meta, aminoacids, cds_gff, ips_tsv ->
+        faa_toxins:    tuple(meta, aminoacids)
+        faa_virulence: tuple(meta, aminoacids)
+        faa_diamond:   tuple(meta, aminoacids)
+        faa_extract:   tuple(meta, aminoacids)
+        gff: tuple(meta, cds_gff)
+        ips: tuple(meta, ips_tsv)
+    }
+    def ch_gff = ch_inputs_split.gff
+    def ch_ips = ch_inputs_split.ips
+
+    // Split inputs based on whether IPS annotation is provided
+    ch_ips
+        .branch { meta, ips_tsv ->
+            with_ips: ips_tsv
+            without_ips: !ips_tsv
+        }
+        .set { ch_ips_branched }
+
+    def ch_with_ips = ch_ips_branched.with_ips
+    def ch_without_ips = ch_ips_branched.without_ips
+
+    // Preparing databases
+    if (ch_models) {
+        pathofact_models = ch_models
+    } else {
+        PATHOFACT2_DOWNLOADDATA(ch_zenodo_id)
+        pathofact_models = PATHOFACT2_DOWNLOADDATA.out.zenodo_file
+    }
+
+    if (ch_vfdb) {
+        vfdb_diamond_db = ch_vfdb
+    } else {
+        // ch_vfdb_url arrives as a plain string value; WGET needs tuple(meta, url)
+        WGET(ch_vfdb_url.map { url -> [[id: 'vfdb'], url] })
+        ch_versions = ch_versions.mix(WGET.out.versions.first())
+        DIAMOND_MAKEDB(WGET.out.outfile, [], [], [])
+        // .first() promotes the queue channel to a value channel so the db broadcasts
+        // to every per-sample DIAMOND_BLASTP task rather than being consumed once
+        vfdb_diamond_db = DIAMOND_MAKEDB.out.db.first()
+    }
+
+    // Prepare CDD database (will only be used if ch_without_ips has data)
+    if (ch_cdd) {
+        cdd_database = ch_cdd
+    } else {
+        LOCALCDSEARCH_DOWNLOAD(['cdd_ncbi'])
+        cdd_database = LOCALCDSEARCH_DOWNLOAD.out.db
+    }
+
+    // Running prediction
+    PATHOFACT2_TOXINS( ch_inputs_split.faa_toxins, pathofact_models )
+
+    PATHOFACT2_VIRULENCE( ch_inputs_split.faa_virulence, pathofact_models )
+
+    // Searching for hits in VFDB
+    DIAMOND_BLASTP( ch_inputs_split.faa_diamond, vfdb_diamond_db, 6, 'qseqid sseqid pident length qlen slen evalue bitscore')
+    ch_versions = ch_versions.mix(DIAMOND_BLASTP.out.versions.first())
+
+    // Extracting positive matches
+    def ch_extractfasta_input = ch_inputs_split.faa_extract
+        .join(DIAMOND_BLASTP.out.txt)
+        .join(PATHOFACT2_TOXINS.out.tsv)
+        .join(PATHOFACT2_VIRULENCE.out.tsv)
+    PATHOFACT2_EXTRACTFASTA(ch_extractfasta_input)
+
+    // Running annotation using local-cd-search when ips_tsv is not provided.
+    // Use remainder:true + filter to avoid a strict-mode join mismatch when all
+    // samples have IPS (ch_without_ips is empty but extractfasta has output).
+    def ch_fasta_for_cdd = PATHOFACT2_EXTRACTFASTA.out.fasta
+        .join(
+            ch_without_ips.map { meta, _ips -> tuple(meta, true) },
+            remainder: true
+        )
+        .filter { meta, _fasta, needs_cdd -> needs_cdd == true }
+        .map { meta, fasta, _flag -> tuple(meta, fasta) }
+    LOCALCDSEARCH_ANNOTATE(ch_fasta_for_cdd, cdd_database, false)
+
+    // Combine IPS and CDD annotations with their type tag, then split via multiMap
+    // so that both prot_annot and annot_type receive all samples without item-splitting.
+    def ch_combined_annot = ch_with_ips
+        .map { meta, annot -> tuple(meta, annot, 'ips') }
+        .mix(
+            LOCALCDSEARCH_ANNOTATE.out.result
+                .map { meta, annot -> tuple(meta, annot, 'cdd') }
+        )
+    def ch_combined_split = ch_combined_annot.multiMap { meta, annot, type ->
+        prot_annot: tuple(meta, annot)
+        annot_type:  tuple(meta, type)
+    }
+    def prot_annot = ch_combined_split.prot_annot
+    def annot_type  = ch_combined_split.annot_type
+
+    // Integrating results in a single gff file.
+    // Use remainder:true + filter: samples where EXTRACTFASTA found no hits produce no
+    // fasta → LOCALCDSEARCH never runs → prot_annot never emits for that sample.
+    // Those samples are silently dropped rather than triggering a strict-join mismatch.
+    def ch_for_integrator = ch_gff
+        .join(prot_annot, remainder: true)
+        .filter { meta, gff, prot -> gff != null && prot != null }
+        .join(PATHOFACT2_EXTRACTFASTA.out.tsv, remainder: true)
+        .filter { meta, gff, prot, tsv -> tsv != null }
+        .join(annot_type, remainder: true)
+        .filter { meta, gff, prot, tsv, type -> type != null }
+    PATHOFACT2_INTEGRATOR(ch_for_integrator)
+
+    // Pass through as-is; empty channel is handled by remainder:true joins downstream
+    def ch_gff_output = PATHOFACT2_INTEGRATOR.out.gff
+
+    emit:
+    gff  =  ch_gff_output            // channel: tuple( val(meta), path(gff) )
+    versions = ch_versions           // channel: [ versions.yml ]
+
+}

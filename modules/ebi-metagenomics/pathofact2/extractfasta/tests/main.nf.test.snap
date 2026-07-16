@@ -1,0 +1,134 @@
+{
+    "versions_stub": {
+        "content": [
+            [
+                [
+                    "PATHOFACT2_EXTRACTFASTA",
+                    "python",
+                    "3.12.12"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-28T16:17:25.341565"
+    },
+    "fasta_file_stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_pathofact2.fasta:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-28T16:17:25.33321"
+    },
+    "versions": {
+        "content": [
+            [
+                [
+                    "PATHOFACT2_EXTRACTFASTA",
+                    "python",
+                    "3.12.12"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-28T16:17:22.128875"
+    },
+    "versions_empty": {
+        "content": [
+            [
+                [
+                    "PATHOFACT2_EXTRACTFASTA",
+                    "python",
+                    "3.12.12"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-28T16:17:29.243512"
+    },
+    "versions_empty_stub": {
+        "content": [
+            [
+                [
+                    "PATHOFACT2_EXTRACTFASTA",
+                    "python",
+                    "3.12.12"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-28T16:17:32.563623"
+    },
+    "tsv_file_stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_support.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-28T16:17:25.337611"
+    },
+    "fasta_file": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_pathofact2.fasta:md5,c27ab6512579280e9cd3bda57b4c2b4d"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-28T16:17:22.120473"
+    },
+    "tsv_file": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_support.tsv:md5,cf9d39f101da9219f9c31b37c55dee1f"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-01-28T16:17:22.126711"
+    }
+}

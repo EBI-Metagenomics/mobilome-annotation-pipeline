@@ -4,11 +4,19 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
 
-    test("Positive test of the Mobilome annotation pipeline with user proteins and VIRify input") {
+    test("Positive test: mobilome-only run on the pos_test assembly covering IS, integron, ICE, plasmid, prophage (VIRify), and CO") {
+        tag "positive"
         when {
             params {
-                input = "${projectDir}/tests/pos_test_samplesheet.csv"
-                outdir = "$outputDir"
+                input                = "${projectDir}/tests/pos_test_samplesheet.csv"
+                outdir               = "$outputDir"
+                skip_virulence       = true
+                skip_amrfinderplus   = true
+                skip_deeparg         = true
+                skip_rgi             = true
+                skip_sanntis         = true
+                skip_gecco           = true
+                skip_antismash       = true
             }
         }
 
@@ -46,14 +54,22 @@ nextflow_pipeline {
         }
     }
 
-    test("Negative test of the Mobilome annotation pipeline. Expect empty gff output file") {
+    test("Negative test of the mobile elements detection skipping pathofact annotation. Expect empty gff output file") {
+        tag "negative"
         when {
             params {
-                input = "${projectDir}/tests/neg_test_samplesheet.csv"
-                outdir = "$outputDir"
+                input              = "${projectDir}/tests/neg_test_samplesheet.csv"
+                outdir             = "$outputDir"
+                skip_virulence     = true
+                skip_amrfinderplus = true
+                skip_deeparg       = true
+                skip_rgi           = true
+                skip_sanntis       = true
+                skip_gecco         = true
+                skip_antismash     = true
             }
         }
-    
+
         then {
             // stable_name: All files + folders in ${params.outdir}/ with a stable name
             def stable_name = getAllFilesFromDir(
@@ -76,6 +92,73 @@ nextflow_pipeline {
                     // All files with stable contents
                     stable_path,
                 ).match() }
+            )
+        }
+    }
+
+    test("Schema validation: proteins_gff without proteins_faa should fail (dependentRequired)") {
+        tag "schema"
+        when {
+            params {
+                input  = "${projectDir}/tests/invalid_proteins_samplesheet.csv"
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            assert workflow.failed
+            // workflow.stderr is a list of lines; check the substring per line
+            assert workflow.stderr.any { it.contains("proteins_faa") }
+        }
+    }
+
+    test("Pathofact integration test with annotation manifest. Expected a report of proteins with relevant annotation") {
+        tag "pathofact"
+        when {
+            params {
+                input                = "${projectDir}/tests/pathofact_samplesheet.csv"
+                outdir               = "$outputDir"
+                annotation_manifest  = "${projectDir}/tests/data/MGYG000528118_sub/annotation_manifest.csv"
+                skip_deeparg         = true    // skipping as minidatabase building is not possible. Test at subwf level 
+            }
+        }
+
+        then {
+            // stable_name: All files + folders in ${params.outdir}/ with a stable name
+            def stable_name = getAllFilesFromDir(
+                params.outdir,
+                relative: true,
+                includeDir: true,
+                ignore: [
+                    'pipeline_info/*'
+                ]
+            )
+            // stable_path: All files in ${params.outdir}/ with stable content
+            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            // pathofact2.gff and the combined report have thread/CPU-dependent md5s (excluded
+            // from stable_path via .nftignore). Assert they exist and carry the expected stable
+            // content: the report contig_id must be the original contig name, not the renamed id.
+            def combined_report = path("${params.outdir}/MGYG000528118_sub/MGYG000528118_sub_combined_report.tsv")
+            def pathofact_gff = path("${params.outdir}/MGYG000528118_sub/prediction/virulence/MGYG000528118_sub_pathofact2.gff")
+            assertAll(
+                { assert workflow.success},
+                { assert snapshot(
+                    // Number of tasks
+                    workflow.trace.succeeded().size(),
+                    // All stable path name
+                    stable_name,
+                    // All files with stable contents
+                    stable_path,
+                ).match() },
+                // combined_report: exists, header intact, and uses original contig names
+                { assert combined_report.exists() },
+                { assert combined_report.readLines().first().startsWith("protein_id\tcontig_id\tsummary_string") },
+                { assert combined_report.readLines().any { it.contains("MGYG000528118_1_sub") } },
+                { assert !combined_report.text.contains("\tcontig_1\t") },
+                // pathofact2.gff: exists, valid GFF header, and a known Prodigal CDS is present
+                { assert pathofact_gff.exists() },
+                { assert pathofact_gff.readLines().first() == "##gff-version 3" },
+                { assert pathofact_gff.readLines().any { it.contains("ID=MGYG000528118_00989") } },
             )
         }
     }
