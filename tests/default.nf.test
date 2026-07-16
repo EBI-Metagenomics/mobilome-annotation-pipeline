@@ -135,6 +135,11 @@ nextflow_pipeline {
             )
             // stable_path: All files in ${params.outdir}/ with stable content
             def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            // pathofact2.gff and the combined report have thread/CPU-dependent md5s (excluded
+            // from stable_path via .nftignore). Assert they exist and carry the expected stable
+            // content: the report contig_id must be the original contig name, not the renamed id.
+            def combined_report = path("${params.outdir}/MGYG000528118_sub/MGYG000528118_sub_combined_report.tsv")
+            def pathofact_gff = path("${params.outdir}/MGYG000528118_sub/prediction/virulence/MGYG000528118_sub_pathofact2.gff")
             assertAll(
                 { assert workflow.success},
                 { assert snapshot(
@@ -144,7 +149,16 @@ nextflow_pipeline {
                     stable_name,
                     // All files with stable contents
                     stable_path,
-                ).match() }
+                ).match() },
+                // combined_report: exists, header intact, and uses original contig names
+                { assert combined_report.exists() },
+                { assert combined_report.readLines().first().startsWith("protein_id\tcontig_id\tsummary_string") },
+                { assert combined_report.readLines().any { it.contains("MGYG000528118_1_sub") } },
+                { assert !combined_report.text.contains("\tcontig_1\t") },
+                // pathofact2.gff: exists, valid GFF header, and a known Prodigal CDS is present
+                { assert pathofact_gff.exists() },
+                { assert pathofact_gff.readLines().first() == "##gff-version 3" },
+                { assert pathofact_gff.readLines().any { it.contains("ID=MGYG000528118_00989") } },
             )
         }
     }

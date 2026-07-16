@@ -84,12 +84,12 @@ which genes from the baseline GFF they additionally include:
   attribute (from the [combined report](#combined-report)).
 - **`clean`** — mobilome features plus only the "passenger" CDSs that fall **inside** a mobile
   element (>75% of the CDS length overlapping an MGE on the same contig). Each passenger CDS
-  additionally carries an `mge_location=` attribute, plus ViPhOG and `pathofact2=` attributes
+  additionally carries an `mobile_element_type=` attribute, plus ViPhOG and `pathofact2=` attributes
   when present.
 - **`extra`** — a subset of `clean`: the mobilome features plus only those **passenger** CDSs
   that also carry a **functional annotation** — a VIRify ViPhOG hit (`viphog` /
   `viphog_taxonomy`) and/or a `pathofact2=` summary. Rows use the same format as in `clean`
-  (including `mge_location=`). A passenger CDS with no functional annotation appears in
+  (including `mobile_element_type=`). A passenger CDS with no functional annotation appears in
   `clean` but not in `extra`; a functionally-annotated CDS that is not a passenger appears in
   `full` but not in `extra`.
 

@@ -174,7 +174,7 @@ contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot002
 
     assert "geNomad" in clean_content
     assert "virus" in clean_content
-    assert "mge_location=virus" in clean_content
+    assert "mobile_element_type=virus" in clean_content
 
     # With no functional annotation, extra carries the mobilome feature but no genes
     extra_content = (tmp_path / "output_user_mobilome_extra.gff").read_text()
@@ -223,9 +223,9 @@ contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot002
     # Clean carries a minimal header
     assert lines[0] == "##gff-version 3"
 
-    # Check that prot001 is marked as passenger (has mge_location)
+    # Check that prot001 is marked as passenger (has mobile_element_type)
     prot001_line = [l for l in lines if "prot001" in l][0]
-    assert "mge_location=virus" in prot001_line
+    assert "mobile_element_type=virus" in prot001_line
 
     # prot002 has no MGE overlap, so it must NOT appear in the clean output at all
     assert not any("prot002" in l for l in lines)
@@ -233,6 +233,13 @@ contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=prot002
     # ...but the non-passenger protein is still preserved in the full output
     full_lines = (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
     assert any("prot002" in l for l in full_lines)
+
+    # full carries mobile_element_type on passenger CDS, matching clean/extra...
+    prot001_full = [l for l in full_lines if "prot001" in l][0]
+    assert "mobile_element_type=virus" in prot001_full
+    # ...but not on the non-passenger CDS, which has no MGE location
+    prot002_full = [l for l in full_lines if "prot002" in l][0]
+    assert "mobile_element_type=" not in prot002_full
 
 
 def test_header_routing(tmp_path):
@@ -339,7 +346,7 @@ contig1\tProdigal\tCDS\t1550\t1750\t.\t+\t0\tID=prot003
     # prot001: passenger + in report -> pathofact2 in both clean and full
     prot001_clean = [l for l in clean if "ID=prot001" in l][0]
     assert "pathofact2=vf,mge" in prot001_clean
-    assert "mge_location=virus" in prot001_clean
+    assert "mobile_element_type=virus" in prot001_clean
     prot001_full = [l for l in full if "ID=prot001" in l][0]
     assert "pathofact2=vf,mge" in prot001_full
 
@@ -350,7 +357,7 @@ contig1\tProdigal\tCDS\t1550\t1750\t.\t+\t0\tID=prot003
 
     # prot003: passenger but not in report -> present in clean, no pathofact2
     prot003_clean = [l for l in clean if "ID=prot003" in l][0]
-    assert "mge_location=virus" in prot003_clean
+    assert "mobile_element_type=virus" in prot003_clean
     assert "pathofact2=" not in prot003_clean
 
     # extra holds only annotated passengers (viphog and/or pathofact2)
@@ -358,7 +365,7 @@ contig1\tProdigal\tCDS\t1550\t1750\t.\t+\t0\tID=prot003
     # prot001: passenger + in report -> qualifies, with the same row format as clean
     prot001_extra = [l for l in extra if "ID=prot001" in l][0]
     assert "pathofact2=vf,mge" in prot001_extra
-    assert "mge_location=virus" in prot001_extra
+    assert "mobile_element_type=virus" in prot001_extra
     # prot002: in report but not a passenger -> excluded from extra
     assert not any("ID=prot002" in l for l in extra)
     # prot003: passenger but no functional annotation -> excluded from extra
@@ -370,7 +377,7 @@ def test_extra_holds_annotated_passengers(tmp_path):
     `extra` holds the mobilome features plus the passenger CDSs (>75% inside an MGE) that
     carry a functional annotation: a VIRify ViPhOG hit AND/OR a pathofact2 summary. A
     passenger with neither, and an annotated CDS that is not a passenger, are both excluded.
-    Rows mirror the clean formatting (including mge_location).
+    Rows mirror the clean formatting (including mobile_element_type).
     """
     user_gff = tmp_path / "user.gff"
     user_gff.write_text(
@@ -410,15 +417,15 @@ def test_extra_holds_annotated_passengers(tmp_path):
     # The mobilome feature is always present
     assert any("geNomad\tvirus" in l for l in extra)
 
-    # prot001: passenger + viphog -> included, mirroring clean (viphog + mge_location)
+    # prot001: passenger + viphog -> included, mirroring clean (viphog + mobile_element_type)
     prot001_extra = [l for l in extra if "ID=prot001" in l][0]
     assert "viphog=VOG0001" in prot001_extra
-    assert "mge_location=virus" in prot001_extra
+    assert "mobile_element_type=virus" in prot001_extra
 
     # prot002: passenger + pathofact2 (no viphog) -> included
     prot002_extra = [l for l in extra if "ID=prot002" in l][0]
     assert "pathofact2=arg" in prot002_extra
-    assert "mge_location=virus" in prot002_extra
+    assert "mobile_element_type=virus" in prot002_extra
 
     # prot003: passenger but no annotation -> excluded
     assert not any("ID=prot003" in l for l in extra)
@@ -526,5 +533,5 @@ def test_contig_name_translation(tmp_path):
     assert "contig_1" not in full
     # Passenger gene (100% within the MGE) lands in clean under the original name
     assert "NZ_real_1\tProdigal\tCDS\t1500\t1800" in clean
-    assert "mge_location=virus" in clean
+    assert "mobile_element_type=virus" in clean
     assert "contig_1" not in clean

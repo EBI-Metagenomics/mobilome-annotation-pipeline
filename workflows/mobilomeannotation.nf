@@ -400,12 +400,25 @@ workflow MOBILOMEANNOTATION {
 
     // Generating the Pathofact2-style combined report
     def ch_combinereporter_input = INTEGRATOR.out.mobilome_gff
+        .join(RENAME.out.map_file)
+        .join(ch_user_proteins, remainder: true)
+        .map { row ->
+            // remainder:true appends a single null for the whole missing right side, so
+            // unmatched rows are [meta, mobilome, map_file, null] and matched rows are
+            // [meta, mobilome, map_file, user_gff, user_faa].
+            def (meta, mobilome, map_file) = [row[0], row[1], row[2]]
+            def user_gff = row[3]
+            // The PathoFact2/AMR/BGC GFFs follow the proteins source: user-provided proteins
+            // already carry original contig names (no map needed), while the Prodigal baseline
+            // uses renamed ids, so pass the map to translate them back in pathofact2_report.py.
+            tuple(meta, mobilome, user_gff ? [] : map_file)
+        }
         .join(ch_pathofact_gff, remainder: true)
         .join(AMR_ANNOTATION.out.gff, remainder: true)
         .join(ch_bgc_gff, remainder: true)
         .join(ch_user_ips, remainder: true)
-        .map { meta, mobilome, pathofact, amr, bgc, ips ->
-            tuple(meta, mobilome, pathofact ?: [], amr ?: [], bgc ?: [], ips ?: [])
+        .map { meta, mobilome, contig_map, pathofact, amr, bgc, ips ->
+            tuple(meta, mobilome, pathofact ?: [], amr ?: [], bgc ?: [], ips ?: [], contig_map)
         }
 
     COMBINEREPORTER( ch_combinereporter_input )

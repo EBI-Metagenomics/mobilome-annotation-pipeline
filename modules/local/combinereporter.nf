@@ -7,7 +7,7 @@ process COMBINEREPORTER {
         'biocontainers/mgnify-pipelines-toolkit:1.5.1--pyhdfd78af_0'}"
 
     input:
-    tuple val(meta), path(mobilome_gff), path(pathofact_gff), path(arg_gff), path(bgcs_gff), path(ips_tsv)
+    tuple val(meta), path(mobilome_gff), path(pathofact_gff), path(arg_gff), path(bgcs_gff), path(ips_tsv), path(contig_map)
 
     output:
     tuple val(meta), path("*_combined_report.tsv"), optional: true, emit: tsv
@@ -23,6 +23,7 @@ process COMBINEREPORTER {
     def arg_param = arg_gff ? "--amr ${arg_gff}" : ""
     def bgcs_param = bgcs_gff ? "--bgc ${bgcs_gff}" : ""
     def ips_param = ips_tsv ? "--interproscan ${ips_tsv}" : ""
+    def contig_map_param = contig_map ? "--contig_map ${contig_map}" : ""
     """
     pathofact2_report.py \\
         ${mobilome_param} \\
@@ -30,6 +31,7 @@ process COMBINEREPORTER {
         ${arg_param} \\
         ${bgcs_param} \\
         ${ips_param} \\
+        ${contig_map_param} \\
         --output ${prefix}_combined_report.tsv
     """
 
