@@ -94,13 +94,13 @@ GFF's full header. All three are bgzip-compressed with matching `.csi` and `.gzi
 
 This section describes the annotation at gene level that is parsed or generated as part of the mobilome annotation pipeline.
 
-- ** VIRify VIPhog **
+- **VIRify VIPhog**
   Attributes reported by VIRify tool are appended to the GFF files with the keys `viphog` and `viphog_taxonomy`.
 
-- ** Pathofact2 **
+- **Pathofact2**
   This is the `summary_string` of the corresponding protein in the [combined report](#combined-report) file with the key `pathofact2=<summary_string>`.
 
-- ** Mobile element type **
+- **Mobile element type**
   A CDS that fall inside a mobile element (>90% of the CDS length overlapping an MGE on the same contig) is called a mobilome "passenger".
   Passenger genes additionally carries an `mobile_element_type=` attribute with the MGE type they belongs to. It could be more that one MGE and the string carries
   more information than in column 3 for a mobilome entry. For instance, insertion sequences (IS) will include the IS family.
