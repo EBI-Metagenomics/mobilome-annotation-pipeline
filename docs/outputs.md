@@ -79,22 +79,31 @@ GFF: the user-provided proteins GFF when one is supplied (outputs named
 which genes from the baseline GFF they additionally include:
 
 - **`full`** — the superset: every mobilome feature plus **every** feature from the baseline
-  genes GFF. It preserves the baseline GFF's header. Where available, each CDS gains its
-  VIRify ViPhOG attributes (`viphog` / `viphog_taxonomy`) and a `pathofact2=<summary_string>`
-  attribute (from the [combined report](#combined-report)).
-- **`clean`** — mobilome features plus only the "passenger" CDSs that fall **inside** a mobile
-  element (>75% of the CDS length overlapping an MGE on the same contig). Each passenger CDS
-  additionally carries an `mobile_element_type=` attribute, plus ViPhOG and `pathofact2=` attributes
-  when present.
-- **`extra`** — a subset of `clean`: the mobilome features plus only those **passenger** CDSs
-  that also carry a **functional annotation** — a VIRify ViPhOG hit (`viphog` /
-  `viphog_taxonomy`) and/or a `pathofact2=` summary. Rows use the same format as in `clean`
-  (including `mobile_element_type=`). A passenger CDS with no functional annotation appears in
-  `clean` but not in `extra`; a functionally-annotated CDS that is not a passenger appears in
-  `full` but not in `extra`.
+  genes GFF.
+- **`clean`** — mobilome features plus every **passenge** gene (CDSs that fall inside a mobile
+  element: >90% of the CDS length overlapping an MGE on the same contig).
+- **`extra`** — a subset of `clean`: the mobilome features plus only those passenger CDSs
+  that also carry new **functional annotation** generated in the mobilome annotation pipeline.
+  A passenger CDS with no new functional annotation appears in `clean` but not in `extra`;
+  a functionally-annotated CDS that is not a passenger appears in `full` but not in `extra`.
 
 `clean` and `extra` carry a minimal `##gff-version 3` header; `full` preserves the baseline
 GFF's full header. All three are bgzip-compressed with matching `.csi` and `.gzi` indexes.
+
+## Gene-level annotation appended to the GFF attributes
+
+This section describes the annotation at gene level that is parsed or generated as part of the mobilome annotation pipeline.
+
+- ** VIRify VIPhog **
+  Attributes reported by VIRify tool are appended to the GFF files with the keys `viphog` and `viphog_taxonomy`.
+
+- ** Pathofact2 **
+  This is the `summary_string` of the corresponding protein in the [combined report](#combined-report) file with the key `pathofact2=<summary_string>`.
+
+- ** Mobile element type **
+  A CDS that fall inside a mobile element (>90% of the CDS length overlapping an MGE on the same contig) is called a mobilome "passenger".
+  Passenger genes additionally carries an `mobile_element_type=` attribute with the MGE type they belongs to. It could be more that one MGE and the string carries
+  more information than in column 3 for a mobilome entry. For instance, insertion sequences (IS) will include the IS family.
 
 ## Discarded predictions
 
