@@ -64,6 +64,11 @@ nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
 
 On completion the pipeline prints a ready-to-paste params config block. See [docs/usage.md](docs/usage.md) for the full setup guide including the config snippet and InterProScan notes.
 
+A warning regarding InterProScan and SignalP:
+
+InterProScan (~100 GB) is not included on the donwload dbs subworkflow due to its size. Download it manually following the [InterProScan documentation](https://interproscan-docs.readthedocs.io/en/v5/HowToDownload.html) if you need it. It is only required for SanntiS BGC prediction; the pipeline can run without it.
+If you want SignalP results in the Pathofact2 combined report, you can either provide an InterProScan table containing SignalP annotations or add the license and executables to your local InterProScan install as described [here](https://interproscan-docs.readthedocs.io/en/v5/ActivatingLicensedAnalyses.html#signalp).
+
 <a name="usage"></a>
 
 ## Usage
