@@ -52,13 +52,12 @@ def _pred_support_has_data_rows(path: str) -> bool:
     return False
 
 
-def _has_gff_record_9cols(path: str, max_lines: int = 200) -> bool:
+def _has_gff_record_9cols(path: str) -> bool:
     """
     Return True if at least one non-comment, non-empty line with exactly 9 tab-separated
-    columns exists within the first `max_lines` lines.
     """
     with fileinput.hook_compressed(path, "r", encoding="utf-8", errors="ignore") as fh:
-        for _, line in zip(range(max_lines), fh):
+        for line in fh:
             s = line.strip()
             if not s or s.startswith("#"):
                 continue
