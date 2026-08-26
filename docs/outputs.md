@@ -80,7 +80,7 @@ which genes from the baseline GFF they additionally include:
 
 - **`full`** — the superset: every mobilome feature plus **every** feature from the baseline
   genes GFF.
-- **`clean`** — mobilome features plus every **passenge** gene (CDSs that fall inside a mobile
+- **`clean`** — mobilome features plus every **passenger** gene (CDSs that fall inside a mobile
   element: >90% of the CDS length overlapping an MGE on the same contig).
 - **`extra`** — a subset of `clean`: the mobilome features plus only those passenger CDSs
   that also carry new **functional annotation** generated in the mobilome annotation pipeline.
