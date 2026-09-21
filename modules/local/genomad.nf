@@ -28,6 +28,7 @@ process GENOMAD {
         mkdir -p ${prefix}_5kb_contigs_summary
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_virus_summary.tsv
         touch ${prefix}_5kb_contigs_summary/${prefix}_5kb_contigs_plasmid_summary.tsv
+        touch ${prefix}_5kb_contigs_summary/${prefix}_virus.fna
     fi
 
     mv ${prefix}_5kb_contigs_summary/* .
