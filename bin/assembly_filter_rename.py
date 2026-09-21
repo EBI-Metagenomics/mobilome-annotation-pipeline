@@ -16,6 +16,7 @@
 
 import argparse
 import gzip
+import os
 from Bio import SeqIO
 
 
@@ -29,18 +30,21 @@ def open_file(filename):
     else:
         return open(filename, 'r')
 
-def rename(input_file, prefix):
-    output_1kb = prefix + "_1kb_contigs.fasta"
-    output_5kb = prefix + "_5kb_contigs.fasta"
-    output_100kb = prefix + "_100kb_contigs.fasta"
-    output_map = prefix + "_contigID.map"
 
-    with open_file(input_file) as input_handle:
+def rename(input_file, prefix):
+    safe_input_file = os.path.basename(input_file)
+    safe_prefix = os.path.basename(prefix)
+    output_1kb = safe_prefix + "_1kb_contigs.fasta"
+    output_5kb = safe_prefix + "_5kb_contigs.fasta"
+    output_100kb = safe_prefix + "_100kb_contigs.fasta"
+    output_map = safe_prefix + "_contigID.map"
+
+    with open_file(os.path.basename(safe_input_file)) as input_handle:
         with (
-            open(output_1kb, "w") as to_1kb,
-            open(output_5kb, "w") as to_5kb,
-            open(output_map, "w") as to_map,
-            open(output_100kb, "w") as to_100kb,
+            open(os.path.basename(output_1kb), "w") as to_1kb,
+            open(os.path.basename(output_5kb), "w") as to_5kb,
+            open(os.path.basename(output_map), "w") as to_map,
+            open(os.path.basename(output_100kb), "w") as to_100kb,
         ):
             for counter, record in enumerate(SeqIO.parse(input_handle, "fasta"), 1):
                 new_id = ">contig_" + str(counter)
