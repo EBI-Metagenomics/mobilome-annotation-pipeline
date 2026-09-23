@@ -31,6 +31,19 @@ EXTRA_ANNOT_KEYS = [
     "viphog_taxonomy",
 ]
 
+def normalize_attributes(attributes):
+    """
+    Drop trailing ';' from a GFF attributes column.
+
+    Tools commonly end column 9 with a separator (``ID=x;``). Appending more
+    attributes to such a line yields an empty field (``;;``), which is malformed
+    GFF3, so the separator is removed before anything is appended.
+
+    :param attributes: The attributes column (column 9) of a GFF line
+    :return: The attributes column without trailing separators
+    """
+    return attributes.rstrip(";")
+
 def open_file(filename, mode='r'):
     """
     Open a file, handling both compressed (.gz) and uncompressed files.
@@ -70,47 +83,6 @@ def is_file_empty(filepath):
         first_char = f.read(1)
         return len(first_char) == 0
 
-def sort_gff_file(filepath):
-    """
-    Sort GFF file in-place by contig and start position.
-    Headers (lines starting with #) are preserved at the top.
-    FASTA sequences (after ##FASTA) are preserved at the end.
-
-    :param filepath: Path to GFF file to sort
-    """
-    if not os.path.exists(filepath):
-        return
-
-    headers = []
-    sequences = []
-    entries = []
-    in_fasta_section = False
-
-    with open_file(filepath) as f:
-        for line in f:
-            line = line.rstrip()
-            if line.startswith('##FASTA'):
-                in_fasta_section = True
-                sequences.append(line)
-            elif in_fasta_section:
-                # Everything after ##FASTA is sequence data
-                sequences.append(line)
-            elif line.startswith('#'):
-                headers.append(line)
-            elif line:
-                entries.append(line)
-
-    # Sort by contig, then start position
-    entries.sort(key=lambda x: (x.split('\t')[0], int(x.split('\t')[3])))
-
-    with open_file(filepath, 'w') as f:
-        for header in headers:
-            f.write(header + '\n')
-        for entry in entries:
-            f.write(entry + '\n')
-        for sequence in sequences:
-            f.write(sequence + '\n')
-
 def mobilome_parser(mobilome_clean):
     """Parse mobilome predictions from GFF file (handles compressed files)."""
     
@@ -146,6 +118,11 @@ def mobilome_parser(mobilome_clean):
             
             # Annotation lines have exactly 9 columns
             if len(l_line) == 9:
+                # These rows are written verbatim into the outputs, so drop any
+                # trailing ';' before storing them.
+                l_line[8] = normalize_attributes(l_line[8])
+                mge_line = "\t".join(l_line)
+
                 contig = l_line[0]
                 annot_source = l_line[1]
                 seq_type = l_line[2]
@@ -153,16 +130,16 @@ def mobilome_parser(mobilome_clean):
                 end = int(l_line[4])
                 strand = l_line[6]
                 coordinates = (start, end)
-                
+
                 if annot_source in source_tools:
                     composite_key = (contig, start, end)
                     mob_types[composite_key] = seq_type
-                    
+
                     if contig in mobilome_annot:
-                        mobilome_annot[contig].append(line.rstrip())
+                        mobilome_annot[contig].append(mge_line)
                         mges_dict[contig].append(coordinates)
                     else:
-                        mobilome_annot[contig] = [line.rstrip()]
+                        mobilome_annot[contig] = [mge_line]
                         mges_dict[contig] = [coordinates]
                 else:
                     str_composite_key = (contig, str(start), str(end), strand)
@@ -263,7 +240,8 @@ def gff_updater(
 
     logger.info(f"Starting GFF update process with file: {user_gff}")
 
-    used_contigs = []
+    used_contigs = set()
+    flushed_contigs = set()
     processed_lines = 0
     annotation_lines = 0
     proteins_with_extra_annot = 0
@@ -280,23 +258,62 @@ def gff_updater(
         output_clean.write("##gff-version 3\n")
         output_extra.write("##gff-version 3\n")
 
+        # Rows of the contig currently being read, as (start, row, to_clean, to_extra).
+        # Flushed sorted by start whenever the contig changes or the input ends, so contig
+        # order follows the genes GFF while every entry of a contig -- genes and injected
+        # mobilome alike -- comes out ascending by position.
+        buffer = []
+        current_contig = None
+
+        def flush_contig(contig):
+            """Write the buffered rows of one contig, ascending by start position."""
+            # Stable, so a mobilome feature sharing a start with a CDS keeps the position
+            # it was buffered in (first), which is the order a GFF3 parent belongs in.
+            buffer.sort(key=lambda entry: entry[0])
+            for _, row, to_clean, to_extra in buffer:
+                output_full.write(row + "\n")
+                if to_clean:
+                    output_clean.write(row + "\n")
+                    if to_extra:
+                        output_extra.write(row + "\n")
+            buffer.clear()
+            if contig is not None:
+                flushed_contigs.add(contig)
+
         for line in input_table:
             processed_lines += 1
             l_line = line.rstrip().split("\t")
-            
+
             # Annotation lines have exactly 9 columns
             if len(l_line) == 9:
                 annotation_lines += 1
                 # Translate the contig from the internal renamed id to the original name so
-                # it matches the mobilome GFF; rebuild the line so the output uses it too.
+                # it matches the mobilome GFF.
                 if names_equiv:
                     l_line[0] = names_equiv.get(l_line[0], l_line[0])
-                    line = "\t".join(l_line)
+                # Drop any trailing ';' so appending attributes below cannot yield ';;'.
+                l_line[8] = normalize_attributes(l_line[8])
                 contig = l_line[0]
                 start = l_line[3]
                 end = l_line[4]
                 strand = l_line[6]
                 composite_val = (contig, start, end, strand)
+
+                if contig != current_contig:
+                    flush_contig(current_contig)
+                    current_contig = contig
+                    if contig in flushed_contigs:
+                        logger.warning(
+                            f"Contig {contig} reappears after its block was written; its "
+                            "rows are not contiguous in the genes GFF, which will break "
+                            "tabix indexing of the outputs"
+                        )
+                    if contig not in used_contigs:
+                        used_contigs.add(contig)
+                        # Seed the buffer with this contig's mobilome entries so they sort
+                        # in among the genes entries by position.
+                        for mge in mobilome_annot.get(contig, []):
+                            buffer.append((int(mge.split("\t")[3]), mge, True, True))
 
                 # Append the PathoFact2 summary string (e.g. vf,mge,bgc) from the combined
                 # report when this protein is present in it, as a `;pathofact2=...` attribute.
@@ -311,16 +328,6 @@ def gff_updater(
                     else ""
                 )
 
-                if contig not in used_contigs:
-                    used_contigs.append(contig)
-                    
-                    # Writing the mobilome entries in every output
-                    if contig in mobilome_annot:
-                        for mge in mobilome_annot[contig]:
-                            output_clean.write(mge + "\n")
-                            output_extra.write(mge + "\n")
-                            output_full.write(mge + "\n")
-                
                 has_viphog = composite_val in proteins_annot
                 viphog_attr = proteins_annot[composite_val] if has_viphog else ""
                 if has_viphog:
@@ -358,23 +365,38 @@ def gff_updater(
                     extra_attrs += ";" + "mobile_element_type=" + ",".join(mge_loc)
                 extra_attrs += pf_suffix
 
-                # full keeps every feature, carrying the viphog, mobile_element_type and pathofact2
-                # attributes wherever they are available.
-                output_full.write(line.rstrip() + extra_attrs + "\n")
+                # Rebuild column 9 rather than concatenating onto the raw line. The lstrip
+                # guards a feature whose attributes were empty or a bare ';', which would
+                # otherwise emit a leading separator; '.' is the GFF3 spelling for absent.
+                l_line[8] = (l_line[8] + extra_attrs).lstrip(";") or "."
+                out_line = "\t".join(l_line)
 
-                # clean keeps every MGE-covered (passenger) CDS; extra keeps the subset of
-                # those passengers that carry a functional annotation (viphog and/or
-                # pathofact2). Both share the same row format as the full passenger line.
+                # full keeps every feature, carrying the viphog, mobile_element_type and
+                # pathofact2 attributes wherever they are available. clean keeps every
+                # MGE-covered (passenger) CDS; extra keeps the subset of those passengers
+                # that carry a functional annotation (viphog and/or pathofact2).
                 if passenger_flag == 1:
                     passenger_proteins += 1
-                    passenger_line = line.rstrip() + extra_attrs
-                    output_clean.write(passenger_line + "\n")
-                    if has_viphog or pf_suffix:
-                        output_extra.write(passenger_line + "\n")
+                buffer.append(
+                    (
+                        int(start),
+                        out_line,
+                        passenger_flag == 1,
+                        bool(has_viphog or pf_suffix),
+                    )
+                )
             else:
                 # Header/comment lines from the user GFF go to full only; clean and extra
-                # use the minimal header written above.
-                output_full.write(line.rstrip() + "\n")
+                # use the minimal header written above. The FASTA block has to come after
+                # every feature, so the pending contig is flushed before it starts.
+                stripped = line.rstrip()
+                if stripped.startswith("##FASTA"):
+                    flush_contig(current_contig)
+                    current_contig = None
+                output_full.write(stripped + "\n")
+
+        # Whatever contig the input ended on
+        flush_contig(current_contig)
     
     # Log processing statistics
     logger.info("GFF update completed:")
@@ -386,12 +408,9 @@ def gff_updater(
     logger.info(
         f"  - Output files created: {output_prefix}{output_infix}[extra|full|clean].gff.gz"
     )
-
-    # Sort output files
-    sort_gff_file(extra_file)
-    sort_gff_file(full_file)
-    sort_gff_file(clean_file)
-    logger.info("Output files sorted by contig and position")
+    logger.info(
+        "Contig order follows the genes GFF; entries within each contig are sorted by start"
+    )
 
 def main():
     parser = argparse.ArgumentParser(

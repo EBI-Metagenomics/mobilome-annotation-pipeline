@@ -13,54 +13,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from textwrap import dedent as _
-
 from gff_mapping import (
-    sort_gff_file,
     mobilome_parser,
     gff_updater,
     parse_combined_report,
 )
 
 
-def test_sort_gff_with_fasta(tmp_path):
+def test_fasta_block_passed_through_to_full(tmp_path):
     """
-    Test GFF sorting with FASTA section preserved at the end.
-
-    This test ensures that:
-    - GFF entries are sorted by contig and position
-    - Headers remain at the top
-    - FASTA section (##FASTA and sequences) is preserved at the end
+    The ##FASTA block of the genes GFF is copied into full untouched and stays after
+    every feature row, while the features of the contig are sorted by start.
     """
-    test_file = tmp_path / "test_fasta.gff"
-    gff_content = _(
-        """
-        ##gff-version 3
-        ctg123\t.\texon\t5000\t5500\t.\t+\t.\tID=exon00004
-        ctg123\t.\texon\t1300\t1500\t.\t+\t.\tID=exon00001
-        ctg123\t.\texon\t3000\t3902\t.\t+\t.\tID=exon00003
-        ##FASTA
-        >ctg123
-        CTTCTGGGCGTACCCGATTCTCGGAGAACTTGCCGCACCATTCCGCCTTG
-        TGTTCATTGCTGCCTGCATGTTCATTGTCTACCTCGGCTACGTGTGGCTA
-    """
+    user_gff = tmp_path / "user.gff"
+    user_gff.write_text(
+        "##gff-version 3\n"
+        "ctg123\tProdigal\tCDS\t5000\t5500\t.\t+\t0\tID=exon00004\n"
+        "ctg123\tProdigal\tCDS\t1300\t1500\t.\t+\t0\tID=exon00001\n"
+        "ctg123\tProdigal\tCDS\t3000\t3902\t.\t+\t0\tID=exon00003\n"
+        "##FASTA\n"
+        ">ctg123\n"
+        "CTTCTGGGCGTACCCGATTCTCGGAGAACTTGCCGCACCATTCCGCCTTG\n"
     )
-    test_file.write_text(gff_content)
 
-    sort_gff_file(str(test_file))
+    output_prefix = tmp_path / "output"
+    gff_updater(str(user_gff), str(output_prefix), {}, {}, {}, {})
 
-    lines = test_file.read_text().splitlines(keepends=True)
+    full = (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
 
-    # Check header is first
-    assert lines[0].strip() == "##gff-version 3"
-    # Check entries are sorted by position
-    assert "1300" in lines[1]
-    assert "3000" in lines[2]
-    assert "5000" in lines[3]
-    # Check FASTA section is at the end
-    assert lines[4].strip() == "##FASTA"
-    assert lines[5].strip() == ">ctg123"
-    assert "CTTCTGGGCGTACCCGATTCTCGGAGAACTTGCCGCACCATTCCGCCTTG" in lines[6]
+    # Header first, FASTA block last and intact
+    assert full[0] == "##gff-version 3"
+    assert full[-3:] == [
+        "##FASTA",
+        ">ctg123",
+        "CTTCTGGGCGTACCCGATTCTCGGAGAACTTGCCGCACCATTCCGCCTTG",
+    ]
+
+    # Features sit between them, ascending by start
+    features = [line for line in full if line.startswith("ctg123\t")]
+    assert [line.split("\t")[3] for line in features] == ["1300", "3000", "5000"]
 
 
 def test_parse_mobilome_annotations(tmp_path):
@@ -535,3 +526,145 @@ def test_contig_name_translation(tmp_path):
     assert "NZ_real_1\tProdigal\tCDS\t1500\t1800" in clean
     assert "mobile_element_type=virus" in clean
     assert "contig_1" not in clean
+
+
+def test_trailing_semicolon_not_doubled(tmp_path):
+    """
+    A genes row whose attributes already end in ';' must not produce an empty
+    attribute field (';;') once mobile_element_type and pathofact2 are appended.
+    """
+    user_gff = tmp_path / "user.gff"
+    user_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\t"
+        "ID=prot001;product=hypothetical protein;\n"
+    )
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+    summary_map = {"prot001": "vf,mge"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff),
+        str(output_prefix),
+        {},
+        mobilome_annot,
+        mges_dict,
+        mob_types,
+        summary_map,
+    )
+
+    for name in ("clean", "full"):
+        rows = (tmp_path / f"output_user_mobilome_{name}.gff").read_text().splitlines()
+        prot = [line for line in rows if "ID=prot001" in line][0]
+        assert ";;" not in prot
+        assert prot.endswith("pathofact2=vf,mge")
+        assert "product=hypothetical protein;mobile_element_type=virus" in prot
+
+
+def test_mobilome_trailing_semicolon_stripped(tmp_path):
+    """Mobilome rows are written verbatim, so their trailing ';' is dropped on parse."""
+    mobilome_gff = tmp_path / "mobilome.gff"
+    mobilome_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\t"
+        "ID=virus001;gbkey=mobile_element;\n"
+    )
+
+    _proteins, mobilome_annot, _mges, _types = mobilome_parser(str(mobilome_gff))
+
+    stored = mobilome_annot["contig1"][0]
+    assert not stored.endswith(";")
+    assert stored.endswith("gbkey=mobile_element")
+
+
+def test_empty_attributes_column(tmp_path):
+    """
+    A feature whose attributes are a bare ';' becomes '.' when nothing is appended,
+    and carries no leading separator when something is.
+    """
+    user_gff = tmp_path / "user.gff"
+    user_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tProdigal\tCDS\t5000\t5500\t.\t+\t0\t;\n"
+        "contig1\tProdigal\tCDS\t1500\t1800\t.\t+\t0\t;\n"
+    )
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t1000\t2000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(1000, 2000)]}
+    mob_types = {("contig1", 1000, 2000): "virus"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff), str(output_prefix), {}, mobilome_annot, mges_dict, mob_types
+    )
+
+    full = (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
+    attrs = {
+        line.split("\t")[3]: line.split("\t")[8]
+        for line in full
+        if line.startswith("contig1\tProdigal")
+    }
+
+    # Outside the MGE: nothing appended, so the column is the GFF3 'absent' value
+    assert attrs["5000"] == "."
+    # Passenger: attribute present, with no leading ';'
+    assert attrs["1500"] == "mobile_element_type=virus"
+
+
+def test_contig_order_follows_input(tmp_path):
+    """Contigs come out in the order the genes GFF introduced them, not sorted."""
+    user_gff = tmp_path / "user.gff"
+    user_gff.write_text(
+        "##gff-version 3\n"
+        "contig_10\tProdigal\tCDS\t100\t200\t.\t+\t0\tID=p1\n"
+        "contig_2\tProdigal\tCDS\t100\t200\t.\t+\t0\tID=p2\n"
+        "contig_1\tProdigal\tCDS\t100\t200\t.\t+\t0\tID=p3\n"
+    )
+
+    output_prefix = tmp_path / "output"
+    gff_updater(str(user_gff), str(output_prefix), {}, {}, {}, {})
+
+    full = (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
+    contigs = [line.split("\t")[0] for line in full if not line.startswith("#")]
+    assert contigs == ["contig_10", "contig_2", "contig_1"]
+
+
+def test_entries_sorted_within_contig(tmp_path):
+    """
+    Genes rows arriving out of order are sorted by start, and the contig's mobilome
+    feature is merged in at its own position rather than at the head of the block.
+    """
+    user_gff = tmp_path / "user.gff"
+    user_gff.write_text(
+        "##gff-version 3\n"
+        "contig1\tProdigal\tCDS\t6000\t6500\t.\t+\t0\tID=p3\n"
+        "contig1\tProdigal\tCDS\t1000\t1200\t.\t+\t0\tID=p1\n"
+        "contig1\tProdigal\tCDS\t4200\t4800\t.\t+\t0\tID=p2\n"
+    )
+
+    mobilome_annot = {
+        "contig1": ["contig1\tgeNomad\tvirus\t4000\t9000\t.\t+\t.\tID=virus001"]
+    }
+    mges_dict = {"contig1": [(4000, 9000)]}
+    mob_types = {("contig1", 4000, 9000): "virus"}
+
+    output_prefix = tmp_path / "output"
+    gff_updater(
+        str(user_gff), str(output_prefix), {}, mobilome_annot, mges_dict, mob_types
+    )
+
+    full = (tmp_path / "output_user_mobilome_full.gff").read_text().splitlines()
+    rows = [line for line in full if not line.startswith("#")]
+
+    starts = [int(line.split("\t")[3]) for line in rows]
+    assert starts == sorted(starts)
+
+    ids = [line.split("\t")[8].split(";")[0] for line in rows]
+    assert ids == ["ID=p1", "ID=virus001", "ID=p2", "ID=p3"]
