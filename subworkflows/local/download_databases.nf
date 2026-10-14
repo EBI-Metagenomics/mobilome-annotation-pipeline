@@ -15,7 +15,8 @@ workflow DOWNLOAD_DATABASES {
 
     DB_DOWNLOAD_MOBILOME_DBS()
     CHECKV_DOWNLOADDATABASE()
-    DB_DOWNLOAD_VFDB()
+    // Nextflow stages the remote FASTA itself: the diamond container ships no curl.
+    DB_DOWNLOAD_VFDB(file(params.vfdb_url ?: 'https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz'))
     PATHOFACT2_DOWNLOADDATA(Channel.of(params.zenodo_id ?: 18223764))
     DB_UNTAR_PATHOFACT(PATHOFACT2_DOWNLOADDATA.out.zenodo_file)
     LOCALCDSEARCH_DOWNLOAD(Channel.of(['cdd']))

@@ -54,7 +54,7 @@ params {
     genomad_db                   = "/path/to/dbs/genomad/genomad_db_v1.9"
     checkv_db                    = "/path/to/dbs/checkV/checkv-db-v1.5"
     icefinder_macsyfinder_models = "/path/to/dbs/icefinder2/icf2_dbs/macsydata"
-    icefinder_hmm_models         = "/path/to/dbs/icefinder2/icf2_dbs/icehmm/icescan"
+    icefinder_hmm_models         = "/path/to/dbs/icefinder2/icf2_dbs/icehmm/icescan.hmm"
     icefinder_prokka_uniprot_db  = "/path/to/dbs/icefinder2/icf2_dbs/icefinder_prokka_uniprot"
 
     // PATHOFACT2
@@ -159,6 +159,16 @@ nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
 | `--skip_sanntis` | `false` | Skip SanntiS BGC prediction |
 | `--skip_gecco` | `false` | Skip GECCO BGC prediction |
 | `--skip_antismash` | `false` | Skip antiSMASH BGC prediction |
+
+### DeepARG settings
+
+These have working defaults and only need changing if you use a different DeepARG database or container.
+
+| Parameter | Default | Description |
+|---|---|---|
+| `--deeparg_model` | `LS` | DeepARG model: `LS` for genes/proteins (what MAP provides), `SS` for short reads |
+| `--deeparg_db_version` | `2` | DeepARG database version, recorded in the hAMRonization output |
+| `--deeparg_tool_version` | `1.0.4` | DeepARG tool version, recorded in the hAMRonization output |
 
 <a name="manifest"></a>
 

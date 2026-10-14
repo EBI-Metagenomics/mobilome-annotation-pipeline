@@ -19,6 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `--download_dbs`: `DB_DOWNLOAD_VFDB` no longer calls `curl`, which is absent from the
+  DIAMOND container; the VFDB FASTA is now staged by Nextflow (#105).
+- `--download_dbs`: `DB_DOWNLOAD_MOBILOME_DBS` renames the extracted `genomad_db/` to
+  `genomad_db_v1.9/`, fixing the "Missing output file(s)" error (#106).
+- `deeparg_db_version`, `deeparg_model` and `deeparg_tool_version` now default to `2`, `LS`
+  and `1.0.4` instead of `null`, which crashed `AMR_ANNOTATION` (#107).
+- The config block printed by `--download_dbs` and the usage docs now give
+  `icefinder_hmm_models` as `.../icehmm/icescan.hmm`, matching the files in the database
+  bundle (#108).
+- `--download_dbs`: the ready-to-paste config block is now actually printed on completion
+  (the `onComplete` handler previously failed with a `NullPointerException`).
+- `--download_dbs`: the CheckV database is now published at `checkV/checkv-db-v*`, matching
+  the printed `checkv_db` path, instead of `checkV/checkv_db/checkv-db-v*`.
 - `*_user_mobilome_clean.gff` now starts with a `##gff-version 3` header and contains only
   genes covered by a mobile element (previously it had no header and included every gene).
 - `*_user_mobilome_extra.gff` header is reduced to just `##gff-version 3`; the

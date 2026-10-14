@@ -60,7 +60,7 @@
         "icefinder_hmm_models": {
           "type": "string",
           "description": "Path to ICEfinder2 HMM models.",
-          "help_text": "Path to HMM models used by ICEfinder2 for integrative and conjugative element detection.",
+          "help_text": "Prefix of the hmmpress-ed HMM models used by ICEfinder2, e.g. /path/to/icf2_dbs/icehmm/icescan.hmm, with the .h3f/.h3i/.h3m/.h3p files alongside it.",
           "fa_icon": "fas fa-dna"
         },
         "icefinder_macsyfinder_models": {
@@ -232,14 +232,17 @@
     },
     "deeparg_db_version": {
       "type": "number",
+      "default": 2,
       "description": "Database version of deeparg"
     },
     "deeparg_model": {
       "type": "string",
+      "default": "LS",
       "description": "Deeparg model: SS for reads or LS for genes/proteins"
     },
     "deeparg_tool_version": {
       "type": "string",
+      "default": "1.0.4",
       "description": "Deeparg tool version"
     },
     "antismash_db": {

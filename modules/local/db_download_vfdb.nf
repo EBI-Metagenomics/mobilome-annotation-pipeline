@@ -5,6 +5,9 @@ process DB_DOWNLOAD_VFDB {
         ? 'https://depot.galaxyproject.org/singularity/diamond:2.1.16--h13889ed_0'
         : 'biocontainers/diamond:2.1.16--h13889ed_0'}"
 
+    input:
+    path fasta
+
     output:
     path "VFDB_setB_pro.dmnd", emit: db
     path "versions.yml",       emit: versions
@@ -14,14 +17,10 @@ process DB_DOWNLOAD_VFDB {
 
     script:
     """
-    curl -L -o VFDB_setB_pro.fas.gz https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz
-
     diamond makedb \\
         --threads ${task.cpus} \\
-        --in VFDB_setB_pro.fas.gz \\
+        --in ${fasta} \\
         -d VFDB_setB_pro
-
-    rm VFDB_setB_pro.fas.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

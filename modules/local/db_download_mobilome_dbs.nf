@@ -17,6 +17,8 @@ process DB_DOWNLOAD_MOBILOME_DBS {
     """
     wget https://zenodo.org/records/14886553/files/genomad_db_v1.9.tar.gz
     tar -xzf genomad_db_v1.9.tar.gz
+    # The tarball's top-level directory is genomad_db/; only the archive name is versioned.
+    mv genomad_db genomad_db_v1.9
     rm genomad_db_v1.9.tar.gz
 
     wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz

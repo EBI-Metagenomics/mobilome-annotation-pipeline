@@ -56,7 +56,7 @@ nextflow run main.nf --input samplesheet.csv -c my_paths.config -profile singula
 
 Required database params (pass via `-c my_paths.config` or flags):
 - `--genomad_db`, `--checkv_db` — geNomad and CheckV DB directories
-- `--icefinder_hmm_models` — ICEfinder HMM file (path without extension, used as glob `${path}.*`)
+- `--icefinder_hmm_models` — prefix of the hmmpress-ed ICEfinder HMMs, e.g. `.../icehmm/icescan.hmm` (used as glob `${path}.*`; its basename is passed to `hmmscan`)
 - `--icefinder_macsyfinder_models` — MaCSyFinder models directory
 - `--icefinder_prokka_uniprot_db` — Prokka UniProt BLAST DB directory
 - `--pathofact_models`, `--virulencefactors_db`, `--ncbi_cdd` — PATHOFACT2 databases

@@ -32,10 +32,15 @@ workflow {
     if (params.download_dbs) {
         DOWNLOAD_DATABASES()
 
+        // Captured here because `params`, `workflow` and `log` resolve to null inside the
+        // onComplete handler when it is registered from within the entry workflow.
+        def db_dir = params.download_dbs
+        def wf     = workflow
+        def logger = log
+
         workflow.onComplete {
-            def db_dir = params.download_dbs
-            if (workflow.success) {
-                log.info """
+            if (wf.success) {
+                logger.info """
                 ============================================================
                  Database download complete!
                  Add the following block to your config file (e.g. my_paths.config)
@@ -46,7 +51,7 @@ workflow {
                     genomad_db                   = "${db_dir}/genomad/genomad_db_v1.9"
                     checkv_db                    = "${db_dir}/checkV/checkv-db-v1.5"
                     icefinder_macsyfinder_models = "${db_dir}/icefinder2/icf2_dbs/macsydata"
-                    icefinder_hmm_models         = "${db_dir}/icefinder2/icf2_dbs/icehmm/icescan"
+                    icefinder_hmm_models         = "${db_dir}/icefinder2/icf2_dbs/icehmm/icescan.hmm"
                     icefinder_prokka_uniprot_db  = "${db_dir}/icefinder2/icf2_dbs/icefinder_prokka_uniprot"
 
                     // PATHOFACT2
