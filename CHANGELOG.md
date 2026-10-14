@@ -19,8 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `--download_dbs`: `DB_DOWNLOAD_VFDB` no longer calls `curl`, which is absent from the
-  DIAMOND container; the VFDB FASTA is now staged by Nextflow (#105).
+- `--download_dbs`: VFDB is no longer fetched with `curl`, which is absent from the DIAMOND
+  container. Nextflow now stages the VFDB FASTA and the nf-core `DIAMOND_MAKEDB` module builds
+  the database, replacing the local `DB_DOWNLOAD_VFDB` module (#105).
 - `--download_dbs`: `DB_DOWNLOAD_MOBILOME_DBS` renames the extracted `genomad_db/` to
   `genomad_db_v1.9/`, fixing the "Missing output file(s)" error (#106).
 - `deeparg_db_version`, `deeparg_model` and `deeparg_tool_version` now default to `2`, `LS`
