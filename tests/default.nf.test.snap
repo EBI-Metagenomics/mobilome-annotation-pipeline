@@ -64,7 +64,7 @@
     },
     "Pathofact integration test with annotation manifest. Expected a report of proteins with relevant annotation": {
         "content": [
-            38,
+            36,
             [
                 "MGYG000528118_sub",
                 "MGYG000528118_sub/MGYG000528118_sub_combined_report.tsv",
@@ -136,7 +136,7 @@
             "nf-test": "0.9.3",
             "nextflow": "25.04.7"
         },
-        "timestamp": "2026-07-15T15:54:50.869918"
+        "timestamp": "2026-10-14T12:44:36.382425"
     },
     "Positive test: mobilome-only run on the pos_test assembly covering IS, integron, ICE, plasmid, prophage (VIRify), and CO": {
         "content": [
