@@ -18,7 +18,7 @@ workflow DOWNLOAD_DATABASES {
     // Nextflow stages the remote FASTA itself: the diamond container ships no curl.
     // meta.id doubles as the DB prefix, giving VFDB_setB_pro.dmnd.
     DIAMOND_MAKEDB(
-        Channel.of([[id: 'VFDB_setB_pro'], file(params.vfdb_url ?: 'https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz')]),
+        Channel.of([[id: 'VFDB_setB_pro'], file(params.vfdb_url)]),
         [],
         [],
         []

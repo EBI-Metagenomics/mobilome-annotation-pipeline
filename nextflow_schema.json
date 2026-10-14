@@ -228,7 +228,8 @@
     },
     "vfdb_url": {
       "type": "string",
-      "description": "Tuple containng the VFDB id (VFDB_setB_pro) and the url to download VFDB using wget (https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz)"
+      "default": "https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz",
+      "description": "URL (or local path) of the VFDB setB protein FASTA, used by --download_dbs and when virulencefactors_db is not provided"
     },
     "deeparg_db_version": {
       "type": "number",
