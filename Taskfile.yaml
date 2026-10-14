@@ -41,7 +41,7 @@ tasks:
    interactive: true
 
  # Fetch the full ICEfinder2-lite test databases (replaces the old committed mini-DB).
- # Same 61 MB tarball the production DB_DOWNLOAD_MOBILOME_DBS module uses, hosted on the EBI FTP.
+ # Same 61 MB tarball the production DB_DOWNLOAD_ICEFINDER2 module uses, hosted on the EBI FTP.
  # Required by the nf-test positive test before `nf-test test`.
  fetch-icefinder-test-db:
    desc: "Download + extract the ICEfinder2-lite DBs needed by the nf-test positive test"

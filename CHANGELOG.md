@@ -17,12 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `*_mobilome_{clean,extra,full}.gff.gz` (without the `_user` infix). With user proteins the
   outputs keep their `*_user_mobilome_*` names.
 
+### Changed
+
+- `--download_dbs`: Zenodo downloads (geNomad DB, PathoFact2 models) now go through a new local
+  `ZENODO_DOWNLOAD` module using the mgnify-pipelines-toolkit `download_zenodo` script. The
+  ICEfinder2 download is split into its own `DB_DOWNLOAD_ICEFINDER2` module (formerly part of
+  `DB_DOWNLOAD_MOBILOME_DBS`).
+
 ### Fixed
 
 - `--download_dbs`: VFDB is no longer fetched with `curl`, which is absent from the DIAMOND
   container. Nextflow now stages the VFDB FASTA and the nf-core `DIAMOND_MAKEDB` module builds
   the database, replacing the local `DB_DOWNLOAD_VFDB` module (#105).
-- `--download_dbs`: `DB_DOWNLOAD_MOBILOME_DBS` renames the extracted `genomad_db/` to
+- `--download_dbs`: the extracted geNomad directory is now renamed from `genomad_db/` to
   `genomad_db_v1.9/`, fixing the "Missing output file(s)" error (#106).
 - `deeparg_db_version`, `deeparg_model` and `deeparg_tool_version` now default to `2`, `LS`
   and `1.0.4` instead of `null`, which crashed `AMR_ANNOTATION` (#107).

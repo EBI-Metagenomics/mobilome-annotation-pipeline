@@ -1,4 +1,4 @@
-process DB_DOWNLOAD_MOBILOME_DBS {
+process DB_DOWNLOAD_ICEFINDER2 {
     label 'process_single'
 
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
@@ -6,21 +6,14 @@ process DB_DOWNLOAD_MOBILOME_DBS {
         : 'biocontainers/gnu-wget:1.18--h36e9172_9'}"
 
     output:
-    path "genomad_db_v1.9/", emit: genomad_db
-    path "icf2_dbs/",        emit: icefinder_dbs
-    path "versions.yml",     emit: versions
+    path "icf2_dbs/",    emit: icefinder_dbs
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     """
-    wget https://zenodo.org/records/14886553/files/genomad_db_v1.9.tar.gz
-    tar -xzf genomad_db_v1.9.tar.gz
-    # The tarball's top-level directory is genomad_db/; only the archive name is versioned.
-    mv genomad_db genomad_db_v1.9
-    rm genomad_db_v1.9.tar.gz
-
     wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
     tar -xzf icf2_dbs.tar.gz
     rm icf2_dbs.tar.gz
@@ -33,7 +26,6 @@ process DB_DOWNLOAD_MOBILOME_DBS {
 
     stub:
     """
-    mkdir -p genomad_db_v1.9
     mkdir -p icf2_dbs/macsydata icf2_dbs/icehmm icf2_dbs/icefinder_prokka_uniprot
     touch icf2_dbs/icehmm/icescan.hmm
 
