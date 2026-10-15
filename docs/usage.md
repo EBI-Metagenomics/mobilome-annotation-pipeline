@@ -153,9 +153,9 @@ nextflow run EBI-Metagenomics/mobilome-annotation-pipeline \
 | Parameter | Default | Description |
 |---|---|---|
 | `--skip_virulence` | `false` | Skip PATHOFACT2 toxin/virulence annotation and VFDB search |
-| `--skip_amrfinderplus` | `false` | Skip AMRFinderPlus |
-| `--skip_deeparg` | `false` | Skip DeepARG |
-| `--skip_rgi` | `false` | Skip RGI (CARD) |
+| `--skip_amrfinderplus` | `false` | Skip AMRFinderPlus for antimicrobial resistance prediction |
+| `--skip_deeparg` | `false` | Skip DeepARG for antimicrobial resistance prediction |
+| `--skip_rgi` | `false` | Skip RGI (CARD) for antimicrobial resistance prediction |
 | `--skip_sanntis` | `false` | Skip SanntiS BGC prediction |
 | `--skip_gecco` | `false` | Skip GECCO BGC prediction |
 | `--skip_antismash` | `false` | Skip antiSMASH BGC prediction |
