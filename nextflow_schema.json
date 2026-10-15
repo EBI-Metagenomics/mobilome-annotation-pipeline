@@ -222,9 +222,30 @@
       "type": "string",
       "description": "Path to the CARD database properly formatted for RGI"
     },
-    "zenodo_id": {
+    "pathofact_zenodo_id": {
+      "type": "integer",
+      "default": 18223764,
+      "description": "Zenodo record ID of the PathoFact2 models, used by --download_dbs and when pathofact_models is not provided"
+    },
+    "genomad_db_version": {
       "type": "string",
-      "description": "The id of the pathofact database in zenodo"
+      "default": "1.9",
+      "description": "geNomad database version downloaded by --download_dbs; sets the expected file name genomad_db_v<version>.tar.gz and the output directory genomad_db_v<version>"
+    },
+    "checkv_db_version": {
+      "type": "string",
+      "default": "1.5",
+      "description": "Version of the CheckV database fetched by --download_dbs (checkv download_database picks the release); used for the checkV/checkv-db-v<version> path printed on completion"
+    },
+    "genomad_zenodo_id": {
+      "type": "integer",
+      "default": 14886553,
+      "description": "Zenodo record ID of the geNomad database downloaded by --download_dbs"
+    },
+    "icefinder2_db_url": {
+      "type": "string",
+      "default": "ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz",
+      "description": "URL of the ICEfinder2-lite database bundle (icf2_dbs.tar.gz) downloaded by --download_dbs"
     },
     "vfdb_url": {
       "type": "string",

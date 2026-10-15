@@ -5,6 +5,9 @@ process DB_DOWNLOAD_ICEFINDER2 {
         ? 'https://depot.galaxyproject.org/singularity/gnu-wget:1.18--h36e9172_9'
         : 'biocontainers/gnu-wget:1.18--h36e9172_9'}"
 
+    input:
+    val db_url
+
     output:
     path "icf2_dbs/",    emit: icefinder_dbs
     path "versions.yml", emit: versions
@@ -14,7 +17,7 @@ process DB_DOWNLOAD_ICEFINDER2 {
 
     script:
     """
-    wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz
+    wget -O icf2_dbs.tar.gz ${db_url}
     tar -xzf icf2_dbs.tar.gz
     rm icf2_dbs.tar.gz
 

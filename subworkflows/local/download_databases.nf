@@ -15,10 +15,10 @@ include { RGI_DOWNLOADDB                        } from '../../modules/ebi-metage
 workflow DOWNLOAD_DATABASES {
     main:
 
-    // geNomad DB v1.9 is pinned to its Zenodo record (file index set in conf/download_dbs.config)
-    ZENODO_DOWNLOAD_GENOMAD(Channel.of([[id: 'genomad'], 14886553, 'genomad_db_v1.9.tar.gz']))
+    // geNomad DB is pinned to a Zenodo record (file index set in conf/download_dbs.config)
+    ZENODO_DOWNLOAD_GENOMAD(Channel.of([[id: 'genomad'], params.genomad_zenodo_id, "genomad_db_v${params.genomad_db_version}.tar.gz"]))
     UNTAR_GENOMAD(ZENODO_DOWNLOAD_GENOMAD.out.file)
-    DB_DOWNLOAD_ICEFINDER2()
+    DB_DOWNLOAD_ICEFINDER2(params.icefinder2_db_url)
     CHECKV_DOWNLOADDATABASE()
     // Nextflow stages the remote FASTA itself: the diamond container ships no curl.
     // meta.id doubles as the DB prefix, giving VFDB_setB_pro.dmnd.
@@ -28,7 +28,7 @@ workflow DOWNLOAD_DATABASES {
         [],
         []
     )
-    ZENODO_DOWNLOAD_PATHOFACT(Channel.of([[id: 'pathofact'], params.zenodo_id ?: 18223764, 'Models.tar.gz']))
+    ZENODO_DOWNLOAD_PATHOFACT(Channel.of([[id: 'pathofact'], params.pathofact_zenodo_id, 'Models.tar.gz']))
     DB_UNTAR_PATHOFACT(ZENODO_DOWNLOAD_PATHOFACT.out.file.map { _meta, tarball -> tarball })
     LOCALCDSEARCH_DOWNLOAD(Channel.of(['cdd']))
     AMRFINDERPLUS_UPDATE()

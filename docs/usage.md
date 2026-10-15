@@ -73,6 +73,21 @@ params {
 }
 ```
 
+### Database sources
+
+The versions and locations that `--download_dbs` fetches are params with defaults in `nextflow.config`, so moving to a new database release only means overriding them:
+
+| Parameter | Default | Description |
+|---|---|---|
+| `--genomad_db_version` | `1.9` | geNomad DB version; sets the expected `genomad_db_v<version>.tar.gz` and the output `genomad/genomad_db_v<version>` |
+| `--genomad_zenodo_id` | `14886553` | Zenodo record of the geNomad DB |
+| `--checkv_db_version` | `1.5` | CheckV DB version. `checkv download_database` picks the release itself, so set this to match the `checkv-db-v<version>` folder it creates; it only sets the printed `checkv_db` path |
+| `--icefinder2_db_url` | EBI FTP `icf2_dbs.tar.gz` | ICEfinder2-lite database bundle |
+| `--pathofact_zenodo_id` | `18223764` | Zenodo record of the PathoFact2 models |
+| `--vfdb_url` | VFDB `VFDB_setB_pro.fas.gz` | VFDB protein FASTA (URL or local path) |
+
+The geNomad Zenodo record holds several files. The database tarball is selected with `--file-index 1` in `conf/download_dbs.config`, so check that index when changing `--genomad_zenodo_id`.
+
 <a name="samplesheet"></a>
 
 ## Samplesheet format

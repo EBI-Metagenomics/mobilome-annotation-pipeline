@@ -35,6 +35,8 @@ workflow {
         // Captured here because `params`, `workflow` and `log` resolve to null inside the
         // onComplete handler when it is registered from within the entry workflow.
         def db_dir = params.download_dbs
+        def genomad_version = params.genomad_db_version
+        def checkv_version  = params.checkv_db_version
         def wf     = workflow
         def logger = log
 
@@ -48,8 +50,8 @@ workflow {
                 ============================================================
                 params {
                     // Mobilome databases
-                    genomad_db                   = "${db_dir}/genomad/genomad_db_v1.9"
-                    checkv_db                    = "${db_dir}/checkV/checkv-db-v1.5"
+                    genomad_db                   = "${db_dir}/genomad/genomad_db_v${genomad_version}"
+                    checkv_db                    = "${db_dir}/checkV/checkv-db-v${checkv_version}"
                     icefinder_macsyfinder_models = "${db_dir}/icefinder2/icf2_dbs/macsydata"
                     icefinder_hmm_models         = "${db_dir}/icefinder2/icf2_dbs/icehmm/icescan.hmm"
                     icefinder_prokka_uniprot_db  = "${db_dir}/icefinder2/icf2_dbs/icefinder_prokka_uniprot"

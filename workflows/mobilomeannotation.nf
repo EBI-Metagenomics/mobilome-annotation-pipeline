@@ -36,6 +36,7 @@ include { ICEFINDER2_LITE                      } from '../subworkflows/local/ice
 include { GFF_MAPPING_COMPRESSION_AND_INDEXING } from '../subworkflows/local/gff_mapping_compression_and_indexing'
 include { PARSE_ANNOTATION_MANIFEST            } from '../subworkflows/local/parse_annotation_manifest'
 include { PATHOFACT2                           } from '../subworkflows/ebi-metagenomics/pathofact2/main'
+include { ZENODO_DOWNLOAD as ZENODO_DOWNLOAD_PATHOFACT } from '../modules/local/zenodo_download'
 include { AMR_ANNOTATION                       } from '../subworkflows/ebi-metagenomics/amr_annotation/main'
 include { BGC_ANNOTATION                       } from '../subworkflows/ebi-metagenomics/bgc_annotation/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS          } from '../modules/nf-core/custom/dumpsoftwareversions/main'
@@ -342,9 +343,16 @@ workflow MOBILOMEANNOTATION {
         def ch_pathofact_inputs = ch_proteins_source
             .join(ch_user_ips, remainder: true)
             .map { meta, proteins, gff, ips_tsv -> tuple(meta, proteins, gff, ips_tsv ?: []) }
-        def ch_models = params.pathofact_models
-            ? channel.fromPath(file(params.pathofact_models, checkIfExists: true)).first()
-            : null
+        // Without pathofact_models, MAP fetches the models itself (same downloader as
+        // --download_dbs) and hands PATHOFACT2 the tarball, which the toxins/virulence
+        // modules unpack. This keeps the vendored PATHOFACT2_DOWNLOADDATA from running.
+        def ch_models
+        if (params.pathofact_models) {
+            ch_models = channel.fromPath(file(params.pathofact_models, checkIfExists: true)).first()
+        } else {
+            ZENODO_DOWNLOAD_PATHOFACT(channel.of([[id: 'pathofact'], params.pathofact_zenodo_id, 'Models.tar.gz']))
+            ch_models = ZENODO_DOWNLOAD_PATHOFACT.out.file.map { _meta, tarball -> tarball }.first()
+        }
         def ch_vfdb = params.virulencefactors_db
             ? channel.fromPath(file(params.virulencefactors_db, checkIfExists: true)).map { db -> [ [id: 'vfdb'], db ] }.first()
             : null
@@ -360,7 +368,7 @@ workflow MOBILOMEANNOTATION {
             ch_models,
             ch_vfdb,
             ch_cdd,
-            params.zenodo_id,
+            params.pathofact_zenodo_id,
             channel.value(params.vfdb_url)
         )
         ch_versions = ch_versions.mix(PATHOFACT2.out.versions)

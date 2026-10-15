@@ -23,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ZENODO_DOWNLOAD` module using the mgnify-pipelines-toolkit `download_zenodo` script. The
   ICEfinder2 download is split into its own `DB_DOWNLOAD_ICEFINDER2` module (formerly part of
   `DB_DOWNLOAD_MOBILOME_DBS`).
+- Database sources are now params in `nextflow.config` instead of being hardcoded in modules:
+  `genomad_db_version` (`1.9`), `genomad_zenodo_id` (`14886553`), `checkv_db_version` (`1.5`),
+  `icefinder2_db_url`, and `pathofact_zenodo_id` (`18223764`). **Breaking:**
+  `pathofact_zenodo_id` replaces `zenodo_id`.
+- When `pathofact_models` is not given, MAP now downloads the PathoFact2 models with the same
+  `ZENODO_DOWNLOAD` module as `--download_dbs`, instead of the vendored
+  `PATHOFACT2_DOWNLOADDATA`.
 
 ### Fixed
 
