@@ -1,7 +1,7 @@
 include { DB_DOWNLOAD_ICEFINDER2                } from '../../modules/local/db_download_icefinder2'
 include { ZENODO_DOWNLOAD as ZENODO_DOWNLOAD_GENOMAD   } from '../../modules/local/zenodo_download'
 include { ZENODO_DOWNLOAD as ZENODO_DOWNLOAD_PATHOFACT } from '../../modules/local/zenodo_download'
-include { DB_UNTAR_GENOMAD                      } from '../../modules/local/db_untar_genomad'
+include { UNTAR as UNTAR_GENOMAD                 } from '../../modules/nf-core/untar/main'
 include { CHECKV_DOWNLOADDATABASE               } from '../../modules/nf-core/checkv/downloaddatabase/main'
 include { DIAMOND_MAKEDB                        } from '../../modules/nf-core/diamond/makedb/main'
 include { DB_UNTAR_AMRFINDERPLUS                } from '../../modules/local/db_untar_amrfinderplus'
@@ -17,7 +17,7 @@ workflow DOWNLOAD_DATABASES {
 
     // geNomad DB v1.9 is pinned to its Zenodo record (file index set in conf/download_dbs.config)
     ZENODO_DOWNLOAD_GENOMAD(Channel.of([[id: 'genomad'], 14886553, 'genomad_db_v1.9.tar.gz']))
-    DB_UNTAR_GENOMAD(ZENODO_DOWNLOAD_GENOMAD.out.file.map { _meta, tarball -> tarball })
+    UNTAR_GENOMAD(ZENODO_DOWNLOAD_GENOMAD.out.file)
     DB_DOWNLOAD_ICEFINDER2()
     CHECKV_DOWNLOADDATABASE()
     // Nextflow stages the remote FASTA itself: the diamond container ships no curl.

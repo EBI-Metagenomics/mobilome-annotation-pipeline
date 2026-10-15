@@ -28,7 +28,14 @@ process ZENODO_DOWNLOAD {
     """
 
     stub:
+    // A real (empty-content) tarball for .tar.gz/.tgz targets, so downstream untar steps also stub-run.
+    def is_tarball = filename.endsWith('.tar.gz') || filename.endsWith('.tgz')
     """
-    echo "stub" | gzip > ${filename}
+    if [ "${is_tarball}" == "true" ]; then
+        mkdir stub && touch stub/stub.txt
+        tar -czf ${filename} stub
+    else
+        echo "stub" | gzip > ${filename}
+    fi
     """
 }
