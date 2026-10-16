@@ -17,8 +17,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `*_mobilome_{clean,extra,full}.gff.gz` (without the `_user` infix). With user proteins the
   outputs keep their `*_user_mobilome_*` names.
 
+### Changed
+
+- `--download_dbs`: Zenodo downloads (geNomad DB, PathoFact2 models) now go through a new local
+  `ZENODO_DOWNLOAD` module using the mgnify-pipelines-toolkit `download_zenodo` script. The
+  ICEfinder2 download is split into its own `DB_DOWNLOAD_ICEFINDER2` module (formerly part of
+  `DB_DOWNLOAD_MOBILOME_DBS`).
+- Database sources are now params in `nextflow.config` instead of being hardcoded in modules:
+  `genomad_db_version` (`1.9`), `genomad_zenodo_id` (`14886553`), `checkv_db_version` (`1.5`),
+  `icefinder2_db_url`, and `pathofact_zenodo_id` (`18223764`). **Breaking:**
+  `pathofact_zenodo_id` replaces `zenodo_id`.
+- When `pathofact_models` is not given, MAP now downloads the PathoFact2 models with the same
+  `ZENODO_DOWNLOAD` module as `--download_dbs`, instead of the vendored
+  `PATHOFACT2_DOWNLOADDATA`.
+
 ### Fixed
 
+- `--download_dbs`: VFDB is no longer fetched with `curl`, which is absent from the DIAMOND
+  container. Nextflow now stages the VFDB FASTA and the nf-core `DIAMOND_MAKEDB` module builds
+  the database, replacing the local `DB_DOWNLOAD_VFDB` module (#105).
+- `--download_dbs`: the extracted geNomad directory is now renamed from `genomad_db/` to
+  `genomad_db_v1.9/`, fixing the "Missing output file(s)" error (#106).
+- `deeparg_db_version`, `deeparg_model` and `deeparg_tool_version` now default to `2`, `LS`
+  and `1.0.4` instead of `null`, which crashed `AMR_ANNOTATION` (#107).
+- The config block printed by `--download_dbs` and the usage docs now give
+  `icefinder_hmm_models` as `.../icehmm/icescan.hmm`, matching the files in the database
+  bundle (#108).
+- `--download_dbs`: the ready-to-paste config block is now actually printed on completion
+  (the `onComplete` handler previously failed with a `NullPointerException`).
+- `--download_dbs`: the CheckV database is now published at `checkV/checkv-db-v*`, matching
+  the printed `checkv_db` path, instead of `checkV/checkv_db/checkv-db-v*`.
 - `*_user_mobilome_clean.gff` now starts with a `##gff-version 3` header and contains only
   genes covered by a mobile element (previously it had no header and included every gene).
 - `*_user_mobilome_extra.gff` header is reduced to just `##gff-version 3`; the

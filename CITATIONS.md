@@ -40,7 +40,7 @@
 
 - [ICEfinder2](https://academic.oup.com/nar/article/52/D1/D732/7327075)
 
-  > Wang J, Li J, Chen Y, Tai C, Ou HY. ICEfinder2: exploring the diversity of genomic islands in prokaryotes using a scalable and standalone tool. Nucleic Acids Res. 2024;52(D1):D732–D740.
+  > Meng Wang, Guitian Liu, Meng Liu, Cui Tai, Zixin Deng, Jiangning Song, Hong-Yu Ou, ICEberg 3.0: functional categorization and analysis of the integrative and conjugative elements in bacteria, Nucleic Acids Research, Volume 52, Issue D1, 5 January 2024, Pages D732–D737
 
 - [IntegronFinder2](https://doi.org/10.3390/microorganisms10040700)
 

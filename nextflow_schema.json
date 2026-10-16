@@ -60,7 +60,7 @@
         "icefinder_hmm_models": {
           "type": "string",
           "description": "Path to ICEfinder2 HMM models.",
-          "help_text": "Path to HMM models used by ICEfinder2 for integrative and conjugative element detection.",
+          "help_text": "Prefix of the hmmpress-ed HMM models used by ICEfinder2, e.g. /path/to/icf2_dbs/icehmm/icescan.hmm, with the .h3f/.h3i/.h3m/.h3p files alongside it.",
           "fa_icon": "fas fa-dna"
         },
         "icefinder_macsyfinder_models": {
@@ -222,24 +222,49 @@
       "type": "string",
       "description": "Path to the CARD database properly formatted for RGI"
     },
-    "zenodo_id": {
+    "pathofact_zenodo_id": {
+      "type": "integer",
+      "default": 18223764,
+      "description": "Zenodo record ID of the PathoFact2 models, used by --download_dbs and when pathofact_models is not provided"
+    },
+    "genomad_db_version": {
       "type": "string",
-      "description": "The id of the pathofact database in zenodo"
+      "default": "1.9",
+      "description": "geNomad database version downloaded by --download_dbs; sets the expected file name genomad_db_v<version>.tar.gz and the output directory genomad_db_v<version>"
+    },
+    "checkv_db_version": {
+      "type": "string",
+      "default": "1.5",
+      "description": "Version of the CheckV database fetched by --download_dbs (checkv download_database picks the release); used for the checkV/checkv-db-v<version> path printed on completion"
+    },
+    "genomad_zenodo_id": {
+      "type": "integer",
+      "default": 14886553,
+      "description": "Zenodo record ID of the geNomad database downloaded by --download_dbs"
+    },
+    "icefinder2_db_url": {
+      "type": "string",
+      "default": "ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/icefinder2lite/icf2_dbs.tar.gz",
+      "description": "URL of the ICEfinder2-lite database bundle (icf2_dbs.tar.gz) downloaded by --download_dbs"
     },
     "vfdb_url": {
       "type": "string",
-      "description": "Tuple containng the VFDB id (VFDB_setB_pro) and the url to download VFDB using wget (https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz)"
+      "default": "https://www.mgc.ac.cn/VFs/Down/VFDB_setB_pro.fas.gz",
+      "description": "URL (or local path) of the VFDB setB protein FASTA, used by --download_dbs and when virulencefactors_db is not provided"
     },
     "deeparg_db_version": {
       "type": "number",
+      "default": 2,
       "description": "Database version of deeparg"
     },
     "deeparg_model": {
       "type": "string",
+      "default": "LS",
       "description": "Deeparg model: SS for reads or LS for genes/proteins"
     },
     "deeparg_tool_version": {
       "type": "string",
+      "default": "1.0.4",
       "description": "Deeparg tool version"
     },
     "antismash_db": {

@@ -4,7 +4,7 @@ ICEFinder 2 lite requires three reference databases (HMM models, MacSyFinder mod
 and a Prokka-formatted UniProt BLAST DB). These are **not committed** to the repo.
 
 The full DBs are downloaded on the fly from the EBI FTP (the same 61 MB `icf2_dbs.tar.gz`
-the production `DB_DOWNLOAD_MOBILOME_DBS` module uses), and extracted into `icf2_dbs/`
+the production `DB_DOWNLOAD_ICEFINDER2` module uses), and extracted into `icf2_dbs/`
 here (git-ignored). Fetch them before running the nf-test suite:
 
 ```bash
