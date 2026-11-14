@@ -1,0 +1,68 @@
+nextflow_process {
+
+    name "Test Process FASTA_WRITER"
+    script "../fasta_writer.nf"
+    process "FASTA_WRITER"
+
+    tag "modules"
+    tag "modules_local"
+    tag "modules/fasta_writer"
+
+    test("Sequences cover the full 1-based inclusive GFF span") {
+
+        // FASTA_WRITER expects a compressed GFF
+        setup {
+            run("TABIX_BGZIP", alias: "BGZIP_GFF") {
+                script "modules/nf-core/tabix/bgzip/main.nf"
+                process {
+                    """
+                    input[0] = [
+                        [ id: 'fasta_writer_mobilome_nogenes' ],
+                        file("${projectDir}/modules/local/tests/data/fasta_writer_mobilome_nogenes.gff", checkIfExists: true)
+                    ]
+                    """
+                }
+            }
+        }
+
+        when {
+            process {
+                """
+                input[0] = BGZIP_GFF.out.output
+                    .map { _gff_meta, gff ->
+                        [
+                            [ id: 'test' ],
+                            file("${projectDir}/modules/local/tests/data/fasta_writer_assembly.fasta", checkIfExists: true),
+                            gff
+                        ]
+                    }
+                """
+            }
+        }
+
+        then {
+            // Expected sequences are the contig_1 bases from GFF start to GFF end, both inclusive
+            def expected = [
+                'contig_1|insertion_sequence-1:12'      : 'GCTAAAGACAAT',
+                'contig_1|inverted_repeat_element-31:41': 'GCACGAAACTT',
+                'contig_1|conjugative_integron-60:80'   : 'GCTTAAGGGTTAAGTAAGTGT'
+            ]
+
+            def records = [:]
+            def header = null
+            path(process.out[0][0]).linesGzip.each { line ->
+                if (line.startsWith('>')) {
+                    header = line.substring(1)
+                    records[header] = ''
+                } else {
+                    records[header] += line.trim()
+                }
+            }
+
+            assertAll(
+                { assert process.success },
+                { assert records == expected }
+            )
+        }
+    }
+}

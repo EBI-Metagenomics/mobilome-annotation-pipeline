@@ -21,7 +21,8 @@ process FASTA_WRITER {
     # GFF file is always compressed
     gzip -dc ${mobilome_nogenes} > ${prefix}_nogenes.gff
 
-    awk -F '\t' '{ if (NF == 9 ) print \$1 "\t" \$4 "\t" \$5 "\t" \$9}' ${prefix}_nogenes.gff | cut -d';' -f1 > mobilome_nogenes.bed
+    # GFF is 1-based inclusive, BED is 0-based half-open
+    awk -F '\t' '{ if (NF == 9 ) print \$1 "\t" \$4 - 1 "\t" \$5 "\t" \$9}' ${prefix}_nogenes.gff | cut -d';' -f1 > mobilome_nogenes.bed
 
     # Handle assembly file (compressed or uncompressed)
     if [ "${is_assembly_compressed}" == "true" ]; then
