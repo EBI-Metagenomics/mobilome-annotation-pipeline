@@ -110,7 +110,7 @@
             ],
             [
                 "MGYG000528118_sub_discarded_mge.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "MGYG000528118_sub_mobilome.fasta.gz:md5,6c831a87595d8427b6c14fa64b7acd77",
+                "MGYG000528118_sub_mobilome.fasta.gz:md5,bf8bd4ed4998edfde0b1e567e967b80c",
                 "MGYG000528118_sub_overlap_report.txt:md5,009fc7891415a47b1f07493101509b73",
                 "MGYG000528118_sub_mobilome.gff.gz:md5,f778614ca5af1075d615603e15f0ac73",
                 "MGYG000528118_sub_user_mobilome_clean.gff.gz:md5,e01826ba9631b2acf4ad26d4beb8443f",
@@ -133,10 +133,10 @@
             ]
         ],
         "meta": {
-            "nf-test": "0.9.3",
-            "nextflow": "25.04.7"
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
         },
-        "timestamp": "2026-10-14T12:44:36.382425"
+        "timestamp": "2026-11-20T11:59:11.764535986"
     },
     "Positive test: mobilome-only run on the pos_test assembly covering IS, integron, ICE, plasmid, prophage (VIRify), and CO": {
         "content": [
